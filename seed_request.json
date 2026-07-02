@@ -1,0 +1,5 @@
+[
+  {"nombre":"María García","email":"maria@empresa.com","telefono":"3001112233","empresa":"Empresa A","nicho":"E-commerce","origen":"Instagram","estado":"Activo","favorito":true},
+  {"nombre":"Carlos López","email":"carlos@negocio.com","telefono":"3004445566","empresa":"Negocio B","nicho":"Restaurante","origen":"Referido","estado":"Activo","favorito":false},
+  {"nombre":"Ana Martínez","email":"ana@startup.com","telefono":"3007778899","empresa":"Startup C","nicho":"SaaS","origen":"LinkedIn","estado":"Inactivo","favorito":false}
+]

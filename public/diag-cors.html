@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>CRM Diagnóstico Conexión Supabase</title>
+  <style>
+    body { font-family: monospace; padding: 20px; background: #111; color: #eee; }
+    .ok { color: #0f0; }
+    .err { color: #f55; }
+    .warn { color: #fa0; }
+    pre { background: #222; padding: 10px; border-radius: 4px; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <h1>Diagnóstico CRM - Conexión Supabase</h1>
+  <button onclick="runTests()">EJECUTAR PRUEBAS</button>
+  <pre id="output">Esperando...</pre>
+
+  <script>
+    const SUPABASE_URL = 'https://fumubmlcaabyrbzsthmt.supabase.co';
+    let ANON_KEY = '';
+
+    async function loadEnv() {
+      // Intentar leer .env desde el servidor (Vite lo expone via /@fs o /src)
+      try {
+        const res = await fetch('/.env');
+        if (res.ok) {
+          const text = await res.text();
+          const match = text.match(/VITE_SUPABASE_ANON_KEY=(.+)/);
+          if (match) ANON_KEY = match[1].trim();
+        }
+      } catch (e) {
+        // Si no se puede leer, el usuario debe pegarla manualmente
+      }
+    }
+
+    function log(msg, type='info') {
+      const pre = document.getElementById('output');
+      const color = type === 'ok' ? 'ok' : type === 'err' ? 'err' : 'warn';
+      pre.innerHTML += `<span class="${color}">${msg}</span>\n`;
+    }
+
+    async function runTests() {
+      document.getElementById('output').innerHTML = '';
+      log('=== INICIANDO DIAGNÓSTICO ===\n');
+
+      await loadEnv();
+      log('URL detectada: ' + SUPABASE_URL);
+      log('Key detectada: ' + (ANON_KEY ? ANON_KEY.slice(0,12) + '...' : 'NO ENCONTRADA'));
+      log('');
+
+      // 1. Probar conectividad básica al dominio
+      log('1. Probando conectividad a dominio Supabase...');
+      try {
+        const t0 = performance.now();
+        const res = await fetch(SUPABASE_URL, { method: 'GET', mode: 'cors' });
+        const t1 = performance.now();
+        log('   Dominio responde: ' + res.status + ' (' + Math.round(t1-t0) + 'ms)', 'ok');
+      } catch (e) {
+        log('   ERROR dominio: ' + e.message, 'err');
+      }
+      log('');
+
+      // 2. Probar CORS preflight
+      log('2. Probando CORS (preflight OPTIONS)...');
+      try {
+        const t0 = performance.now();
+        const res = await fetch(SUPABASE_URL + '/rest/v1/clientes?select=*,:body&limit=1', {
+          method: 'OPTIONS',
+          headers: { 'Access-Control-Request-Method': 'GET' }
+        });
+        const t1 = performance.now();
+        log('   OPTIONS status: ' + res.status + ' (' + Math.round(t1-t0) + 'ms)', res.status < 400 ? 'ok' : 'err');
+      } catch (e) {
+        log('   ERROR OPTIONS: ' + e.message, 'err');
+      }
+      log('');
+
+      // 3. Probar API con key
+      if (!ANON_KEY) {
+        log('3. NO se pudo detectar VITE_SUPABASE_ANON_KEY automáticamente.', 'err');
+        log('   Ingresá la key manualmente para probar:', 'warn');
+        const key = prompt('Pegá tu VITE_SUPABASE_ANON_KEY:');
+        if (key) ANON_KEY = key.trim();
+      }
+
+      if (ANON_KEY) {
+        log('3. Probando API REST de Supabase con anon key...');
+        try {
+          const t0 = performance.now();
+          const res = await fetch(SUPABASE_URL + '/rest/v1/clientes?select=*,:body&limit=3', {
+            headers: {
+              'apikey': ANON_KEY,
+              'Authorization': 'Bearer ' + ANON_KEY
+            }
+          });
+          const t1 = performance.now();
+          const text = await res.text();
+          log('   Status: ' + res.status + ' (' + Math.round(t1-t0) + 'ms)', res.ok ? 'ok' : 'err');
+          log('   Body: ' + text.slice(0, 300), res.ok ? 'ok' : 'err');
+        } catch (e) {
+          log('   ERROR fetch: ' + e.message, 'err');
+        }
+      }
+
+      log('\n=== FIN DIAGNÓSTICO ===');
+    }
+
+    // Auto-ejecutar al cargar
+    window.addEventListener('load', () => {
+      setTimeout(runTests, 500);
+    });
+  </script>
+</body>
+</html>

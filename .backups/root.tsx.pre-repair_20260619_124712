@@ -1,0 +1,70 @@
+import React, { useEffect } from "react";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
+import { Box, Snackbar, Alert } from "@mui/material";
+import { supabase } from "./services/supabase";
+import { useNotificationStore } from "./store/useNotificationStore";
+import { Sidebar } from "./components/Sidebar";
+import { Header } from "./components/Header";
+
+export default function Root() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { open, message, severity, hideNotification } = useNotificationStore();
+
+  useEffect(() => {
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        const isAuthenticated = !!session;
+        const isLoginPage = location.pathname === "/login";
+
+        if (!isAuthenticated && !isLoginPage) {
+          navigate("/login");
+        } else if (isAuthenticated && isLoginPage) {
+          navigate("/dashboard");
+        }
+      }
+    );
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      const isAuthenticated = !!session;
+      const isLoginPage = location.pathname === "/login";
+
+      if (!isAuthenticated && !isLoginPage) {
+        navigate("/login");
+      } else if (isAuthenticated && isLoginPage) {
+        navigate("/dashboard");
+      }
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, [navigate, location.pathname]);
+
+  if (location.pathname === "/login") {
+    return <Outlet />;
+  }
+
+  return (
+    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+      <Sidebar />
+      <Box sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+        <Header />
+        <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+          <Outlet />
+        </Box>
+      </Box>
+    </Box>
+  );
+
+  <Snackbar
+    open={open}
+    autoHideDuration={5000}
+    onClose={hideNotification}
+    anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+  >
+    <Alert onClose={hideNotification} severity={severity} sx={{ width: "100%" }}>
+      {message}
+    </Alert>
+  </Snackbar>
+}

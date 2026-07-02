@@ -1,0 +1,16 @@
+{
+  "name": "CRM DESEO DIGITAL",
+  "short_name": "CRM",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d0e15",
+  "theme_color": "#e91e63",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "https://cdn.jsdelivr.net/npm/react-icons@4.12.0/lib/fa/FiUsers",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}

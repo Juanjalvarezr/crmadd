@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head><title>Supabase Net Test</title></head>
+<body>
+<h1>Supabase Network Test</h1>
+<button onclick="testFetch()">Test fetch to Supabase</button>
+<pre id="out">Waiting...</pre>
+<script>
+async function testFetch() {
+  const out = document.getElementById('out');
+  out.textContent = 'Testing...';
+  try {
+    const start = performance.now();
+    const res = await fetch('https://fumubmlcaabyrbzsthmt.supabase.co/rest/v1/clientes?select=*&limit=1', {
+      headers: { 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ1bXVibWxjYWFieXJienN0aG1' }
+    });
+    const elapsed = Math.round(performance.now() - start);
+    const text = await res.text();
+    out.textContent = `Status: ${res.status}\nTime: ${elapsed}ms\nBody: ${text.slice(0, 300)}`;
+  } catch (err) {
+    out.textContent = `Error: ${err.message}\nType: ${err.name}`;
+  }
+}
+</script>
+</body>
+</html>

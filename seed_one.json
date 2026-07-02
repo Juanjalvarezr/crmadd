@@ -1,0 +1,1 @@
+{"sql": "INSERT INTO clientes (nombre, email, telefono, empresa, nicho, origen, dolores, necesidades, intereses, estado, favorito) VALUES ('x','x','x','x','x','x','x','x','x','Activo',false) RETURNING id;"}

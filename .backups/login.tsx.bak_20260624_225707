@@ -1,0 +1,38 @@
+import React from "react";
+import { Box, Typography, Button, Paper } from "@mui/material";
+import { useNavigate } from "react-router-dom";
+import { authService } from "../services/supabase";
+
+export default function Login() {
+  const navigate = useNavigate();
+
+  const handleLogin = async () => {
+    // Placeholder for actual login logic
+    // For now, just simulate a successful login
+    console.log("Simulating login...");
+    // En una aplicación real, tendrías un formulario aquí para email y contraseña
+    // const { data, error } = await authService.signIn("test@example.com", "password");
+    // if (data.user) {
+    //   window.location.href = "/dashboard";
+    // }
+    alert("Funcionalidad de login no implementada completamente. Revisa la consola para el login simulado.");
+    // Redirigir a dashboard después de la simulación
+    navigate("/dashboard");
+  };
+
+  return (
+    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', bgcolor: 'background.default' }}>
+      <Paper sx={{ p: 4, borderRadius: 2, textAlign: 'center', maxWidth: 400 }}>
+        <Typography variant="h5" sx={{ mb: 2, fontWeight: 'bold', color: 'primary.main' }}>
+          Acceso a DESEO DIGITAL CRM
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+          Por favor, inicia sesión para continuar.
+        </Typography>
+        <Button variant="contained" onClick={handleLogin} fullWidth sx={{ bgcolor: '#e91e63', '&:hover': { bgcolor: '#c2185b' } }}>
+          Iniciar Sesión (Demo)
+        </Button>
+      </Paper>
+    </Box>
+  );
+}
