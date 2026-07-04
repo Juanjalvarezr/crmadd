@@ -16,12 +16,12 @@ interface StatCardProps {
 
 const getColorConfig = (color: string = "primary") => {
   const colors = {
-    primary: { bg: "#e3f2fd", color: "#1976d2" },
-    secondary: { bg: "#fce4ec", color: "#dc004e" },
-    success: { bg: "#e8f5e8", color: "#4caf50" },
-    warning: { bg: "#fff3e0", color: "#ff9800" },
-    error: { bg: "#ffebee", color: "#f44336" },
-    info: { bg: "#e0f2f1", color: "#009688" }
+    primary: { bg: "primary.main", fg: "primary.contrastText", light: "primary.light" },
+    secondary: { bg: "secondary.main", fg: "secondary.contrastText", light: "secondary.light" },
+    success: { bg: "success.main", fg: "success.contrastText", light: "success.light" },
+    warning: { bg: "warning.main", fg: "warning.contrastText", light: "warning.light" },
+    error: { bg: "error.main", fg: "error.contrastText", light: "error.light" },
+    info: { bg: "info.main", fg: "info.contrastText", light: "info.light" },
   };
   return colors[color as keyof typeof colors] || colors.primary;
 };
@@ -40,25 +40,30 @@ export const StatCard: React.FC<StatCardProps> = ({
   return (
     <Paper 
       sx={{ 
-        p: 3, 
+        p: { xs: 2, sm: 3 },
         height: "100%",
-        transition: "all 0.3s ease",
-        "&:hover": {
-          transform: "translateY(-2px)",
-          boxShadow: 3
+        borderRadius: 3,
+        border: '1px solid',
+        borderColor: 'divider',
+        bgcolor: 'background.paper',
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        '&:hover': {
+          transform: { xs: 'none', sm: 'translateY(-4px)' },
+          boxShadow: { xs: 1, sm: 6 },
+          borderColor: colorConfig.bg
         }
       }}
     >
-      <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", mb: 2 }}>
-        <Box sx={{ flex: 1 }}>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+      <Box sx={{ display: "flex", alignItems: { xs: 'flex-start', sm: 'center' }, justifyContent: "space-between", mb: { xs: 1.5, sm: 2 } }}>
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5, fontWeight: 500, textTransform: 'uppercase', letterSpacing: 0.5, fontSize: '0.75rem' }}>
             {title}
           </Typography>
-          <Typography variant="h4" sx={{ fontWeight: "bold", mb: 1 }}>
+          <Typography variant="h4" sx={{ fontWeight: 800, mb: 0.5, fontSize: { xs: '1.75rem', sm: '2.125rem' } }}>
             {value}
           </Typography>
           {subtitle && (
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
               {subtitle}
             </Typography>
           )}
@@ -66,13 +71,14 @@ export const StatCard: React.FC<StatCardProps> = ({
         {icon && (
           <Box 
             sx={{ 
-              p: 1.5, 
-              borderRadius: 2, 
-              backgroundColor: colorConfig.bg,
-              color: colorConfig.color,
+              p: { xs: 1, sm: 1.5 }, 
+              borderRadius: 2.5, 
+              bgcolor: `${color}.light`,
+              color: `${color}.dark`,
               display: "flex",
               alignItems: "center",
-              justifyContent: "center"
+              justifyContent: "center",
+              ml: 1
             }}
           >
             {icon}
@@ -81,19 +87,19 @@ export const StatCard: React.FC<StatCardProps> = ({
       </Box>
       
       {trend && (
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mt: 1 }}>
           <TrendIcon 
             size={16} 
-            color={trend.isPositive ? "#4caf50" : "#f44336"}
+            color={trend.isPositive ? "success.main" : "error.main"} 
           />
           <Typography 
             variant="body2" 
             color={trend.isPositive ? "success.main" : "error.main"}
-            sx={{ fontWeight: "medium" }}
+            sx={{ fontWeight: 700 }} 
           >
             {trend.isPositive ? "+" : ""}{trend.value}%
           </Typography>
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
             vs mes anterior
           </Typography>
         </Box>

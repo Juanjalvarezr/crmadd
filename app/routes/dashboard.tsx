@@ -3,24 +3,11 @@ import {
   Box,
   Typography,
   Grid,
-  Card,
   CardContent,
   CircularProgress,
   Chip,
   Alert,
   Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Select,
-  MenuItem,
-  InputLabel,
-  FormControl,
-  IconButton,
-  Menu,
-  alpha,
   useTheme,
 } from "@mui/material";
 import {
@@ -28,8 +15,12 @@ import {
   FiCalendar,
   FiTrendingUp,
   FiUsers,
+  FiDollarSign,
+  FiTarget,
+  FiActivity,
 } from "react-icons/fi";
 import { proyectosService, clientesService, oportunidadesService, tareasService } from "../services/database";
+import { StatCard } from "../components/StatCard";
 
 const initialState = {
   proyectos: [],
@@ -251,25 +242,37 @@ export default function Dashboard() {
 
   return (
     <Box sx={{ mb: 4 }}>
-      <Grid container spacing={2} sx={{ mb: 3 }}>
+      <Grid container spacing={{ xs: 2, sm: 3 }} sx={{ mb: { xs: 2, sm: 3 } }}>
         <Grid item xs={12}>
           <Box
             sx={{
               display: "flex",
               justifyContent: "space-between",
-              alignItems: "center",
-              flexWrap: "wrap",
+              alignItems: { xs: 'stretch', sm: 'center' },
+              flexDirection: { xs: 'column', sm: 'row' },
               gap: 1.5,
             }}
           >
             <Box>
               <Typography
                 variant="overline"
-                sx={{ color: theme.palette.text.secondary }}
+                sx={{ color: "text.secondary", letterSpacing: 1, fontWeight: 600 }}
               >
                 Panel de Control
               </Typography>
-              <Typography variant="h4" sx={{ fontWeight: "bold" }}>
+              <Typography 
+                variant="h4" 
+                sx={{ 
+                  fontWeight: 900,
+                  background: (theme) => theme.palette.mode === 'dark'
+                    ? 'linear-gradient(135deg, #ffffff 0%, #b0b0b0 100%)'
+                    : 'linear-gradient(135deg, #1a1a2e 0%, #4a4a6a 100%)',
+                  backgroundClip: 'text',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' }
+                }}
+              >
                 {todayLabel}
               </Typography>
             </Box>
@@ -277,6 +280,7 @@ export default function Dashboard() {
               variant="outlined"
               startIcon={<FiRefreshCw />}
               onClick={refreshMetrics}
+              sx={{ alignSelf: { xs: 'stretch', sm: 'auto' } }}
             >
               Sincronizar
             </Button>
@@ -290,49 +294,58 @@ export default function Dashboard() {
         </Alert>
       ) : null}
 
-      <Grid container spacing={2}>
+      <Grid container spacing={{ xs: 2, sm: 3 }}>
         <Grid item xs={12} md={6}>
           <Card
             sx={{
               background:
-                "linear-gradient(135deg, rgba(233,30,99,0.92) 0%, rgba(156,39,176,0.92) 100%)",
+                "linear-gradient(135deg, rgba(233,30,99,0.95) 0%, rgba(156,39,176,0.95) 100%)",
               color: "white",
               position: "relative",
               overflow: "hidden",
-              minHeight: 110,
+              minHeight: 120,
+              borderRadius: 3,
+              border: '1px solid',
+              borderColor: 'rgba(255,255,255,0.1)',
+              transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+              '&:hover': {
+                transform: 'translateY(-4px)',
+                boxShadow: '0 12px 24px rgba(233,30,99,0.3)'
+              }
             }}
           >
             <Box
               sx={{
                 position: "absolute",
-                top: -18,
-                right: -18,
-                width: 110,
-                height: 110,
-                background: "rgba(255,255,255,0.15)",
+                top: -24,
+                right: -24,
+                width: 120,
+                height: 120,
+                background: "rgba(255,255,255,0.12)",
                 borderRadius: "50%",
-                filter: "blur(14px)",
+                filter: "blur(16px)",
               }}
             />
-            <CardContent>
-              <Typography variant="overline" sx={{ letterSpacing: 1 }}>
-                Análisis Estratégico AI
-              </Typography>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1 }}>
-                <FiTrendingUp size={28} />
-                <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                  {resumenAI.trim().length
-                    ? resumenAI
-                    : "Revisa tus tareas pendientes para comenzar el día."}
+            <CardContent sx={{ position: 'relative', zIndex: 1 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                <FiTrendingUp size={22} />
+                <Typography variant="overline" sx={{ letterSpacing: 1.5, fontWeight: 700, color: 'rgba(255,255,255,0.9)' }}>
+                  Análisis Estratégico AI
                 </Typography>
               </Box>
-              <Box sx={{ mt: 2, display: "flex", gap: 1, flexWrap: "wrap" }}>
+              <Typography variant="body1" sx={{ fontWeight: 400, mb: 2 }}>
+                {resumenAI.trim().length
+                  ? resumenAI
+                  : "Revisa tus tareas pendientes para comenzar el día."}
+              </Typography>
+              <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
                 <Chip
                   label={loading ? "Sincronizando..." : "Datos actualizados"}
                   sx={{
                     background: "rgba(255,255,255,0.18)",
                     color: "white",
                     fontWeight: "bold",
+                    fontSize: '0.75rem'
                   }}
                 />
                 <Chip
@@ -341,15 +354,17 @@ export default function Dashboard() {
                     background: "rgba(255,255,255,0.18)",
                     color: "white",
                     fontWeight: "bold",
+                    fontSize: '0.75rem'
                   }}
                 />
                 <Chip
-                  icon={<FiCalendar size={14} />}
+                  icon={<FiCalendar size={13} />}
                   label="Hoy"
                   sx={{
                     background: "rgba(255,255,255,0.18)",
                     color: "white",
                     fontWeight: "bold",
+                    fontSize: '0.75rem'
                   }}
                 />
               </Box>
@@ -357,139 +372,74 @@ export default function Dashboard() {
           </Card>
         </Grid>
 
-        <Grid item xs={12} md={3}>
-          <Card>
-            <CardContent>
-              <Typography variant="caption" color="text.secondary">
-                Ingresos Totales
-              </Typography>
-              <Typography variant="h4" sx={{ fontWeight: "bold", mt: 1 }}>
-                {formatCurrency(stats.totalPresupuestado)}
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                Proyectos en curso: {stats.proyectosActivos}
-              </Typography>
-            </CardContent>
-          </Card>
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard
+            title="Proyectos"
+            value={stats.proyectosActivos}
+            subtitle="En ejecución"
+            icon={<FiActivity size={28} />}
+            color="warning"
+          />
         </Grid>
 
-        <Grid item xs={12} md={3}>
-          <Card>
-            <CardContent>
-              <Typography variant="caption" color="text.secondary">
-                Recaudado
-              </Typography>
-              <Typography variant="h4" sx={{ fontWeight: "bold", mt: 1 }}>
-                {formatCurrency(stats.totalRecaudado)}
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                Clientes registrados: {stats.totalClientes}
-              </Typography>
-            </CardContent>
-          </Card>
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard
+            title="Proyectos"
+            value={stats.proyectosActivos}
+            subtitle="En ejecución"
+            icon={<FiActivity size={28} />}
+            color="warning"
+          />
         </Grid>
 
-        <Grid item xs={12} md={4}>
-          <Card>
-            <CardContent>
-              <Typography variant="overline" color="text.secondary">
-                Ventas
-              </Typography>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1 }}>
-                <FiTrendingUp color="#e91e63" />
-                <Typography variant="h4" sx={{ fontWeight: "bold" }}>
-                  {formatCurrency(stats.valorPipeline)}
-                </Typography>
-              </Box>
-              <Typography variant="caption" color="text.secondary">
-                Oportunidades abiertas
-              </Typography>
-            </CardContent>
-          </Card>
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard
+            title="Ingresos Totales"
+            value={formatCurrency(stats.totalPresupuestado)}
+            subtitle={`${stats.proyectosActivos} proyectos en curso`}
+            icon={<FiDollarSign size={28} />}
+            color="primary"
+          />
         </Grid>
 
-        <Grid item xs={12} md={4}>
-          <Card>
-            <CardContent>
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                  mb: 1,
-                }}
-              >
-                <FiUsers color="#e91e63" />
-                <Box>
-                  <Typography variant="overline" color="text.secondary">
-                    Clientes
-                  </Typography>
-                  <Typography variant="h4" sx={{ fontWeight: "bold" }}>
-                    {stats.totalClientes}
-                  </Typography>
-                </Box>
-              </Box>
-              <Typography variant="caption" color="text.secondary">
-                Activos en esta semana
-              </Typography>
-            </CardContent>
-          </Card>
+        <Grid item xs={12} sm={6} md={3}>
+          <StatCard
+            title="Recaudado"
+            value={formatCurrency(stats.totalRecaudado)}
+            subtitle={`${stats.totalClientes} clientes registrados`}
+            icon={<FiActivity size={28} />}
+            color="success"
+          />
         </Grid>
 
-        <Grid item xs={12} md={4}>
-          <Card>
-            <CardContent>
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                  mb: 1,
-                }}
-              >
-                <FiCalendar color="#e91e63" />
-                <Box>
-                  <Typography variant="overline" color="text.secondary">
-                    Agenda
-                  </Typography>
-                  <Typography variant="h4" sx={{ fontWeight: "bold" }}>
-                    {stats.proyectosActivos}
-                  </Typography>
-                </Box>
-              </Box>
-              <Typography variant="caption" color="text.secondary">
-                Proyectos en ejecución
-              </Typography>
-            </CardContent>
-          </Card>
+        <Grid item xs={12} sm={6} md={4}>
+          <StatCard
+            title="Ventas"
+            value={formatCurrency(stats.valorPipeline)}
+            subtitle="Oportunidades abiertas"
+            icon={<FiTrendingUp size={28} />}
+            color="secondary"
+          />
         </Grid>
 
-        <Grid item xs={12} md={4}>
-          <Card>
-            <CardContent>
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1,
-                  mb: 1,
-                }}
-              >
-                <FiUsers color="#e91e63" />
-                <Box>
-                  <Typography variant="overline" color="text.secondary">
-                    Tareas pendientes
-                  </Typography>
-                  <Typography variant="h4" sx={{ fontWeight: "bold" }}>
-                    {stats.tareasPendientes}
-                  </Typography>
-                </Box>
-              </Box>
-              <Typography variant="caption" color="text.secondary">
-                Sin completar
-              </Typography>
-            </CardContent>
-          </Card>
+        <Grid item xs={12} sm={6} md={4}>
+          <StatCard
+            title="Clientes"
+            value={stats.totalClientes}
+            subtitle="Activos en esta semana"
+            icon={<FiUsers size={28} />}
+            color="info"
+          />
+        </Grid>
+
+        <Grid item xs={12} sm={6} md={4}>
+          <StatCard
+            title="Tareas pendientes"
+            value={stats.tareasPendientes}
+            subtitle="Sin completar"
+            icon={<FiTarget size={28} />}
+            color={stats.tareasPendientes > 0 ? "warning" : "success"}
+          />
         </Grid>
       </Grid>
     </Box>
