@@ -401,7 +401,6 @@ export default function Clientes() {
 
   const handleHistory = (cliente: Cliente) => {
     setEditingClient(cliente);
-    setOpenHistoryModal(true);
   };
 
   const handleToggleFavorite = async (cliente: Cliente) => {

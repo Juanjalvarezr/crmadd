@@ -3,7 +3,7 @@ import {
   Box, Typography, Paper, Grid, Card, CardContent,
   Avatar, Chip, Button, IconButton, Dialog, DialogTitle,
   DialogContent, DialogActions, TextField, Select, MenuItem,
-  InputLabel, FormControl
+  InputLabel, FormControl, Divider
 } from "@mui/material";
 import { FiUserPlus, FiMail, FiEdit2, FiTrash2 } from "react-icons/fi";
 import { equipoService } from '../services/database';

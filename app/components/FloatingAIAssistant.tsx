@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Box, IconButton, Paper, Typography, TextField, Button, 
-  CircularProgress, Divider, Fade, Tooltip, Select, MenuItem, Skeleton,
+  Fade, Tooltip, Select, MenuItem, Skeleton,
   InputLabel, FormControl, Chip, Snackbar, Alert, Stack
 } from '@mui/material';
 import { FiX, FiZap, FiCpu, FiUser, FiBriefcase, FiCopy, FiCheck } from 'react-icons/fi';
@@ -58,7 +58,7 @@ export const FloatingAIAssistant = () => {
     if (!validation.success) {
       setSnackbar({
         open: true,
-        message: validation.error.errors[0].message,
+        message: validation.error.issues[0].message,
         severity: 'error'
       });
       return;
@@ -85,8 +85,7 @@ export const FloatingAIAssistant = () => {
         particleCount: 150,
         spread: 70,
         origin: { y: 0.6 },
-        colors: ['#e91e63', '#9c27b0', '#2196f3'],
-        zIndex: 20000
+        colors: ['#e91e63', '#9c27b0', '#2196f3']
       });
 
       setSnackbar({

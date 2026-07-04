@@ -468,7 +468,7 @@ export default function ChatbotWhatsApp() {
                     }}
                   />
                   <IconButton 
-                    onClick={processMessageSubmission}
+                    onClick={() => processMessageSubmission()}
                     disabled={!mensajeActual.trim() || isProcessingAIResponse} //
                     sx={{ 
                       backgroundColor: "#e91e63", 

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { motion, AnimatePresence } from "framer-motion";
 import type { Route } from "./+types/proyectos";
 import Grid from "@mui/material/Grid";
 import { 
@@ -248,7 +247,7 @@ export default function Proyectos() {
       }
 
       const cliente = clientes.find(c => String(c.id) === String(data.clienteId));
-      const equipoReal = (await subagentesService.getAll()) || [];
+      const equipoReal = (await equipoService.getAll()) || [];
       const responsablePrincipal = equipoReal.length > 0 ? equipoReal[0].nombre : "Juan José";
       
       // --- LÓGICA DE PLANTILLAS AUTOMÁTICAS ---
@@ -272,7 +271,7 @@ export default function Proyectos() {
             id: `temp-${Date.now()}-${idx}`,
             nombre,
             completada: false,
-            responsable: nombre.includes("Edición") ? (equipoReal.find(e => e.especialidad.includes("Reels"))?.nombre || "Jessica López") : responsablePrincipal,
+            responsable: nombre.includes("Edición") ? (equipoReal.find((e: any) => e.especialidad.includes("Reels"))?.nombre || "Jessica López") : responsablePrincipal,
             fechaLimite: new Date(Date.now() + (idx + 1) * 86400000).toISOString().split('T')[0]
           }));
         }
