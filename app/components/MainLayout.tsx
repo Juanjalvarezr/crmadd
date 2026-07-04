@@ -2,7 +2,7 @@ import React from "react";
 import { useTheme } from "@mui/material";
 import { Box } from "@mui/material";
 import { Header } from "./Header";
-import { Sidebar, DRAWER_WIDTH } from "./Sidebar";
+import { Sidebar, DRAWER_WIDTH_CONST } from "./Sidebar";
 
 export const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const theme = useTheme();
