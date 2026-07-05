@@ -985,6 +985,21 @@ export default function Clientes() {
                     <MenuItem value="E-commerce">E-commerce</MenuItem>
                     <MenuItem value="Inmobiliaria">Inmobiliaria</MenuItem>
                     <MenuItem value="Educación">Educación</MenuItem>
+                    <MenuItem value="Finanzas">Finanzas</MenuItem>
+                    <MenuItem value="Alimentación">Alimentación</MenuItem>
+                    <MenuItem value="Moda">Moda</MenuItem>
+                    <MenuItem value="Logística">Logística</MenuItem>
+                    <MenuItem value="Energía">Energía</MenuItem>
+                    <MenuItem value="Construcción">Construcción</MenuItem>
+                    <MenuItem value="Entretenimiento">Entretenimiento</MenuItem>
+                    <MenuItem value="Legal">Legal</MenuItem>
+                    <MenuItem value="Consultoría">Consultoría</MenuItem>
+                    <MenuItem value="Marketing">Marketing</MenuItem>
+                    <MenuItem value="Agricultura">Agricultura</MenuItem>
+                    <MenuItem value="Manufactura">Manufactura</MenuItem>
+                    <MenuItem value="Turismo">Turismo</MenuItem>
+                    <MenuItem value="Transporte">Transporte</MenuItem>
+                    <MenuItem value="Farmacéutica">Farmacéutica</MenuItem>
                     <MenuItem value="Otro">Otro</MenuItem>
                   </Select>
                 </FormControl>
@@ -1174,9 +1189,9 @@ export default function Clientes() {
 
           <FormControl fullWidth>
             <InputLabel>Nicho / Industria</InputLabel>
-            <Select 
-              value={industriaFilter} 
-              label="Nicho / Industria" 
+            <Select
+              value={industriaFilter}
+              label="Nicho / Industria"
               onChange={(e) => setIndustriaFilter(e.target.value)}
             >
               <MenuItem value="all">Todas las industrias</MenuItem>
@@ -1185,6 +1200,21 @@ export default function Clientes() {
               <MenuItem value="E-commerce">E-commerce</MenuItem>
               <MenuItem value="Inmobiliaria">Inmobiliaria</MenuItem>
               <MenuItem value="Educación">Educación</MenuItem>
+              <MenuItem value="Finanzas">Finanzas</MenuItem>
+              <MenuItem value="Alimentación">Alimentación</MenuItem>
+              <MenuItem value="Moda">Moda</MenuItem>
+              <MenuItem value="Logística">Logística</MenuItem>
+              <MenuItem value="Energía">Energía</MenuItem>
+              <MenuItem value="Construcción">Construcción</MenuItem>
+              <MenuItem value="Entretenimiento">Entretenimiento</MenuItem>
+              <MenuItem value="Legal">Legal</MenuItem>
+              <MenuItem value="Consultoría">Consultoría</MenuItem>
+              <MenuItem value="Marketing">Marketing</MenuItem>
+              <MenuItem value="Agricultura">Agricultura</MenuItem>
+              <MenuItem value="Manufactura">Manufactura</MenuItem>
+              <MenuItem value="Turismo">Turismo</MenuItem>
+              <MenuItem value="Transporte">Transporte</MenuItem>
+              <MenuItem value="Farmacéutica">Farmacéutica</MenuItem>
             </Select>
           </FormControl>
 

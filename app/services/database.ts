@@ -190,3 +190,56 @@ export async function testConnection() {
     return { success: false, message: 'Timeout o error de conexión' } as any;
   });
 }
+
+// Email Marketing con Resend (API directa)
+export const RESEND_API_BASE = 'https://api.resend.com/emails';
+
+export const emailMarketingService = {
+  send: async (payload: {
+    to: string | string[];
+    subject: string;
+    html?: string;
+    text?: string;
+    from?: string;
+    replyTo?: string;
+    attachments?: Array<{ filename: string; content: string }>;
+  }) => {
+    const apiKey = (globalThis as any)?.__RESEND_KEY;
+    if (!apiKey) {
+      return { ok: false as const, error: 'Falta VITE_RESEND_API_KEY' };
+    }
+
+    const body = {
+      from: payload.from || 'DESEO DIGITAL <onboarding@resend.dev>',
+      to: Array.isArray(payload.to) ? payload.to : [payload.to],
+      subject: payload.subject,
+      html: payload.html || '',
+      text: payload.text,
+      reply_to: payload.replyTo,
+      attachments: payload.attachments,
+    };
+
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify(body),
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      return { ok: false as const, error: data?.message || `Error ${res.status}` };
+    }
+    return { ok: true as const, id: data?.id };
+  },
+};
+
+export const notificacionesService = {
+  getAll: () => withTimeout(baseSupabase.from('notificaciones').select('*').order('created_at', { ascending: false }), 'notificacionesService.getAll').then(r => r.data || []),
+  create: (item: any) => withTimeout(baseSupabase.from('notificaciones').insert(item).select().single(), 'notificacionesService.create').then(r => r.data),
+  markRead: (id: string) => withTimeout(baseSupabase.from('notificaciones').update({ leida: true }).eq('id', id), 'notificacionesService.markRead'),
+};
+
+
