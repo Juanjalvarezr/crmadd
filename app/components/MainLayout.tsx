@@ -3,6 +3,7 @@ import { useTheme } from "@mui/material";
 import { Box } from "@mui/material";
 import { Header } from "./Header";
 import { Sidebar, DRAWER_WIDTH_CONST as DRAWER_WIDTH } from "./Sidebar";
+import ChatbotWhatsApp from "./ChatbotWhatsApp";
 
 export const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const theme = useTheme();
@@ -10,7 +11,7 @@ export const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }
   return (
     <Box sx={{ 
       display: "flex", 
-      minHeight: "100vh", 
+      minHeight: "100vh",
       backgroundColor: theme.palette.background.default,
       transition: 'background-color 0.3s ease'
     }}>
@@ -37,6 +38,7 @@ export const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }
           {children}
         </Box>
       </Box>
+      <ChatbotWhatsApp />
     </Box>
   );
 };
