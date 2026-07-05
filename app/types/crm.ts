@@ -1,3 +1,16 @@
+export interface Transaccion {
+  id: string;
+  tipo: "ingreso" | "egreso";
+  categoria: "nomina" | "suscripcion" | "servicio" | "otro";
+  monto: number;
+  moneda: string;
+  forma_pago: "efectivo" | "transferencia" | "tarjeta";
+  descripcion?: string | null;
+  comprobante_url?: string | null;
+  fecha: string;
+  created_at: string;
+}
+
 export interface Cliente {
   id: number;
   nombre: string;

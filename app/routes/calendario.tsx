@@ -167,28 +167,30 @@ export default function Calendario() {
         </Box>
       </Paper>
 
-      <Paper sx={{ p: 2, height: '100%', minHeight: '600px', borderRadius: 2 }}>
-        <Calendar
-          localizer={localizer}
-          events={events}
-          startAccessor="start"
-          endAccessor="end"
-          style={{ height: '100%', minHeight: '500px' }}
-          culture="es"
-          onSelectEvent={handleSelectEvent}
-          eventPropGetter={eventStyleGetter}
-          views={['month', 'week', 'day']}
-          defaultView={Views.MONTH}
-          messages={{
-            next: "Siguiente",
-            previous: "Anterior",
-            today: "Hoy",
+      <Paper sx={{ p: 2, height: '100%', minHeight: { xs: 'calc(100vh - 180px)', sm: '600px' }, borderRadius: 2, overflow: 'hidden' }}>
+        <Box sx={{ height: '100%', minHeight: { xs: 'calc(100vh - 220px)', sm: '520px' } }}>
+          <Calendar
+            localizer={localizer}
+            events={events}
+            startAccessor="start"
+            endAccessor="end"
+            style={{ height: '100%', minHeight: '100%' }}
+            culture="es"
+            onSelectEvent={handleSelectEvent}
+            eventPropGetter={eventStyleGetter}
+            views={['month', 'week', 'day']}
+            defaultView={Views.MONTH}
+            messages={{
+              next: "Siguiente",
+              previous: "Anterior",
+              today: "Hoy",
             month: "Mes",
             week: "Semana",
             day: "Día",
             noEventsInRange: "No hay eventos en este rango."
           }}
         />
+        </Box>
       </Paper>
 
       {/* Modal de Detalle de Evento */}

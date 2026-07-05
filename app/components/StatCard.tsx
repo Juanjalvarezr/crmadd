@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Paper, Typography, CardContent } from "@mui/material";
+import { Paper, Box, Typography } from "@mui/material";
 import { FiTrendingUp, FiTrendingDown, FiUsers, FiDollarSign, FiTarget, FiActivity } from "react-icons/fi";
 
 interface StatCardProps {

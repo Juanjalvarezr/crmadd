@@ -49,6 +49,8 @@ export default function Reportes() {
   const [fechaInicio, setFechaInicio] = useState(format(startOfMonth(new Date()), "yyyy-MM-dd"));
   const [fechaFin, setFechaFin] = useState(format(endOfMonth(new Date()), "yyyy-MM-dd"));
   const [tipoReporte, setTipoReporte] = useState("general");
+  const [snackbar, setSnackbar] = useState<{open: boolean, message: string, severity: "info" | "warning" | "error" | "success"}>({ open: false, message: "", severity: "info" });
+  const handleCloseSnackbar = () => setSnackbar({ ...snackbar, open: false });
   
   // Estados de datos
   const [metricas, setMetricas] = useState<Metrica[]>([]);

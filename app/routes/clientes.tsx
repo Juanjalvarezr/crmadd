@@ -27,6 +27,7 @@ import { SupabaseStatus } from "../components/SupabaseTest";
 import { format } from "date-fns";
 import { EmptyState } from "../components/EmptyState";
 import { useLocation } from "react-router"; // Corregido: estaba como string en algunos lugares
+import ScannerTarjetas from "../components/ScannerTarjetas";
 import type { Cliente } from "../types/crm";
 
 const isLeadFrio = (fechaStr: string) => {
@@ -260,7 +261,8 @@ export default function Clientes() {
       };
       
       try {
-        if (editingClient) {
+        const isEdit = !!(editingClient && editingClient.id > 0);
+        if (isEdit) {
           // Actualizar cliente existente
           await clientesService.update(editingClient.id, sanitizedData);
         } else {
@@ -272,7 +274,6 @@ export default function Clientes() {
         if (dbErr.message?.includes("column") || dbErr.message?.includes("schema") || dbErr.message?.includes("cache")) {
           console.warn("Faltan columnas de esquema completo. Guardando en Modo Compatibilidad...", dbErr.message);
           
-          // Modo compatibilidad: Combinamos nombre + empresa en el campo nombre, y omitimos las columnas extendidas
           const compatName = formData.empresa ? `${DOMPurify.sanitize(formData.nombre)} - ${DOMPurify.sanitize(formData.empresa)}` : DOMPurify.sanitize(formData.nombre);
           const compatData = {
             nombre: compatName,
@@ -282,7 +283,8 @@ export default function Clientes() {
             ultima_interaccion: formData.ultimaInteraccion
           };
           
-          if (editingClient) {
+          const isEditCompat = !!(editingClient && editingClient.id > 0);
+          if (isEditCompat) {
             await clientesService.update(editingClient.id, compatData);
           } else {
             await clientesService.create(compatData);
@@ -667,6 +669,14 @@ export default function Clientes() {
               sx={{ backgroundColor: "#e91e63", whiteSpace: "nowrap", '&:hover': { backgroundColor: "#c2185b" }, minWidth: { xs: "100%", sm: "auto" } }}
             >
               Nuevo Cliente
+            </Button>
+            <Button 
+              variant="outlined" 
+              startIcon={<FiFileText size={18} />} 
+              onClick={() => setOpenScanner(true)}
+              sx={{ minWidth: { xs: "100%", sm: "auto" } }}
+            >
+              Escanear Tarjeta
             </Button>
           </Box>
         </Box>
@@ -1188,6 +1198,32 @@ export default function Clientes() {
           </Box>
         </Box>
       </Drawer>
+
+      <ScannerTarjetas
+        open={openScanner}
+        onClose={() => setOpenScanner(false)}
+        onSave={async (data) => {
+          setOpenScanner(false);
+          setEditingClient({
+            id: 0,
+            nombre: data.nombre || '',
+            email: data.email || '',
+            telefono: data.telefono || '',
+            empresa: data.empresa || '',
+            nicho: '',
+            origen: 'OCR',
+            dolores: '',
+            necesidades: '',
+            intereses: '',
+            estado: 'Activo',
+            ultima_interaccion: new Date().toISOString().split('T')[0],
+            favorito: false,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          } as any);
+          setOpenModal(true);
+        }}
+      />
     </Box>
   );
 }

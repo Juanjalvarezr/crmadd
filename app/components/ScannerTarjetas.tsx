@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import {
   Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, Typography, LinearProgress,
-  TextField, IconButton, Chip, Stack, Alert
+  TextField, Chip, Stack, Alert
 } from '@mui/material';
 import { FiCamera, FiUpload, FiX, FiCheck } from 'react-icons/fi';
 import { scanCardFromImage, type ExtractedCard } from '../services/ocrService';

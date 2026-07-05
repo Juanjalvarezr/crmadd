@@ -68,8 +68,8 @@ export const tareasService = {
 export const clientesService = {
   getAll: () => withTimeout(baseClientesService.getAll(), 'clientesService.getAll'),
   create: (cliente: any) => withTimeout(baseClientesService.create(cliente), 'clientesService.create'),
-  update: (id: number, updates: any) => withTimeout(baseClientesService.update(id, updates), 'clientesService.update'),
-  delete: (id: number) => withTimeout(baseClientesService.delete(id), 'clientesService.delete'),
+  update: (id: any, updates: any) => withTimeout(baseClientesService.update(id, updates), 'clientesService.update'),
+  delete: (id: any) => withTimeout(baseClientesService.delete(id), 'clientesService.delete'),
 };
 
 export const oportunidadesService = {
@@ -176,6 +176,13 @@ export const authService = {
   signUp: (email: string, pass: string) => withTimeout(baseAuthService.signUp(email, pass), 'authService.signUp'),
   signIn: (email: string, pass: string) => withTimeout(baseAuthService.signIn(email, pass), 'authService.signIn'),
   signOut: () => withTimeout(baseAuthService.signOut(), 'authService.signOut'),
+};
+
+export const transaccionesService = {
+  getAll: () => withTimeout(baseTransaccionesService.getAll(), 'transaccionesService.getAll').catch(() => []),
+  create: (item: any) => withTimeout(baseTransaccionesService.create(item), 'transaccionesService.create'),
+  update: (id: string, updates: any) => withTimeout(baseTransaccionesService.update(id, updates), 'transaccionesService.update'),
+  delete: (id: number) => withTimeout(baseTransaccionesService.delete(id), 'transaccionesService.delete'),
 };
 
 export async function testConnection() {
