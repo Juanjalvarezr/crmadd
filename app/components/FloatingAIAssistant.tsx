@@ -164,151 +164,274 @@ export const FloatingAIAssistant = () => {
             </IconButton>
           </Box>
 
-          {/* Selector de Modo */}
-          <Box sx={{ display: 'flex', borderBottom: '1px solid #eee' }}>
-            <Button 
-              fullWidth 
-              onClick={() => setMode('proposal')}
-              sx={{ 
-                borderRadius: 0, 
-                py: 1.5, 
-                borderBottom: mode === 'proposal' ? '3px solid #e91e63' : '3px solid transparent',
-                color: mode === 'proposal' ? '#e91e63' : 'text.secondary',
-                fontWeight: mode === 'proposal' ? 'bold' : 'normal'
-              }}
-            >
-              Generar Propuesta
-            </Button>
-          </Box>
+          // Selector de Modo
+          const [chatMessages, setChatMessages] = useState<{role: 'user'|'assistant', text: string}[]>([]);
+          const [chatInput, setChatInput] = useState('');
 
-          {/* Contenido del Panel */}
-          <Box sx={{ p: 3, flex: 1, overflowY: 'auto', bgcolor: '#fbfbfb' }}>
-            {mode === 'proposal' && (
-              <>
-                {!resultText && !isLoading ? (
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-                    <Typography variant="body2" color="text.secondary">
-                      Ingresa los datos del cliente y dejaré que mi modelo de lenguaje genere una estrategia comercial estructurada.
-                    </Typography>
-                    
-                    <TextField 
-                      label="Nombre del Contacto" 
-                      variant="outlined" 
-                      size="small" 
-                      fullWidth 
-                      value={proposalInput.clienteNombre}
-                      onChange={e => setProposalInput({ clienteNombre: e.target.value })}
-                      InputProps={{ startAdornment: <FiUser style={{ marginRight: 8, color: '#888' }}/> }}
-                    />
-                    
-                    <TextField 
-                      label="Nombre de la Empresa" 
-                      variant="outlined" 
-                      size="small" 
-                      fullWidth 
-                      value={proposalInput.clienteEmpresa}
-                      onChange={e => setProposalInput({ clienteEmpresa: e.target.value })}
-                      InputProps={{ startAdornment: <FiBriefcase style={{ marginRight: 8, color: '#888' }}/> }}
-                    />
+          const sendChat = async () => {
+            const text = chatInput.trim();
+            if (!text) return;
+            setChatMessages((m) => [...m, { role: 'user', text }]);
+            setChatInput('');
+            setIsLoading(true);
+            try {
+              const respuesta = await aiService.generarPropuesta({
+                clienteNombre: text,
+                clienteEmpresa: '',
+                servicios: [],
+                notasAdicionales: '',
+              });
+              const ejecucion = await (await import('../services/ai')).ejecutarAccionSincrona(text, respuesta);
+              const finalText = ejecucion || respuesta;
+              setChatMessages((m) => [...m, { role: 'assistant', text: finalText }]);
+            } catch (e: any) {
+              setChatMessages((m) => [...m, { role: 'assistant', text: `Error: ${e?.message || 'No se pudo ejecutar'}` }]);
+            } finally {
+              setIsLoading(false);
+            }
+          };
 
-                    <FormControl fullWidth size="small" variant="outlined">
-                      <InputLabel id="servicios-label">Servicios a Cotizar</InputLabel>
-                      <Select
-                        labelId="servicios-label"
-                        multiple
-                        value={proposalInput.servicios}
-                        label="Servicios a Cotizar"
-                        onChange={(e) => setProposalInput({ servicios: typeof e.target.value === 'string' ? e.target.value.split(',') : (e.target.value as string[]) })}
-                        renderValue={(selected) => (
-                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                            {selected.map((value) => (
-                              <Chip key={value} label={value} size="small" color="primary" />
-                            ))}
-                          </Box>
-                        )}
-                      >
-                        {serviciosDisponibles.map((serv) => (
-                          <MenuItem key={serv} value={serv}>{serv}</MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
+          return (
+            <>
+              {/* El Avatar Flotante */}
+              <Box sx={{ position: 'fixed', bottom: 24, right: 24, zIndex: 9999 }}>
+                <Tooltip title="Asistente IA (Copiloto)" placement="left">
+                  <IconButton 
+                    onClick={() => setIsOpen(true)}
+                    sx={{ 
+                      width: 60, height: 60, 
+                      background: 'linear-gradient(135deg, #e91e63, #9c27b0)',
+                      boxShadow: '0 8px 24px rgba(233, 30, 99, 0.4)',
+                      color: 'white',
+                      '&:hover': { transform: 'scale(1.05)', background: 'linear-gradient(135deg, #d81b60, #8e24aa)' },
+                      transition: 'transform 0.2s'
+                    }}
+                  >
+                    <FiCpu size={30} />
+                  </IconButton>
+                </Tooltip>
+              </Box>
 
-                    <TextField 
-                      label="Notas Estratégicas (Opcional)" 
-                      placeholder="Ej: El cliente quiere enfocarse en Instagram, el presupuesto es ajustado."
-                      variant="outlined" 
-                      size="small" 
-                      multiline 
-                      rows={3} 
-                      fullWidth 
-                      value={proposalInput.notasAdicionales}
-                      onChange={e => setProposalInput({ notasAdicionales: e.target.value })}
-                    />
+              {/* El Panel Lateral del Asistente */}
+              <Fade in={isOpen}>
+                <Paper
+                  elevation={24}
+                  sx={{
+                    position: 'fixed',
+                    top: { xs: 0, md: 20 },
+                    right: { xs: 0, md: 20 },
+                    bottom: { xs: 0, md: 20 },
+                    width: { xs: '100%', md: 450 },
+                    zIndex: 10000,
+                    borderRadius: { xs: 0, md: 3 },
+                    display: isOpen ? 'flex' : 'none',
+                    flexDirection: 'column',
+                    overflow: 'hidden',
+                    border: '1px solid rgba(233, 30, 99, 0.2)'
+                  }}
+                >
+                  {/* Header del Panel */}
+                  <Box sx={{ p: 2, background: 'linear-gradient(135deg, #e91e63, #9c27b0)', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <FiCpu size={24} />
+                      <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Copiloto IA</Typography>
+                    </Box>
+                    <IconButton onClick={() => setIsOpen(false)} sx={{ color: 'white' }}>
+                      <FiX />
+                    </IconButton>
+                  </Box>
 
+                  {/* Selector de Modo */}
+                  <Box sx={{ display: 'flex', borderBottom: '1px solid #eee' }}>
                     <Button 
-                      variant="contained" 
                       fullWidth 
-                      size="large"
-                      onClick={executeGenerateProposal}
-                      disabled={!proposalInput.clienteNombre || !proposalInput.clienteEmpresa || proposalInput.servicios.length === 0}
+                      onClick={() => setMode('proposal')}
                       sx={{ 
-                        mt: 2, 
-                        background: 'linear-gradient(135deg, #2196f3, #00bcd4)',
-                        fontWeight: 'bold',
-                        py: 1.5
+                        borderRadius: 0, 
+                        py: 1.5, 
+                        borderBottom: mode === 'proposal' ? '3px solid #e91e63' : '3px solid transparent',
+                        color: mode === 'proposal' ? '#e91e63' : 'text.secondary',
+                        fontWeight: mode === 'proposal' ? 'bold' : 'normal'
                       }}
-                      startIcon={<FiZap />}
                     >
-                      Magia: Crear Estrategia
+                      Generar Propuesta
+                    </Button>
+                    <Button 
+                      fullWidth 
+                      onClick={() => setMode('chat')}
+                      sx={{ 
+                        borderRadius: 0, 
+                        py: 1.5, 
+                        borderBottom: mode === 'chat' ? '3px solid #e91e63' : '3px solid transparent',
+                        color: mode === 'chat' ? '#e91e63' : 'text.secondary',
+                        fontWeight: mode === 'chat' ? 'bold' : 'normal'
+                      }}
+                    >
+                      Chat Ejecutable
                     </Button>
                   </Box>
-                ) : isLoading ? (
-                  <Stack spacing={2}>
-                    <Skeleton variant="text" sx={{ fontSize: '2rem' }} width="80%" />
-                    <Skeleton variant="rectangular" height={100} sx={{ borderRadius: 2 }} />
-                    <Skeleton variant="text" />
-                    <Skeleton variant="text" />
-                    <Skeleton variant="rectangular" height={150} sx={{ borderRadius: 2 }} />
-                  </Stack>
-                ) : (
-                  <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                      <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#e91e63' }}>
-                        ¡Propuesta Generada! ✨
-                      </Typography>
-                      <Box>
-                        <Tooltip title={copied ? "¡Copiado!" : "Copiar al portapapeles"}>
-                          <IconButton onClick={handleCopy} color={copied ? "success" : "primary"}>
-                            {copied ? <FiCheck /> : <FiCopy />}
-                          </IconButton>
-                        </Tooltip>
-                        <Button size="small" onClick={() => setResultText('')} sx={{ ml: 1 }}>Otra</Button>
-                      </Box>
-                    </Box>
+
+                  {/* Contenido del Panel */}
+                  <Box sx={{ p: 3, flex: 1, overflowY: 'auto', bgcolor: '#fbfbfb' }}>
+                    {mode === 'proposal' && (
+                      <>
+                        {!resultText && !isLoading ? (
+                          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+                            <Typography variant="body2" color="text.secondary">
+                              Ingresa los datos del cliente y dejaré que mi modelo de lenguaje genere una estrategia comercial estructurada.
+                            </Typography>
                     
-                    <Paper 
-                      elevation={0} 
-                      sx={{ 
-                        p: 2, 
-                        flex: 1, 
-                        bgcolor: 'white', 
-                        border: '1px solid #e0e0e0', 
-                        borderRadius: 2,
-                        overflowY: 'auto',
-                        fontFamily: 'system-ui, sans-serif',
-                        '& h1, & h2, & h3': { color: '#1976d2', mt: 2, mb: 1 },
-                        '& ul': { pl: 2 }
-                      }}
-                    >
-                      <SafeReactMarkdown>{DOMPurify.sanitize(resultText)}</SafeReactMarkdown>
-                    </Paper>
+                            <TextField 
+                              label="Nombre del Contacto" 
+                              variant="outlined" 
+                              size="small" 
+                              fullWidth 
+                              value={proposalInput.clienteNombre}
+                              onChange={e => setProposalInput({ clienteNombre: e.target.value })}
+                              InputProps={{ startAdornment: <FiUser style={{ marginRight: 8, color: '#888' }}/> }}
+                            />
+                    
+                            <TextField 
+                              label="Nombre de la Empresa" 
+                              variant="outlined" 
+                              size="small" 
+                              fullWidth 
+                              value={proposalInput.clienteEmpresa}
+                              onChange={e => setProposalInput({ clienteEmpresa: e.target.value })}
+                              InputProps={{ startAdornment: <FiBriefcase style={{ marginRight: 8, color: '#888' }}/> }}
+                            />
+
+                            <FormControl fullWidth size="small" variant="outlined">
+                              <InputLabel id="servicios-label">Servicios a Cotizar</InputLabel>
+                              <Select
+                                labelId="servicios-label"
+                                multiple
+                                value={proposalInput.servicios}
+                                label="Servicios a Cotizar"
+                                onChange={(e) => setProposalInput({ servicios: typeof e.target.value === 'string' ? e.target.value.split(',') : (e.target.value as string[]) })}
+                                renderValue={(selected) => (
+                                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                    {selected.map((value) => (
+                                      <Chip key={value} label={value} size="small" color="primary" />
+                                    ))}
+                                  </Box>
+                                )}
+                              >
+                                {serviciosDisponibles.map((serv) => (
+                                  <MenuItem key={serv} value={serv}>{serv}</MenuItem>
+                                ))}
+                              </Select>
+                            </FormControl>
+
+                            <TextField 
+                              label="Notas Estratégicas (Opcional)" 
+                              placeholder="Ej: El cliente quiere enfocarse en Instagram, el presupuesto es ajustado."
+                              variant="outlined" 
+                              size="small" 
+                              multiline 
+                              rows={3} 
+                              fullWidth 
+                              value={proposalInput.notasAdicionales}
+                              onChange={e => setProposalInput({ notasAdicionales: e.target.value })}
+                            />
+
+                            <Button 
+                              variant="contained" 
+                              fullWidth 
+                              size="large"
+                              onClick={executeGenerateProposal}
+                              disabled={!proposalInput.clienteNombre || !proposalInput.clienteEmpresa || proposalInput.servicios.length === 0}
+                              sx={{ 
+                                mt: 2, 
+                                background: 'linear-gradient(135deg, #2196f3, #00bcd4)',
+                                fontWeight: 'bold',
+                                py: 1.5
+                              }}
+                              startIcon={<FiZap />}
+                            >
+                              Magia: Crear Estrategia
+                            </Button>
+                          </Box>
+                        ) : isLoading ? (
+                          <Stack spacing={2}>
+                            <Skeleton variant="text" sx={{ fontSize: '2rem' }} width="80%" />
+                            <Skeleton variant="rectangular" height={100} sx={{ borderRadius: 2 }} />
+                            <Skeleton variant="text" />
+                            <Skeleton variant="text" />
+                            <Skeleton variant="rectangular" height={150} sx={{ borderRadius: 2 }} />
+                          </Stack>
+                        ) : (
+                          <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                              <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#e91e63' }}>
+                                ¡Propuesta Generada! ✨
+                              </Typography>
+                              <Box>
+                                <Tooltip title={copied ? "¡Copiado!" : "Copiar al portapapeles"}>
+                                  <IconButton onClick={handleCopy} color={copied ? "success" : "primary"}>
+                                    {copied ? <FiCheck /> : <FiCopy />}
+                                  </IconButton>
+                                </Tooltip>
+                                <Button size="small" onClick={() => setResultText('')} sx={{ ml: 1 }}>Otra</Button>
+                              </Box>
+                            </Box>
+                    
+                            <Paper 
+                              elevation={0} 
+                              sx={{ 
+                                p: 2, 
+                                flex: 1, 
+                                bgcolor: 'white', 
+                                border: '1px solid #e0e0e0',
+                                borderRadius: 2,
+                                overflowY: 'auto',
+                                fontFamily: 'system-ui, sans-serif',
+                                '& h1, & h2, & h3': { color: '#1976d2', mt: 2, mb: 1 },
+                                '& ul': { pl: 2 }
+                              }}
+                            >
+                              <SafeReactMarkdown>{DOMPurify.sanitize(resultText)}</SafeReactMarkdown>
+                            </Paper>
+                          </Box>
+                        )}
+                      </>
+                    )}
+
+                    {mode === 'chat' && (
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, height: '100%' }}>
+                        <Box sx={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 1 }}>
+                          {chatMessages.length === 0 && (
+                            <Typography variant="body2" color="text.secondary">
+                              Escribí una orden, por ejemplo: "Crear factura para Juan por 100000", "Enviar WhatsApp al cliente", "Crear tarea de seguimiento".
+                            </Typography>
+                          )}
+                          {chatMessages.map((msg, i) => (
+                            <Box key={i} sx={{ alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start', bgcolor: msg.role === 'user' ? '#e91e63' : '#fff', color: msg.role === 'user' ? '#fff' : 'text.primary', px: 2, py: 1, borderRadius: 2, border: msg.role === 'assistant' ? '1px solid #e0e0e0' : 'none', maxWidth: '85%' }}>
+                              <Typography variant="body2">{msg.text}</Typography>
+                            </Box>
+                          ))}
+                          {isLoading && (
+                            <Box sx={{ alignSelf: 'flex-start', bgcolor: '#fff', px: 2, py: 1, borderRadius: 2, border: '1px solid #e0e0e0' }}>
+                              <Typography variant="body2">Pensando…</Typography>
+                            </Box>
+                          )}
+                        </Box>
+                        <Box sx={{ display: 'flex', gap: 1, pt: 1 }}>
+                          <TextField 
+                            size="small" 
+                            fullWidth 
+                            value={chatInput} 
+                            onChange={(e) => setChatInput(e.target.value)} 
+                            placeholder="Escribí una orden para el CRM..." 
+                            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); sendChat(); } }}
+                          />
+                          <Button variant="contained" onClick={sendChat} disabled={isLoading || !chatInput.trim()}>Enviar</Button>
+                        </Box>
+                      </Box>
+                    )}
                   </Box>
-                )}
-              </>
-            )}
-          </Box>
-        </Paper>
-      </Fade>
+                </Paper>
+              </Fade>
 
       <Snackbar 
         open={snackbar.open} 

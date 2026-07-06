@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { RouteSkeleton, RouteErrorBoundary } from '../components/RouteGuard';
 import { Box, Typography, Paper, Button, TextField, Select, MenuItem, FormControl, InputLabel, Dialog, DialogTitle, DialogContent, DialogActions, Chip, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Tooltip, Snackbar, Alert } from "@mui/material";
-import { FiPlus, FiEye, FiEdit, FiTrash2, FiFileText } from "react-icons/fi";
+import { FiPlus, FiEye, FiEdit, FiTrash2, FiFileText, FiMessageSquare, FiMail } from "react-icons/fi";
 import { contratosService } from "../services/facturacion";
+import { clientesService } from "../services/database";
+import { proyectosService } from "../services/database";
 
 export default function Contratos() {
   const [items, setItems] = useState<any[]>([]);
@@ -11,12 +13,20 @@ export default function Contratos() {
   const [editItem, setEditItem] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [clientes, setClientes] = useState<any[]>([]);
+  const [proyectos, setProyectos] = useState<any[]>([]);
 
   const load = async () => {
     setLoading(true);
     try {
-      const data = await contratosService.getAll();
+      const [data, clientesData, proyectosData] = await Promise.all([
+        contratosService.getAll(),
+        clientesService.getAll(),
+        proyectosService.getAll()
+      ]);
       setItems(data);
+      setClientes(clientesData);
+      setProyectos(proyectosData);
       setError(null);
     } catch (e) {
       setError('Error cargando contratos');
@@ -31,13 +41,15 @@ export default function Contratos() {
     e.preventDefault();
     const form = e.currentTarget;
     const fd = new FormData(form);
-    const data = {
+    const data: any = {
       tipo: String(fd.get('tipo') || 'prestacion_servicios'),
       titulo: String(fd.get('titulo') || ''),
       contenido: String(fd.get('contenido') || ''),
       numero: String(fd.get('numero') || ''),
       estado: String(fd.get('estado') || 'borrador'),
       valor: Number(fd.get('valor') || 0),
+      cliente_id: fd.get('cliente_id') ? Number(fd.get('cliente_id')) : null,
+      proyecto_id: fd.get('proyecto_id') ? String(fd.get('proyecto_id')) : null,
     };
 
     try {
@@ -76,29 +88,55 @@ export default function Contratos() {
             <TableRow>
               <TableCell>Número</TableCell>
               <TableCell>Título</TableCell>
+              <TableCell>Cliente</TableCell>
+              <TableCell>Proyecto</TableCell>
               <TableCell>Tipo</TableCell>
               <TableCell>Estado</TableCell>
               <TableCell align="right">Acciones</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {items.map((item) => (
-              <TableRow key={item.id} hover>
-                <TableCell sx={{ fontWeight: 600 }}>{item.numero || '—'}</TableCell>
-                <TableCell>{item.titulo}</TableCell>
-                <TableCell><Chip label={item.tipo} size="small" /></TableCell>
-                <TableCell><Chip label={item.estado} size="small" color={item.estado === 'activo' ? 'success' : item.estado === 'firmado' ? 'info' : 'default'} /></TableCell>
-                <TableCell align="right">
-                  <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
-                    <Tooltip title="Ver"><IconButton size="small"><FiEye /></IconButton></Tooltip>
-                    <Tooltip title="Editar"><IconButton size="small" onClick={() => { setEditItem(item); setOpen(true); }}><FiEdit /></IconButton></Tooltip>
-                    <Tooltip title="Eliminar"><IconButton size="small" onClick={() => handleDelete(item.id)}><FiTrash2 /></IconButton></Tooltip>
-                  </Box>
-                </TableCell>
-              </TableRow>
-            ))}
+            {items.map((item) => {
+              const cliente = clientes.find((c: any) => String(c.id) === String(item.cliente_id));
+              const proyecto = proyectos.find((p: any) => String(p.id) === String(item.proyecto_id));
+              const telefono = cliente?.telefono || cliente?.telefono_whatsapp || '';
+              const email = cliente?.email || '';
+              return (
+                <TableRow key={item.id} hover>
+                  <TableCell sx={{ fontWeight: 600 }}>{item.numero || '—'}</TableCell>
+                  <TableCell>{item.titulo}</TableCell>
+                  <TableCell>{cliente?.nombre || '-'}</TableCell>
+                  <TableCell>{proyecto?.nombre || '-'}</TableCell>
+                  <TableCell><Chip label={item.tipo} size="small" /></TableCell>
+                  <TableCell><Chip label={item.estado} size="small" color={item.estado === 'activo' ? 'success' : item.estado === 'firmado' ? 'info' : 'default'} /></TableCell>
+                  <TableCell align="right">
+                    <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                      <Tooltip title="Ver"><IconButton size="small"><FiEye /></IconButton></Tooltip>
+                      <Tooltip title="Editar"><IconButton size="small" onClick={() => { setEditItem(item); setOpen(true); }}><FiEdit /></IconButton></Tooltip>
+                      <Tooltip title="WhatsApp"><IconButton size="small" onClick={() => {
+                        const msg = encodeURIComponent(`Hola ${cliente?.nombre || ''}, te comparto el contrato ${item.numero || item.id}: ${item.titulo}`);
+                        window.open(`https://wa.me/${telefono.replace(/[^\d]/g, '')}?text=${msg}`, '_blank');
+                      }} disabled={!telefono}><FiMessageSquare /></IconButton></Tooltip>
+                      <Tooltip title="Email"><IconButton size="small" onClick={async () => {
+                        if (!email) return setError('El cliente no tiene email');
+                        try {
+                          const html = `<p>Hola ${cliente?.nombre || ''},</p><p>Adjunto contrato ${item.numero || item.id}: ${item.titulo}.</p>`;
+                          const res = await contratosService.enviarEmail(item, html);
+                          setSuccess('Correo enviado');
+                        } catch (e) { setError('Error enviando correo'); }
+                      }} disabled={!email}><FiMail /></IconButton></Tooltip>
+                      <Tooltip title="PDF"><IconButton size="small" onClick={() => {
+                        const pdf = contratosService.pdf(item, cliente);
+                        pdf.save(`contrato-${item.numero || item.id}.pdf`);
+                      }}><FiFileText /></IconButton></Tooltip>
+                      <Tooltip title="Eliminar"><IconButton size="small" onClick={() => handleDelete(item.id)}><FiTrash2 /></IconButton></Tooltip>
+                    </Box>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
             {items.length === 0 && (
-              <TableRow><TableCell colSpan={5} align="center">Sin contratos</TableCell></TableRow>
+              <TableRow><TableCell colSpan={7} align="center">Sin contratos</TableCell></TableRow>
             )}
           </TableBody>
         </Table>
@@ -109,9 +147,28 @@ export default function Contratos() {
         <DialogContent>
           <form id="contrato-form" onSubmit={handleSave}>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-              <TextField label="Título" name="titulo" required defaultValue={editItem?.titulo || ''} />
               <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
-                <FormControl sx={{ minWidth: 200 }}>
+                <TextField label="Título" name="titulo" required defaultValue={editItem?.titulo || ''} sx={{ flex: 1 }} />
+                <TextField label="Número" name="numero" defaultValue={editItem?.numero || ''} sx={{ flex: 1 }} />
+              </Box>
+              <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
+                <FormControl sx={{ minWidth: 160, flex: 1 }}>
+                  <InputLabel>Cliente</InputLabel>
+                  <Select name="cliente_id" label="Cliente" defaultValue={editItem?.cliente_id || ''}>
+                    <MenuItem value="">Seleccionar...</MenuItem>
+                    {clientes.map((c: any) => <MenuItem key={c.id} value={c.id}>{c.nombre}</MenuItem>)}
+                  </Select>
+                </FormControl>
+                <FormControl sx={{ minWidth: 160, flex: 1 }}>
+                  <InputLabel>Proyecto</InputLabel>
+                  <Select name="proyecto_id" label="Proyecto" defaultValue={editItem?.proyecto_id || ''}>
+                    <MenuItem value="">Seleccionar...</MenuItem>
+                    {proyectos.map((p: any) => <MenuItem key={p.id} value={p.id}>{p.nombre}</MenuItem>)}
+                  </Select>
+                </FormControl>
+              </Box>
+              <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
+                <FormControl sx={{ minWidth: 200, flex: 1 }}>
                   <InputLabel>Tipo</InputLabel>
                   <Select name="tipo" label="Tipo" defaultValue={editItem?.tipo || 'prestacion_servicios'}>
                     <MenuItem value="prestacion_servicios">Prestación de servicios</MenuItem>
@@ -120,7 +177,7 @@ export default function Contratos() {
                     <MenuItem value="otro">Otro</MenuItem>
                   </Select>
                 </FormControl>
-                <FormControl sx={{ minWidth: 160 }}>
+                <FormControl sx={{ minWidth: 160, flex: 1 }}>
                   <InputLabel>Estado</InputLabel>
                   <Select name="estado" label="Estado" defaultValue={editItem?.estado || 'borrador'}>
                     <MenuItem value="borrador">Borrador</MenuItem>
@@ -131,8 +188,9 @@ export default function Contratos() {
                   </Select>
                 </FormControl>
               </Box>
-              <TextField label="Número" name="numero" defaultValue={editItem?.numero || ''} />
-              <TextField label="Valor" name="valor" type="number" defaultValue={editItem?.valor || ''} />
+              <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
+                <TextField label="Valor" name="valor" type="number" defaultValue={editItem?.valor || ''} sx={{ flex: 1 }} />
+              </Box>
               <TextField label="Contenido" name="contenido" multiline rows={6} defaultValue={editItem?.contenido || ''} />
             </Box>
           </form>

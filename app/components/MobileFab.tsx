@@ -8,8 +8,6 @@ export const MobileFab: React.FC = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
 
-  if (!isMobile) return null;
-
   const actions = [
     { icon: <FiUsers size={20} />, name: 'Nuevo Cliente', path: '/clientes?action=new' },
     { icon: <FiCheckSquare size={20} />, name: 'Nueva Tarea', path: '/tareas?action=new' },
@@ -19,11 +17,13 @@ export const MobileFab: React.FC = () => {
   return (
     <SpeedDial
       ariaLabel="Acciones rápidas"
-      sx={{ 
-        position: 'fixed', 
-        bottom: 24, 
+      sx={{
+        position: 'fixed',
+        bottom: 24,
         right: 24,
         zIndex: 1400,
+        display: { xs: 'flex', sm: 'none', md: 'none', lg: 'none' },
+        ...(!isMobile ? { display: 'flex' } : {}),
         '& .MuiSpeedDial-fab': {
           backgroundColor: '#e91e63',
           '&:hover': {
