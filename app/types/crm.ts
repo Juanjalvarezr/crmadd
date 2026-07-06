@@ -165,3 +165,23 @@ export interface PlantillaContrato {
   variables_definicion: { nombre: string; label: string; tipo: "texto" | "fecha" | "numero" }[];
   activa: boolean;
 }
+
+export interface Agente {
+  id: string;
+  nombre: string;
+  descripcion: string;
+  tipo: "ventas" | "seguimiento" | "facturacion" | "soporte" | "custom";
+  estado: "activo" | "pausado" | "borrador";
+  prompts: string[];
+  herramientas: string[];
+  trigger: "manual" | "evento" | "cron" | "webhook";
+  activo: boolean;
+  ultima_ejecucion?: string | null;
+  metricas?: {
+    ejecuciones: number;
+    exito: number;
+    fallos: number;
+  };
+  created_at: string;
+  updated_at: string;
+}
