@@ -106,3 +106,62 @@ export interface Proyecto {
   creadoEn: string;
   actualizadoEn: string;
 }
+
+export interface Cuota {
+  id: string;
+  transaccion_id: string;
+  monto: number;
+  fecha_vencimiento: string;
+  fecha_pago?: string | null;
+  estado: "pendiente" | "pagada" | "vencida" | "parcial";
+  metodo_pago?: "efectivo" | "transferencia" | "tarjeta" | "nequi" | "daviplata" | "otro";
+  comprobante_url?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Factura {
+  id: string;
+  numero: string;
+  cliente_id?: number | null;
+  proyecto_id?: number | null;
+  transaccion_id?: string | null;
+  tipo: "servicio" | "producto" | "mixto";
+  subtotal: number;
+  iva: number;
+  total: number;
+  moneda: string;
+  estado: "borrador" | "enviada" | "pagada" | "anulada";
+  fecha_emision: string;
+  fecha_vencimiento?: string;
+  notas?: string | null;
+  json_data?: any;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Contrato {
+  id: string;
+  cliente_id?: number | null;
+  proyecto_id?: number | null;
+  tipo: "prestacion_servicios" | "acuerdo_confidencialidad" | "propiedad_intelectual" | "otro";
+  titulo: string;
+  contenido: string;
+  variables?: Record<string, any>;
+  numero?: string | null;
+  estado: "borrador" | "firmado" | "activo" | "finalizado" | "cancelado";
+  fecha_inicio?: string | null;
+  fecha_fin?: string | null;
+  valor?: number | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PlantillaContrato {
+  id: string;
+  nombre: string;
+  tipo: Contrato["tipo"];
+  contenido: string;
+  variables_definicion: { nombre: string; label: string; tipo: "texto" | "fecha" | "numero" }[];
+  activa: boolean;
+}

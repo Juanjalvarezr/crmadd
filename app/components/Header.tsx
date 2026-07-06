@@ -83,7 +83,65 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick, themeMode = "dark",
   const isDark = themeMode === "dark";
 
   return (
-    <AppBar position="sticky" sx={{ zIndex: 1200, background: (theme) => theme.palette.mode === 'dark' ? "rgba(13, 14, 21, 0.85)" : "linear-gradient(90deg, #e91e63 0%, #9c27b0 100%)", backdropFilter: "blur(10px)", boxShadow: 'none', borderBottom: "1px solid", borderColor: "divider" }}>
+    <AppBar position="sticky" sx={{ zIndex: 1200, background: (theme) => theme.palette.mode === 'dark' ? "rgba(13, 14, 21, 0.9)" : "linear-gradient(90deg, #e91e63 0%, #9c27b0 100%)", backdropFilter: "blur(12px)", boxShadow: 'none', borderBottom: "1px solid", borderColor: "divider" }}>
+      <Toolbar variant="dense" sx={{
+        display: "flex",
+        justifyContent: "space-between",
+        minHeight: { xs: 50, sm: 56 },
+        px: { xs: 1.5, sm: 2 }
+      }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 0.8, sm: 2 } }}>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            edge="start"
+            onClick={onMenuClick}
+            sx={{ mr: 0.5, display: { sm: 'none' }, padding: { xs: 0.5, sm: 1 } }}
+          >
+            <FiMenu size={20} />
+          </IconButton>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
+            <Box sx={{ width: 32, height: 32, borderRadius: "8px", background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 900, fontSize: "0.9rem" }}>D</Box>
+            <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+              <Typography variant="h6" component="div" sx={{ fontWeight: 900, fontSize: { xs: "0.8rem", sm: "1rem" }, letterSpacing: 0.5, lineHeight: 1.2 }}>
+                DESEO DIGITAL
+              </Typography>
+              <Typography variant="caption" sx={{ color: "rgba(255,255,255,0.7)", fontSize: "0.65rem", letterSpacing: 1, lineHeight: 1 }}>
+                AGENCIA INTELIGENTE
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
+
+        <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 0.3, sm: 1 } }}>
+          <IconButton color="inherit" title="Notificaciones" onClick={handleNotificationMenu} sx={{ padding: { xs: 0.5, sm: 1 } }} size="small">
+            <Badge badgeContent={unreadCount} color="error" sx={{ '& .MuiBadge-badge': { fontSize: '0.6rem', height: 14, minWidth: 14 } }}>
+              <FiBell size={18} />
+            </Badge>
+          </IconButton>
+
+          <IconButton color="inherit" onClick={handleOpenSearch} title="Buscar" size="small" sx={{ padding: { xs: 0.5, sm: 1 } }}>
+            <FiSearch size={18} />
+          </IconButton>
+
+          <Box sx={{ display: { xs: 'none', sm: 'flex' }, alignItems: "center", gap: 0.5, cursor: "pointer" }} onClick={handleMenu}>
+            <Avatar sx={{ width: 32, height: 32, backgroundColor: "#ff9800", fontWeight: "bold", fontSize: "0.85rem", border: "2px solid rgba(255,255,255,0.3)" }}>
+              {currentUser.avatar}
+            </Avatar>
+            <Box>
+              <Typography variant="body2" sx={{ color: "white", fontWeight: 500, fontSize: "0.8rem", lineHeight: 1.2 }}>{currentUser.nombre}</Typography>
+              <Chip label={currentUser.rol} size="small" color={getRoleColor(currentUser.rol)} sx={{ height: 16, fontSize: "0.6rem", fontWeight: "bold" }} />
+            </Box>
+          </Box>
+
+          <IconButton color="inherit" onClick={onToggleTheme} title={isDark ? "Claro" : "Noche"} size="small" sx={{ padding: { xs: 0.5, sm: 1 } }}>
+            {isDark ? <FiSun size={18} color="#ffd700" /> : <FiMoon size={18} />}
+          </IconButton>
+        </Box>
+      </Toolbar>
+    </AppBar>
+  );
+};
       <Toolbar variant="dense" sx={{
         display: "flex",
         justifyContent: "space-between",

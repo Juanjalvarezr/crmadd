@@ -819,65 +819,73 @@ export default function Clientes() {
             ))}
           </Box>
         ) : (
-          <TableContainer>
-            <Table>
+          <TableContainer sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+            <Table sx={{ minWidth: { xs: 720, sm: 'auto' } }} size="small" aria-label="tabla de clientes">
               <TableHead>
-                <TableRow>
-                  <TableCell padding="checkbox">
+                <TableRow sx={{ bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)' }}>
+                  <TableCell padding="checkbox" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
                     <Checkbox
                       indeterminate={selectedIds.length > 0 && selectedIds.length < paginatedClientes.length}
                       checked={paginatedClientes.length > 0 && selectedIds.length === paginatedClientes.length}
                       onChange={handleSelectAll}
+                      size="small"
                     />
                   </TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Nombre</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Email</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Teléfono</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Estado</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Última Interacción</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Acciones</TableCell>
+                  <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' }, fontWeight: "bold" }}>Nombre</TableCell>
+                  <TableCell sx={{ display: { xs: 'none', md: 'table-cell' }, fontSize: { xs: '0.75rem', sm: '0.875rem' }, fontWeight: "bold" }}>Email</TableCell>
+                  <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }, fontSize: { xs: '0.75rem', sm: '0.875rem' }, fontWeight: "bold" }}>Teléfono</TableCell>
+                  <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' }, fontWeight: "bold" }}>Estado</TableCell>
+                  <TableCell sx={{ display: { xs: 'none', md: 'table-cell' }, fontSize: { xs: '0.75rem', sm: '0.875rem' }, fontWeight: "bold" }}>Última Interacción</TableCell>
+                  <TableCell align="right" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' }, fontWeight: "bold" }}>Acciones</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {paginatedClientes.map((cliente) => (
-                  <TableRow key={cliente.id} hover>
+                  <TableRow key={cliente.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                     <TableCell padding="checkbox">
                       <Checkbox
                         checked={selectedIds.includes(cliente.id)}
                         onChange={() => handleSelectOne(cliente.id)}
+                        size="small"
                       />
                     </TableCell>
-                    <TableCell sx={{ fontWeight: "medium" }}>
+                    <TableCell sx={{ py: { xs: 1.5, sm: 2 } }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        {cliente.nombre}
+                        <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+                          {cliente.nombre}
+                        </Box>
+                        <Box sx={{ display: { xs: 'block', sm: 'none' } }}>
+                          <Typography variant="body2" sx={{ fontWeight: 700, lineHeight: 1.2 }}>{cliente.nombre}</Typography>
+                          <Typography variant="caption" color="text.secondary">{cliente.telefono}</Typography>
+                        </Box>
                         {isLeadFrio(cliente.ultima_interaccion) && (
-                          <Tooltip title="Atención requerida: Lead Frío">
+                          <Tooltip title="Lead frío">
                             <FiAlertCircle size={14} color="#f44336" />
                           </Tooltip>
                         )}
                       </Box>
                     </TableCell>
-                    <TableCell>{cliente.email}</TableCell>
-                    <TableCell>{cliente.telefono}</TableCell>
+                    <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>{cliente.email}</TableCell>
+                    <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>{cliente.telefono}</TableCell>
                     <TableCell>
-                      <Chip label={cliente.estado} color={getEstadoColor(cliente.estado)} size="small" sx={{ fontWeight: "medium" }} />
+                      <Chip label={cliente.estado} color={getEstadoColor(cliente.estado)} size="small" sx={{ fontWeight: "medium", fontSize: { xs: '0.7rem', sm: '0.8rem' } }} />
                     </TableCell>
-                    <TableCell>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
                         <FiCalendar size={16} />
                         {formatDate(cliente.ultima_interaccion)}
                       </Box>
                     </TableCell>
-                    <TableCell>
-                      <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-                        <Tooltip title="Ver detalles"><IconButton size="small" onClick={() => handleViewDetails(cliente)} sx={{ color: '#1976d2' }} aria-label={`Ver detalles de ${cliente.nombre}`}><FiEye size={16} /></IconButton></Tooltip>
-                        <Tooltip title={cliente.favorito ? "Quitar de favoritos" : "Marcar como favorito"}><IconButton size="small" onClick={() => handleToggleFavorite(cliente)} sx={{ color: cliente.favorito ? '#ffb400' : '#ccc' }} aria-label={`Favorito ${cliente.nombre}`}><FiStar size={16} style={{ fill: cliente.favorito ? '#ffb400' : 'none' }} /></IconButton></Tooltip>
-                        <Tooltip title="Editar cliente"><IconButton size="small" onClick={() => handleEdit(cliente)} sx={{ color: '#ff9800' }} aria-label={`Editar a ${cliente.nombre}`}><FiEdit size={16} /></IconButton></Tooltip>
-                        <Tooltip title="Llamar"><IconButton size="small" onClick={() => handleCall(cliente)} sx={{ color: '#4caf50' }} aria-label={`Llamar a ${cliente.nombre}`}><FiPhone size={16} /></IconButton></Tooltip>
-                        <Tooltip title="Enviar email"><IconButton size="small" onClick={() => handleEmail(cliente)} sx={{ color: '#9c27b0' }} aria-label={`Enviar email a ${cliente.nombre}`}><FiMail size={16} /></IconButton></Tooltip>
-                        <Tooltip title="Enviar mensaje"><IconButton size="small" onClick={() => handleMessage(cliente)} sx={{ color: '#00bcd4' }} aria-label={`Enviar mensaje a ${cliente.nombre}`}><FiMessageSquare size={16} /></IconButton></Tooltip>
-                        <Tooltip title="Ver historial"><IconButton size="small" onClick={() => handleHistory(cliente)} sx={{ color: '#607d8b' }} aria-label={`Ver historial de ${cliente.nombre}`}><FiFileText size={16} /></IconButton></Tooltip>
-                        <Tooltip title="Eliminar cliente"><IconButton size="small" onClick={() => handleDelete(cliente)} sx={{ color: '#f44336' }} aria-label={`Eliminar a ${cliente.nombre}`}><FiTrash2 size={16} /></IconButton></Tooltip>
+                    <TableCell align="right">
+                      <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
+                        <Tooltip title="Ver detalles"><IconButton size="small" onClick={() => handleViewDetails(cliente)} sx={{ color: '#1976d2', padding: { xs: 0.5, sm: 1 } }} aria-label={`Ver detalles de ${cliente.nombre}`}><FiEye size={16} /></IconButton></Tooltip>
+                        <Tooltip title={cliente.favorito ? "Quitar de favoritos" : "Marcar como favorito"}><IconButton size="small" onClick={() => handleToggleFavorite(cliente)} sx={{ color: cliente.favorito ? '#ffb400' : '#ccc', padding: { xs: 0.5, sm: 1 } }} aria-label={`Favorito ${cliente.nombre}`}><FiStar size={16} style={{ fill: cliente.favorito ? '#ffb400' : 'none' }} /></IconButton></Tooltip>
+                        <Tooltip title="Editar"><IconButton size="small" onClick={() => handleEdit(cliente)} sx={{ color: '#ff9800', padding: { xs: 0.5, sm: 1 } }} aria-label={`Editar a ${cliente.nombre}`}><FiEdit size={16} /></IconButton></Tooltip>
+                        <Tooltip title="Llamar"><IconButton size="small" onClick={() => handleCall(cliente)} sx={{ color: '#4caf50', padding: { xs: 0.5, sm: 1 } }} aria-label={`Llamar a ${cliente.nombre}`}><FiPhone size={16} /></IconButton></Tooltip>
+                        <Tooltip title="Email"><IconButton size="small" onClick={() => handleEmail(cliente)} sx={{ color: '#9c27b0', padding: { xs: 0.5, sm: 1 } }} aria-label={`Email a ${cliente.nombre}`}><FiMail size={16} /></IconButton></Tooltip>
+                        <Tooltip title="Mensaje"><IconButton size="small" onClick={() => handleMessage(cliente)} sx={{ color: '#00bcd4', padding: { xs: 0.5, sm: 1 } }} aria-label={`Mensaje a ${cliente.nombre}`}><FiMessageSquare size={16} /></IconButton></Tooltip>
+                        <Tooltip title="Historial"><IconButton size="small" onClick={() => handleHistory(cliente)} sx={{ color: '#607d8b', padding: { xs: 0.5, sm: 1 } }} aria-label={`Historial de ${cliente.nombre}`}><FiFileText size={16} /></IconButton></Tooltip>
+                        <Tooltip title="Eliminar"><IconButton size="small" onClick={() => handleDelete(cliente)} sx={{ color: '#f44336', padding: { xs: 0.5, sm: 1 } }} aria-label={`Eliminar a ${cliente.nombre}`}><FiTrash2 size={16} /></IconButton></Tooltip>
                       </Box>
                     </TableCell>
                   </TableRow>
@@ -885,7 +893,7 @@ export default function Clientes() {
               </TableBody>
             </Table>
           </TableContainer>
-        ))}
+        )}
 
         {!loading && !error && filteredClientes.length === 0 && (
           <Box sx={{ mt: 2 }}>

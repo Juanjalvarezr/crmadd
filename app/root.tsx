@@ -32,7 +32,25 @@ export default function Root() {
   const theme = React.useMemo(() => createTheme({
     palette: {
       mode: themeMode,
+      primary: { main: '#e91e63', light: '#f48fb1', dark: '#c2185b', contrastText: '#ffffff' },
+      secondary: { main: '#9c27b0', light: '#ce93d8', dark: '#7b1fa2', contrastText: '#ffffff' },
+      background: { default: themeMode === 'dark' ? '#0d0e15' : '#f6f7fb', paper: themeMode === 'dark' ? '#12131a' : '#ffffff' },
+      text: { primary: themeMode === 'dark' ? '#e2e8f0' : '#1f232e', secondary: themeMode === 'dark' ? '#a0aec0' : '#617182' },
     },
+    shape: { borderRadius: 12 },
+    typography: {
+      fontFamily: 'Inter, Roboto, system-ui, -apple-system, Segoe UI, sans-serif',
+      h4: { fontSize: { xs: '1.25rem', sm: '1.6rem', md: '2rem' }, fontWeight: 800 },
+      h5: { fontSize: { xs: '1.1rem', sm: '1.25rem' }, fontWeight: 700 },
+      h6: { fontSize: { xs: '1rem', sm: '1.1rem' }, fontWeight: 700 },
+      button: { textTransform: 'none', fontWeight: 600 },
+    },
+    components: {
+      MuiCard: { styleOverrides: { root: { borderRadius: 16, border: '1px solid', borderColor: 'divider', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' } } },
+      MuiPaper: { styleOverrides: { root: { backgroundImage: 'none' } } },
+      MuiButton: { styleOverrides: { root: { borderRadius: 10, padding: '6px 12px' } } },
+      MuiTableCell: { styleOverrides: { root: { borderBottom: '1px solid', borderColor: 'divider' } } },
+    }
   }), [themeMode]);
 
   useEffect(() => {
@@ -98,8 +116,8 @@ export default function Root() {
             flexDirection: "column",
             width: {
               xs: "100%",
-              sm: isCollapsed ? "calc(100% - 70px)" : "calc(100% - 200px)",
-              md: isCollapsed ? "calc(100% - 70px)" : `calc(100% - ${DRAWER_WIDTH}px)`,
+              sm: isCollapsed ? "calc(100% - 72px)" : "calc(100% - 220px)",
+              md: isCollapsed ? "calc(100% - 72px)" : `calc(100% - ${DRAWER_WIDTH}px)`,
             },
             transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
             overflowX: "hidden",
@@ -112,12 +130,12 @@ export default function Root() {
               flexGrow: 1,
               p: { xs: 1, sm: 2, md: 3 },
               backgroundColor: "background.default",
-              minHeight: "calc(100vh - 120px)",
+              minHeight: "calc(100vh - 96px)",
             }}
           >
             <Suspense
               fallback={
-                <Box sx={{ display: "flex", justifyContent: "center", p: 5 }}>
+                <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
                   <CircularProgress />
                 </Box>
               }

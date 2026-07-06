@@ -237,9 +237,10 @@ export const emailMarketingService = {
 };
 
 export const notificacionesService = {
-  getAll: () => withTimeout(baseSupabase.from('notificaciones').select('*').order('created_at', { ascending: false }), 'notificacionesService.getAll').then(r => r.data || []),
-  create: (item: any) => withTimeout(baseSupabase.from('notificaciones').insert(item).select().single(), 'notificacionesService.create').then(r => r.data),
-  markRead: (id: string) => withTimeout(baseSupabase.from('notificaciones').update({ leida: true }).eq('id', id), 'notificacionesService.markRead'),
+  getAll: () => withTimeout(supabase.from('notificaciones').select('*').order('created_at', { ascending: false }), 'notificacionesService.getAll').then(r => r.data || []),
+  create: (item: any) => withTimeout(supabase.from('notificaciones').insert(item).select().single(), 'notificacionesService.create').then(r => r.data),
+  markRead: (id: string) => withTimeout(supabase.from('notificaciones').update({ leida: true }).eq('id', id), 'notificacionesService.markRead'),
 };
+
 
 
