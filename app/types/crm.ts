@@ -124,7 +124,7 @@ export interface Factura {
   id: string;
   numero: string;
   cliente_id?: number | null;
-  proyecto_id?: number | null;
+  proyecto_id?: string | null;
   transaccion_id?: string | null;
   tipo: "servicio" | "producto" | "mixto";
   subtotal: number;
@@ -132,8 +132,13 @@ export interface Factura {
   total: number;
   moneda: string;
   estado: "borrador" | "enviada" | "pagada" | "anulada";
+  estado_pago?: "pendiente" | "parcial" | "pagado" | "vencido" | null;
+  metodo_pago?: "efectivo" | "transferencia" | "tarjeta" | "nequi" | "daviplata" | "otro" | null;
+  abonos?: { monto: number; fecha: string; metodo?: string }[] | null;
+  pdf_url?: string | null;
+  enviada_por?: ("email" | "whatsapp")[] | null;
   fecha_emision: string;
-  fecha_vencimiento?: string;
+  fecha_vencimiento?: string | null;
   notas?: string | null;
   json_data?: any;
   created_at: string;
