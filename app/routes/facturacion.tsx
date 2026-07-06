@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
+import { RouteSkeleton, RouteErrorBoundary } from '../components/RouteGuard';
 import { Box, Typography, Paper, Button, TextField, Select, MenuItem, FormControl, InputLabel, Dialog, DialogTitle, DialogContent, DialogActions, Chip, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Tooltip, Snackbar, Alert } from "@mui/material";
 import { FiPlus, FiFilter, FiFileText, FiShoppingCart, FiDownload, FiEye, FiEdit, FiTrash2, FiX, FiSearch } from "react-icons/fi";
 import { facturasService } from "../services/facturacion";
