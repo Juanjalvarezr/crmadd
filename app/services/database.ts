@@ -30,7 +30,7 @@ import {
   testConnection as baseTestConnection,
 } from './supabase';
 
-const TIMEOUT_MS = 8000;
+const TIMEOUT_MS = 30000;
 
 const withTimeout = async <T>(promise: Promise<T>, label = 'operación'): Promise<T> => {
   return Promise.race([
@@ -115,7 +115,7 @@ export const emailService = {
   sendRealEmail: (to: string[], subject: string, html: string, attachments?: any[]) =>
     withTimeout(
       (async () => {
-        const apiKey = (import.meta as any).env?.VITE_RESEND_API_KEY;
+        const apiKey = (globalThis as any).__RESEND_KEY || (globalThis as any)?.process?.env?.VITE_RESEND_API_KEY;
         if (!apiKey) {
           console.warn('Simulando envío de email (falta API Key de Resend)');
           return { id: 'simulated-id', message: 'Email simulado correctamente' } as any;
@@ -179,10 +179,30 @@ export const authService = {
 };
 
 export const transaccionesService = {
-  getAll: () => withTimeout(baseTransaccionesService.getAll(), 'transaccionesService.getAll').catch(() => []),
-  create: (item: any) => withTimeout(baseTransaccionesService.create(item), 'transaccionesService.create'),
-  update: (id: string, updates: any) => withTimeout(baseTransaccionesService.update(id, updates), 'transaccionesService.update'),
-  delete: (id: number) => withTimeout(baseTransaccionesService.delete(id), 'transaccionesService.delete'),
+  getAll: () => withTimeout(new Promise((resolve, reject) => {
+    supabase.from('transacciones').select('*').order('created_at', { ascending: false }).then(({data, error}) => {
+      if (error) return reject(new Error(error.message));
+      resolve(data || []);
+    }).catch(reject);
+  }), 'transaccionesService.getAll').catch(() => []),
+  create: (item: any) => withTimeout(new Promise((resolve, reject) => {
+    supabase.from('transacciones').insert(item).select().single().then(({data, error}) => {
+      if (error) return reject(new Error(error.message));
+      resolve(data);
+    }).catch(reject);
+  }), 'transaccionesService.create'),
+  update: (id: string, updates: any) => withTimeout(new Promise((resolve, reject) => {
+    supabase.from('transacciones').update(updates).eq('id', id).select().single().then(({data, error}) => {
+      if (error) return reject(new Error(error.message));
+      resolve(data);
+    }).catch(reject);
+  }), 'transaccionesService.update'),
+  delete: (id: number) => withTimeout(new Promise((resolve, reject) => {
+    supabase.from('transacciones').delete().eq('id', id).then(({error}) => {
+      if (error) return reject(new Error(error.message));
+      resolve(true);
+    }).catch(reject);
+  }), 'transaccionesService.delete'),
 };
 
 export async function testConnection() {
