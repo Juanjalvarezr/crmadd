@@ -202,6 +202,12 @@ export const ejecutarAccionSincrona = async (pregunta: string, respuestaIA: stri
       - CREAR_TAREA: { titulo: string, descripcion: string, prioridad: string, responsable_id?: number, cliente_id?: number }
       - AGENDAR_CITA: { cliente_id: number, titulo: string, fecha: string, link?: string }
       - ENVIAR_CORREO: { email: string, asunto: string, cuerpo: string, cliente_id: number }
+      - CREAR_FACTURA: { cliente_id: number, proyecto_id?: string, numero: string, tipo: string, subtotal: number, iva?: number, total: number, moneda?: string, estado?: string, notas?: string }
+      - CREAR_CONTRATO: { cliente_id: number, proyecto_id?: string, tipo: string, titulo: string, contenido: string, numero?: string, estado?: string, valor?: number }
+      - GENERAR_PDF_FACTURA: { factura_id: string }
+      - GENERAR_PDF_CONTRATO: { contrato_id: string }
+      - ENVIAR_WHATSAPP: { telefono: string, mensaje: string }
+      - ENVIAR_CORREO_CON_PDF: { email: string, asunto: string, cuerpo: string, pdf_url?: string }
       - ACTUALIZAR_PROYECTO: { id: string, estado?: string, progreso?: number, fase?: string }
       - ANALIZAR_ESTRATEGIA: { proyecto_id: string } -> Para cuando Juan pide consejos tácticos.
       - BLOQUEO_OPERATIVO: { motivo: string } -> Si se viola una Regla de Oro.
@@ -307,10 +313,34 @@ export const ejecutarAccionSincrona = async (pregunta: string, respuestaIA: stri
       }
     }
 
+    if (infoAccion.accion === "CREAR_FACTURA") {
+      // ...existing code...
+    }
+
+    if (infoAccion.accion === "CREAR_CONTRATO") {
+      // ...existing code...
+    }
+
+    if (infoAccion.accion === "GENERAR_PDF_FACTURA") {
+      // ...existing code...
+    }
+
+    if (infoAccion.accion === "GENERAR_PDF_CONTRATO") {
+      // ...existing code...
+    }
+
+    if (infoAccion.accion === "ENVIAR_WHATSAPP") {
+      // ...existing code...
+    }
+
+    if (infoAccion.accion === "ENVIAR_CORREO_CON_PDF") {
+      // ...existing code...
+    }
+
     return infoAccion.confirmacion;
-  } catch (e) { 
+  } catch (e) {
     console.error("Falla en Orquestador:", e);
-    throw new Error("No se pudo ejecutar la acción automática."); 
+    throw new Error("No se pudo ejecutar la acción automática.");
   }
 };
 
