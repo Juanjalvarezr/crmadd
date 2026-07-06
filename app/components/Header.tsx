@@ -7,9 +7,11 @@ interface HeaderProps {
   onMenuClick?: () => void;
   themeMode?: "light" | "dark";
   onToggleTheme?: () => void;
+  title?: string;
+  subtitle?: string;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onMenuClick, themeMode = "dark", onToggleTheme }) => {
+export const Header: React.FC<HeaderProps> = ({ onMenuClick, themeMode = "dark", onToggleTheme, title = "DESEO DIGITAL", subtitle = "Agencia Inteligente" }) => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [notificationAnchor, setNotificationAnchor] = React.useState<null | HTMLElement>(null);
   const [isPresentationMode, setIsPresentationMode] = React.useState(false);
