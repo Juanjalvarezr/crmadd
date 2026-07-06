@@ -893,12 +893,50 @@ export default function Clientes() {
               </TableBody>
             </Table>
           </TableContainer>
-          )}
         )}
-      </Box>
-    );
-  }
-}
+
+        {!loading && !error && filteredClientes.length === 0 && (
+          <Box sx={{ mt: 2 }}>
+            <EmptyState
+              title="No se encontraron clientes"
+              description={searchTerm ? `No hay resultados para "${searchTerm}". Prueba con otros términos.` : "Tu base de datos de clientes está vacía. Comienza añadiendo tu primer cliente."}
+              icon={<FiUsers size={40} />}
+              actionLabel="Nuevo Cliente"
+              onAction={handleOpenModal}
+              color="#1976d2"
+            />
+          </Box>
+        )}
+
+        {/* Paginación */}
+        {totalPages > 1 && (
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+            <Pagination
+              count={totalPages}
+              page={page}
+              onChange={handlePageChange}
+              color="primary"
+              showFirstButton
+              showLastButton
+            />
+          </Box>
+        )}
+      </Paper>
+      
+      {/* Modal para Crear/Editar Cliente */}
+      <Dialog open={openModal} onClose={handleCloseModal} maxWidth="sm" fullWidth>
+        <DialogTitle>
+          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            {editingClient ? "Editar Cliente" : "Nuevo Cliente"}
+            <IconButton onClick={handleCloseModal} size="small">
+              <FiX />
+            </IconButton>
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}>
+            <TextField
+              label="Nombre completo *"
               fullWidth
               value={formData.nombre}
               onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
