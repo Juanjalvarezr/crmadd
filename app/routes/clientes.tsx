@@ -752,8 +752,7 @@ export default function Clientes() {
           </Box>
         )}
 
-        {!loading && !error && (
-          isMobile ? (
+        {!loading && !error && (isMobile ? (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             {paginatedClientes.map((cliente) => (
               <Card key={cliente.id} sx={{ borderRadius: 2, boxShadow: 1 }}>
@@ -893,7 +892,7 @@ export default function Clientes() {
               </TableBody>
             </Table>
           </TableContainer>
-        )}
+        ))}
 
         {!loading && !error && filteredClientes.length === 0 && (
           <Box sx={{ mt: 2 }}>
