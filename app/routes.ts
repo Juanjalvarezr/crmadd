@@ -13,6 +13,8 @@ export default [
 	route("/chatbot", "routes/chatbot.tsx"),
 	route("/calendario", "routes/calendario.tsx"),
 	route("/reportes", "routes/reportes.tsx"),
+	route("/estimador", "routes/estimador.tsx"),
+	route("/kanban", "routes/kanban.tsx"),
 	route("/configuracion", "routes/configuracion.tsx"),
 	route("/equipo", "routes/equipo.tsx"),
 	route("/facturacion", "routes/facturacion.tsx"),

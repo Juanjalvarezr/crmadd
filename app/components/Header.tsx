@@ -2,6 +2,7 @@ import React from "react";
 import { AppBar, Toolbar, Typography, Avatar, Box, IconButton, Menu, MenuItem, Badge, Chip, List, ListItem, ListItemIcon, ListItemText, Button } from "@mui/material";
 import { FiLogOut, FiSettings, FiBell, FiUser, FiMenu, FiAlertCircle, FiTrendingUp, FiInfo, FiSun, FiMoon, FiSearch, FiEye, FiEyeOff } from "react-icons/fi";
 import { useCRMStore } from "../store/useCRMStore";
+import { useNotificationStore } from "../store/useNotificationStore";
 
 interface HeaderProps {
   onMenuClick?: () => void;
@@ -15,6 +16,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick, themeMode = "dark",
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [notificationAnchor, setNotificationAnchor] = React.useState<null | HTMLElement>(null);
   const [isPresentationMode, setIsPresentationMode] = React.useState(false);
+  const notifStore = useNotificationStore();
 
   React.useEffect(() => {
     if (typeof window !== "undefined") {
@@ -38,7 +40,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick, themeMode = "dark",
   };
 
   const { notifications, markAsRead, clearNotifications } = useCRMStore();
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = notifications.filter(n => !n.read).length + notifStore.unreadCount();
 
   const getNotifIcon = (type: string) => {
     switch (type) {
@@ -100,6 +102,13 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick, themeMode = "dark",
             </Typography>
           )}
         </Box>
+
+        <IconButton color="inherit" onClick={(e) => setNotificationAnchor(e.currentTarget)}>
+          <FiBell />
+          {unreadCount > 0 && (
+            <Badge badgeContent={unreadCount} color="error" sx={{ ml: 1 }} />
+          )}
+        </IconButton>
       </Toolbar>
     </AppBar>
   );
