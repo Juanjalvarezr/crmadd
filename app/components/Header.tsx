@@ -83,7 +83,25 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick, themeMode = "dark",
   const isDark = themeMode === "dark";
 
   return (
-    <AppBar position="sticky" sx={{ zIndex: 1200, background: (theme) => theme.palette.mode === 'dark' ? "rgba(13, 14, 21, 0.9)" : "linear-gradient(90deg, #e91e63 0%, #9c27b0 100%)", backdropFilter: "blur(12px)", boxShadow: 'none', borderBottom: "1px solid", borderColor: "divider" }}>
+    <AppBar position="sticky" sx={{ zIndex: 1200, background: (theme) => theme.palette.mode === 'dark' ? 'rgba(13, 14, 21, 0.85)' : 'linear-gradient(90deg, #e91e63 0%, #9c27b0 100%)', backdropFilter: 'saturate(180%) blur(12px)' }}>
+      <Toolbar sx={{ gap: 1, minHeight: { xs: 56, sm: 64 } }}>
+        <IconButton color="inherit" edge="start" onClick={onMenuClick} sx={{ display: { sm: 'none' } }}>
+          <FiMenu />
+        </IconButton>
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Typography variant="h6" noWrap sx={{ fontWeight: 800, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
+            {title}
+          </Typography>
+          {subtitle && (
+            <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.7)', display: { xs: 'none', sm: 'block' } }}>
+              {subtitle}
+            </Typography>
+          )}
+        </Box>
+      </Toolbar>
+    </AppBar>
+  );
+};
       <Toolbar variant="dense" sx={{
         display: "flex",
         justifyContent: "space-between",

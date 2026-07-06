@@ -20,6 +20,8 @@ const menuItems = [
   { label: "Chatbot 💬", icon: FiBell, path: "/chatbot", notifications: 0, color: "#00c853" },
   { label: "Calendario", icon: FiCalendar, path: "/calendario", notifications: 0, color: "#ff9800" },
   { label: "Reportes", icon: FiBarChart, path: "/reportes", notifications: 0, color: "#607d8b" },
+  { label: "Facturación", icon: FiFileText, path: "/facturacion", notifications: 0, color: "#ff5722" },
+  { label: "Contratos", icon: FiFileText, path: "/contratos", notifications: 0, color: "#795548" },
   { label: "Configuración", icon: FiSettings, path: "/configuracion", notifications: 0, color: "#9e9e9e" },
 ];
 

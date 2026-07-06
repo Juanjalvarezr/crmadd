@@ -20,6 +20,11 @@ CREATE INDEX IF NOT EXISTS idx_transacciones_fecha ON public.transacciones(fecha
 -- Row Level Security
 ALTER TABLE public.transacciones ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Allow read access" ON public.transacciones;
+DROP POLICY IF EXISTS "Allow insert access" ON public.transacciones;
+DROP POLICY IF EXISTS "Allow update access" ON public.transacciones;
+DROP POLICY IF EXISTS "Allow delete access" ON public.transacciones;
+
 CREATE POLICY "Allow read access" ON public.transacciones FOR SELECT USING (true);
 CREATE POLICY "Allow insert access" ON public.transacciones FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow update access" ON public.transacciones FOR UPDATE USING (true);
