@@ -18,13 +18,18 @@ export const FloatingAIAssistant = () => {
     addTokens
   } = useChatStore();
 
-  const [mode, setMode] = useState<'chat' | 'proposal'>('proposal');
+  const [mode, setMode] = useState<'chat' | 'proposal'>('chat');
   const [isClient, setIsClient] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' });
 
-  const [chatMessages, setChatMessages] = useState<{ role: 'user' | 'assistant'; text: string }[]>([]);
+  const [chatMessages, setChatMessages] = useState<{ role: 'user' | 'assistant'; text: string }[]>([
+    {
+      role: 'assistant',
+      text: 'Hola, soy tu copiloto comercial. Escribí una orden, por ejemplo: “Crear factura para Juan por 100000” o “Crear tarea de seguimiento”.',
+    },
+  ]);
   const [chatInput, setChatInput] = useState('');
 
   useEffect(() => { setIsClient(true); }, []);
