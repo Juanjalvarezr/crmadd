@@ -4,11 +4,44 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import type { Route } from "./+types/proyectos";
 import Grid from "@mui/material/Grid";
-import { 
-  Box, Typography, Paper, Button, TextField, FormControl, InputLabel, Select, MenuItem, Tabs, Tab,
-  Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Alert, Snackbar, CircularProgress,
-  Card, CardContent, CardActions, Chip, List, ListItem, ListItemText, ListItemIcon, Stack,
-  ListItemSecondaryAction, Divider, LinearProgress, Avatar, Tooltip, Checkbox, FormControlLabel, InputAdornment
+import {
+  Box,
+  Typography,
+  Paper,
+  Button,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Tabs,
+  Tab,
+  Chip,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  IconButton,
+  Alert,
+  Snackbar,
+  CircularProgress,
+  Card,
+  CardContent,
+  CardActions,
+  Stack,
+  ListItemSecondaryAction,
+  Divider,
+  LinearProgress,
+  Avatar,
+  Tooltip,
+  Checkbox,
+  FormControlLabel,
+  InputAdornment,
+  Collapse
 } from "@mui/material";
 import {
   Folder, Plus, Edit2, Trash2, Calendar, Users, CheckCircle, Clock,
@@ -24,6 +57,7 @@ import { ProyectoTimeline } from "../components/ProyectoTimeline";
 import { ProyectoComentarios } from "../components/ProyectoComentarios";
 import { ProyectoAdjuntos } from "../components/ProyectoAdjuntos";
 import { ProyectoDocuments } from "../components/ProyectoDocuments";
+import ExpandableCard from "../components/ExpandableCard";
 import type { Proyecto, TareaProyecto, RecursoProyecto, PlanItem } from "../types/crm";
 import { aiService } from "../services/ai";
 import { useNotificationStore } from "../store/useNotificationStore";
@@ -1041,99 +1075,15 @@ export default function Proyectos() {
         <Grid container spacing={3}>
           {proyectosFiltrados.map((proyecto) => (
             <Grid item xs={12} md={6} lg={4} key={proyecto.id}>
-              <Card sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-                <CardContent sx={{ flexGrow: 1 }}>
-                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 2 }}>
-                    <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
-                      {proyecto.nombre}
-                    </Typography>
-                    <Box sx={{ display: "flex", gap: 1 }}>
-                      <Chip
-                        label={proyecto.estado.replace("_", " ")}
-                        size="small"
-                        sx={{
-                          backgroundColor: getEstadoColor(proyecto.estado),
-                          color: "white",
-                          fontSize: "0.7rem"
-                        }}
-                      />
-                      <Chip
-                        label={proyecto.prioridad}
-                        size="small"
-                        sx={{
-                          backgroundColor: getPrioridadColor(proyecto.prioridad),
-                          color: "white",
-                          fontSize: "0.7rem"
-                        }}
-                      />
-                    </Box>
-                  </Box>
-                  
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    {proyecto.descripcion}
-                  </Typography>
-                  
-                  <Box sx={{ mb: 2 }}>
-                    <Typography variant="body2" sx={{ fontWeight: "bold", mb: 1 }}>
-                      Cliente: {proyecto.clienteNombre}
-                    </Typography>
-                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                      {(proyecto.servicios || []).map((servicio, index) => (
-                        <Chip
-                          key={index}
-                          label={servicio}
-                          size="small"
-                          variant="outlined"
-                          sx={{ fontSize: "0.6rem" }}
-                        />
-                      ))}
-                    </Box>
-                  </Box>
-                  
-                  <Box sx={{ mb: 2 }}>
-                    <Typography variant="body2" sx={{ fontWeight: "bold", mb: 1 }}>
-                      Progreso: {proyecto.progreso}%
-                    </Typography>
-                    <LinearProgress
-                      variant="determinate"
-                      value={proyecto.progreso}
-                      sx={{
-                        height: 8,
-                        borderRadius: 4,
-                        backgroundColor: "#e0e0e0",
-                        "& .MuiLinearProgress-bar": {
-                          borderRadius: 4,
-                          backgroundColor: getEstadoColor(proyecto.estado)
-                        }
-                      }}
-                    />
-                  </Box>
-                  
-                  <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
-                    <Typography variant="caption" color="text.secondary">
-                      📅 {format(new Date(proyecto.fechaInicio), "dd/MM/yyyy")}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      🎯 {format(new Date(proyecto.fechaFin), "dd/MM/yyyy")}
-                    </Typography>
-                  </Box>
-                  
-                  <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
-                    <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-                      Presupuesto: {formatCOP(proyecto.presupuesto)}
-                    </Typography>
-                    <Typography variant="body2" sx={{ fontWeight: "bold", color: proyecto.costoActual > proyecto.presupuesto ? "#f44336" : "#4caf50" }}>
-                      Costo: {formatCOP(proyecto.costoActual)}
-                    </Typography>
-                  </Box>
-                  
-                  <Typography variant="caption" color="text.secondary">
-                    Actualizado: {formatDistanceToNow(new Date(proyecto.actualizadoEn), { addSuffix: true, locale: es })}
-                  </Typography>
-                </CardContent>
-                
-                <CardActions sx={{ justifyContent: "space-between", p: 2 }}>
-                  <Box sx={{ display: "flex", gap: 1 }}>
+              <ExpandableCard
+                title={proyecto.nombre}
+                subtitle={proyecto.descripcion}
+                status={{ label: proyecto.estado.replace("_", " "), color: "default" }}
+                priority={{ label: proyecto.prioridad, color: "default" }}
+                date={`📅 ${format(new Date(proyecto.fechaInicio), "dd/MM/yyyy")} → 🎯 ${format(new Date(proyecto.fechaFin), "dd/MM/yyyy")}`}
+                amount={`Presupuesto: ${formatCOP(proyecto.presupuesto)}`}
+                footer={
+                  <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
                     <Tooltip title="Compartir progreso con cliente (Magic Link)">
                       <IconButton size="small" color="primary" onClick={() => handleGenerateMagicLink(proyecto)}>
                         <Share2 size={18} />
@@ -1149,8 +1099,6 @@ export default function Proyectos() {
                         <Edit2 size={18} />
                       </IconButton>
                     </Tooltip>
-                  </Box>
-                  <Box sx={{ display: "flex", gap: 1 }}>
                     {proyecto.estado === "en_progreso" && (
                       <Tooltip title="Pausar">
                         <IconButton size="small" onClick={() => handleCambiarEstado(proyecto, "pausado")}>
@@ -1178,8 +1126,54 @@ export default function Proyectos() {
                       </IconButton>
                     </Tooltip>
                   </Box>
-                </CardActions>
-              </Card>
+                }
+                onClick={() => setSelectedProyecto(proyecto)}
+              >
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="body2" sx={{ fontWeight: "bold", mb: 1 }}>
+                    Cliente: {proyecto.clienteNombre}
+                  </Typography>
+                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                    {(proyecto.servicios || []).map((servicio, index) => (
+                      <Chip
+                        key={index}
+                        label={servicio}
+                        size="small"
+                        variant="outlined"
+                        sx={{ fontSize: "0.6rem" }}
+                      />
+                    ))}
+                  </Box>
+                </Box>
+
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="body2" sx={{ fontWeight: "bold", mb: 1 }}>
+                    Progreso: {proyecto.progreso}%
+                  </Typography>
+                  <LinearProgress
+                    variant="determinate"
+                    value={proyecto.progreso}
+                    sx={{
+                      height: 8,
+                      borderRadius: 4,
+                      backgroundColor: "#e0e0e0",
+                      "& .MuiLinearProgress-bar": {
+                        borderRadius: 4,
+                        backgroundColor: getEstadoColor(proyecto.estado)
+                      }
+                    }}
+                  />
+                </Box>
+
+                <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1, flexWrap: "wrap", gap: 1 }}>
+                  <Typography variant="caption" color="text.secondary">
+                    Actualizado: {formatDistanceToNow(new Date(proyecto.actualizadoEn), { addSuffix: true, locale: es })}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Costo: {formatCOP(proyecto.costoActual)}
+                  </Typography>
+                </Box>
+              </ExpandableCard>
             </Grid>
           ))}
         </Grid>
