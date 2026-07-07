@@ -34,11 +34,27 @@ export interface Oportunidad {
   cliente_id: number | null;
   cliente_nombre: string;
   valor: number;
-  etapa: "Prospección" | "Propuesta" | "Negociación" | "Cierre";
+  etapa: "Prospección" | "Propuesta" | "Negociación" | "Cierre" | "Perdida";
   servicios_interes?: string[];
   probabilidad: number;
   estado: string;
   created_at: string;
+
+  // Mejoras ejecutables
+  agente_id?: string | null;
+  agente_nombre?: string | null;
+  motivo_perdida?: string | null;
+  motivo_perdida_detalle?: string | null;
+  seguimientos?: Array<{
+    id: string;
+    fecha: string;
+    tipo: "Cita" | "Llamada" | "WhatsApp" | "Email" | "Nota";
+    nota: string;
+    usuario: string;
+    created_at: string;
+  }>;
+  meta_id?: string | null;
+  fecha_cierre_esperada?: string | null;
 }
 
 export interface Tarea {

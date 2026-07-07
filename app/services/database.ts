@@ -63,6 +63,66 @@ export const tareasService = {
   create: (tarea: any) => withTimeout(baseTareasService.create(tarea), 'tareasService.create'),
   update: (id: number, tarea: any) => withTimeout(baseTareasService.update(id, tarea), 'tareasService.update'),
   delete: (id: number) => withTimeout(baseTareasService.delete(id), 'tareasService.delete'),
+  setSubtareas: (id: number, subtareas: any[]) =>
+    withTimeout(baseTareasService.update(id, { subtareas }), 'tareasService.setSubtareas'),
+  toggleSubtarea: (id: number, subtareaId: string) =>
+    withTimeout((async () => {
+      const base = await baseTareasService.getAll();
+      const tarea = base.find((t: any) => t.id === id);
+      if (!tarea?.subtareas) return baseTareasService.update(id, { subtareas: [] });
+      const updated = (tarea.subtareas || []).map((s: any) =>
+        s.id === subtareaId ? { ...s, completada: !s.completada } : s
+      );
+      return baseTareasService.update(id, { subtareas: updated });
+    })(), 'tareasService.toggleSubtarea'),
+  addSubtarea: (id: number, titulo: string) =>
+    withTimeout((async () => {
+      const base = await baseTareasService.getAll();
+      const tarea = base.find((t: any) => t.id === id);
+      const subtarea = { id: crypto.randomUUID(), titulo, completada: false };
+      const updated = [...(tarea?.subtareas || []), subtarea];
+      return baseTareasService.update(id, { subtareas: updated });
+    })(), 'tareasService.addSubtarea'),
+  setAdjuntos: (id: number, adjuntos: any[]) =>
+    withTimeout(baseTareasService.update(id, { adjuntos }), 'tareasService.setAdjuntos'),
+  addComentario: (id: number, comentario: any) =>
+    withTimeout((async () => {
+      const base = await baseTareasService.getAll();
+      const tarea = base.find((t: any) => t.id === id);
+      const updated = [...(tarea?.comentarios || []), comentario];
+      return baseTareasService.update(id, { comentarios: updated });
+    })(), 'tareasService.addComentario'),
+  addRecordatorio: (id: number, recordatorio: any) =>
+    withTimeout((async () => {
+      const base = await baseTareasService.getAll();
+      const tarea = base.find((t: any) => t.id === id);
+      const updated = [...(tarea?.recordatorios || []), recordatorio];
+      return baseTareasService.update(id, { recordatorios: updated });
+    })(), 'tareasService.addRecordatorio'),
+  startTimer: (id: number) =>
+    withTimeout(baseTareasService.update(id, { tiempo_inicio: new Date().toISOString(), timer_activo: true }), 'tareasService.startTimer'),
+  pauseTimer: (id: number) =>
+    withTimeout((async () => {
+      const base = await baseTareasService.getAll();
+      const tarea = base.find((t: any) => t.id === id);
+      const extra: any = { tiempo_pausa: new Date().toISOString(), timer_activo: false };
+      if (tarea?.tiempo_inicio && !tarea?.tiempo_total) {
+        const total = Math.round((new Date().getTime() - new Date(tarea.tiempo_inicio).getTime()) / 1000);
+        extra.tiempo_total = total;
+      }
+      return baseTareasService.update(id, extra);
+    })(), 'tareasService.pauseTimer'),
+  finishTimer: (id: number) =>
+    withTimeout((async () => {
+      const base = await baseTareasService.getAll();
+      const tarea = base.find((t: any) => t.id === id);
+      const extra: any = { tiempo_fin: new Date().toISOString(), timer_activo: false, estado: 'Completada' };
+      if (tarea?.tiempo_inicio && !tarea?.tiempo_total) {
+        const total = Math.round((new Date().getTime() - new Date(tarea.tiempo_inicio).getTime()) / 1000);
+        extra.tiempo_total = total;
+      }
+      return baseTareasService.update(id, extra);
+    })(), 'tareasService.finishTimer'),
 };
 
 export const clientesService = {

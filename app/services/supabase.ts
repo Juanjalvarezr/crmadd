@@ -79,6 +79,16 @@ export type Tables = {
     oportunidad_id?: number;
     cliente_id?: number;
     responsable_id?: number; // Referencia a la tabla 'equipo'
+    subtareas?: any[]; // Lista de subtareas {id,titulo,completada}
+    dependencias?: number[]; // IDs de tareas bloqueantes
+    adjuntos?: any[]; // [{nombre,url,fecha}]
+    comentarios?: any[]; // [{id,texto,usuario,created_at,menciones}]
+    recordatorios?: any[]; // [{id,tipo:'email'|'whatsapp',fecha_envio,enviado}]
+    tiempo_inicio?: string;
+    tiempo_pausa?: string;
+    tiempo_fin?: string;
+    tiempo_total?: number;
+    timer_activo?: boolean;
   };
   servicios: { // Ya existente
     id: number;
