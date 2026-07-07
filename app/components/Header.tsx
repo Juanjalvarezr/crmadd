@@ -1,6 +1,6 @@
 import React from "react";
 import { AppBar, Toolbar, Typography, Avatar, Box, IconButton, Menu, MenuItem, Badge, Chip, List, ListItem, ListItemIcon, ListItemText, Button } from "@mui/material";
-import { FiLogOut, FiSettings, FiBell, FiUser, FiMenu, FiAlertCircle, FiTrendingUp, FiInfo, FiSun, FiMoon, FiSearch, FiEye, FiEyeOff } from "react-icons/fi";
+import { FiLogOut, FiSettings, FiBell, FiUser, FiMenu, FiAlertCircle, FiTrendingUp, FiInfo, FiSun, FiMoon, FiSearch, FiEye, FiEyeOff, FiCpu } from "react-icons/fi";
 import { useCRMStore } from "../store/useCRMStore";
 import { useNotificationStore } from "../store/useNotificationStore";
 
@@ -108,6 +108,13 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick, themeMode = "dark",
           {unreadCount > 0 && (
             <Badge badgeContent={unreadCount} color="error" sx={{ ml: 1 }} />
           )}
+        </IconButton>
+        <IconButton color="inherit" onClick={() => {
+          if (typeof window !== "undefined") {
+            window.dispatchEvent(new CustomEvent("open-ai-chat"));
+          }
+        }}>
+          <FiCpu />
         </IconButton>
       </Toolbar>
     </AppBar>

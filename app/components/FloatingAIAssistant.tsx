@@ -29,6 +29,13 @@ export const FloatingAIAssistant = () => {
 
   useEffect(() => { setIsClient(true); }, []);
 
+  useEffect(() => {
+    const handler = () => setIsOpen(true);
+    const el = document.getElementById('floating-ai-assistant');
+    el?.addEventListener('open-assistant', handler as EventListener);
+    return () => el?.removeEventListener('open-assistant', handler as EventListener);
+  }, []);
+
   if (!isClient) return null;
 
   const sendChat = async () => {
@@ -102,7 +109,7 @@ export const FloatingAIAssistant = () => {
 
   return (
     <>
-      <Box sx={{ position: 'fixed', bottom: 24, right: 24, zIndex: 9999 }}>
+      <Box id="floating-ai-assistant" sx={{ position: 'fixed', bottom: 24, right: 24, zIndex: 9999 }}>
         <Tooltip title="Asistente IA (Copiloto)" placement="left">
           <IconButton
             onClick={() => setIsOpen(true)}

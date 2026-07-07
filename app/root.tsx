@@ -5,6 +5,7 @@ import { useNotificationStore } from "./store/useNotificationStore";
 import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
 import { MobileFab } from "./components/MobileFab";
+import { FloatingAIAssistant } from "./components/FloatingAIAssistant";
 import GlobalSearch from "./components/GlobalSearch";
 
 const DRAWER_WIDTH = 260;
@@ -77,6 +78,15 @@ export default function Root() {
     return () => window.removeEventListener("theme-changed", handler as EventListener);
   }, []);
 
+  useEffect(() => {
+    const handler = () => {
+      const el = document.getElementById('floating-ai-assistant');
+      if (el) el.dispatchEvent(new CustomEvent('open-assistant'));
+    };
+    window.addEventListener("open-ai-chat", handler as EventListener);
+    return () => window.removeEventListener("open-ai-chat", handler as EventListener);
+  }, []);
+
   if (location.pathname === "/login") {
     return <Outlet />;
   }
@@ -144,6 +154,7 @@ export default function Root() {
             </Suspense>
           </Box>
           <MobileFab />
+          <FloatingAIAssistant />
           <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
         </Box>
       </Box>
