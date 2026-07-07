@@ -59,6 +59,8 @@ export default function Clientes() {
   const [searchTerm, setSearchTerm] = useState("");
   const [estadoFilter, setEstadoFilter] = useState("all");
   const [industriaFilter, setIndustriaFilter] = useState("all");
+  const [origenFilter, setOrigenFilter] = useState("all");
+  const [favoritoFilter, setFavoritoFilter] = useState("all");
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   const [page, setPage] = useState(1);
   const itemsPerPage = 10;
@@ -75,8 +77,15 @@ export default function Clientes() {
   const [editingClient, setEditingClient] = useState<Cliente | null>(null);
   const [saving, setSaving] = useState(false);
 
-  // Estado escáner de tarjetas
+  // Estados escáner de tarjetas
   const [openScanner, setOpenScanner] = useState(false);
+
+  const [themeMode, setThemeMode] = useState<"light" | "dark">(() => {
+    if (typeof window !== 'undefined') {
+      return (window.localStorage.getItem('theme_mode') as 'light' | 'dark') || 'dark';
+    }
+    return 'dark';
+  });
 
   // Estado del formulario
   const [formData, setFormData] = useState({
@@ -131,9 +140,11 @@ export default function Clientes() {
                            cliente.empresa?.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesEstado = estadoFilter === "all" || cliente.estado === estadoFilter;
       const matchesIndustria = industriaFilter === "all" || cliente.nicho === industriaFilter;
-      return matchesSearch && matchesEstado && matchesIndustria;
+      const matchesOrigen = origenFilter === "all" || cliente.origen === origenFilter;
+      const matchesFavorito = favoritoFilter === "all" || (favoritoFilter === "fav" ? cliente.favorito : !cliente.favorito);
+      return matchesSearch && matchesEstado && matchesIndustria && matchesOrigen && matchesFavorito;
     });
-  }, [clientes, searchTerm, estadoFilter, industriaFilter]);
+  }, [clientes, searchTerm, estadoFilter, industriaFilter, origenFilter, favoritoFilter]);
 
   const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
@@ -232,20 +243,24 @@ export default function Clientes() {
       setSnackbar({ open: true, message: "Nombre y email son obligatorios", severity: "error" });
       return;
     }
-    
-    // Validar email con regex más robusta
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email)) {
       setSnackbar({ open: true, message: "Email inválido", severity: "error" });
       return;
     }
-    
-    // Validar teléfono si se proporciona (debe tener al menos 7 dígitos)
+
     if (formData.telefono && !/\d{7,}/.test(formData.telefono.replace(/\D/g, ''))) {
       setSnackbar({ open: true, message: "Teléfono debe tener al menos 7 dígitos", severity: "error" });
       return;
     }
-    
+
+    const dup = findDuplicate(formData.nombre, formData.email, formData.telefono, editingClient?.id);
+    if (dup) {
+      const overwrite = confirm(`Posible duplicado: ${dup.nombre} (${dup.email}). ¿Deseas guardar de todas formas?`);
+      if (!overwrite) return;
+    }
+
     setSaving(true);
     try {
       // Sanitizar inputs
@@ -346,6 +361,63 @@ export default function Clientes() {
 
     setFormData(nuevoCliente);
     setOpenModal(true);
+  };
+
+  const handleBulkDelete = async () => {
+    if (!selectedIds.length) return;
+    const confirmDelete = confirm(`¿Eliminar ${selectedIds.length} cliente(s) seleccionado(s)?`);
+    if (!confirmDelete) return;
+    try {
+      await Promise.all(selectedIds.map(id => clientesService.delete(id)));
+      setSnackbar({ open: true, message: `${selectedIds.length} cliente(s) eliminado(s)`, severity: "success" });
+      setSelectedIds([]);
+      await loadClientes();
+    } catch (err: any) {
+      setSnackbar({ open: true, message: "Error eliminando en lote: " + err.message, severity: "error" });
+    }
+  };
+
+  const handleBulkSetEstado = async (estado: "Activo" | "Inactivo") => {
+    if (!selectedIds.length) return;
+    try {
+      await Promise.all(selectedIds.map(id => clientesService.update(id, { estado })));
+      setSnackbar({ open: true, message: `${selectedIds.length} cliente(s) actualizado(s) a ${estado}`, severity: "success" });
+      setSelectedIds([]);
+      await loadClientes();
+    } catch (err: any) {
+      setSnackbar({ open: true, message: "Error actualizando en lote: " + err.message, severity: "error" });
+    }
+  };
+
+  const handleExportSelectedCSV = () => {
+    const selected = clientes.filter(c => selectedIds.includes(c.id));
+    if (!selected.length) {
+      setSnackbar({ open: true, message: 'Selecciona clientes para exportar', severity: 'warning' });
+      return;
+    }
+    const csvContent = [
+      ['ID', 'Nombre', 'Email', 'Teléfono', 'Estado', 'Última Interacción', 'Favorito'],
+      ...selected.map(cliente => [
+        cliente.id,
+        cliente.nombre,
+        cliente.email,
+        cliente.telefono || '',
+        cliente.estado,
+        cliente.ultima_interaccion,
+        cliente.favorito ? 'Sí' : 'No'
+      ])
+    ].map(row => row.join(',')).join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `clientes_seleccionados_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setSnackbar({ open: true, message: `Exportados ${selected.length} clientes`, severity: 'success' });
   };
 
   // Funciones para las nuevas acciones
@@ -460,29 +532,94 @@ export default function Clientes() {
     });
   };
 
-  const handleImportCSV = () => { // Esta función no está completamente implementada, pero es un placeholder.
+  const handleImportCSV = async () => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.csv';
     input.onchange = async (e: any) => {
-      const file = e.target.files[0];
-      if (file) {
-        setSnackbar({ 
-          open: true, 
-          message: 'Importando CSV...', 
-          severity: "info" 
-        });
-        // Aquí iría la lógica de importación
-        setTimeout(() => {
-          setSnackbar({ 
-            open: true, 
-            message: 'Importación completada', 
-            severity: "success" 
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      setSnackbar({ open: true, message: `Importando ${file.name}...`, severity: 'info' });
+
+      try {
+        const text = await file.text();
+        const lines = text.split(/\r?\n/).filter((l: string) => l.trim().length > 0);
+        if (lines.length < 2) {
+          setSnackbar({ open: true, message: 'CSV vacío o sin datos', severity: 'error' });
+          return;
+        }
+
+        const headers: string[] = lines[0].split(',').map((h: string) => h.trim().toLowerCase());
+        const nameIdx = headers.findIndex(h => h === 'nombre');
+        const emailIdx = headers.findIndex(h => h === 'email');
+        const phoneIdx = headers.findIndex(h => /telefono|tel/.test(h));
+        const companyIdx = headers.findIndex(h => /empresa|compañia|company/.test(h));
+
+        if (nameIdx < 0 || emailIdx < 0) {
+          setSnackbar({ open: true, message: 'El CSV debe tener columnas: nombre, email', severity: 'error' });
+          return;
+        }
+
+        const rows = lines.slice(1);
+        const duplicates: string[] = [];
+        let imported = 0;
+
+        for (const row of rows) {
+          const cols = row.split(',');
+          const nombre = (cols[nameIdx] || '').trim();
+          const email = (cols[emailIdx] || '').trim();
+          const telefono = phoneIdx >= 0 ? (cols[phoneIdx] || '').trim() : '';
+          const empresa = companyIdx >= 0 ? (cols[companyIdx] || '').trim() : undefined;
+
+          if (!nombre || !email) continue;
+
+          const exists = clientes.find(c => c.email.toLowerCase() === email.toLowerCase() || (telefono && c.telefono === telefono));
+          if (exists) {
+            duplicates.push(`${email} (ya existe como ${exists.nombre})`);
+            continue;
+          }
+
+          await clientesService.create({
+            nombre: DOMPurify.sanitize(nombre),
+            email: DOMPurify.sanitize(email),
+            telefono: DOMPurify.sanitize(telefono || ''),
+            empresa: empresa ? DOMPurify.sanitize(empresa) : '',
+            estado: 'Activo',
+            ultima_interaccion: new Date().toISOString().split('T')[0]
           });
-        }, 2000);
+          imported++;
+        }
+
+        await loadClientes();
+
+        const parts = [`Importados: ${imported}`];
+        if (duplicates.length) {
+          parts.push(`Duplicados omitidos: ${duplicates.length}`);
+        }
+        setSnackbar({
+          open: true,
+          message: parts.join('. '),
+          severity: duplicates.length ? 'warning' : 'success'
+        });
+      } catch (err: any) {
+        setSnackbar({ open: true, message: 'Error importando CSV: ' + err.message, severity: 'error' });
       }
     };
     input.click();
+  };
+
+  const findDuplicate = (nombre: string, email: string, telefono?: string, excludeId?: number) => {
+    const n = nombre.trim().toLowerCase();
+    const e = email.trim().toLowerCase();
+    const t = (telefono || '').replace(/\D/g, '');
+    return clientes.find(c => {
+      if (excludeId && c.id === excludeId) return false;
+      const sameEmail = c.email.toLowerCase() === e;
+      const samePhone = t && c.telefono && c.telefono.replace(/\D/g, '') === t;
+      const sameName = c.nombre.toLowerCase() === n;
+      return sameEmail || samePhone || sameName;
+    }) || null;
   };
 
   return (
@@ -494,8 +631,9 @@ export default function Clientes() {
       <Paper sx={{ 
         p: { xs: 2, sm: 3 }, 
         mb: { xs: 2, sm: 3 }, 
-        backgroundColor: "#e3f2fd", 
-        borderLeft: "5px solid #2196f3",
+        backgroundColor: "background.paper",
+        borderLeft: "5px solid",
+        borderColor: "primary.main",
         borderRadius: 2
       }}>
         <Box sx={{ 
@@ -552,27 +690,29 @@ export default function Clientes() {
           sx={{ 
             p: 2, 
             mb: 3, 
-            bgcolor: '#1a237e', 
-            color: 'white', 
+            bgcolor: 'primary.main', 
+            color: 'primary.contrastText',
             display: 'flex', 
-            justifyContent: 'space-between', 
+            justifyContent: 'space-between',
             alignItems: 'center',
             borderRadius: 2,
             position: 'sticky',
-            top: 10,
-            zIndex: 10
+            top: { xs: 56, sm: 10 },
+            zIndex: 10,
+            flexWrap: 'wrap',
+            gap: 1
           }}
         >
           <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-            {selectedIds.length} clientes seleccionados
+            {selectedIds.length} cliente(s) seleccionado(s)
           </Typography>
-          <Box sx={{ display: 'flex', gap: 1 }}>
+          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
             <Button 
               variant="contained" 
               size="small" 
               startIcon={<FiMail />} 
               onClick={() => handleEmail({ email: clientes.filter(c => selectedIds.includes(c.id)).map(c => c.email).join(',') } as any)}
-              sx={{ bgcolor: '#e91e63' }}
+              sx={{ bgcolor: 'rgba(255,255,255,0.15)', color: 'primary.contrastText', '&:hover': { bgcolor: 'rgba(255,255,255,0.25)' } }}
             >
               Gmail
             </Button>
@@ -581,11 +721,50 @@ export default function Clientes() {
               size="small" 
               startIcon={<FiMessageSquare />} 
               onClick={() => handleMessage({ nombre: 'Grupo Seleccionado' } as any)}
-              sx={{ bgcolor: '#4caf50' }}
+              sx={{ bgcolor: 'rgba(255,255,255,0.15)', color: 'primary.contrastText', '&:hover': { bgcolor: 'rgba(255,255,255,0.25)' } }}
             >
               WhatsApp (IA)
             </Button>
-            <Button variant="outlined" size="small" onClick={() => setSelectedIds([])} sx={{ color: 'white', borderColor: 'white' }}>
+            <Button 
+              variant="contained" 
+              size="small" 
+              startIcon={<FiDownload />} 
+              onClick={handleExportSelectedCSV}
+              sx={{ bgcolor: 'rgba(255,255,255,0.15)', color: 'primary.contrastText', '&:hover': { bgcolor: 'rgba(255,255,255,0.25)' } }}
+            >
+              Exportar selección
+            </Button>
+            <Button 
+              variant="contained" 
+              size="small" 
+              onClick={() => handleBulkSetEstado("Activo")}
+              sx={{ bgcolor: 'rgba(255,255,255,0.15)', color: 'primary.contrastText', '&:hover': { bgcolor: 'rgba(255,255,255,0.25)' } }}
+            >
+              Marcar Activos
+            </Button>
+            <Button 
+              variant="contained" 
+              size="small" 
+              onClick={() => handleBulkSetEstado("Inactivo")}
+              sx={{ bgcolor: 'rgba(255,255,255,0.15)', color: 'primary.contrastText', '&:hover': { bgcolor: 'rgba(255,255,255,0.25)' } }}
+            >
+              Marcar Inactivos
+            </Button>
+            <Button 
+              variant="contained" 
+              size="small" 
+              startIcon={<FiTrash2 />} 
+              onClick={handleBulkDelete}
+              sx={{ bgcolor: 'error.main', color: 'primary.contrastText', '&:hover': { bgcolor: 'error.dark' } }}
+            >
+              Eliminar
+            </Button>
+            <Button 
+              variant="outlined" 
+              size="small" 
+              onClick={() => setSelectedIds([])} 
+              sx={{ color: 'primary.contrastText', borderColor: 'primary.contrastText' }}
+            >
               Cancelar
             </Button>
           </Box>
@@ -645,7 +824,31 @@ export default function Clientes() {
           </Typography>
           <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", justifyContent: { xs: "stretch", sm: "flex-end" } }}>
             <Button 
-              variant="outlined" 
+              variant="outlined"
+              size="small"
+              onClick={() => {
+                const next = themeMode === 'dark' ? 'light' : 'dark';
+                setThemeMode(next);
+                if (typeof window !== 'undefined') {
+                  window.localStorage.setItem('theme_mode', next);
+                  window.dispatchEvent(new CustomEvent('theme-changed', { detail: next }));
+                }
+              }}
+              sx={{ minWidth: { xs: "100%", sm: "auto" } }}
+            >
+              {themeMode === 'dark' ? '☀️ Claro' : '🌙 Oscuro'}
+            </Button>
+            <Button 
+              variant="outlined"
+              startIcon={<FiFileText size={16} />}
+              onClick={handleImportCSV}
+              size="small"
+              sx={{ minWidth: { xs: "100%", sm: "auto" } }}
+            >
+              Importar CSV
+            </Button>
+            <Button 
+              variant="outlined"
               startIcon={<FiFilter size={16} />}
               onClick={() => setIsFilterDrawerOpen(true)}
               size="small"
@@ -666,7 +869,7 @@ export default function Clientes() {
               variant="contained" 
               startIcon={<FiPlus size={18} />} 
               onClick={handleOpenModal}
-              sx={{ backgroundColor: "#e91e63", whiteSpace: "nowrap", '&:hover': { backgroundColor: "#c2185b" }, minWidth: { xs: "100%", sm: "auto" } }}
+              sx={{ backgroundColor: "primary.main", whiteSpace: "nowrap", '&:hover': { backgroundColor: "primary.dark" }, minWidth: { xs: "100%", sm: "auto" } }}
             >
               Nuevo Cliente
             </Button>
@@ -902,7 +1105,7 @@ export default function Clientes() {
               icon={<FiUsers size={40} />}
               actionLabel="Nuevo Cliente"
               onAction={handleOpenModal}
-              color="#1976d2"
+              color="primary.main"
             />
           </Box>
         )}
@@ -1094,6 +1297,7 @@ export default function Clientes() {
             <Box sx={{ mt: 1 }}>
               <Tabs value={detailTab} onChange={(_, v) => setDetailTab(v)} variant="fullWidth">
                 <Tab label="Datos" />
+                <Tab label={`Historial (${relatedProyectos.length + relatedOportunidades.length + relatedTareas.length})`} />
                 <Tab label="Proyectos" />
                 <Tab label="Oportunidades" />
                 <Tab label="Tareas" />
@@ -1102,22 +1306,67 @@ export default function Clientes() {
 
               {detailTab === 0 && (
                 <Stack spacing={1}>
-                  <Typography variant="subtitle2">Nombre</Typography>
-                  <Typography variant="body2">{selectedClient.nombre}</Typography>
-                  <Typography variant="subtitle2">Email</Typography>
-                  <Typography variant="body2">{selectedClient.email}</Typography>
-                  <Typography variant="subtitle2">Teléfono</Typography>
-                  <Typography variant="body2">{selectedClient.telefono || '—'}</Typography>
-                  <Typography variant="subtitle2">Empresa</Typography>
-                  <Typography variant="body2">{selectedClient.empresa || '—'}</Typography>
-                  <Typography variant="subtitle2">Nicho</Typography>
-                  <Typography variant="body2">{selectedClient.nicho || '—'}</Typography>
-                  <Typography variant="subtitle2">Estado</Typography>
-                  <Chip size="small" label={selectedClient.estado} color={selectedClient.estado === 'Activo' ? 'success' : 'default'} />
+                  <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1 }}>
+                    <Box>
+                      <Typography variant="subtitle2">Nombre</Typography>
+                      <Typography variant="body2">{selectedClient.nombre}</Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="subtitle2">Email</Typography>
+                      <Typography variant="body2">{selectedClient.email}</Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="subtitle2">Teléfono</Typography>
+                      <Typography variant="body2">{selectedClient.telefono || '—'}</Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="subtitle2">Empresa</Typography>
+                      <Typography variant="body2">{selectedClient.empresa || '—'}</Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="subtitle2">Nicho</Typography>
+                      <Typography variant="body2">{selectedClient.nicho || '—'}</Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="subtitle2">Estado</Typography>
+                      <Chip size="small" label={selectedClient.estado} color={selectedClient.estado === 'Activo' ? 'success' : 'default'} />
+                    </Box>
+                  </Box>
                 </Stack>
               )}
 
               {detailTab === 1 && (
+                <Stack spacing={1.5} sx={{ mt: 1 }}>
+                  <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                    <Chip size="small" label={`${relatedProyectos.length} proyectos`} color="primary" variant="outlined" />
+                    <Chip size="small" label={`${relatedOportunidades.length} oportunidades`} color="secondary" variant="outlined" />
+                    <Chip size="small" label={`${relatedTareas.length} tareas`} color="warning" variant="outlined" />
+                  </Box>
+                  {relatedProyectos.length === 0 && relatedOportunidades.length === 0 && relatedTareas.length === 0 && (
+                    <Typography variant="body2" color="text.secondary">Sin historial vinculado.</Typography>
+                  )}
+                  {relatedProyectos.slice(0, 5).map((p: any) => (
+                    <Paper key={p.id} sx={{ p: 1.2 }}>
+                      <Typography variant="body2" sx={{ fontWeight: 'bold' }}>{p.nombre}</Typography>
+                      <Typography variant="caption" color="text.secondary">Proyecto • {p.estado} • {new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(Number(p.presupuesto || 0))}</Typography>
+                    </Paper>
+                  ))}
+                  {relatedOportunidades.slice(0, 5).map((o: any) => (
+                    <Paper key={o.id} sx={{ p: 1.2 }}>
+                      <Typography variant="body2" sx={{ fontWeight: 'bold' }}>{o.nombre}</Typography>
+                      <Typography variant="caption" color="text.secondary">Oportunidad • {o.etapa} • ${Number(o.valor || 0).toLocaleString('es-CO')}</Typography>
+                    </Paper>
+                  ))}
+                  {relatedTareas.slice(0, 5).map((t: any) => (
+                    <Paper key={t.id} sx={{ p: 1.2 }}>
+                      <Typography variant="body2" sx={{ fontWeight: 'bold' }}>{t.titulo}</Typography>
+                      <Typography variant="caption" color="text.secondary">Tarea • {t.estado} • Prioridad: {t.prioridad}</Typography>
+                    </Paper>
+                  ))}
+                </Stack>
+              )}
+
+              {detailTab === 2 && (
                 <Stack spacing={1}>
                   <Typography variant="subtitle2">Proyectos ({relatedProyectos.length})</Typography>
                   {relatedProyectos.length === 0 && <Typography variant="body2">Sin proyectos vinculados</Typography>}
@@ -1130,7 +1379,7 @@ export default function Clientes() {
                 </Stack>
               )}
 
-              {detailTab === 2 && (
+              {detailTab === 3 && (
                 <Stack spacing={1}>
                   <Typography variant="subtitle2">Oportunidades ({relatedOportunidades.length})</Typography>
                   {relatedOportunidades.length === 0 && <Typography variant="body2">Sin oportunidades vinculadas</Typography>}
@@ -1143,7 +1392,7 @@ export default function Clientes() {
                 </Stack>
               )}
 
-              {detailTab === 3 && (
+              {detailTab === 4 && (
                 <Stack spacing={1}>
                   <Typography variant="subtitle2">Tareas ({relatedTareas.length})</Typography>
                   {relatedTareas.length === 0 && <Typography variant="body2">Sin tareas vinculadas</Typography>}
@@ -1202,26 +1451,32 @@ export default function Clientes() {
               onChange={(e) => setIndustriaFilter(e.target.value)}
             >
               <MenuItem value="all">Todas las industrias</MenuItem>
-              <MenuItem value="Tecnología">Tecnología</MenuItem>
-              <MenuItem value="Salud">Salud</MenuItem>
-              <MenuItem value="E-commerce">E-commerce</MenuItem>
-              <MenuItem value="Inmobiliaria">Inmobiliaria</MenuItem>
-              <MenuItem value="Educación">Educación</MenuItem>
-              <MenuItem value="Finanzas">Finanzas</MenuItem>
-              <MenuItem value="Alimentación">Alimentación</MenuItem>
-              <MenuItem value="Moda">Moda</MenuItem>
-              <MenuItem value="Logística">Logística</MenuItem>
-              <MenuItem value="Energía">Energía</MenuItem>
-              <MenuItem value="Construcción">Construcción</MenuItem>
-              <MenuItem value="Entretenimiento">Entretenimiento</MenuItem>
-              <MenuItem value="Legal">Legal</MenuItem>
-              <MenuItem value="Consultoría">Consultoría</MenuItem>
-              <MenuItem value="Marketing">Marketing</MenuItem>
-              <MenuItem value="Agricultura">Agricultura</MenuItem>
-              <MenuItem value="Manufactura">Manufactura</MenuItem>
-              <MenuItem value="Turismo">Turismo</MenuItem>
-              <MenuItem value="Transporte">Transporte</MenuItem>
-              <MenuItem value="Farmacéutica">Farmacéutica</MenuItem>
+              {[...new Set(clientes.map(c => c.nicho).filter(Boolean) as string[])]
+                .sort()
+                .map((nicho: string) => (
+                  <MenuItem key={nicho} value={nicho}>{nicho}</MenuItem>
+                ))}
+            </Select>
+          </FormControl>
+
+          <FormControl fullWidth>
+            <InputLabel>Origen del Lead</InputLabel>
+            <Select value={origenFilter} label="Origen del Lead" onChange={(e) => setOrigenFilter(e.target.value)}>
+              <MenuItem value="all">Todos los orígenes</MenuItem>
+              {[...new Set(clientes.map(c => c.origen).filter(Boolean) as string[])]
+                .sort()
+                .map((origen: string) => (
+                  <MenuItem key={origen} value={origen}>{origen}</MenuItem>
+                ))}
+            </Select>
+          </FormControl>
+
+          <FormControl fullWidth>
+            <InputLabel>Favoritos</InputLabel>
+            <Select value={favoritoFilter} label="Favoritos" onChange={(e) => setFavoritoFilter(e.target.value)}>
+              <MenuItem value="all">Todos</MenuItem>
+              <MenuItem value="fav">⭐ Favoritos</MenuItem>
+              <MenuItem value="nofav">Sin favorito</MenuItem>
             </Select>
           </FormControl>
 
@@ -1229,7 +1484,7 @@ export default function Clientes() {
             <Button fullWidth variant="contained" onClick={() => setIsFilterDrawerOpen(false)}>
               Aplicar Filtros ({filteredClientes.length})
             </Button>
-            <Button fullWidth variant="text" onClick={() => { setSearchTerm(""); setEstadoFilter("all"); setIndustriaFilter("all"); }} sx={{ mt: 1 }}>
+            <Button fullWidth variant="text" onClick={() => { setSearchTerm(""); setEstadoFilter("all"); setIndustriaFilter("all"); setOrigenFilter("all"); setFavoritoFilter("all"); }} sx={{ mt: 1 }}>
               Limpiar Filtros
             </Button>
           </Box>

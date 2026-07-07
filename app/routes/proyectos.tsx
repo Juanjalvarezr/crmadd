@@ -15,10 +15,15 @@ import {
   Play, Pause, X, Eye, DollarSign, Target, Activity, RefreshCw, ExternalLink, FileText, Layout, 
   Video, Camera, Zap, Award, FileCheck, Share2, Mail, Send
 } from "lucide-react";
-import { format, formatDistanceToNow } from "date-fns";
+import { format, formatDistanceToNow, differenceInCalendarDays } from "date-fns";
 import { es } from "date-fns/locale";
 import { emailService, equipoService, logsService, clientesService, proyectosService } from "../services/database";
 import { TareasTab } from "./TareasTab";
+import { ProyectoKanban } from "../components/ProyectoKanban";
+import { ProyectoTimeline } from "../components/ProyectoTimeline";
+import { ProyectoComentarios } from "../components/ProyectoComentarios";
+import { ProyectoAdjuntos } from "../components/ProyectoAdjuntos";
+import { ProyectoDocuments } from "../components/ProyectoDocuments";
 import type { Proyecto, TareaProyecto, RecursoProyecto, PlanItem } from "../types/crm";
 import { aiService } from "../services/ai";
 import { useNotificationStore } from "../store/useNotificationStore";
@@ -62,6 +67,9 @@ export default function Proyectos() {
   // Estados para Recursos
   const [nuevoRecursoNombre, setNuevoRecursoNombre] = useState("");
   const [nuevoRecursoUrl, setNuevoRecursoUrl] = useState("");
+  
+  // Estado para modo de vista
+  const [viewMode, setViewMode] = useState<"list" | "kanban">("list");
   
   // Estados de filtros
   const [filtroCliente, setFiltroCliente] = useState("");
@@ -767,6 +775,32 @@ export default function Proyectos() {
     }
   };
 
+  // Detectar proyectos con alertas de vencimiento
+  const getProyectosVencimiento = () => {
+    const hoy = new Date();
+    return proyectos.filter(p => {
+      if (p.estado === "completado" || p.estado === "cancelado") return false;
+      const fin = new Date(p.fechaFin);
+      const diff = differenceInCalendarDays(fin, hoy);
+      return diff <= 7; // Alerta si faltan 7 o menos días
+    });
+  };
+
+  const handleUpdateCosto = async (proyecto: Proyecto, nuevoCosto: number) => {
+    try {
+      const actualizado = await proyectosService.update(proyecto.id, {
+        costoActual: nuevoCosto
+      });
+      setProyectos(prev => prev.map(p => p.id === proyecto.id ? actualizado : p));
+      if (selectedProyecto?.id === proyecto.id) {
+        setSelectedProyecto(actualizado);
+      }
+      showNotification("Costo actualizado", "success");
+    } catch (err: any) {
+      showNotification("Error al actualizar costo", "error");
+    }
+  };
+
   // Funciones de utilidad
   const getEstadoColor = (estado: Proyecto["estado"]) => {
     const colors = {
@@ -891,6 +925,15 @@ export default function Proyectos() {
               >
                 Actualizar
               </Button>
+              <Tooltip title={viewMode === "list" ? "Vista en lista" : "Vista kanban"}>
+                <Button
+                  variant={viewMode === "list" ? "contained" : "outlined"}
+                  onClick={() => setViewMode(viewMode === "list" ? "kanban" : "list")}
+                  sx={{ minWidth: 40 }}
+                >
+                  {viewMode === "list" ? "☰" : "☷"}
+                </Button>
+              </Tooltip>
             </Box>
           </Grid>
         </Grid>
@@ -955,6 +998,32 @@ export default function Proyectos() {
           </Button>
         </Box>
       </Paper>
+
+      {/* Alertas de vencimiento */}
+      {(() => {
+        const proyectosVencimiento = getProyectosVencimiento();
+        if (proyectosVencimiento.length === 0) return null;
+        return (
+          <Alert severity="warning" sx={{ mb: 2 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
+              <strong>Proyectos próximos a vencer:</strong>
+              {proyectosVencimiento.map(p => {
+                const dias = differenceInCalendarDays(new Date(p.fechaFin), new Date());
+                return (
+                  <Chip
+                    key={p.id}
+                    label={`${p.nombre} (${dias <= 0 ? Math.abs(dias) + " días vencido" : dias + " días restantes"})`}
+                    size="small"
+                    color={dias <= 0 ? "error" : "warning"}
+                    sx={{ cursor: "pointer" }}
+                    onClick={() => setSelectedProyecto(p)}
+                  />
+                );
+              })}
+            </Box>
+          </Alert>
+        );
+      })()}
 
       {loading && (
         <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
