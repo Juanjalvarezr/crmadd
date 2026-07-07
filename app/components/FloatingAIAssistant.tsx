@@ -114,16 +114,21 @@ export const FloatingAIAssistant = () => {
           <IconButton
             onClick={() => setIsOpen(true)}
             sx={{
-              width: 60,
-              height: 60,
-              background: 'linear-gradient(135deg, #e91e63, #9c27b0)',
-              boxShadow: '0 8px 24px rgba(233, 30, 99, 0.4)',
+              width: 64,
+              height: 64,
+              background: 'linear-gradient(135deg, #e91e63 0%, #9c27b0 100%)',
+              boxShadow: '0 8px 24px rgba(233,30,99,0.45)',
               color: 'white',
-              '&:hover': { transform: 'scale(1.05)', background: 'linear-gradient(135deg, #d81b60, #8e24aa)' },
-              transition: 'transform 0.2s',
+              '&:hover': {
+                transform: 'scale(1.08)',
+                boxShadow: '0 12px 32px rgba(233,30,99,0.55)',
+                background: 'linear-gradient(135deg, #d81b60 0%, #8e24aa 100%)',
+              },
+              transition: 'all 0.25s cubic-bezier(0.4,0,0.2,1)',
+              backdropFilter: 'blur(8px)',
             }}
           >
-            <FiCpu size={30} />
+            <FiCpu size={26} />
           </IconButton>
         </Tooltip>
       </Box>
