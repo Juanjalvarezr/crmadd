@@ -1,7 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { RouteSkeleton, RouteErrorBoundary } from '../components/RouteGuard';
-import { Box, Typography, Paper, Button, TextField, Select, MenuItem, FormControl, InputLabel, Dialog, DialogTitle, DialogContent, DialogActions, Chip, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Tooltip, Snackbar, Alert, Fade } from "@mui/material";
-import { FiPlus, FiDownload, FiEye, FiEdit, FiTrash2, FiX, FiSearch, FiMessageSquare, FiMail, FiFilter, FiSend, FiFileText, FiShoppingCart } from "react-icons/fi";
+import {
+  Box, Typography, Paper, Button, TextField, Select, MenuItem,
+  FormControl, InputLabel, Dialog, DialogTitle, DialogContent,
+  DialogActions, Chip, Table, TableBody, TableCell, TableContainer,
+  TableHead, TableRow, IconButton, Tooltip, Snackbar, Alert,
+  Fade, Grid, Card, CardContent, InputAdornment
+} from "@mui/material";
+import {
+  FiPlus, FiDownload, FiEye, FiEdit, FiTrash2, FiX, FiSearch,
+  FiMessageSquare, FiMail, FiFilter, FiSend, FiFileText, FiShoppingCart
+} from "react-icons/fi";
 import { facturasService } from "../services/facturacion";
 import { clientesService } from "../services/database";
 import { proyectosService } from "../services/database";
@@ -20,8 +29,20 @@ export default function Facturacion() {
   const [proyectos, setProyectos] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const [filterEstado, setFilterEstado] = useState("all");
+  const [filterTipo, setFilterTipo] = useState("all");
+  const [filterEstadoPago, setFilterEstadoPago] = useState("all");
+  const [filterCliente, setFilterCliente] = useState("");
+  const [filterProyecto, setFilterProyecto] = useState("");
+  const [filterFechaDesde, setFilterFechaDesde] = useState("");
+  const [filterFechaHasta, setFilterFechaHasta] = useState("");
   const [scannerOpen, setScannerOpen] = useState(false);
   const [sendingWhatsApp, setSendingWhatsApp] = useState<string | null>(null);
+  const [numeroSugerido, setNumeroSugerido] = useState("");
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState("");
+  const [anulacionOpen, setAnulacionOpen] = useState(false);
+  const [anulacionItem, setAnulacionItem] = useState<any>(null);
+  const [anulacionMotivo, setAnulacionMotivo] = useState("");
 
   const load = async () => {
     setLoading(true);
@@ -44,6 +65,13 @@ export default function Facturacion() {
 
   useEffect(() => { load(); }, []);
 
+  useEffect(() => {
+    if (open && !editItem) {
+      const year = new Date().getFullYear();
+      facturasService.getSiguienteNumero(String(year)).then(setNumeroSugerido);
+    }
+  }, [open, editItem]);
+
   const getClienteNombre = (id: any) => {
     const c = clientes.find((x: any) => String(x.id) === String(id));
     return c?.nombre || c?.empresa || '-';
@@ -55,6 +83,34 @@ export default function Facturacion() {
   };
 
   const formatCOP = (v: any) => `$${Number(v || 0).toLocaleString("es-CO")}`;
+
+  const resumen = useMemo(() => {
+    return items.reduce((acc, item) => {
+      const total = Number(item.total || 0);
+      acc.total += total;
+      acc.cantidad += 1;
+      if (item.estado === 'pagada') acc.pagado += total;
+      else if (item.estado === 'enviada') acc.enviado += total;
+      else if (item.estado === 'anulada') acc.anulado += total;
+      else acc.pendiente += total;
+      return acc;
+    }, { total: 0, cantidad: 0, pagado: 0, enviado: 0, anulado: 0, pendiente: 0 });
+  }, [items]);
+
+  const filteredItems = useMemo(() => {
+    return items.filter((item) => {
+      const matchesSearch = String(item.numero || item.id).toLowerCase().includes(search.toLowerCase()) ||
+        getClienteNombre(item.cliente_id).toLowerCase().includes(search.toLowerCase());
+      const matchesEstado = filterEstado === 'all' || item.estado === filterEstado;
+      const matchesTipo = filterTipo === 'all' || item.tipo === filterTipo;
+      const matchesEstadoPago = filterEstadoPago === 'all' || item.estado_pago === filterEstadoPago;
+      const matchesCliente = !filterCliente || String(item.cliente_id) === String(filterCliente);
+      const matchesProyecto = !filterProyecto || String(item.proyecto_id) === String(filterProyecto);
+      const matchesFechaDesde = !filterFechaDesde || String(item.fecha_emision || '') >= filterFechaDesde;
+      const matchesFechaHasta = !filterFechaHasta || String(item.fecha_emision || '') <= filterFechaHasta;
+      return matchesSearch && matchesEstado && matchesTipo && matchesEstadoPago && matchesCliente && matchesProyecto && matchesFechaDesde && matchesFechaHasta;
+    });
+  }, [items, search, filterEstado, filterTipo, filterEstadoPago, filterCliente, filterProyecto, filterFechaDesde, filterFechaHasta, clientes, proyectos]);
 
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -70,6 +126,8 @@ export default function Facturacion() {
       estado: String(fd.get('estado') || 'borrador'),
       estado_pago: String(fd.get('estado_pago') || 'pendiente'),
       notas: String(fd.get('notas') || ''),
+      fecha_emision: String(fd.get('fecha_emision') || new Date().toISOString().slice(0, 10)),
+      fecha_vencimiento: String(fd.get('fecha_vencimiento') || ''),
       cliente_id: fd.get('cliente_id') ? Number(fd.get('cliente_id')) : null,
       proyecto_id: fd.get('proyecto_id') ? String(fd.get('proyecto_id')) : null,
     };
@@ -110,6 +168,14 @@ export default function Facturacion() {
     URL.revokeObjectURL(url);
   };
 
+  const handlePreview = async (row: any) => {
+    const cliente = clientes.find((c: any) => String(c.id) === String(row.cliente_id));
+    const pdfBlob = await generarFacturaPDF(row, cliente);
+    const url = URL.createObjectURL(pdfBlob);
+    setPreviewUrl(url);
+    setPreviewOpen(true);
+  };
+
   const handleWhatsApp = async (row: any) => {
     const cliente = clientes.find((c: any) => String(c.id) === String(row.cliente_id));
     const telefono = cliente?.telefono || cliente?.telefono_whatsapp || '';
@@ -122,7 +188,7 @@ export default function Facturacion() {
       const pdfUrl = await uploadPDFToStorage(pdfBlob, path);
 
       const msg = encodeURIComponent(`Hola ${cliente?.nombre || ''}, te comparto la factura ${row.numero || row.id} por un valor de ${row.moneda} ${formatCOP(row.total)}. Descargala aqui: ${pdfUrl}`);
-      window.open(`https://wa.me/${telefono.replace(/[^\\d]/g, '')}?text=${msg}`, '_blank');
+      window.open(`https://wa.me/${telefono.replace(/[^\d]/g, '')}?text=${msg}`, '_blank');
     } catch (e) {
       setError('Error generando PDF para WhatsApp');
     } finally {
@@ -148,38 +214,178 @@ export default function Facturacion() {
     }
   };
 
-  const filteredItems = items.filter((item) => {
-    const matchesSearch = String(item.numero || item.id).toLowerCase().includes(search.toLowerCase()) ||
-      getClienteNombre(item.cliente_id).toLowerCase().includes(search.toLowerCase());
-    const matchesEstado = filterEstado === 'all' || item.estado === filterEstado;
-    return matchesSearch && matchesEstado;
-  });
+  const handleSolicitarAnulacion = (item: any) => {
+    setAnulacionItem(item);
+    setAnulacionMotivo("");
+    setAnulacionOpen(true);
+  };
+
+  const handleConfirmarAnulacion = async () => {
+    if (!anulacionItem || !anulacionMotivo.trim()) return;
+    try {
+      await facturasService.anular(anulacionItem.id, anulacionMotivo.trim());
+      setSuccess('Factura anulada');
+      setAnulacionOpen(false);
+      setAnulacionItem(null);
+      setAnulacionMotivo("");
+      load();
+    } catch (e) {
+      setError('Error anulando factura');
+    }
+  };
+
+  const exportCSV = () => {
+    const headers = ['Número', 'Cliente', 'Proyecto', 'Tipo', 'Subtotal', 'IVA', 'Total', 'Moneda', 'Estado', 'EstadoPago', 'FechaEmision', 'Notas'];
+    const rows = filteredItems.map(item => [
+      item.numero,
+      getClienteNombre(item.cliente_id),
+      getProyectoNombre(item.proyecto_id),
+      item.tipo,
+      item.subtotal,
+      item.iva,
+      item.total,
+      item.moneda,
+      item.estado,
+      item.estado_pago,
+      item.fecha_emision,
+      (item.notas || '').replace(/"/g, '""')
+    ]);
+    const csvContent = [headers, ...rows].map(e => e.map((cell: any) => `"${String(cell || '')}"`).join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `facturas_${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
+
+  const limpiarFiltros = () => {
+    setSearch("");
+    setFilterEstado("all");
+    setFilterTipo("all");
+    setFilterEstadoPago("all");
+    setFilterCliente("");
+    setFilterProyecto("");
+    setFilterFechaDesde("");
+    setFilterFechaHasta("");
+  };
 
   return (
     <Box sx={{ maxWidth: 1200, mx: 'auto', p: { xs: 2, sm: 3 } }}>
+      {/* Header */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 1.5 }}>
         <Typography variant="h4" sx={{ fontWeight: 800, fontSize: { xs: '1.5rem', sm: '2rem' } }}>Facturación</Typography>
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-          <Button variant="outlined" startIcon={<FiFilter />} onClick={() => setFilterEstado('all')}>Limpiar filtros</Button>
-          <Button variant="outlined" startIcon={<FiDownload />} onClick={() => alert('Exportar CSV próximamente')}>Exportar</Button>
-          <Button variant="contained" startIcon={<FiPlus />} onClick={() => { setEditItem(null); setOpen(true); }}>Nueva Factura</Button>
-          <Button variant="contained" color="secondary" startIcon={<FiShoppingCart />} onClick={() => setScannerOpen(true)}>Escanear</Button>
+          <Button variant="contained" color="secondary" startIcon={<FiShoppingCart />} onClick={() => setScannerOpen(true)} size="small">Escanear</Button>
+          <Button variant="contained" startIcon={<FiPlus />} onClick={() => { setEditItem(null); setOpen(true); }} size="small">Nueva Factura</Button>
         </Box>
       </Box>
 
+      {/* Resumen Fiscal */}
+      <Grid container spacing={2} sx={{ mb: 3 }}>
+        <Grid item xs={6} sm={4} md={2}>
+          <Card variant="outlined"><CardContent><Typography variant="caption" color="text.secondary">Facturas</Typography><Typography variant="h6">{resumen.cantidad}</Typography></CardContent></Card>
+        </Grid>
+        <Grid item xs={6} sm={4} md={2}>
+          <Card variant="outlined"><CardContent><Typography variant="caption" color="text.secondary">Total</Typography><Typography variant="h6">{formatCOP(resumen.total)}</Typography></CardContent></Card>
+        </Grid>
+        <Grid item xs={6} sm={4} md={2}>
+          <Card variant="outlined" sx={{ borderColor: 'success.main' }}><CardContent><Typography variant="caption" color="text.secondary">Pagado</Typography><Typography variant="h6" color="success.main">{formatCOP(resumen.pagado)}</Typography></CardContent></Card>
+        </Grid>
+        <Grid item xs={6} sm={4} md={2}>
+          <Card variant="outlined" sx={{ borderColor: 'info.main' }}><CardContent><Typography variant="caption" color="text.secondary">Enviado</Typography><Typography variant="h6" color="info.main">{formatCOP(resumen.enviado)}</Typography></CardContent></Card>
+        </Grid>
+        <Grid item xs={6} sm={4} md={2}>
+          <Card variant="outlined" sx={{ borderColor: 'warning.main' }}><CardContent><Typography variant="caption" color="text.secondary">Pendiente</Typography><Typography variant="h6" color="warning.main">{formatCOP(resumen.pendiente)}</Typography></CardContent></Card>
+        </Grid>
+        <Grid item xs={6} sm={4} md={2}>
+          <Card variant="outlined" sx={{ borderColor: 'error.main' }}><CardContent><Typography variant="caption" color="text.secondary">Anulado</Typography><Typography variant="h6" color="error.main">{formatCOP(resumen.anulado)}</Typography></CardContent></Card>
+        </Grid>
+      </Grid>
+
+      {/* Filtros avanzados */}
       <Paper sx={{ p: 2, mb: 3, borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
-        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-          <TextField size="small" placeholder="Buscar factura..." value={search} onChange={(e) => setSearch(e.target.value)} InputProps={{ startAdornment: <FiSearch style={{ marginRight: 8, opacity: 0.5 }} /> }} sx={{ flex: 1, minWidth: 200 }} />
-          <Select size="small" value={filterEstado} onChange={(e) => setFilterEstado(String(e.target.value))} sx={{ minWidth: 160 }}>
-            <MenuItem value="all">Todos los estados</MenuItem>
-            <MenuItem value="borrador">Borrador</MenuItem>
-            <MenuItem value="enviada">Enviada</MenuItem>
-            <MenuItem value="pagada">Pagada</MenuItem>
-            <MenuItem value="anulada">Anulada</MenuItem>
-          </Select>
-        </Box>
+        <Grid container spacing={1.5} alignItems="center">
+          <Grid item xs={12} md={3}>
+            <TextField
+              size="small"
+              placeholder="Buscar factura o cliente..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              InputProps={{ startAdornment: <InputAdornment position="start"><FiSearch /></InputAdornment> }}
+              fullWidth
+            />
+          </Grid>
+          <Grid item xs={6} md={2}>
+            <FormControl size="small" fullWidth>
+              <InputLabel>Estado</InputLabel>
+              <Select value={filterEstado} label="Estado" onChange={(e) => setFilterEstado(String(e.target.value))}>
+                <MenuItem value="all">Todos</MenuItem>
+                <MenuItem value="borrador">Borrador</MenuItem>
+                <MenuItem value="enviada">Enviada</MenuItem>
+                <MenuItem value="pagada">Pagada</MenuItem>
+                <MenuItem value="anulada">Anulada</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={6} md={2}>
+            <FormControl size="small" fullWidth>
+              <InputLabel>Tipo</InputLabel>
+              <Select value={filterTipo} label="Tipo" onChange={(e) => setFilterTipo(String(e.target.value))}>
+                <MenuItem value="all">Todos</MenuItem>
+                <MenuItem value="servicio">Servicio</MenuItem>
+                <MenuItem value="producto">Producto</MenuItem>
+                <MenuItem value="mixto">Mixto</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={6} md={2}>
+            <FormControl size="small" fullWidth>
+              <InputLabel>Estado pago</InputLabel>
+              <Select value={filterEstadoPago} label="Estado pago" onChange={(e) => setFilterEstadoPago(String(e.target.value))}>
+                <MenuItem value="all">Todos</MenuItem>
+                <MenuItem value="anticipo">Anticipo</MenuItem>
+                <MenuItem value="parcial">Parcial</MenuItem>
+                <MenuItem value="pago_final">Pago final</MenuItem>
+                <MenuItem value="pendiente">Pendiente</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={6} md={3} sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+            <Button variant="outlined" startIcon={<FiFilter />} onClick={limpiarFiltros} size="small">Limpiar</Button>
+            <Button variant="outlined" startIcon={<FiDownload />} onClick={exportCSV} size="small">Exportar CSV</Button>
+          </Grid>
+          <Grid item xs={6} md={2}>
+            <FormControl size="small" fullWidth>
+              <InputLabel>Cliente</InputLabel>
+              <Select value={filterCliente} label="Cliente" onChange={(e) => setFilterCliente(String(e.target.value))}>
+                <MenuItem value="">Todos</MenuItem>
+                {clientes.map((c: any) => <MenuItem key={c.id} value={c.id}>{c.nombre || c.empresa}</MenuItem>)}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={6} md={2}>
+            <FormControl size="small" fullWidth>
+              <InputLabel>Proyecto</InputLabel>
+              <Select value={filterProyecto} label="Proyecto" onChange={(e) => setFilterProyecto(String(e.target.value))}>
+                <MenuItem value="">Todos</MenuItem>
+                {proyectos.map((p: any) => <MenuItem key={p.id} value={p.id}>{p.nombre}</MenuItem>)}
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs={6} md={2}>
+            <TextField size="small" label="Desde" type="date" value={filterFechaDesde} onChange={(e) => setFilterFechaDesde(e.target.value)} InputLabelProps={{ shrink: true }} fullWidth />
+          </Grid>
+          <Grid item xs={6} md={2}>
+            <TextField size="small" label="Hasta" type="date" value={filterFechaHasta} onChange={(e) => setFilterFechaHasta(e.target.value)} InputLabelProps={{ shrink: true }} fullWidth />
+          </Grid>
+        </Grid>
       </Paper>
 
+      {/* Tabla */}
       {loading ? (
         <RouteSkeleton />
       ) : (
@@ -223,11 +429,14 @@ export default function Facturacion() {
                       </TableCell>
                       <TableCell align="right">
                         <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
-                          <Tooltip title="Ver"><IconButton size="small"><FiEye /></IconButton></Tooltip>
-                          <Tooltip title="Editar"><IconButton size="small" onClick={() => { setEditItem(item); setOpen(true); }}><FiEdit /></IconButton></Tooltip>
+                          <Tooltip title="Vista previa"><IconButton size="small" onClick={() => handlePreview(item)}><FiEye /></IconButton></Tooltip>
+                          <Tooltip title="PDF"><IconButton size="small" onClick={() => handlePDF(item)}><FiFileText /></IconButton></Tooltip>
                           <Tooltip title="WhatsApp"><IconButton size="small" onClick={() => handleWhatsApp(item)} disabled={!telefono || sendingWhatsApp === item.id}><FiMessageSquare /></IconButton></Tooltip>
                           <Tooltip title="Email"><IconButton size="small" onClick={() => handleEmail(item)} disabled={!email}><FiMail /></IconButton></Tooltip>
-                          <Tooltip title="PDF"><IconButton size="small" onClick={() => handlePDF(item)}><FiFileText /></IconButton></Tooltip>
+                          <Tooltip title="Editar"><IconButton size="small" onClick={() => { setEditItem(item); setOpen(true); }}><FiEdit /></IconButton></Tooltip>
+                          {item.estado !== 'anulada' && (
+                            <Tooltip title="Anular"><IconButton size="small" color="error" onClick={() => handleSolicitarAnulacion(item)}><FiX /></IconButton></Tooltip>
+                          )}
                           <Tooltip title="Eliminar"><IconButton size="small" onClick={() => handleDelete(item.id)}><FiTrash2 /></IconButton></Tooltip>
                         </Box>
                       </TableCell>
@@ -243,77 +452,140 @@ export default function Facturacion() {
         </Fade>
       )}
 
+      {/* Dialog Factura */}
       <Dialog open={open} onClose={() => { setOpen(false); setEditItem(null); }} maxWidth="sm" fullWidth>
         <DialogTitle>{editItem?.id ? 'Editar Factura' : 'Nueva Factura'}</DialogTitle>
         <DialogContent>
           <form id="factura-form" onSubmit={handleSave}>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-              <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
-                <TextField label="Número" name="numero" required defaultValue={editItem?.numero || ''} sx={{ flex: 1 }} />
-                <FormControl sx={{ minWidth: 160, flex: 1 }}>
-                  <InputLabel>Cliente</InputLabel>
-                  <Select name="cliente_id" label="Cliente" defaultValue={editItem?.cliente_id || ''}>
-                    <MenuItem value="">Seleccionar...</MenuItem>
-                    {clientes.map((c: any) => <MenuItem key={c.id} value={c.id}>{c.nombre}</MenuItem>)}
-                  </Select>
-                </FormControl>
-              </Box>
-              <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
-                <FormControl sx={{ minWidth: 160, flex: 1 }}>
-                  <InputLabel>Proyecto</InputLabel>
-                  <Select name="proyecto_id" label="Proyecto" defaultValue={editItem?.proyecto_id || ''}>
-                    <MenuItem value="">Seleccionar...</MenuItem>
-                    {proyectos.map((p: any) => <MenuItem key={p.id} value={p.id}>{p.nombre}</MenuItem>)}
-                  </Select>
-                </FormControl>
-                <FormControl sx={{ minWidth: 140, flex: 1 }}>
-                  <InputLabel>Tipo</InputLabel>
-                  <Select name="tipo" label="Tipo" defaultValue={editItem?.tipo || 'servicio'}>
-                    <MenuItem value="servicio">Servicio</MenuItem>
-                    <MenuItem value="producto">Producto</MenuItem>
-                    <MenuItem value="mixto">Mixto</MenuItem>
-                  </Select>
-                </FormControl>
-              </Box>
-              <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
-                <TextField label="Subtotal" name="subtotal" type="number" defaultValue={editItem?.subtotal || ''} sx={{ flex: 1 }} />
-                <TextField label="IVA" name="iva" type="number" defaultValue={editItem?.iva || ''} sx={{ flex: 1 }} />
-                <TextField label="Total" name="total" type="number" defaultValue={editItem?.total || ''} sx={{ flex: 1 }} />
-              </Box>
-              <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
-                <FormControl sx={{ minWidth: 120, flex: 1 }}>
-                  <InputLabel>Moneda</InputLabel>
-                  <Select name="moneda" label="Moneda" defaultValue={editItem?.moneda || 'COP'}>
-                    <MenuItem value="COP">COP</MenuItem>
-                    <MenuItem value="USD">USD</MenuItem>
-                  </Select>
-                </FormControl>
-                <FormControl sx={{ minWidth: 140, flex: 1 }}>
-                  <InputLabel>Estado</InputLabel>
-                  <Select name="estado" label="Estado" defaultValue={editItem?.estado || 'borrador'}>
-                    <MenuItem value="borrador">Borrador</MenuItem>
-                    <MenuItem value="enviada">Enviada</MenuItem>
-                    <MenuItem value="pagada">Pagada</MenuItem>
-                    <MenuItem value="anulada">Anulada</MenuItem>
-                  </Select>
-                </FormControl>
-                <FormControl sx={{ minWidth: 170, flex: 1 }}>
-                  <InputLabel>Estado de pago</InputLabel>
-                  <Select name="estado_pago" label="Estado de pago" defaultValue={editItem?.estado_pago || 'pendiente'}>
-                    <MenuItem value="anticipo">Anticipo</MenuItem>
-                    <MenuItem value="parcial">Parcial</MenuItem>
-                    <MenuItem value="pago_final">Pago final</MenuItem>
-                    <MenuItem value="pendiente">Pendiente</MenuItem>
-                  </Select>
-                </FormControl>
-              </Box>
-              <TextField label="Notas" name="notas" multiline rows={3} defaultValue={editItem?.notas || ''} />
+              <Grid container spacing={1.5}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Número"
+                    name="numero"
+                    required
+                    value={editItem ? editItem.numero || '' : numeroSugerido}
+                    onChange={(e) => setNumeroSugerido(e.target.value)}
+                    fullWidth
+                    helperText={editItem ? '' : 'Consecutivo automático por año'}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <FormControl fullWidth>
+                    <InputLabel>Cliente</InputLabel>
+                    <Select name="cliente_id" label="Cliente" defaultValue={editItem?.cliente_id || ''}>
+                      <MenuItem value="">Seleccionar...</MenuItem>
+                      {clientes.map((c: any) => <MenuItem key={c.id} value={c.id}>{c.nombre}</MenuItem>)}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <FormControl fullWidth>
+                    <InputLabel>Proyecto</InputLabel>
+                    <Select name="proyecto_id" label="Proyecto" defaultValue={editItem?.proyecto_id || ''}>
+                      <MenuItem value="">Seleccionar...</MenuItem>
+                      {proyectos.map((p: any) => <MenuItem key={p.id} value={p.id}>{p.nombre}</MenuItem>)}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <FormControl fullWidth>
+                    <InputLabel>Tipo</InputLabel>
+                    <Select name="tipo" label="Tipo" defaultValue={editItem?.tipo || 'servicio'}>
+                      <MenuItem value="servicio">Servicio</MenuItem>
+                      <MenuItem value="producto">Producto</MenuItem>
+                      <MenuItem value="mixto">Mixto</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <TextField label="Subtotal" name="subtotal" type="number" defaultValue={editItem?.subtotal || ''} fullWidth />
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <TextField label="IVA" name="iva" type="number" defaultValue={editItem?.iva || ''} fullWidth />
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <TextField label="Total" name="total" type="number" defaultValue={editItem?.total || ''} fullWidth />
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <FormControl fullWidth>
+                    <InputLabel>Moneda</InputLabel>
+                    <Select name="moneda" label="Moneda" defaultValue={editItem?.moneda || 'COP'}>
+                      <MenuItem value="COP">COP</MenuItem>
+                      <MenuItem value="USD">USD</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <FormControl fullWidth>
+                    <InputLabel>Estado</InputLabel>
+                    <Select name="estado" label="Estado" defaultValue={editItem?.estado || 'borrador'}>
+                      <MenuItem value="borrador">Borrador</MenuItem>
+                      <MenuItem value="enviada">Enviada</MenuItem>
+                      <MenuItem value="pagada">Pagada</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <FormControl fullWidth>
+                    <InputLabel>Estado de pago</InputLabel>
+                    <Select name="estado_pago" label="Estado de pago" defaultValue={editItem?.estado_pago || 'pendiente'}>
+                      <MenuItem value="anticipo">Anticipo</MenuItem>
+                      <MenuItem value="parcial">Parcial</MenuItem>
+                      <MenuItem value="pago_final">Pago final</MenuItem>
+                      <MenuItem value="pendiente">Pendiente</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField label="Fecha emisión" name="fecha_emision" type="date" defaultValue={editItem?.fecha_emision || new Date().toISOString().slice(0, 10)} InputLabelProps={{ shrink: true }} fullWidth />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField label="Fecha vencimiento" name="fecha_vencimiento" type="date" defaultValue={editItem?.fecha_vencimiento || ''} InputLabelProps={{ shrink: true }} fullWidth />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField label="Notas" name="notas" multiline rows={2} defaultValue={editItem?.notas || ''} fullWidth />
+                </Grid>
+              </Grid>
             </Box>
           </form>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => { setOpen(false); setEditItem(null); }}>Cancelar</Button>
           <Button type="submit" form="factura-form" variant="contained">Guardar</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Preview PDF */}
+      <Dialog open={previewOpen} onClose={() => { setPreviewOpen(false); if (previewUrl) URL.revokeObjectURL(previewUrl); setPreviewUrl(''); }} maxWidth="md" fullWidth>
+        <DialogTitle>Vista previa factura</DialogTitle>
+        <DialogContent>
+          {previewUrl && <embed src={previewUrl} type="application/pdf" width="100%" height="600px" />}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => { setPreviewOpen(false); if (previewUrl) URL.revokeObjectURL(previewUrl); setPreviewUrl(''); }}>Cerrar</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Anulación */}
+      <Dialog open={anulacionOpen} onClose={() => { setAnulacionOpen(false); setAnulacionItem(null); setAnulacionMotivo(""); }}>
+        <DialogTitle>Anular factura {anulacionItem?.numero}</DialogTitle>
+        <DialogContent>
+          <Box sx={{ minWidth: 400 }}>
+            <TextField
+              label="Motivo de anulación"
+              multiline
+              rows={3}
+              fullWidth
+              value={anulacionMotivo}
+              onChange={(e) => setAnulacionMotivo(e.target.value)}
+              placeholder="Indica el motivo de la anulación..."
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => { setAnulacionOpen(false); setAnulacionItem(null); setAnulacionMotivo(""); }}>Cancelar</Button>
+          <Button onClick={handleConfirmarAnulacion} color="error" variant="contained" disabled={!anulacionMotivo.trim()}>Anular</Button>
         </DialogActions>
       </Dialog>
 

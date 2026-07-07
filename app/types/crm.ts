@@ -160,6 +160,32 @@ export interface Contrato {
   valor?: number | null;
   created_at: string;
   updated_at: string;
+
+  // Mejoras
+  fecha_renovacion?: string | null;
+  alerta_renovacion_dias?: number | null;
+  firmado_en?: string | null;
+  firma_datos?: {
+    nombre: string;
+    dni?: string;
+    fecha: string;
+    ip?: string;
+    dispositivo?: string;
+  } | null;
+  bloqueado_post_firma?: boolean | null;
+  version?: number | null;
+  factura_id?: string | null;
+  obligaciones?: {
+    descripcion: string;
+    fecha_vencimiento?: string | null;
+    estado: "pendiente" | "cumplida" | "vencida" | string;
+  }[] | null;
+  vencimientos?: {
+    descripcion: string;
+    fecha: string;
+    recordatorio_dias: number;
+    cumplido: boolean;
+  }[] | null;
 }
 
 export interface PlantillaContrato {
@@ -169,6 +195,27 @@ export interface PlantillaContrato {
   contenido: string;
   variables_definicion: { nombre: string; label: string; tipo: "texto" | "fecha" | "numero" }[];
   activa: boolean;
+}
+
+export interface ContratoVersion {
+  id: string;
+  contrato_id: string;
+  version: number;
+  contenido: string;
+  variables?: Record<string, any> | null;
+  cambios?: Record<string, any> | null;
+  usuario?: string | null;
+  created_at: string;
+}
+
+export interface ContratoClausula {
+  id: string;
+  tipo: Contrato["tipo"];
+  titulo: string;
+  contenido: string;
+  orden: number;
+  activa: boolean;
+  created_at: string;
 }
 
 export interface Agente {

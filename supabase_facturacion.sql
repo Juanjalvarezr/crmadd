@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS public.facturas (
   fecha_emision DATE NOT NULL DEFAULT now(),
   fecha_vencimiento DATE,
   notas TEXT,
+  motivo_anulacion TEXT,
   json_data JSONB,
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()

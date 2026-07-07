@@ -10,7 +10,10 @@ const BRAND = {
 };
 
 function drawBrandHeader(doc: any, title: string, subtitle?: string) {
-  doc.setFillColor(...Object.values([BRAND.primary]).map((hex: string) => parseInt(hex.slice(1, 3), 16)));
+  const r = parseInt(BRAND.primary.slice(1, 3), 16);
+  const g = parseInt(BRAND.primary.slice(3, 5), 16);
+  const b = parseInt(BRAND.primary.slice(5, 7), 16);
+  doc.setFillColor(r, g, b);
   doc.rect(0, 0, 220, 32, "F");
 
   doc.setTextColor(255, 255, 255);
@@ -23,35 +26,20 @@ function drawBrandHeader(doc: any, title: string, subtitle?: string) {
     doc.setFont("helvetica", "normal");
     doc.text(subtitle, 16, 24);
   }
-
-  doc.setTextColor(...[BRAND.text].map((hex) => {
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
-    return [r, g, b];
-  })[0]);
 }
 
 function drawMeta(doc: any, x: number, y: number, fields: { label: string; value?: string }[]) {
   doc.setFontSize(9);
   doc.setFont("helvetica", "normal");
   let cy = y;
+  const muted = [parseInt(BRAND.muted.slice(1, 3), 16), parseInt(BRAND.muted.slice(3, 5), 16), parseInt(BRAND.muted.slice(5, 7), 16)];
+  const text = [parseInt(BRAND.text.slice(1, 3), 16), parseInt(BRAND.text.slice(3, 5), 16), parseInt(BRAND.text.slice(5, 7), 16)];
   for (const f of fields) {
-    doc.setTextColor(...[BRAND.muted].map((hex) => {
-      const r = parseInt(hex.slice(1, 3), 16);
-      const g = parseInt(hex.slice(3, 5), 16);
-      const b = parseInt(hex.slice(5, 7), 16);
-      return [r, g, b];
-    })[0]);
+    doc.setTextColor(...muted);
     doc.text(f.label, x, cy);
     cy += 5;
     if (f.value) {
-      doc.setTextColor(...[BRAND.text].map((hex) => {
-        const r = parseInt(hex.slice(1, 3), 16);
-        const g = parseInt(hex.slice(3, 5), 16);
-        const b = parseInt(hex.slice(5, 7), 16);
-        return [r, g, b];
-      })[0]);
+      doc.setTextColor(...text);
       doc.setFont("helvetica", "bold");
       doc.text(f.value, x, cy);
       doc.setFont("helvetica", "normal");
@@ -102,7 +90,6 @@ export async function generarFacturaPDF(factura: any, cliente: any = null, items
     theme: "grid",
     headStyles: { fillColor: [15, 23, 42], textColor: 255, fontStyle: "bold" },
     styles: { fontSize: 10 },
-    footStyles: { fillColor: [248, 250, 252], textColor: 30 },
     foot: [
       [
         { content: "Subtotal", colSpan: 3, styles: { halign: "right", fontStyle: "bold" } },
@@ -117,18 +104,13 @@ export async function generarFacturaPDF(factura: any, cliente: any = null, items
         { content: formatCOP(factura.total || 0), styles: { halign: "right", fontStyle: "bold" } },
       ],
     ],
-    footY: doc.lastAutoTable ? undefined : undefined,
   });
 
-  const finalY = doc.lastAutoTable?.finalY || y + 40;
+  const finalY = (doc as any).lastAutoTable?.finalY || y + 40;
   doc.setFontSize(8);
-  doc.setTextColor(...[BRAND.muted].map((hex) => {
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
-    return [r, g, b];
-  })[0]);
-  doc.text("DESEO DIGIONAL - Agencia Inteligente - nit. 000.000.000", 14, finalY + 12);
+  const muted2 = [parseInt(BRAND.muted.slice(1, 3), 16), parseInt(BRAND.muted.slice(3, 5), 16), parseInt(BRAND.muted.slice(5, 7), 16)];
+  doc.setTextColor(...muted2);
+  doc.text("DESEO DIGITAL - Agencia Inteligente - nit. 000.000.000", 14, finalY + 12);
   doc.text("www.deseodigital.com - hola@deseodigital.com", 14, finalY + 18);
 
   const blob = doc.output("blob");
@@ -153,6 +135,7 @@ export async function generarContratoPDF(contrato: any, cliente: any = null) {
     { label: "NÚMERO", value: String(contrato.numero || contrato.id || "-") },
     { label: "TIPO", value: String(contrato.tipo || "-") },
     { label: "ESTADO", value: String(contrato.estado || "-") },
+    { label: "VERSIÓN", value: String(contrato.version || 1) },
   ];
   drawMeta(doc, 120, 40, metaFields);
 
@@ -164,14 +147,35 @@ export async function generarContratoPDF(contrato: any, cliente: any = null) {
   doc.setFontSize(9);
   doc.text(split, 14, y + 52);
 
-  const finalY = doc.lastAutoTable?.finalY || y + 100;
+  // Bloque de firma simulada
+  const baseY = y + 52 + split.length * 4 + 50;
+  doc.setDrawColor(15, 23, 42);
+  doc.setLineWidth(0.5);
+  doc.rect(14, baseY - 12, 180, 46);
+
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(15, 23, 42);
+  doc.text("FIRMA DIGITAL SIMULADA", 20, baseY);
+
+  if (contrato.firma_datos) {
+    const fd = contrato.firma_datos;
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Nombre: ${fd.nombre || '-'}`, 20, baseY + 8);
+    if (fd.dni) doc.text(`DNI/ID: ${fd.dni}`, 20, baseY + 14);
+    doc.text(`Fecha: ${fd.fecha || new Date().toISOString()}`, 20, baseY + 20);
+    if (fd.dispositivo) doc.text(`Dispositivo: ${fd.dispositivo}`, 20, baseY + 26);
+    doc.text("Estado: Firmado electrónicamente (simulado)", 20, baseY + 32);
+  } else {
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "italic");
+    doc.text("Pendiente de firma electrónica", 20, baseY + 8);
+  }
+
+  const finalY = (doc as any).lastAutoTable?.finalY || baseY + 80;
   doc.setFontSize(8);
-  doc.setTextColor(...[BRAND.muted].map((hex) => {
-    const r = parseInt(hex.slice(1, 3), 16);
-    const g = parseInt(hex.slice(3, 5), 16);
-    const b = parseInt(hex.slice(5, 7), 16);
-    return [r, g, b];
-  })[0]);
+  doc.setTextColor(...[parseInt(BRAND.muted.slice(1, 3), 16), parseInt(BRAND.muted.slice(3, 5), 16), parseInt(BRAND.muted.slice(5, 7), 16)]);
   doc.text("DESEO DIGITAL - Agencia Inteligente - nit. 000.000.000", 14, finalY + 12);
   doc.text("www.deseodigital.com - hola@deseodigital.com", 14, finalY + 18);
 
