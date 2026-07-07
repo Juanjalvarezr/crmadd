@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Box, Typography, Paper, Button, Stack, Chip } from "@mui/material";
-import { FiFolder, FiPlus, FiPlay, FiPause, FiCheckCircle, FiX } from "lucide-react";
+import { Folder, Plus, Play, Pause, CheckCircle, X } from "lucide-react";
 
 type Estado = "planificacion" | "en_progreso" | "pausado" | "completado" | "cancelado";
 
