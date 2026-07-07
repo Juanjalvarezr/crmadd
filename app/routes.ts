@@ -21,4 +21,5 @@ export default [
 	route("/contratos", "routes/contratos.tsx"),
 	route("/agentes", "routes/agentes.tsx"),
 	route("/public/proyecto/:id", "routes/public-proyecto.tsx"),
+	route("/proyecto/:id", "routes/proyecto.tsx"),
 ] satisfies RouteConfig;

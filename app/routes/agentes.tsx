@@ -27,6 +27,24 @@ const triggers = [
   { value: "webhook", label: "Webhook" },
 ] as const;
 
+const RUTAS_DISPONIBLES = [
+  { value: "/clientes", label: "Clientes" },
+  { value: "/servicios", label: "Servicios" },
+  { value: "/ventas", label: "Ventas" },
+  { value: "/tareas", label: "Tareas" },
+  { value: "/proyectos", label: "Proyectos" },
+  { value: "/facturacion", label: "Facturación" },
+  { value: "/email-marketing", label: "Email Marketing" },
+  { value: "/chatbot", label: "Chatbot" },
+  { value: "/calendario", label: "Calendario" },
+  { value: "/reportes", label: "Reportes" },
+  { value: "/estimador", label: "Estimador" },
+  { value: "/equipo", label: "Equipo" },
+  { value: "/contratos", label: "Contratos" },
+  { value: "/agentes", label: "Agentes" },
+  { value: "/configuracion", label: "Configuración" },
+] as const;
+
 export default function Agentes() {
   const [items, setItems] = useState<Agente[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,7 +53,7 @@ export default function Agentes() {
   const [form, setForm] = useState({
     nombre: "", descripcion: "", tipo: "ventas" as Agente["tipo"],
     estado: "borrador" as Agente["estado"], prompts: "", herramientas: "",
-    trigger: "manual" as Agente["trigger"], activo: false
+    trigger: "manual" as Agente["trigger"], activo: false, rutas_activas: [] as string[]
   });
 
   const load = async () => {
@@ -52,7 +70,7 @@ export default function Agentes() {
 
   const openNew = () => {
     setEditing(null);
-    setForm({ nombre: "", descripcion: "", tipo: "ventas", estado: "borrador", prompts: "", herramientas: "", trigger: "manual", activo: false });
+    setForm({ nombre: "", descripcion: "", tipo: "ventas", estado: "borrador", prompts: "", herramientas: "", trigger: "manual", activo: false, rutas_activas: [] });
     setOpen(true);
   };
 
@@ -62,7 +80,7 @@ export default function Agentes() {
       nombre: row.nombre, descripcion: row.descripcion ?? "", tipo: row.tipo,
       estado: row.estado, prompts: [...(row.prompts ?? [])].join("\n"),
       herramientas: [...(row.herramientas ?? [])].join("\n"),
-      trigger: row.trigger, activo: row.activo
+      trigger: row.trigger, activo: row.activo, rutas_activas: row.rutas_activas ?? []
     });
     setOpen(true);
   };
@@ -77,6 +95,7 @@ export default function Agentes() {
       herramientas: form.herramientas.split("\n").map(s => s.trim()).filter(Boolean),
       trigger: form.trigger,
       activo: form.activo,
+      rutas_activas: form.rutas_activas,
     };
     if (!payload.nombre) return;
     if (editing) {
@@ -86,8 +105,6 @@ export default function Agentes() {
         ...payload,
         ultima_ejecucion: null,
         metricas: { ejecuciones: 0, exito: 0, fallos: 0 },
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
       });
     }
     setOpen(false);
@@ -122,6 +139,7 @@ export default function Agentes() {
                   <TableCell>Estado</TableCell>
                   <TableCell>Trigger</TableCell>
                   <TableCell>Activo</TableCell>
+                  <TableCell>Rutas</TableCell>
                   <TableCell align="right">Acciones</TableCell>
                 </TableRow>
               </TableHead>
@@ -136,6 +154,15 @@ export default function Agentes() {
                     <TableCell><Chip size="small" label={a.estado} color={a.estado === "activo" ? "success" : a.estado === "pausado" ? "warning" : "default"} /></TableCell>
                     <TableCell><Chip size="small" label={a.trigger} variant="outlined" /></TableCell>
                     <TableCell><Switch size="small" checked={a.activo} onChange={async (_, checked) => { await agentesService.update(a.id, { activo: checked }); load(); }} /></TableCell>
+                    <TableCell>
+                      <Box sx={{ display: "flex", gap: 0.5, flexWrap: "wrap" }}>
+                        {(a.rutas_activas ?? []).map((ruta) => {
+                          const found = RUTAS_DISPONIBLES.find(r => r.value === ruta);
+                          return <Chip key={ruta} size="small" label={found ? found.label : ruta} variant="outlined" sx={{ fontSize: "0.7rem", height: 24 }} />;
+                        })}
+                        {(!a.rutas_activas || a.rutas_activas.length === 0) && <Typography variant="caption" color="text.secondary">—</Typography>}
+                      </Box>
+                    </TableCell>
                     <TableCell align="right">
                       <Stack direction="row" spacing={1} justifyContent="flex-end">
                         <Tooltip title="Editar"><IconButton size="small" onClick={() => openEdit(a)}><FiEdit3 /></IconButton></Tooltip>
@@ -146,7 +173,7 @@ export default function Agentes() {
                 ))}
                 {items.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={6}>
+                    <TableCell colSpan={7}>
                       <Box sx={{ py: 8, textAlign: "center", color: "text.secondary" }}>Sin agentes creados.</Box>
                     </TableCell>
                   </TableRow>
@@ -179,6 +206,23 @@ export default function Agentes() {
                   {triggers.map(t => <MenuItem key={t.value} value={t.value}>{t.label}</MenuItem>)}
                 </Select>
               </FormControl>
+            </Box>
+            <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+              <Typography variant="caption" sx={{ width: "100%", color: "text.secondary" }}>Rutas activas:</Typography>
+              {RUTAS_DISPONIBLES.map((r) => {
+                const active = form.rutas_activas.includes(r.value);
+                return (
+                  <Chip
+                    key={r.value}
+                    label={r.label}
+                    size="small"
+                    onClick={() => setForm({ ...form, rutas_activas: active ? form.rutas_activas.filter(x => x !== r.value) : [...form.rutas_activas, r.value] })}
+                    color={active ? "primary" : "default"}
+                    variant={active ? "filled" : "outlined"}
+                    sx={{ fontWeight: 600 }}
+                  />
+                );
+              })}
             </Box>
             <TextField label="Prompts" fullWidth multiline minRows={3} value={form.prompts} onChange={(e) => setForm({ ...form, prompts: e.target.value })} helperText="Uno por línea" />
             <TextField label="Herramientas" fullWidth multiline minRows={2} value={form.herramientas} onChange={(e) => setForm({ ...form, herramientas: e.target.value })} helperText="Uno por línea" />

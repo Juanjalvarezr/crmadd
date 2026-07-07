@@ -20,13 +20,15 @@ import {
   FiActivity,
   FiClock,
 } from "react-icons/fi";
-import { proyectosService, clientesService, oportunidadesService, tareasService } from "../services/database";
+import { proyectosService, clientesService, oportunidadesService, tareasService, transaccionesService } from "../services/database";
 import { StatCard } from "../components/StatCard";
 
 const initialState = {
   proyectos: [],
   clientes: [],
   oportunidades: [],
+  tareas: [],
+  transacciones: [],
   isUsingMockData: false,
 };
 
@@ -41,6 +43,8 @@ export default function Dashboard() {
     totalPresupuestado: 0,
     totalRecaudado: 0,
     tareasPendientes: 0,
+    totalTransacciones: 0,
+    montoTransacciones: 0,
   });
   const [presentationMode, setPresentationMode] = useState(false);
   const todayLabel = new Date().toLocaleDateString("es-CO", {
@@ -69,6 +73,7 @@ export default function Dashboard() {
     const clientes = Array.isArray(source.clientes) ? source.clientes : [];
     const oportunidades = Array.isArray(source.oportunidades) ? source.oportunidades : [];
     const tareas = Array.isArray(source.tareas) ? source.tareas : [];
+    const transacciones = Array.isArray(source.transacciones) ? source.transacciones : [];
 
     const totalPresupuestado = proyectos.reduce(
       (acc: number, current: any) => acc + (Number(current.presupuesto) || 0),
@@ -87,6 +92,11 @@ export default function Dashboard() {
       )
       .reduce((acc: number, current: any) => acc + (Number(current.valor) || 0), 0);
 
+    const montoTransacciones = transacciones.reduce(
+      (acc: number, current: any) => acc + (Number(current.monto) || Number(current.valor) || 0),
+      0
+    );
+
     setStats({
       totalClientes: clientes.length,
       proyectosActivos: proyectos.filter(
@@ -99,6 +109,8 @@ export default function Dashboard() {
       tareasPendientes: Array.isArray(tareas)
         ? tareas.filter((t: any) => t.estado !== "Completada" && t.estado !== "Cancelada").length
         : 0,
+      totalTransacciones: transacciones.length,
+      montoTransacciones,
     });
   }, [setStats]);
 
@@ -106,12 +118,13 @@ export default function Dashboard() {
     setLoading(true);
     setError(null);
     try {
-      const [proyectos, clientes, oportunidades, tareas] =
+      const [proyectos, clientes, oportunidades, tareas, transacciones] =
         await Promise.all([
           proyectosService.getAll(),
           clientesService.getAll(),
           oportunidadesService.getAll(),
           tareasService.getAll(),
+          transaccionesService.getAll(),
         ]);
 
       const source = {
@@ -119,12 +132,15 @@ export default function Dashboard() {
         clientes,
         oportunidades,
         tareas,
+        transacciones,
       };
 
       setData({
         proyectos,
         clientes,
         oportunidades,
+        tareas,
+        transacciones,
         isUsingMockData: false,
       });
 
@@ -293,6 +309,26 @@ export default function Dashboard() {
             title="Tareas pendientes"
             value={stats.tareasPendientes}
             color="error"
+            compact
+          />
+        </Grid>
+        <Grid item xs={6} sm={4} lg={2.4}>
+          <StatCard
+            title="Transacciones"
+            value={stats.totalTransacciones}
+            subtitle={presentationMode ? "" : "Total operaciones"}
+            icon={<FiActivity size={20} />}
+            color="warning"
+            compact
+          />
+        </Grid>
+        <Grid item xs={6} sm={4} lg={2.4}>
+          <StatCard
+            title="Monto transacciones"
+            value={presentationMode ? "•••" : formatCOP(stats.montoTransacciones)}
+            subtitle={presentationMode ? "" : "En movimientos"}
+            icon={<FiDollarSign size={20} />}
+            color="success"
             compact
           />
         </Grid>

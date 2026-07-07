@@ -8,6 +8,7 @@ create table if not exists public.agentes (
   herramientas jsonb not null default '[]',
   trigger text not null default 'manual' check (trigger in ('manual','evento','cron','webhook')),
   activo boolean not null default false,
+  rutas_activas jsonb not null default '[]',
   ultima_ejecucion text,
   metricas jsonb not null default '{"ejecuciones":0,"exito":0,"fallos":0}',
   created_at text not null default now(),

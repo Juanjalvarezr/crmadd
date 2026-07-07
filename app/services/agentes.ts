@@ -10,6 +10,7 @@ export type Agente = {
   herramientas: string[];
   trigger: "manual" | "evento" | "cron" | "webhook";
   activo: boolean;
+  rutas_activas?: string[];
   ultima_ejecucion?: string | null;
   metricas?: { ejecuciones: number; exito: number; fallos: number };
   created_at: string;

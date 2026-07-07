@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { SpeedDial, SpeedDialAction, SpeedDialIcon, useTheme, useMediaQuery, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, MenuItem, FormControl, InputLabel, Select, Chip, Snackbar, Alert, Box, IconButton } from '@mui/material';
-import { FiUsers, FiCheckSquare, FiTrendingUp, FiFileText, FiPlus, FiUserPlus, FiList, FiDollarSign, FiX } from 'react-icons/fi';
-import { useNavigate } from 'react-router';
-import { clientesService, proyectosService, tareasService, transaccionesService } from '../services/database';
+import { useNavigate } from 'react-router-dom';
+import { SpeedDial, SpeedDialAction, SpeedDialIcon, useTheme, useMediaQuery, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, MenuItem, FormControl, InputLabel, Select, Snackbar, Alert, Box, IconButton } from '@mui/material';
+import { FiUsers, FiTrendingUp, FiDollarSign, FiPlus, FiUserPlus, FiList, FiX } from 'react-icons/fi';
+import { clientesService, proyectosService, tareasService, transaccionesService, oportunidadesService } from '../services/database';
+import { facturasService } from '../services/facturacion';
 
 type AccionRapida = {
   icon: React.ReactNode;
@@ -93,7 +94,7 @@ export const MobileFab: React.FC = () => {
       return;
     }
     try {
-      await proyectosService.createOportunidad?.({
+      await oportunidadesService.create({
         ...formOportunidad,
         valor: Number(formOportunidad.valor) || 0,
         origen: 'FAB',

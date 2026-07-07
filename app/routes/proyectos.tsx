@@ -1078,10 +1078,11 @@ export default function Proyectos() {
               <ExpandableCard
                 title={proyecto.nombre}
                 subtitle={proyecto.descripcion}
-                status={{ label: proyecto.estado.replace("_", " "), color: "default" }}
-                priority={{ label: proyecto.prioridad, color: "default" }}
-                date={`📅 ${format(new Date(proyecto.fechaInicio), "dd/MM/yyyy")} → 🎯 ${format(new Date(proyecto.fechaFin), "dd/MM/yyyy")}`}
+                status={{ label: proyecto.estado.replace("_", " "), color: getEstadoColor(proyecto.estado) }}
+                priority={{ label: proyecto.prioridad, color: getPrioridadColor(proyecto.prioridad) }}
+                date={`\u{1F4C5} ${format(new Date(proyecto.fechaInicio), "dd/MM/yyyy")} \u{1F3AF} ${format(new Date(proyecto.fechaFin), "dd/MM/yyyy")}`}
                 amount={`Presupuesto: ${formatCOP(proyecto.presupuesto)}`}
+                titleColor={getEstadoColor(proyecto.estado)}
                 footer={
                   <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
                     <Tooltip title="Compartir progreso con cliente (Magic Link)">
@@ -1129,10 +1130,17 @@ export default function Proyectos() {
                 }
                 onClick={() => setSelectedProyecto(proyecto)}
               >
-                <Box sx={{ mb: 2 }}>
-                  <Typography variant="body2" sx={{ fontWeight: "bold", mb: 1 }}>
-                    Cliente: {proyecto.clienteNombre}
-                  </Typography>
+                <Box sx={{ mb: 1.5 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                    <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                      Cliente: {proyecto.clienteNombre}
+                    </Typography>
+                    <Chip
+                      label={proyecto.faseAdministrativa || "operacion"}
+                      size="small"
+                      sx={{ fontSize: '0.65rem', height: 20, bgcolor: 'action.hover', color: 'text.primary' }}
+                    />
+                  </Box>
                   <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
                     {(proyecto.servicios || []).map((servicio, index) => (
                       <Chip
@@ -1140,7 +1148,7 @@ export default function Proyectos() {
                         label={servicio}
                         size="small"
                         variant="outlined"
-                        sx={{ fontSize: "0.6rem" }}
+                        sx={{ fontSize: "0.65rem", height: 22 }}
                       />
                     ))}
                   </Box>

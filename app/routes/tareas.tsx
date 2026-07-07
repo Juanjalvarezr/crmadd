@@ -387,21 +387,21 @@ export default function Tareas() {
   return (
     <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
       {/* Header */}
-      <Paper sx={{ p: 3, mb: 3, background: "linear-gradient(135deg, #f3e5f5 0%, #e8eaf6 100%)", borderLeft: "5px solid #9C27B0" }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 1, flexWrap: "wrap" }}>
-          <FiCheckSquare size={28} color="#9C27B0" />
-          <Typography variant="h5" sx={{ color: "#7B1FA2", flex: 1 }}>Tareas y Actividades</Typography>
+      <Paper sx={{ p: 2, mb: 2, background: "linear-gradient(135deg, #f3e5f5 0%, #e8eaf6 100%)", borderLeft: "4px solid #9C27B0" }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 0.5, flexWrap: "wrap" }}>
+          <FiCheckSquare size={22} color="#9C27B0" />
+          <Typography variant="h6" sx={{ color: "#7B1FA2", flex: 1, letterSpacing: '-0.01em' }}>Tareas y Actividades</Typography>
           <Button size="small" startIcon={<FiRefreshCw size={14} />} onClick={loadTareas} disabled={loading}>
             {loading ? "..." : "Recargar"}
           </Button>
         </Box>
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant="caption" color="text.secondary">
           Organiza y prioriza tus actividades diarias. Nunca pierdas un seguimiento importante.
         </Typography>
       </Paper>
 
       {/* KPIs */}
-      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 4 }}>
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5, mb: 2 }}>
         {[
           { title: "Pendientes", value: loading ? "..." : pendientes, color: "warning" },
           { title: "En Progreso", value: loading ? "..." : enProgreso, color: "primary" },
@@ -417,13 +417,13 @@ export default function Tareas() {
       </Box>
 
       {/* Tabla */}
-      <Paper sx={{ p: 3 }}>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3, flexWrap: "wrap", gap: 2 }}>
-          <Typography variant="h6">Lista de Tareas ({filtered.length})</Typography>
-          <Button variant="contained" startIcon={<FiPlus />} onClick={handleOpenModal}>Nueva Tarea</Button>
+      <Paper sx={{ p: 2 }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, flexWrap: "wrap", gap: 1 }}>
+          <Typography variant="h6" sx={{ fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>Lista de Tareas ({filtered.length})</Typography>
+          <Button variant="contained" size="small" startIcon={<FiPlus />} onClick={handleOpenModal}>Nueva Tarea</Button>
         </Box>
 
-        <Box sx={{ display: "flex", gap: 2, mb: 3, flexDirection: { xs: "column", md: "row" } }}>
+        <Box sx={{ display: "flex", gap: 1.5, mb: 2, flexDirection: { xs: "column", md: "row" } }}>
           <TextField
             fullWidth placeholder="Buscar tareas..."
             value={searchTerm} onChange={(e: any) => setSearchTerm(e.target.value)}
@@ -481,13 +481,13 @@ export default function Tareas() {
           <TableContainer>
             <Table>
               <TableHead>
-                <TableRow sx={{ backgroundColor: "#f3e5f5" }}>
-                  <TableCell sx={{ fontWeight: "bold" }}>Título</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Cliente / Nicho</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Prioridad / Estado</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Fecha</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Timer</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Acciones</TableCell>
+                <TableRow sx={{ backgroundColor: theme => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : '#f3e5f5' }}>
+                  <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.8rem' }, fontWeight: "bold", py: 1 }}>Título</TableCell>
+                  <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.8rem' }, fontWeight: "bold", py: 1, display: { xs: 'none', sm: 'table-cell' } }}>Cliente / Nicho</TableCell>
+                  <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.8rem' }, fontWeight: "bold", py: 1 }}>Prioridad / Estado</TableCell>
+                  <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.8rem' }, fontWeight: "bold", py: 1, display: { xs: 'none', md: 'table-cell' } }}>Fecha</TableCell>
+                  <TableCell align="center" sx={{ fontSize: { xs: '0.75rem', sm: '0.8rem' }, fontWeight: "bold", py: 1 }}>Timer</TableCell>
+                  <TableCell align="right" sx={{ fontSize: { xs: '0.75rem', sm: '0.8rem' }, fontWeight: "bold", py: 1 }}>Acciones</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -495,13 +495,13 @@ export default function Tareas() {
                   const subtareasCompletadas = (tarea.subtareas || []).filter((s: any) => s.completada).length;
                   const subtareasTotal = (tarea.subtareas || []).length;
                   return (
-                  <TableRow key={tarea.id} hover sx={{ backgroundColor: isVencida(tarea) ? "#fff3e0" : "inherit" }}>
-                    <TableCell>
+                  <TableRow key={tarea.id} hover sx={{ backgroundColor: isVencida(tarea) ? (theme => theme.palette.mode === 'dark' ? 'rgba(255,87,34,0.15)' : "#fff3e0") : "inherit", '&:last-child td, &:last-child th': { border: 0 } }}>
+                    <TableCell sx={{ py: { xs: 1, sm: 1.5 } }}>
                       <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                         {tarea.titulo && (
-                          <Typography variant="body2" sx={{ fontWeight: "medium" }}>{tarea.titulo}</Typography>
+                          <Typography variant="body2" sx={{ fontWeight: 500, lineHeight: 1.3 }}>{tarea.titulo}</Typography>
                         )}
-                        {isVencida(tarea) && <Chip label="⚠️ Vencida" size="small" color="error" variant="outlined" />}
+                        {isVencida(tarea) && <Chip label="⚠️ Vencida" size="small" color="error" variant="outlined" sx={{ height: 20, fontSize: '0.65rem' }} />}
                       </Box>
                       {subtareasTotal > 0 && (
                         <Typography variant="caption" color="text.secondary">

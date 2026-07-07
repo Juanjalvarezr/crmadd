@@ -61,9 +61,13 @@ export default function Clientes() {
   const [industriaFilter, setIndustriaFilter] = useState("all");
   const [origenFilter, setOrigenFilter] = useState("all");
   const [favoritoFilter, setFavoritoFilter] = useState("all");
+  const [proyectoFilter, setProyectoFilter] = useState("all");
+  const [ultimaInteraccionFilter, setUltimaInteraccionFilter] = useState("");
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   const [page, setPage] = useState(1);
   const itemsPerPage = 10;
+
+  const [proyectosOptions, setProyectosOptions] = useState<any[]>([]);
   
   // Modales de Detalle e Historial
   const [selectedClient, setSelectedClient] = useState<Cliente | null>(null);
@@ -127,9 +131,18 @@ export default function Clientes() {
     }
   };
 
-  // Cargar al montar el componente
+  const loadProyectosOptions = async () => {
+    try {
+      const data = await proyectosService.getAll();
+      setProyectosOptions(data || []);
+    } catch {
+      setProyectosOptions([]);
+    }
+  };
+
   useEffect(() => {
     loadClientes();
+    loadProyectosOptions();
   }, []);
 
   const filteredClientes = useMemo(() => {
@@ -142,9 +155,11 @@ export default function Clientes() {
       const matchesIndustria = industriaFilter === "all" || cliente.nicho === industriaFilter;
       const matchesOrigen = origenFilter === "all" || cliente.origen === origenFilter;
       const matchesFavorito = favoritoFilter === "all" || (favoritoFilter === "fav" ? cliente.favorito : !cliente.favorito);
-      return matchesSearch && matchesEstado && matchesIndustria && matchesOrigen && matchesFavorito;
+      const matchesProyecto = proyectoFilter === "all" || (proyectosOptions.some(p => String(p.clienteId) === String(cliente.id) && String(p.id) === proyectoFilter));
+      const matchesUltInter = !ultimaInteraccionFilter || cliente.ultima_interaccion >= ultimaInteraccionFilter;
+      return matchesSearch && matchesEstado && matchesIndustria && matchesOrigen && matchesFavorito && matchesProyecto && matchesUltInter;
     });
-  }, [clientes, searchTerm, estadoFilter, industriaFilter, origenFilter, favoritoFilter]);
+  }, [clientes, searchTerm, estadoFilter, industriaFilter, origenFilter, favoritoFilter, proyectoFilter, ultimaInteraccionFilter, proyectosOptions]);
 
   const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
@@ -1425,6 +1440,31 @@ export default function Clientes() {
           </FormControl>
 
           <FormControl fullWidth>
+            <InputLabel>Proyecto</InputLabel>
+            <Select
+              value={proyectoFilter}
+              label="Proyecto"
+              onChange={(e) => setProyectoFilter(e.target.value)}
+            >
+              <MenuItem value="all">Todos los proyectos</MenuItem>
+              {proyectosOptions.map((p: any) => (
+                <MenuItem key={p.id} value={p.id}>
+                  {p.nombre} {p.clienteNombre ? `— ${p.clienteNombre}` : ''}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <TextField
+            label="Última interacción desde"
+            type="date"
+            fullWidth
+            value={ultimaInteraccionFilter}
+            onChange={(e) => setUltimaInteraccionFilter(e.target.value)}
+            InputLabelProps={{ shrink: true }}
+          />
+
+          <FormControl fullWidth>
             <InputLabel>Origen del Lead</InputLabel>
             <Select value={origenFilter} label="Origen del Lead" onChange={(e) => setOrigenFilter(e.target.value)}>
               <MenuItem value="all">Todos los orígenes</MenuItem>
@@ -1449,7 +1489,7 @@ export default function Clientes() {
             <Button fullWidth variant="contained" onClick={() => setIsFilterDrawerOpen(false)}>
               Aplicar Filtros ({filteredClientes.length})
             </Button>
-            <Button fullWidth variant="text" onClick={() => { setSearchTerm(""); setEstadoFilter("all"); setIndustriaFilter("all"); setOrigenFilter("all"); setFavoritoFilter("all"); }} sx={{ mt: 1 }}>
+            <Button fullWidth variant="text" onClick={() => { setSearchTerm(""); setEstadoFilter("all"); setIndustriaFilter("all"); setOrigenFilter("all"); setFavoritoFilter("all"); setProyectoFilter("all"); setUltimaInteraccionFilter(""); }} sx={{ mt: 1 }}>
               Limpiar Filtros
             </Button>
           </Box>

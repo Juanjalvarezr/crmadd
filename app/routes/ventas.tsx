@@ -399,38 +399,38 @@ export default function Ventas() {
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
         {loading ? (
-          <Box sx={{ display: 'flex', gap: 2, overflowX: 'auto', pb: 2 }}>
+          <Box sx={{ display: 'flex', gap: 1.5, overflowX: 'auto', pb: 1.5 }}>
             {["Prospección", "Propuesta", "Negociación", "Cierre"].map((col) => (
               <Paper 
                 key={col} 
                 sx={{ 
-                  minWidth: 300, 
+                  minWidth: 280, 
                   flex: 1, 
-                  p: 2, 
+                  p: 1.5, 
                   bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.02)' : '#f8f9fa',
-                  borderRadius: 3,
+                  borderRadius: 2,
                   border: '1px solid',
                   borderColor: 'divider'
                 }}
               >
-                <Skeleton variant="text" width="60%" height={32} sx={{ ...skeletonAgencyStyle, mb: 1 }} />
-                <Skeleton variant="text" width="40%" height={24} sx={{ ...skeletonAgencyStyle, mb: 2 }} />
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <Skeleton variant="text" width="60%" height={28} sx={{ ...skeletonAgencyStyle, mb: 0.5 }} />
+                <Skeleton variant="text" width="40%" height={22} sx={{ ...skeletonAgencyStyle, mb: 1.5 }} />
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
                   {[1, 2].map((j) => (
                     <Paper 
                       key={j} 
                       sx={{ 
-                        p: 2, 
+                        p: 1.5, 
                         borderRadius: 2, 
                         border: '1px solid rgba(255,255,255,0.05)',
                         bgcolor: (theme) => theme.palette.mode === 'dark' ? '#12131a' : '#fff'
                       }}
                     >
-                      <Skeleton variant="text" width="80%" height={24} sx={skeletonAgencyStyle} />
-                      <Skeleton variant="text" width="50%" height={20} sx={{ ...skeletonAgencyStyle, mb: 2 }} />
+                      <Skeleton variant="text" width="80%" height={22} sx={skeletonAgencyStyle} />
+                      <Skeleton variant="text" width="50%" height={18} sx={{ ...skeletonAgencyStyle, mb: 1.5 }} />
                       <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <Skeleton variant="rounded" width={80} height={20} sx={skeletonAgencyStyle} />
-                        <Skeleton variant="circular" width={24} height={24} sx={skeletonAgencyStyle} />
+                        <Skeleton variant="rounded" width={80} height={18} sx={skeletonAgencyStyle} />
+                        <Skeleton variant="circular" width={22} height={22} sx={skeletonAgencyStyle} />
                       </Box>
                     </Paper>
                   ))}
@@ -440,18 +440,18 @@ export default function Ventas() {
           </Box>
         ) : filtered.length > 0 ? (
           <DragDropContext onDragEnd={onDragEnd}>
-            <Box sx={{ display: 'flex', gap: 2, overflowX: 'auto', pb: 2, minHeight: 400 }}>
+            <Box sx={{ display: 'flex', gap: 1.5, overflowX: 'auto', pb: 1.5, minHeight: 380 }}>
               {["Prospección", "Propuesta", "Negociación", "Cierre"].map(col => {
                 const oppsCol = filtered.filter(o => o.etapa === col);
                 const sumValor = oppsCol.reduce((a, b) => a + b.valor, 0);
                 
                 return (
-                  <Paper key={col} sx={{ minWidth: 300, flex: 1, p: 2, bgcolor: '#f8f9fa', borderTop: `4px solid ${getEtapaColor(col) === 'primary' ? '#2196f3' : getEtapaColor(col) === 'success' ? '#4caf50' : getEtapaColor(col) === 'warning' ? '#ff9800' : '#e91e63'}` }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                      <Typography variant="subtitle1" sx={{ fontWeight: "bold", color: "text.primary" }}>{col}</Typography>
-                      <Chip label={oppsCol.length} size="small" />
+                  <Paper key={col} sx={{ minWidth: 280, flex: 1, p: 1.5, bgcolor: '#f8f9fa', borderTop: `3px solid ${getEtapaColor(col) === 'primary' ? '#2196f3' : getEtapaColor(col) === 'success' ? '#4caf50' : getEtapaColor(col) === 'warning' ? '#ff9800' : '#e91e63'}` }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "text.primary", letterSpacing: '-0.01em' }}>{col}</Typography>
+                      <Chip label={oppsCol.length} size="small" sx={{ height: 20, fontSize: '0.7rem', fontWeight: 600 }} />
                     </Box>
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2, fontWeight: 'bold' }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5, fontWeight: 700 }}>
                       {formatValue(sumValor)}
                     </Typography>
                     
@@ -461,9 +461,9 @@ export default function Ventas() {
                           ref={provided.innerRef} 
                           {...provided.droppableProps}
                           sx={{ 
-                            minHeight: 200, 
-                            bgcolor: snapshot.isDraggingOver ? 'rgba(0,0,0,0.05)' : 'transparent', 
-                            transition: 'background-color 0.2s', 
+                            minHeight: 180, 
+                            bgcolor: snapshot.isDraggingOver ? 'rgba(0,0,0,0.06)' : 'transparent', 
+                            transition: 'background-color 0.15s', 
                             borderRadius: 1 
                           }}
                         >
@@ -473,48 +473,50 @@ export default function Ventas() {
                                 <Box
                                   ref={provided.innerRef}
                                   {...provided.draggableProps}
-                                  sx={{ mb: 2 }}
+                                  sx={{ mb: 1.5 }}
                                 >
                                   <Paper
-                                    elevation={snapshot.isDragging ? 4 : 1}
+                                    elevation={snapshot.isDragging ? 3 : 0}
                                     sx={{ 
-                                      p: 2, 
-                                      borderRadius: 2,
-                                      transition: 'all 0.2s',
-                                      transform: snapshot.isDragging ? 'scale(1.02)' : 'none',
-                                      borderLeft: `4px solid ${getEtapaColor(opp.etapa) === 'primary' ? '#2196f3' : getEtapaColor(opp.etapa) === 'success' ? '#4caf50' : getEtapaColor(opp.etapa) === 'warning' ? '#ff9800' : '#e91e63'}`
+                                      p: 1.5, 
+                                      borderRadius: 2, 
+                                      border: '1px solid',
+                                      borderColor: snapshot.isDragging ? 'primary.main' : 'divider',
+                                      transition: 'all 0.15s', 
+                                      transform: snapshot.isDragging ? 'scale(1.01)' : 'none',
+                                      borderLeft: `3px solid ${getEtapaColor(opp.etapa) === 'primary' ? '#2196f3' : getEtapaColor(opp.etapa) === 'success' ? '#4caf50' : getEtapaColor(opp.etapa) === 'warning' ? '#ff9800' : '#e91e63'}`
                                     }}
                                   >
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                      <Box>
-                                        <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>{opp.nombre}</Typography>
-                                        <Typography variant="body2" color="text.secondary" noWrap sx={{ mb: 1 }}>{opp.cliente_nombre}</Typography>
+                                      <Box sx={{ flex: 1, minWidth: 0 }}>
+                                        <Typography variant="body2" sx={{ fontWeight: 700, lineHeight: 1.2 }} noWrap>{opp.nombre}</Typography>
+                                        <Typography variant="caption" color="text.secondary" noWrap sx={{ display: 'block', mt: 0.25 }}>{opp.cliente_nombre}</Typography>
                                       </Box>
-                                      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+                                      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5, ml: 1 }}>
                                         <Tooltip title="Generar Propuesta IA">
-                                          <IconButton size="small" onClick={() => handleGenerarPropuestaAI(opp)} sx={{ color: '#daa520' }}>
-                                            <FiZap size={16} />
+                                          <IconButton size="small" onClick={() => handleGenerarPropuestaAI(opp)} sx={{ color: '#daa520', padding: 0.5 }} aria-label="Generar propuesta">
+                                            <FiZap size={14} />
                                           </IconButton>
                                         </Tooltip>
                                         <Box 
                                           {...provided.dragHandleProps} 
                                           sx={{ 
                                             cursor: 'grab', 
-                                            color: 'text.disabled',
+                                            color: 'text.disabled', 
                                             '&:active': { cursor: 'grabbing', color: 'primary.main' }
                                           }}
                                         >
-                                          <FiMove size={18} />
+                                          <FiMove size={16} />
                                         </Box>
                                       </Box>
                                     </Box>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                                      <Typography variant="body2" sx={{ fontWeight: "bold", color: "success.main" }}>{formatValue(opp.valor)}</Typography>
-                                      <Chip label={`${opp.probabilidad}%`} size="small" color={opp.probabilidad >= 75 ? 'success' : opp.probabilidad >= 40 ? 'warning' : 'error'} sx={{ height: 20, fontSize: '0.65rem' }} />
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1 }}>
+                                      <Typography variant="body2" sx={{ fontWeight: 700, color: "success.dark" }}>{formatValue(opp.valor)}</Typography>
+                                      <Chip label={`${opp.probabilidad}%`} size="small" color={opp.probabilidad >= 75 ? 'success' : opp.probabilidad >= 40 ? 'warning' : 'error'} sx={{ height: 18, fontSize: '0.65rem', fontWeight: 600 }} />
                                     </Box>
-                                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.5, borderTop: '1px solid #eee', pt: 1 }}>
-                                      <IconButton size="small" onClick={() => handleEdit(opp)} sx={{ color: 'text.secondary' }}><FiEdit size={14}/></IconButton>
-                                      <IconButton size="small" onClick={() => handleDelete(opp)} color="error"><FiTrash2 size={14}/></IconButton>
+                                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.5, borderTop: '1px solid', borderColor: 'divider', pt: 0.75, mt: 0.75 }}>
+                                      <IconButton size="small" onClick={() => handleEdit(opp)} sx={{ color: 'text.secondary', padding: 0.25 }} aria-label="Editar"><FiEdit size={14}/></IconButton>
+                                      <IconButton size="small" onClick={() => handleDelete(opp)} color="error" sx={{ padding: 0.25 }} aria-label="Eliminar"><FiTrash2 size={14}/></IconButton>
                                     </Box>
                                   </Paper>
                                 </Box>

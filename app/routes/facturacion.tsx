@@ -307,7 +307,7 @@ export default function Facturacion() {
       </Grid>
 
       {/* Filtros avanzados */}
-      <Paper sx={{ p: 2, mb: 3, borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
+      <Paper sx={{ p: 1.5, mb: 3, borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
         <Grid container spacing={1.5} alignItems="center">
           <Grid item xs={12} md={3}>
             <TextField
