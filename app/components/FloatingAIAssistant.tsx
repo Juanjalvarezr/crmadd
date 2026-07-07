@@ -109,7 +109,7 @@ export const FloatingAIAssistant = () => {
 
   return (
     <>
-      <Box id="floating-ai-assistant" sx={{ position: 'fixed', bottom: 24, right: 24, zIndex: 9999 }}>
+      <Box id="floating-ai-assistant" sx={{ position: 'fixed', bottom: 24, left: 24, zIndex: 9999 }}>
         <Tooltip title="Asistente IA (Copiloto)" placement="left">
           <IconButton
             onClick={() => setIsOpen(true)}
