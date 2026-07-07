@@ -349,6 +349,10 @@ export interface AIPropuestaParams {
   clienteEmpresa: string;
   servicios: string[];
   notasAdicionales: string;
+  dolorNecesidad: string;
+  presenciaRedes: string;
+  objetivos: string;
+  presupuestoEstimado?: number;
 }
 
 export const aiService = {
@@ -377,15 +381,19 @@ export const aiService = {
         - Nombre: ${params.clienteNombre}
         - Empresa: ${params.clienteEmpresa}
         - Servicios de interés: ${params.servicios.join(", ")}
+        - Dolor / necesidad principal: ${params.dolorNecesidad || "No especificado"}
+        - Presencia digital actual: ${params.presenciaRedes || "No especificada"}
+        - Objetivos principales: ${params.objetivos || "No especificados"}
+        - Presupuesto estimado: ${params.presupuestoEstimado ? `COP ${params.presupuestoEstimado}` : "No especificado"}
         - Notas adicionales/Contexto: ${params.notasAdicionales || "Ninguna."}
 
         INSTRUCCIONES:
         Genera un documento en formato Markdown con la siguiente estructura:
-        1. **Resumen Ejecutivo:** Un saludo profesional y un análisis breve de cómo los servicios elegidos potenciarán a ${params.clienteEmpresa}.
-        2. **Estrategia Propuesta:** Describe qué acciones específicas tomaría DESEO DIGITAL usando los servicios de (${params.servicios.join(", ")}).
-        3. **Cronograma Base (Sugerido):** Un plan de acción dividido en 4 semanas (Mes 1) con los primeros pasos (Ej. Semana 1: Onboarding y Setup, etc.).
-        4. **Términos de Inversión:** Menciona claramente que para iniciar el proceso de **Identidad Digital** y **Análisis de Presencia**, se requiere un **anticipo del 50%**, y el saldo restante se cancela al finalizar la ejecución del paquete mensual o entrega del proyecto.
-        4. **Llamado a la Acción:** Un cierre persuasivo para que el cliente apruebe la cotización.
+        1. **Resumen Ejecutivo:** Un saludo profesional y un análisis breve del dolor/necesidad y cómo los servicios elegidos potenciarán a ${params.clienteEmpresa}.
+        2. **Estrategia Propuesta:** Describe acciones específicas para pasar de la presencia digital actual a los objetivos deseados, usando los servicios de (${params.servicios.join(", ")}).
+        3. **Cronograma Base (Sugerido):** Un plan de acción dividido en 4 semanas (Mes 1) con los primeros pasos y responsables sugeridos.
+        4. **Términos de Inversión:** Menciona claramente que para iniciar el proceso se requiere un **anticipo del 50%**, y el saldo restante se cancela al finalizar la ejecución del paquete mensual o entrega del proyecto.
+        5. **Llamado a la Acción:** Un cierre persuasivo para que el cliente apruebe la cotización.
 
         TONO: Seguro, moderno, orientado a resultados y premium. Usa viñetas y negritas para facilitar la lectura. No inventes precios.
       `;}

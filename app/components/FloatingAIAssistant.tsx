@@ -211,30 +211,66 @@ export const FloatingAIAssistant = () => {
                 {!resultText && !isLoading ? (
                   <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
                     <Typography variant="body2" color="text.secondary">
-                      Ingresa los datos del cliente y dejaré que mi modelo de lenguaje genere una estrategia comercial estructurada.
+                      Completá el brief y genero una estrategia comercial estructurada para el cliente.
                     </Typography>
+                    <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
+                      <TextField
+                        label="Nombre del contacto"
+                        variant="outlined"
+                        size="small"
+                        sx={{ flex: '1 1 45%' }}
+                        value={proposalInput.clienteNombre}
+                        onChange={(e) => setProposalInput({ clienteNombre: e.target.value })}
+                      />
+                      <TextField
+                        label="Empresa"
+                        variant="outlined"
+                        size="small"
+                        sx={{ flex: '1 1 45%' }}
+                        value={proposalInput.clienteEmpresa}
+                        onChange={(e) => setProposalInput({ clienteEmpresa: e.target.value })}
+                      />
+                    </Box>
                     <TextField
-                      label="Nombre del Contacto"
+                      label="Dolor / necesidad principal"
                       variant="outlined"
                       size="small"
                       fullWidth
-                      value={proposalInput.clienteNombre}
-                      onChange={(e) => setProposalInput({ clienteNombre: e.target.value })}
+                      value={proposalInput.dolorNecesidad}
+                      onChange={(e) => setProposalInput({ dolorNecesidad: e.target.value })}
                     />
                     <TextField
-                      label="Nombre de la Empresa"
+                      label="Presencia digital actual"
                       variant="outlined"
                       size="small"
                       fullWidth
-                      value={proposalInput.clienteEmpresa}
-                      onChange={(e) => setProposalInput({ clienteEmpresa: e.target.value })}
+                      value={proposalInput.presenciaRedes}
+                      onChange={(e) => setProposalInput({ presenciaRedes: e.target.value })}
+                    />
+                    <TextField
+                      label="Objetivos principales"
+                      variant="outlined"
+                      size="small"
+                      fullWidth
+                      value={proposalInput.objetivos}
+                      onChange={(e) => setProposalInput({ objetivos: e.target.value })}
+                    />
+                    <TextField
+                      label="Presupuesto estimado (COP)"
+                      variant="outlined"
+                      size="small"
+                      fullWidth
+                      type="number"
+                      value={proposalInput.presupuestoEstimado ?? ''}
+                      onChange={(e) => setProposalInput({ presupuestoEstimado: e.target.value ? Number(e.target.value) : undefined })}
+                      inputProps={{ inputMode: 'numeric' }}
                     />
                     <Button
                       variant="contained"
                       fullWidth
                       size="large"
                       onClick={executeGenerateProposal}
-                      disabled={!proposalInput.clienteNombre || !proposalInput.clienteEmpresa}
+                      disabled={!proposalInput.clienteNombre || !proposalInput.clienteEmpresa || !proposalInput.dolorNecesidad || !proposalInput.presenciaRedes || !proposalInput.objetivos}
                       sx={{
                         mt: 2,
                         background: 'linear-gradient(135deg, #2196f3, #00bcd4)',
@@ -243,7 +279,7 @@ export const FloatingAIAssistant = () => {
                       }}
                       startIcon={<FiCpu />}
                     >
-                      Magia: Crear Estrategia
+                      Generar estrategia
                     </Button>
                   </Box>
                 ) : isLoading ? (

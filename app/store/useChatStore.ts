@@ -16,6 +16,10 @@ export interface ProposalInput {
   clienteEmpresa: string;
   servicios: string[];
   notasAdicionales: string;
+  dolorNecesidad: string;
+  presenciaRedes: string;
+  objetivos: string;
+  presupuestoEstimado?: number;
 }
 
 // Esquema de validación para evitar errores silenciosos
@@ -24,6 +28,10 @@ export const ProposalSchema = z.object({
   clienteEmpresa: z.string().min(2, "La empresa es obligatoria"),
   servicios: z.array(z.string()).min(1, "Debes seleccionar al menos un servicio"),
   notasAdicionales: z.string().optional(),
+  dolorNecesidad: z.string().min(5, "Contanos el dolor o necesidad principal del cliente"),
+  presenciaRedes: z.string().min(3, "Indicá cómo está la presencia digital actualmente"),
+  objetivos: z.string().min(5, "Indicá los objetivos principales a cubrir"),
+  presupuestoEstimado: z.number().optional(),
 });
 
 interface ChatState {
@@ -65,7 +73,7 @@ export const useChatStore = create<ChatState>()(
       })),
       clearMensajes: () => set({ mensajes: [] }),
 
-      proposalInput: { clienteNombre: '', clienteEmpresa: '', servicios: [], notasAdicionales: '' },
+      proposalInput: { clienteNombre: '', clienteEmpresa: '', servicios: [], notasAdicionales: '', dolorNecesidad: '', presenciaRedes: '', objetivos: '', presupuestoEstimado: undefined },
       setProposalInput: (input) => set((state) => ({
         proposalInput: { ...state.proposalInput, ...input }
       })),
