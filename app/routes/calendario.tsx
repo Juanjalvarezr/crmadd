@@ -174,7 +174,7 @@ export default function Calendario() {
             events={events}
             startAccessor="start"
             endAccessor="end"
-            style={{ height: '100%', minHeight: '100%' }}
+            style={{ height: '100%', width: '100%' }}
             culture="es"
             onSelectEvent={handleSelectEvent}
             eventPropGetter={eventStyleGetter}
@@ -184,12 +184,12 @@ export default function Calendario() {
               next: "Siguiente",
               previous: "Anterior",
               today: "Hoy",
-            month: "Mes",
-            week: "Semana",
-            day: "Día",
-            noEventsInRange: "No hay eventos en este rango."
-          }}
-        />
+              month: "Mes",
+              week: "Semana",
+              day: "Día",
+              noEventsInRange: "No hay eventos en este rango."
+            }}
+          />
         </Box>
       </Paper>
 

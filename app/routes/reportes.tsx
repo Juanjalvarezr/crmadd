@@ -49,8 +49,8 @@ export default function Reportes() {
   const [fechaInicio, setFechaInicio] = useState(format(startOfMonth(new Date()), "yyyy-MM-dd"));
   const [fechaFin, setFechaFin] = useState(format(endOfMonth(new Date()), "yyyy-MM-dd"));
   const [tipoReporte, setTipoReporte] = useState("general");
-  const [snackbar, setSnackbar] = useState<{open: boolean, message: string, severity: "info" | "warning" | "error" | "success"}>({ open: false, message: "", severity: "info" });
-  const handleCloseSnackbar = () => setSnackbar({ ...snackbar, open: false });
+  const [reportesSnackbar, setReportesSnackbar] = useState<{open: boolean, message: string, severity: "info" | "warning" | "error" | "success"}>({ open: false, message: "", severity: "info" });
+  const handleCloseReportesSnackbar = () => setReportesSnackbar({ ...reportesSnackbar, open: false });
   
   // Estados de datos
   const [metricas, setMetricas] = useState<Metrica[]>([]);
@@ -207,7 +207,7 @@ export default function Reportes() {
   };
 
   const handleExportReport = (formato: "pdf" | "excel" | "csv") => {
-    setSnackbar({ 
+    setReportesSnackbar({ 
       open: true, 
       message: `Exportando reporte en formato ${formato.toUpperCase()}...`, 
       severity: "info" 
@@ -215,7 +215,7 @@ export default function Reportes() {
     
     // Simulación de exportación
     setTimeout(() => {
-      setSnackbar({ 
+      setReportesSnackbar({ 
         open: true, 
         message: `Reporte exportado correctamente en ${formato.toUpperCase()}`, 
         severity: "success" 
@@ -433,7 +433,7 @@ export default function Reportes() {
               <Button 
                 variant="outlined"
                 startIcon={<FiFilter />}
-                onClick={() => setSnackbar({ open: true, message: "Filtros avanzados en desarrollo", severity: "info" })}
+                onClick={() => setReportesSnackbar({ open: true, message: "Filtros avanzados en desarrollo", severity: "info" })}
               >
                 Filtros
               </Button>
@@ -712,16 +712,16 @@ export default function Reportes() {
 
       {/* Snackbar para notificaciones */}
       <Snackbar
-        open={snackbar.open}
+        open={reportesSnackbar.open}
         autoHideDuration={3000}
-        onClose={handleCloseSnackbar}
+        onClose={handleCloseReportesSnackbar}
       >
         <Alert 
-          onClose={handleCloseSnackbar} 
-          severity={snackbar.severity}
+          onClose={handleCloseReportesSnackbar} 
+          severity={reportesSnackbar.severity}
           sx={{ width: '100%' }}
         >
-          {snackbar.message}
+          {reportesSnackbar.message}
         </Alert>
       </Snackbar>
     </Box>
