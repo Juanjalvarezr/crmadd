@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { SpeedDial, SpeedDialAction, SpeedDialIcon, useTheme, useMediaQuery, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, MenuItem, FormControl, InputLabel, Select, Chip, Snackbar, Alert } from '@mui/material';
+import { SpeedDial, SpeedDialAction, SpeedDialIcon, useTheme, useMediaQuery, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, MenuItem, FormControl, InputLabel, Select, Chip, Snackbar, Alert, Box } from '@mui/material';
 import { FiUsers, FiCheckSquare, FiTrendingUp, FiFileText, FiPlus, FiUserPlus, FiList, FiDollarSign, FiX } from 'react-icons/fi';
 import { useNavigate } from 'react-router';
 import { clientesService, proyectosService, tareasService, transaccionesService } from '../services/database';
