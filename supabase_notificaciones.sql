@@ -13,6 +13,11 @@ CREATE INDEX IF NOT EXISTS idx_notificaciones_leida ON public.notificaciones(lei
 
 ALTER TABLE public.notificaciones ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Allow read access" ON public.notificaciones;
+DROP POLICY IF EXISTS "Allow insert access" ON public.notificaciones;
+DROP POLICY IF EXISTS "Allow update access" ON public.notificaciones;
+DROP POLICY IF EXISTS "Allow delete access" ON public.notificaciones;
+
 CREATE POLICY "Allow read access" ON public.notificaciones FOR SELECT USING (true);
 CREATE POLICY "Allow insert access" ON public.notificaciones FOR INSERT WITH CHECK (true);
 CREATE POLICY "Allow update access" ON public.notificaciones FOR UPDATE USING (true);
