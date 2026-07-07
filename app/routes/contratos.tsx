@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import { RouteSkeleton, RouteErrorBoundary } from '../components/RouteGuard';
-import { Box, Typography, Paper, Button, TextField, Select, MenuItem, FormControl, InputLabel, Dialog, DialogTitle, DialogContent, DialogActions, Chip, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Tooltip, Snackbar, Alert } from "@mui/material";
-import { FiPlus, FiEye, FiEdit, FiTrash2, FiFileText, FiMessageSquare, FiMail } from "react-icons/fi";
+import { Box, Typography, Paper, Button, TextField, Select, MenuItem, FormControl, InputLabel, Dialog, DialogTitle, DialogContent, DialogActions, Chip, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Tooltip, Snackbar, Alert, Fade } from "@mui/material";
+import { FiPlus, FiEye, FiEdit, FiTrash2, FiFileText, FiMessageSquare, FiMail, FiFilter, FiSend, FiShoppingCart, FiDownload } from "react-icons/fi";
 import { contratosService } from "../services/facturacion";
 import { clientesService } from "../services/database";
 import { proyectosService } from "../services/database";
+import { generarContratoPDF } from "../services/pdf";
+import { uploadPDFToStorage } from "../services/storage";
+import ScannerTarjetas from "../components/ScannerTarjetas";
 
 export default function Contratos() {
   const [items, setItems] = useState<any[]>([]);
@@ -15,6 +18,10 @@ export default function Contratos() {
   const [success, setSuccess] = useState<string | null>(null);
   const [clientes, setClientes] = useState<any[]>([]);
   const [proyectos, setProyectos] = useState<any[]>([]);
+  const [search, setSearch] = useState("");
+  const [filterEstado, setFilterEstado] = useState("all");
+  const [scannerOpen, setScannerOpen] = useState(false);
+  const [sendingWhatsApp, setSendingWhatsApp] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -36,6 +43,16 @@ export default function Contratos() {
   };
 
   useEffect(() => { load(); }, []);
+
+  const getClienteNombre = (id: any) => {
+    const c = clientes.find((x: any) => String(x.id) === String(id));
+    return c?.nombre || c?.empresa || '-';
+  };
+
+  const getProyectoNombre = (id: any) => {
+    const p = proyectos.find((x: any) => String(x.id) === String(id));
+    return p?.nombre || '-';
+  };
 
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -75,72 +92,151 @@ export default function Contratos() {
     load();
   };
 
+  const handlePDF = async (row: any) => {
+    const cliente = clientes.find((c: any) => String(c.id) === String(row.cliente_id));
+    const pdfBlob = await generarContratoPDF(row, cliente);
+    const url = URL.createObjectURL(pdfBlob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `contrato-${row.numero || row.id}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleWhatsApp = async (row: any) => {
+    const cliente = clientes.find((c: any) => String(c.id) === String(row.cliente_id));
+    const telefono = cliente?.telefono || cliente?.telefono_whatsapp || '';
+    if (!telefono) return setError('El cliente no tiene teléfono');
+
+    setSendingWhatsApp(row.id);
+    try {
+      const pdfBlob = await generarContratoPDF(row, cliente);
+      const path = `contratos/${row.numero || row.id}`;
+      const pdfUrl = await uploadPDFToStorage(pdfBlob, path);
+
+      const msg = encodeURIComponent(`Hola ${cliente?.nombre || ''}, te comparto el contrato ${row.numero || row.id}: ${row.titulo}. Descargalo aqui: ${pdfUrl}`);
+      window.open(`https://wa.me/${telefono.replace(/[^\d]/g, '')}?text=${msg}`, '_blank');
+    } catch (e) {
+      setError('Error generando PDF para WhatsApp');
+    } finally {
+      setSendingWhatsApp(null);
+    }
+  };
+
+  const handleEmail = async (row: any) => {
+    const cliente = clientes.find((c: any) => String(c.id) === String(row.cliente_id));
+    const email = cliente?.email || '';
+    if (!email) return setError('El cliente no tiene email');
+
+    try {
+      const pdfBlob = await generarContratoPDF(row, cliente);
+      const path = `contratos/${row.numero || row.id}`;
+      const pdfUrl = await uploadPDFToStorage(pdfBlob, path);
+
+      const html = `<p>Hola ${cliente?.nombre || ''},</p><p>Adjunto contrato ${row.numero || row.id}: ${row.titulo}.</p><p><a href="${pdfUrl}">Descargar contrato</a></p>`;
+      const res = await contratosService.enviarEmail(row, html);
+      setSuccess('Correo enviado');
+    } catch (e) {
+      setError('Error enviando correo');
+    }
+  };
+
+  const filteredItems = items.filter((item) => {
+    const matchesSearch = String(item.numero || item.titulo || item.id).toLowerCase().includes(search.toLowerCase()) ||
+      getClienteNombre(item.cliente_id).toLowerCase().includes(search.toLowerCase());
+    const matchesEstado = filterEstado === 'all' || item.estado === filterEstado;
+    return matchesSearch && matchesEstado;
+  });
+
   return (
     <Box sx={{ maxWidth: 1200, mx: 'auto', p: { xs: 2, sm: 3 } }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 1.5 }}>
         <Typography variant="h4" sx={{ fontWeight: 800, fontSize: { xs: '1.5rem', sm: '2rem' } }}>Contratos</Typography>
-        <Button variant="contained" startIcon={<FiPlus />} onClick={() => { setEditItem(null); setOpen(true); }}>Nuevo Contrato</Button>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+          <Button variant="outlined" startIcon={<FiFilter />} onClick={() => setFilterEstado('all')}>Limpiar filtros</Button>
+          <Button variant="contained" startIcon={<FiPlus />} onClick={() => { setEditItem(null); setOpen(true); }}>Nuevo Contrato</Button>
+          <Button variant="contained" color="secondary" startIcon={<FiShoppingCart />} onClick={() => setScannerOpen(true)}>Escanear</Button>
+        </Box>
       </Box>
 
-      <TableContainer component={Paper} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
-        <Table size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell>Número</TableCell>
-              <TableCell>Título</TableCell>
-              <TableCell>Cliente</TableCell>
-              <TableCell>Proyecto</TableCell>
-              <TableCell>Tipo</TableCell>
-              <TableCell>Estado</TableCell>
-              <TableCell align="right">Acciones</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {items.map((item) => {
-              const cliente = clientes.find((c: any) => String(c.id) === String(item.cliente_id));
-              const proyecto = proyectos.find((p: any) => String(p.id) === String(item.proyecto_id));
-              const telefono = cliente?.telefono || cliente?.telefono_whatsapp || '';
-              const email = cliente?.email || '';
-              return (
-                <TableRow key={item.id} hover>
-                  <TableCell sx={{ fontWeight: 600 }}>{item.numero || '—'}</TableCell>
-                  <TableCell>{item.titulo}</TableCell>
-                  <TableCell>{cliente?.nombre || '-'}</TableCell>
-                  <TableCell>{proyecto?.nombre || '-'}</TableCell>
-                  <TableCell><Chip label={item.tipo} size="small" /></TableCell>
-                  <TableCell><Chip label={item.estado} size="small" color={item.estado === 'activo' ? 'success' : item.estado === 'firmado' ? 'info' : 'default'} /></TableCell>
-                  <TableCell align="right">
-                    <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
-                      <Tooltip title="Ver"><IconButton size="small"><FiEye /></IconButton></Tooltip>
-                      <Tooltip title="Editar"><IconButton size="small" onClick={() => { setEditItem(item); setOpen(true); }}><FiEdit /></IconButton></Tooltip>
-                      <Tooltip title="WhatsApp"><IconButton size="small" onClick={() => {
-                        const msg = encodeURIComponent(`Hola ${cliente?.nombre || ''}, te comparto el contrato ${item.numero || item.id}: ${item.titulo}`);
-                        window.open(`https://wa.me/${telefono.replace(/[^\d]/g, '')}?text=${msg}`, '_blank');
-                      }} disabled={!telefono}><FiMessageSquare /></IconButton></Tooltip>
-                      <Tooltip title="Email"><IconButton size="small" onClick={async () => {
-                        if (!email) return setError('El cliente no tiene email');
-                        try {
-                          const html = `<p>Hola ${cliente?.nombre || ''},</p><p>Adjunto contrato ${item.numero || item.id}: ${item.titulo}.</p>`;
-                          const res = await contratosService.enviarEmail(item, html);
-                          setSuccess('Correo enviado');
-                        } catch (e) { setError('Error enviando correo'); }
-                      }} disabled={!email}><FiMail /></IconButton></Tooltip>
-                      <Tooltip title="PDF"><IconButton size="small" onClick={() => {
-                        const pdf = contratosService.pdf(item, cliente);
-                        pdf.save(`contrato-${item.numero || item.id}.pdf`);
-                      }}><FiFileText /></IconButton></Tooltip>
-                      <Tooltip title="Eliminar"><IconButton size="small" onClick={() => handleDelete(item.id)}><FiTrash2 /></IconButton></Tooltip>
-                    </Box>
-                  </TableCell>
+      <Paper sx={{ p: 2, mb: 3, borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+          <TextField size="small" placeholder="Buscar contrato..." value={search} onChange={(e) => setSearch(e.target.value)} InputProps={{ startAdornment: <FiSearch style={{ marginRight: 8, opacity: 0.5 }} /> }} sx={{ flex: 1, minWidth: 200 }} />
+          <Select size="small" value={filterEstado} onChange={(e) => setFilterEstado(String(e.target.value))} sx={{ minWidth: 160 }}>
+            <MenuItem value="all">Todos los estados</MenuItem>
+            <MenuItem value="borrador">Borrador</MenuItem>
+            <MenuItem value="activo">Activo</MenuItem>
+            <MenuItem value="firmado">Firmado</MenuItem>
+            <MenuItem value="finalizado">Finalizado</MenuItem>
+            <MenuItem value="cancelado">Cancelado</MenuItem>
+          </Select>
+        </Box>
+      </Paper>
+
+      {loading ? (
+        <RouteSkeleton />
+      ) : (
+        <Fade in>
+          <TableContainer component={Paper} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Número</TableCell>
+                  <TableCell>Título</TableCell>
+                  <TableCell>Cliente</TableCell>
+                  <TableCell>Proyecto</TableCell>
+                  <TableCell>Tipo</TableCell>
+                  <TableCell>Estado</TableCell>
+                  <TableCell align="right">Acciones</TableCell>
                 </TableRow>
-              );
-            })}
-            {items.length === 0 && (
-              <TableRow><TableCell colSpan={7} align="center">Sin contratos</TableCell></TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
+              </TableHead>
+              <TableBody>
+                {filteredItems.map((item) => {
+                  const cliente = clientes.find((c: any) => String(c.id) === String(item.cliente_id));
+                  const proyecto = proyectos.find((p: any) => String(p.id) === String(item.proyecto_id));
+                  const telefono = cliente?.telefono || cliente?.telefono_whatsapp || '';
+                  const email = cliente?.email || '';
+                  return (
+                    <TableRow key={item.id} hover>
+                      <TableCell sx={{ fontWeight: 600 }}>{item.numero || '—'}</TableCell>
+                      <TableCell>{item.titulo}</TableCell>
+                      <TableCell>{cliente?.nombre || '-'}</TableCell>
+                      <TableCell>{proyecto?.nombre || '-'}</TableCell>
+                      <TableCell><Chip label={item.tipo} size="small" /></TableCell>
+                      <TableCell>
+                        <Chip
+                          label={item.estado}
+                          size="small"
+                          sx={{
+                            textTransform: 'capitalize',
+                            bgcolor: item.estado === 'firmado' ? 'info.main' : item.estado === 'activo' ? 'success.main' : item.estado === 'cancelado' ? 'error.main' : 'warning.main',
+                            color: 'common.white',
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell align="right">
+                        <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                          <Tooltip title="Ver"><IconButton size="small"><FiEye /></IconButton></Tooltip>
+                          <Tooltip title="Editar"><IconButton size="small" onClick={() => { setEditItem(item); setOpen(true); }}><FiEdit /></IconButton></Tooltip>
+                          <Tooltip title="WhatsApp"><IconButton size="small" onClick={() => handleWhatsApp(item)} disabled={!telefono || sendingWhatsApp === item.id}><FiMessageSquare /></IconButton></Tooltip>
+                          <Tooltip title="Email"><IconButton size="small" onClick={() => handleEmail(item)} disabled={!email}><FiMail /></IconButton></Tooltip>
+                          <Tooltip title="PDF"><IconButton size="small" onClick={() => handlePDF(item)}><FiFileText /></IconButton></Tooltip>
+                          <Tooltip title="Eliminar"><IconButton size="small" onClick={() => handleDelete(item.id)}><FiTrash2 /></IconButton></Tooltip>
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+                {filteredItems.length === 0 && (
+                  <TableRow><TableCell colSpan={7} align="center">Sin contratos</TableCell></TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Fade>
+      )}
 
       <Dialog open={open} onClose={() => { setOpen(false); setEditItem(null); }} maxWidth="sm" fullWidth>
         <DialogTitle>{editItem?.id ? 'Editar Contrato' : 'Nuevo Contrato'}</DialogTitle>
@@ -207,6 +303,8 @@ export default function Contratos() {
       <Snackbar open={!!error} autoHideDuration={3000} onClose={() => setError(null)}>
         <Alert severity="error" onClose={() => setError(null)}>{error}</Alert>
       </Snackbar>
+
+      <ScannerTarjetas open={scannerOpen} onClose={() => setScannerOpen(false)} />
     </Box>
   );
 }
