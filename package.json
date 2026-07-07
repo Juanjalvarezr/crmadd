@@ -3,14 +3,8 @@
   "private": true,
   "react-router": {
     "routes": [
-      {
-        "path": "/login",
-        "file": "app/routes/login.tsx"
-      },
-      {
-        "path": "/*",
-        "file": "app/root.tsx"
-      }
+      { "path": "/login", "file": "app/routes/login.tsx" },
+      { "path": "/*", "file": "app/root.tsx" }
     ]
   },
   "type": "module",
