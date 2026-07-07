@@ -7,11 +7,9 @@ interface StatCardProps {
   value: string | number;
   subtitle?: string;
   icon?: React.ReactNode;
-  trend?: {
-    value: number;
-    isPositive: boolean;
-  };
+  trend?: { value: number; isPositive: boolean };
   color?: "primary" | "secondary" | "success" | "warning" | "error" | "info";
+  compact?: boolean;
 }
 
 const getColorConfig = (color: string = "primary") => {
@@ -19,7 +17,7 @@ const getColorConfig = (color: string = "primary") => {
     primary: { bg: "primary.main", fg: "primary.contrastText", light: "primary.light" },
     secondary: { bg: "secondary.main", fg: "secondary.contrastText", light: "secondary.light" },
     success: { bg: "success.main", fg: "success.contrastText", light: "success.light" },
-    warning: { bg: "warning.main", fg: "warning.contrastText", light: "warning.light" },
+    warning: { bg: "warning.main", fg: "warning.dark", light: "warning.light" },
     error: { bg: "error.main", fg: "error.contrastText", light: "error.light" },
     info: { bg: "info.main", fg: "info.contrastText", light: "info.light" },
   };
@@ -32,7 +30,8 @@ export const StatCard: React.FC<StatCardProps> = ({
   subtitle, 
   icon, 
   trend, 
-  color = "primary" 
+  color = "primary",
+  compact = false
 }) => {
   const colorConfig = getColorConfig(color);
   const TrendIcon = trend?.isPositive ? FiTrendingUp : FiTrendingDown;
@@ -40,30 +39,60 @@ export const StatCard: React.FC<StatCardProps> = ({
   return (
     <Paper 
       sx={{ 
-        p: { xs: 2, sm: 3 },
+        p: compact ? 1.5 : 2.5,
         height: "100%",
-        borderRadius: 3,
+        borderRadius: 2.5,
         border: '1px solid',
         borderColor: 'divider',
         bgcolor: 'background.paper',
-        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        position: 'relative',
+        overflow: 'hidden',
+        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
         '&:hover': {
-          transform: { xs: 'none', sm: 'translateY(-4px)' },
-          boxShadow: { xs: 1, sm: 6 },
-          borderColor: colorConfig.bg
+          transform: { xs: 'none', sm: 'translateY(-3px)' },
+          boxShadow: 4,
+          borderColor: colorConfig.bg,
+        },
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 3,
+          bgcolor: colorConfig.bg,
         }
       }}
     >
-      <Box sx={{ display: "flex", alignItems: { xs: 'flex-start', sm: 'center' }, justifyContent: "space-between", mb: { xs: 1.5, sm: 2 } }}>
+      <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
         <Box sx={{ flex: 1, minWidth: 0 }}>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5, fontWeight: 500, textTransform: 'uppercase', letterSpacing: 0.5, fontSize: '0.75rem' }}>
+          <Typography 
+            variant="caption" 
+            sx={{ 
+              fontWeight: 600, 
+              textTransform: 'uppercase', 
+              letterSpacing: 0.8, 
+              fontSize: '0.7rem',
+              color: 'text.secondary',
+              display: 'block',
+              mb: 0.5
+            }}
+          >
             {title}
           </Typography>
-          <Typography variant="h4" sx={{ fontWeight: 800, mb: 0.5, fontSize: { xs: '1.75rem', sm: '2.125rem' } }}>
+          <Typography 
+            variant={compact ? "h5" : "h4"} 
+            sx={{ 
+              fontWeight: 800, 
+              lineHeight: 1.1,
+              letterSpacing: '-0.02em',
+              fontSize: compact ? '1.5rem' : '2rem'
+            }}
+          >
             {value}
           </Typography>
-          {subtitle && (
-            <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
+          {subtitle && !compact && (
+            <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.75rem', mt: 0.5, display: 'block' }}>
               {subtitle}
             </Typography>
           )}
@@ -71,14 +100,15 @@ export const StatCard: React.FC<StatCardProps> = ({
         {icon && (
           <Box 
             sx={{ 
-              p: { xs: 1, sm: 1.5 }, 
-              borderRadius: 2.5, 
+              p: 1, 
+              borderRadius: 2, 
               bgcolor: `${color}.light`,
               color: `${color}.dark`,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              ml: 1
+              ml: 1,
+              opacity: 0.9
             }}
           >
             {icon}
@@ -89,18 +119,17 @@ export const StatCard: React.FC<StatCardProps> = ({
       {trend && (
         <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mt: 1 }}>
           <TrendIcon 
-            size={16} 
+            size={14} 
             color={trend.isPositive ? "success.main" : "error.main"} 
           />
           <Typography 
-            variant="body2" 
-            color={trend.isPositive ? "success.main" : "error.main"}
-            sx={{ fontWeight: 700 }} 
+            variant="caption" 
+            sx={{ fontWeight: 700, fontSize: '0.75rem' }}
           >
             {trend.isPositive ? "+" : ""}{trend.value}%
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
-            vs mes anterior
+          <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem' }}>
+            vs anterior
           </Typography>
         </Box>
       )}
@@ -108,7 +137,7 @@ export const StatCard: React.FC<StatCardProps> = ({
   );
 };
 
-export const ClientesIcon = () => <FiUsers size={24} />;
-export const VentasIcon = () => <FiDollarSign size={24} />;
-export const ConversionIcon = () => <FiTarget size={24} />;
-export const ActividadIcon = () => <FiActivity size={24} />;
+export const ClientesIcon = () => <FiUsers size={22} />;
+export const VentasIcon = () => <FiDollarSign size={22} />;
+export const ConversionIcon = () => <FiTarget size={22} />;
+export const ActividadIcon = () => <FiActivity size={22} />;

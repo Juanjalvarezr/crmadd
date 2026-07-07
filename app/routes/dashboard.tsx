@@ -3,13 +3,12 @@ import {
   Box,
   Typography,
   Grid,
-  Card,
-  CardContent,
-  CircularProgress,
+  Paper,
   Chip,
   Alert,
   Button,
   useTheme,
+  IconButton,
 } from "@mui/material";
 import {
   FiRefreshCw,
@@ -19,6 +18,7 @@ import {
   FiDollarSign,
   FiTarget,
   FiActivity,
+  FiClock,
 } from "react-icons/fi";
 import { proyectosService, clientesService, oportunidadesService, tareasService } from "../services/database";
 import { StatCard } from "../components/StatCard";
@@ -42,15 +42,11 @@ export default function Dashboard() {
     totalRecaudado: 0,
     tareasPendientes: 0,
   });
-  const [resumenAI] = useState<string>("");
   const [presentationMode, setPresentationMode] = useState(false);
-  const [syncDialog, setSyncDialog] = useState(false);
-  const [syncObservation, setSyncObservation] = useState("");
-  const [syncAnchorEl, setSyncAnchorEl] = useState<null | HTMLElement>(null);
   const todayLabel = new Date().toLocaleDateString("es-CO", {
     weekday: "long",
     day: "numeric",
-    month: "long",
+    month: "short",
     year: "numeric",
   });
 
@@ -68,379 +64,445 @@ export default function Dashboard() {
     return () => window.removeEventListener("presentation-mode-changed", handler);
   }, []);
 
-  const calculateStats = useCallback(
-    (source: any) => {
-      const proyectos = Array.isArray(source.proyectos) ? source.proyectos : [];
-      const clientes = Array.isArray(source.clientes) ? source.clientes : [];
-      const oportunidades = Array.isArray(source.oportunidades)
-        ? source.oportunidades
-        : [];
-      const tareas = Array.isArray(source.tareas) ? source.tareas : [];
+  const calculateStats = useCallback((source: any) => {
+    const proyectos = Array.isArray(source.proyectos) ? source.proyectos : [];
+    const clientes = Array.isArray(source.clientes) ? source.clientes : [];
+    const oportunidades = Array.isArray(source.oportunidades) ? source.oportunidades : [];
+    const tareas = Array.isArray(source.tareas) ? source.tareas : [];
 
-      const totalPresupuestado = proyectos.reduce(
-        (acc: number, current: any) => acc + (Number(current.presupuesto) || 0),
-        0
-      );
-      const totalRecaudado = proyectos.reduce(
-        (acc: number, current: any) => acc + (Number(current.montoPagado) || 0),
-        0
-      );
-      const valorPipeline = oportunidades
-        .filter(
-          (oportunidad: any) =>
-            oportunidad.estado === "Abierta" ||
-            oportunidad.etapa === "Prospección" ||
-            oportunidad.etapa === "Propuesta"
-        )
-        .reduce(
-          (acc: number, current: any) => acc + (Number(current.valor) || 0),
-          0
-        );
+    const totalPresupuestado = proyectos.reduce(
+      (acc: number, current: any) => acc + (Number(current.presupuesto) || 0),
+      0
+    );
+    const totalRecaudado = proyectos.reduce(
+      (acc: number, current: any) => acc + (Number(current.montoPagado) || 0),
+      0
+    );
+    const valorPipeline = oportunidades
+      .filter(
+        (oportunidad: any) =>
+          oportunidad.estado === "Abierta" ||
+          oportunidad.etapa === "Prospección" ||
+          oportunidad.etapa === "Propuesta"
+      )
+      .reduce((acc: number, current: any) => acc + (Number(current.valor) || 0), 0);
 
-      setStats({
-        totalClientes: clientes.length,
-        proyectosActivos: proyectos.filter(
-          (proyecto: any) =>
-            proyecto.estado === "en_progreso" ||
-            proyecto.estado === "planificacion"
-        ).length,
-        valorPipeline,
-        totalPresupuestado,
-        totalRecaudado,
-        tareasPendientes: Array.isArray(tareas)
-          ? tareas.filter((t: any) => t.estado !== "Completada" && t.estado !== "Cancelada").length
-          : 0,
+    setStats({
+      totalClientes: clientes.length,
+      proyectosActivos: proyectos.filter(
+        (proyecto: any) =>
+          proyecto.estado === "en_progreso" || proyecto.estado === "planificacion"
+      ).length,
+      valorPipeline,
+      totalPresupuestado,
+      totalRecaudado,
+      tareasPendientes: Array.isArray(tareas)
+        ? tareas.filter((t: any) => t.estado !== "Completada" && t.estado !== "Cancelada").length
+        : 0,
+    });
+  }, [setStats]);
+
+  const fetchDashboardData = useCallback(async (forceRefresh = false) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [proyectos, clientes, oportunidades, tareas] =
+        await Promise.all([
+          proyectosService.getAll(),
+          clientesService.getAll(),
+          oportunidadesService.getAll(),
+          tareasService.getAll(),
+        ]);
+
+      const source = {
+        proyectos,
+        clientes,
+        oportunidades,
+        tareas,
+      };
+
+      setData({
+        proyectos,
+        clientes,
+        oportunidades,
+        isUsingMockData: false,
       });
-    },
-    [setStats]
-  );
 
-  const fetchDashboardData = useCallback(
-    async (forceRefresh = false) => {
-      setLoading(true);
-      setError(null);
-
-      try {
-        const proyectosPromise = proyectosService
-          .getAll()
-          .then((proyectos) => ({ proyectos, source: "real" }))
-          .catch(() => ({ proyectos: [], source: "empty" }));
-
-        const clientesPromise = clientesService
-          .getAll()
-          .then((clientes) => ({ clientes, source: "real" }))
-          .catch(() => ({ clientes: [], source: "empty" }));
-
-        const oportunidadesPromise = oportunidadesService
-          .getAll()
-          .then((oportunidades) => ({ oportunidades, source: "real" }))
-          .catch(() => ({ oportunidades: [], source: "empty" }));
-
-        const tareasPromise = tareasService
-          .getAll()
-          .then((tareas) => ({ tareas, source: "real" }))
-          .catch(() => ({ tareas: [], source: "empty" }));
-
-        const [proyectosResult, clientesResult, oportunidadesResult, tareasResult] =
-          await Promise.all([
-            proyectosPromise,
-            clientesPromise,
-            oportunidadesPromise,
-            tareasPromise,
-          ]);
-
-        const proyectos = proyectosResult.proyectos;
-        const clientes = clientesResult.clientes;
-        const oportunidades = oportunidadesResult.oportunidades;
-        const tareas = tareasResult.tareas;
-        const isUsingMockData =
-          proyectosResult.source === "empty" &&
-          clientesResult.source === "empty" &&
-          oportunidadesResult.source === "empty" &&
-          tareasResult.source === "empty";
-
-        setData({
-          proyectos,
-          clientes,
-          oportunidades,
-          tareas,
-          isUsingMockData,
-        } as any);
-      } catch (networkError) {
-        console.error("No fue posible sincronizar con el backend:", networkError);
-        setError("No fue posible sincronizar con el backend. Intenta nuevamente.");
-        setData({
-          proyectos: [],
-          clientes: [],
-          oportunidades: [],
-          isUsingMockData: false,
-        });
-      } finally {
-        setLoading(false);
-      }
-    },
-    [setData]
-  );
+      calculateStats(source);
+    } catch (err: any) {
+      setError("Error al cargar datos: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [calculateStats]);
 
   useEffect(() => {
-    fetchDashboardData(false);
+    fetchDashboardData();
   }, [fetchDashboardData]);
 
-  useEffect(() => {
-    if (!loading) {
-      calculateStats(data);
-    }
-  }, [loading, data, calculateStats]);
+  const proyectosActivos = (data.proyectos || [])
+    .filter((p: any) => p.estado === "en_progreso" || p.estado === "planificacion")
+    .slice(0, 6);
 
-  const loadDashboardData = useCallback(
-    async (forceRefresh = false) => {
-      await fetchDashboardData(forceRefresh);
-    },
-    [fetchDashboardData]
-  );
+  const proximasTareas = (data.tareas || [])
+    .filter((t: any) => t.estado !== "Completada" && t.estado !== "Cancelada")
+    .sort((a: any, b: any) => (a.fecha || "").localeCompare(b.fecha || ""))
+    .slice(0, 5);
 
-  const refreshMetrics = async () => {
-    setSyncAnchorEl(null);
-    try {
-      await loadDashboardData(true);
-    } catch (refreshError) {
-      console.error("No se pudo refrescar el dashboard:", refreshError);
+  const formatCOP = (value: number) =>
+    new Intl.NumberFormat("es-CO", {
+      style: "currency",
+      currency: "COP",
+      minimumFractionDigits: 0,
+    }).format(value);
+
+  const getEstadoColor = (estado: string) => {
+    switch (estado) {
+      case "en_progreso":
+        return "info";
+      case "planificacion":
+        return "warning";
+      case "entregado":
+        return "success";
+      default:
+        return "default";
     }
   };
-
-  const handleOpenSyncDialog = () => setSyncDialog(true);
-  const handleCloseSyncDialog = () => setSyncDialog(false);
-
-  const submitSyncObservation = () => {
-    console.log("Observación guardada para sincronizar:", syncObservation);
-    setSyncDialog(false);
-    setSyncObservation("");
-  };
-
-  const formatCurrency = (value: number) =>
-    presentationMode
-      ? "••••••"
-      : new Intl.NumberFormat("es-CO", {
-          style: "currency",
-          currency: "COP",
-          maximumFractionDigits: 0,
-        }).format(value);
-
-  if (loading) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "70vh",
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    );
-  }
 
   return (
-    <Box sx={{ mb: 4 }}>
-      <Grid container spacing={{ xs: 2, sm: 3 }} sx={{ mb: { xs: 2, sm: 3 } }}>
-        <Grid item xs={12}>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: { xs: 'stretch', sm: 'center' },
-              flexDirection: { xs: 'column', sm: 'row' },
-              gap: 1.5,
+    <Box>
+      <Box sx={{ 
+        mb: 3, 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: 1
+      }}>
+        <Box>
+          <Typography 
+            variant={presentationMode ? "h4" : "h5"} 
+            sx={{ 
+              fontWeight: 800,
+              letterSpacing: '-0.02em',
+              lineHeight: 1.2
             }}
           >
-            <Box>
-              <Typography
-                variant="overline"
-                sx={{ color: "text.secondary", letterSpacing: 1, fontWeight: 600 }}
-              >
-                Panel de Control
-              </Typography>
-              <Typography 
-                variant="h4" 
-                sx={{ 
-                  fontWeight: 900,
-                  background: (theme) => theme.palette.mode === 'dark'
-                    ? 'linear-gradient(135deg, #ffffff 0%, #b0b0b0 100%)'
-                    : 'linear-gradient(135deg, #1a1a2e 0%, #4a4a6a 100%)',
-                  backgroundClip: 'text',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' }
-                }}
-              >
-                {todayLabel}
-              </Typography>
-            </Box>
-            <Button
-              variant="outlined"
-              startIcon={<FiRefreshCw />}
-              onClick={refreshMetrics}
-              sx={{ alignSelf: { xs: 'stretch', sm: 'auto' } }}
-            >
-              Sincronizar
-            </Button>
-          </Box>
-        </Grid>
-      </Grid>
+            Dashboard
+          </Typography>
+          <Typography 
+            variant="caption" 
+            sx={{ 
+              color: 'text.secondary',
+              textTransform: 'capitalize',
+              fontWeight: 500
+            }}
+          >
+            {todayLabel}
+          </Typography>
+        </Box>
+        <IconButton 
+          onClick={() => fetchDashboardData(true)} 
+          disabled={loading}
+          size="small"
+          sx={{ 
+            bgcolor: 'action.hover',
+            '&:hover': { bgcolor: 'action.selected' }
+          }}
+        >
+          <FiRefreshCw size={18} />
+        </IconButton>
+      </Box>
 
-      {error ? (
-        <Alert severity="info" sx={{ mb: 3 }}>
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
           {error}
         </Alert>
-      ) : null}
+      )}
 
-      <Grid container spacing={{ xs: 2, sm: 3 }}>
-        <Grid item xs={12} md={6}>
-          <Card
-            sx={{
-              background:
-                "linear-gradient(135deg, rgba(233,30,99,0.95) 0%, rgba(156,39,176,0.95) 100%)",
-              color: "white",
-              position: "relative",
-              overflow: "hidden",
-              minHeight: 120,
-              borderRadius: 3,
-              border: '1px solid',
-              borderColor: 'rgba(255,255,255,0.1)',
-              transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-              '&:hover': {
-                transform: 'translateY(-4px)',
-                boxShadow: '0 12px 24px rgba(233,30,99,0.3)'
-              }
-            }}
-          >
-            <Box
-              sx={{
-                position: "absolute",
-                top: -24,
-                right: -24,
-                width: 120,
-                height: 120,
-                background: "rgba(255,255,255,0.12)",
-                borderRadius: "50%",
-                filter: "blur(16px)",
-              }}
-            />
-            <CardContent sx={{ position: 'relative', zIndex: 1 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                <FiTrendingUp size={22} />
-                <Typography variant="overline" sx={{ letterSpacing: 1.5, fontWeight: 700, color: 'rgba(255,255,255,0.9)' }}>
-                  Análisis Estratégico AI
-                </Typography>
-              </Box>
-              <Typography variant="body1" sx={{ fontWeight: 400, mb: 2 }}>
-                {resumenAI.trim().length
-                  ? resumenAI
-                  : "Revisa tus tareas pendientes para comenzar el día."}
-              </Typography>
-              <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-                <Chip
-                  label={loading ? "Sincronizando..." : "Datos actualizados"}
-                  sx={{
-                    background: "rgba(255,255,255,0.18)",
-                    color: "white",
-                    fontWeight: "bold",
-                    fontSize: '0.75rem'
-                  }}
-                />
-                <Chip
-                  label={stats.proyectosActivos > 0 ? `${stats.proyectosActivos} activos` : "Sin pendientes"}
-                  sx={{
-                    background: "rgba(255,255,255,0.18)",
-                    color: "white",
-                    fontWeight: "bold",
-                    fontSize: '0.75rem'
-                  }}
-                />
-                <Chip
-                  icon={<FiCalendar size={13} />}
-                  label="Hoy"
-                  sx={{
-                    background: "rgba(255,255,255,0.18)",
-                    color: "white",
-                    fontWeight: "bold",
-                    fontSize: '0.75rem'
-                  }}
-                />
-              </Box>
-            </CardContent>
-          </Card>
-        </Grid>
+      {presentationMode && (
+        <Alert severity="info" sx={{ mb: 2 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <FiActivity size={20} />
+            <Typography variant="body2">
+              Modo presentación activo — los valores están ocultos
+            </Typography>
+          </Box>
+        </Alert>
+      )}
 
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Proyectos"
-            value={stats.proyectosActivos}
-            subtitle="En ejecución"
-            icon={<FiActivity size={28} />}
-            color="warning"
-          />
-        </Grid>
-
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Proyectos"
-            value={stats.proyectosActivos}
-            subtitle="En ejecución"
-            icon={<FiActivity size={28} />}
-            color="warning"
-          />
-        </Grid>
-
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Ingresos Totales"
-            value={formatCurrency(stats.totalPresupuestado)}
-            subtitle={`${stats.proyectosActivos} proyectos en curso`}
-            icon={<FiDollarSign size={28} />}
-            color="primary"
-          />
-        </Grid>
-
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Recaudado"
-            value={formatCurrency(stats.totalRecaudado)}
-            subtitle={`${stats.totalClientes} clientes registrados`}
-            icon={<FiActivity size={28} />}
-            color="success"
-          />
-        </Grid>
-
-        <Grid item xs={12} sm={6} md={4}>
-          <StatCard
-            title="Ventas"
-            value={formatCurrency(stats.valorPipeline)}
-            subtitle="Oportunidades abiertas"
-            icon={<FiTrendingUp size={28} />}
-            color="secondary"
-          />
-        </Grid>
-
-        <Grid item xs={12} sm={6} md={4}>
+      <Grid container spacing={2} sx={{ mb: 3 }}>
+        <Grid item xs={6} sm={4} lg={2.4}>
           <StatCard
             title="Clientes"
             value={stats.totalClientes}
-            subtitle="Activos en esta semana"
-            icon={<FiUsers size={28} />}
-            color="info"
+            subtitle={presentationMode ? "" : "Total registrados"}
+            icon={<FiUsers size={20} />}
+            color="primary"
+            compact
           />
         </Grid>
-
-        <Grid item xs={12} sm={6} md={4}>
+        <Grid item xs={6} sm={4} lg={2.4}>
+          <StatCard
+            title="Proyectos activos"
+            value={stats.proyectosActivos}
+            color="info"
+            compact
+          />
+        </Grid>
+        <Grid item xs={6} sm={4} lg={2.4}>
+          <StatCard
+            title="Pipeline"
+            value={presentationMode ? "•••" : formatCOP(stats.valorPipeline)}
+            subtitle={presentationMode ? "" : "En ventas"}
+            icon={<FiTarget size={20} />}
+            color="warning"
+            compact
+          />
+        </Grid>
+        <Grid item xs={6} sm={4} lg={2.4}>
+          <StatCard
+            title="Presupuestado"
+            value={presentationMode ? "•••" : formatCOP(stats.totalPresupuestado)}
+            subtitle={presentationMode ? "" : "Total proyectos"}
+            icon={<FiDollarSign size={20} />}
+            color="success"
+            compact
+          />
+        </Grid>
+        <Grid item xs={6} sm={4} lg={2.4}>
+          <StatCard
+            title="Recaudado"
+            value={presentationMode ? "•••" : formatCOP(stats.totalRecaudado)}
+            subtitle={presentationMode ? "" : "Vs presupuesto"}
+            icon={<FiTrendingUp size={20} />}
+            trend={
+              stats.totalPresupuestado > 0
+                ? {
+                    value: Math.round((stats.totalRecaudado / stats.totalPresupuestado) * 100),
+                    isPositive: stats.totalRecaudado >= stats.totalPresupuestado * 0.5,
+                  }
+                : undefined
+            }
+            color="success"
+            compact
+          />
+        </Grid>
+        <Grid item xs={6} sm={4} lg={2.4}>
           <StatCard
             title="Tareas pendientes"
             value={stats.tareasPendientes}
-            subtitle="Sin completar"
-            icon={<FiTarget size={28} />}
-            color={stats.tareasPendientes > 0 ? "warning" : "success"}
+            color="error"
+            compact
           />
+        </Grid>
+      </Grid>
+
+      <Grid container spacing={2}>
+        {proyectosActivos.length > 0 && (
+          <Grid item xs={12} lg={7}>
+            <Paper sx={{ 
+              p: 2, 
+              height: '100%',
+              borderRadius: 2.5,
+              border: '1px solid',
+              borderColor: 'divider'
+            }}>
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 1,
+                mb: 2
+              }}>
+                <FiActivity size={18} color={theme.palette.info.main} />
+                <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+                  Proyectos Activos
+                </Typography>
+              </Box>
+              <Box sx={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                gap: 1.5 
+              }}>
+                {proyectosActivos.map((proyecto: any) => (
+                  <Box
+                    key={proyecto.id}
+                    sx={{
+                      p: 1.5,
+                      borderRadius: 2,
+                      border: '1px solid',
+                      borderColor: 'divider',
+                      bgcolor: 'background.default',
+                      transition: 'all 0.15s',
+                      '&:hover': {
+                        borderColor: 'primary.main',
+                        bgcolor: 'action.hover'
+                      }
+                    }}
+                  >
+                    <Box sx={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between', 
+                      alignItems: 'flex-start',
+                      gap: 1
+                    }}>
+                      <Box sx={{ flex: 1, minWidth: 0 }}>
+                        <Typography 
+                          variant="body2" 
+                          sx={{ 
+                            fontWeight: 600,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
+                          }}
+                        >
+                          {proyecto.nombre}
+                        </Typography>
+                        <Typography 
+                          variant="caption" 
+                          color="text.secondary"
+                          sx={{ display: 'block', mt: 0.25 }}
+                        >
+                          {proyecto.clienteNombre || "Sin cliente"}
+                        </Typography>
+                      </Box>
+                      <Chip
+                        label={proyecto.estado === "en_progreso" ? "En progreso" : "Planificación"}
+                        size="small"
+                        color={getEstadoColor(proyecto.estado) as any}
+                        sx={{ 
+                          height: 24,
+                          fontSize: '0.7rem',
+                          fontWeight: 600,
+                          flexShrink: 0
+                        }}
+                      />
+                    </Box>
+                    {proyecto.presupuesto && (
+                      <Box sx={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        mt: 1
+                      }}>
+                        <Typography variant="caption" color="text.secondary">
+                          {presentationMode ? "•••" : formatCOP(Number(proyecto.presupuesto))}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {proyecto.progreso || 0}%
+                        </Typography>
+                      </Box>
+                    )}
+                  </Box>
+                ))}
+              </Box>
+            </Paper>
+          </Grid>
+        )}
+
+        {proyectosActivos.length === 0 && !loading && (
+          <Grid item xs={12}>
+            <Paper sx={{ 
+              p: 4, 
+              textAlign: 'center',
+              borderRadius: 2.5,
+              border: '1px solid',
+              borderColor: 'divider'
+            }}>
+              <FiActivity size={48} color={theme.palette.text.secondary} />
+              <Typography variant="body1" sx={{ mt: 2, fontWeight: 600 }}>
+                Sin proyectos activos
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                Crea tu primer proyecto para ver el seguimiento aquí
+              </Typography>
+            </Paper>
+          </Grid>
+        )}
+
+        <Grid item xs={12} lg={5}>
+          <Paper sx={{ 
+            p: 2, 
+            height: '100%',
+            borderRadius: 2.5,
+            border: '1px solid',
+            borderColor: 'divider'
+          }}>
+            <Box sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: 1,
+              mb: 2
+            }}>
+              <FiClock size={18} color={theme.palette.warning.main} />
+              <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+                Próximas Tareas
+              </Typography>
+            </Box>
+            <Box sx={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              gap: 1 
+            }}>
+              {proximasTareas.length > 0 ? (
+                proximasTareas.map((tarea: any) => (
+                  <Box
+                    key={tarea.id}
+                    sx={{
+                      p: 1.5,
+                      borderRadius: 2,
+                      border: '1px solid',
+                      borderColor: 'divider',
+                      bgcolor: 'background.default',
+                    }}
+                  >
+                    <Typography 
+                      variant="body2" 
+                      sx={{ 
+                        fontWeight: 500,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      {tarea.titulo || tarea.descripcion || "Sin título"}
+                    </Typography>
+                    <Box sx={{ 
+                      display: 'flex', 
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      mt: 0.5
+                    }}>
+                      <Typography variant="caption" color="text.secondary">
+                        {tarea.fecha ? new Date(tarea.fecha).toLocaleDateString("es-CO", { 
+                          day: "numeric", 
+                          month: "short" 
+                        }) : "Sin fecha"}
+                      </Typography>
+                      <Chip
+                        label={tarea.estado || "Pendiente"}
+                        size="small"
+                        color={tarea.prioridad === "Alta" ? "error" : tarea.prioridad === "Media" ? "warning" : "default"}
+                        sx={{ 
+                          height: 20,
+                          fontSize: '0.65rem',
+                          fontWeight: 600
+                        }}
+                      />
+                    </Box>
+                  </Box>
+                ))
+              ) : (
+                <Typography 
+                  variant="body2" 
+                  color="text.secondary"
+                  sx={{ textAlign: 'center', py: 3 }}
+                >
+                  No hay tareas pendientes
+                </Typography>
+              )}
+            </Box>
+          </Paper>
         </Grid>
       </Grid>
     </Box>
