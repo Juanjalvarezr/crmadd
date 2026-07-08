@@ -1166,12 +1166,12 @@ export default function Proyectos() {
                     <Chip
                       label={proyecto.faseAdministrativa || "operacion"}
                       size="small"
-                      variant="filled"
+                      variant="outlined"
                       sx={{
                         fontSize: '0.65rem',
                         height: 20,
-                        bgcolor: 'primary.main',
-                        color: 'primary.contrastText',
+                        borderColor: 'primary.main',
+                        color: 'primary.main',
                         textTransform: 'uppercase'
                       }}
                     />
@@ -1426,10 +1426,15 @@ export default function Proyectos() {
                         <Typography variant="subtitle2" gutterBottom>💰 Control de Pagos (50/50)</Typography>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                           <Typography variant="caption">Anticipo (50%): {formatCOP(selectedProyecto.presupuesto * 0.5)}</Typography>
-                          <Chip 
-                            label={selectedProyecto.montoPagado >= (selectedProyecto.presupuesto * 0.5) ? "RECIBIDO" : "PENDIENTE"} 
-                            size="small" 
-                            color={selectedProyecto.montoPagado >= (selectedProyecto.presupuesto * 0.5) ? "success" : "warning"}
+                          <Chip
+                            label={selectedProyecto.montoPagado >= (selectedProyecto.presupuesto * 0.5) ? "RECIBIDO" : "PENDIENTE"}
+                            size="small"
+                            variant={selectedProyecto.montoPagado >= (selectedProyecto.presupuesto * 0.5) ? "filled" : "outlined"}
+                            sx={{
+                              ...(selectedProyecto.montoPagado >= (selectedProyecto.presupuesto * 0.5)
+                                ? { bgcolor: '#4caf50', color: '#fff' }
+                                : { borderColor: '#ff9800', color: '#ff9800' })
+                            }}
                           />
                         </Box>
                         <TextField
