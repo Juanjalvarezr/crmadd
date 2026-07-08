@@ -69,12 +69,7 @@ export const FloatingAIAssistant = () => {
     setIsLoading(true);
 
     try {
-      const respuesta = await aiService.generarPropuesta({
-        clienteNombre: text,
-        clienteEmpresa: '',
-        servicios: [],
-        notasAdicionales: contexto || '',
-      });
+      const respuesta = await aiService.chatAsistente(text, contexto);
 
       const textoFinal = typeof respuesta === 'string' ? respuesta : JSON.stringify(respuesta);
       setChatMessages((m) => [...m, { role: 'assistant', text: textoFinal }]);
