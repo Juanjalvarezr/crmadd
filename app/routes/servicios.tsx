@@ -34,10 +34,17 @@ export default function Servicios() {
     duracion: "",
     incluye: [] as string[],
     estado: "Activo" as "Activo" | "Inactivo",
-    popularidad: 3
+    popularidad: 3,
+    tipo: "individual" as "paquete" | "individual",
+    paquete_dias: 5 as 3 | 5 | 7,
+    objetivo: [] as string[],
+    incluye_paquete: [] as string[],
+    precio_paquete: 0,
   });
 
   const [nuevoItemIncluye, setNuevoItemIncluye] = useState("");
+  const [nuevoObjetivo, setNuevoObjetivo] = useState("");
+  const [nuevoItemPaquete, setNuevoItemPaquete] = useState("");
 
   const loadServicios = async () => {
     try {
@@ -66,7 +73,12 @@ export default function Servicios() {
         duracion: servicio.duracion || "",
         incluye: servicio.incluye || [],
         estado: servicio.estado,
-        popularidad: servicio.popularidad
+        popularidad: servicio.popularidad,
+        tipo: servicio.tipo || "individual",
+        paquete_dias: servicio.paquete_dias || 5,
+        objetivo: servicio.objetivo || [],
+        incluye_paquete: servicio.incluye_paquete || [],
+        precio_paquete: servicio.precio_paquete || 0,
       });
     } else {
       setEditingServicio(null);
@@ -78,7 +90,12 @@ export default function Servicios() {
         duracion: "",
         incluye: [],
         estado: "Activo",
-        popularidad: 3
+        popularidad: 3,
+        tipo: "individual",
+        paquete_dias: 5,
+        objetivo: [],
+        incluye_paquete: [],
+        precio_paquete: 0,
       });
     }
     setOpenModal(true);
@@ -88,6 +105,8 @@ export default function Servicios() {
     setOpenModal(false);
     setEditingServicio(null);
     setNuevoItemIncluye("");
+    setNuevoObjetivo("");
+    setNuevoItemPaquete("");
   };
 
   const handleAddItemIncluye = () => {
@@ -104,6 +123,40 @@ export default function Servicios() {
     setFormData(prev => ({
       ...prev,
       incluye: prev.incluye.filter((_, i) => i !== index)
+    }));
+  };
+
+  const handleAddObjetivo = () => {
+    if (nuevoObjetivo.trim()) {
+      setFormData(prev => ({
+        ...prev,
+        objetivo: [...prev.objetivo, nuevoObjetivo.trim()]
+      }));
+      setNuevoObjetivo("");
+    }
+  };
+
+  const handleRemoveObjetivo = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      objetivo: prev.objetivo.filter((_, i) => i !== index)
+    }));
+  };
+
+  const handleAddItemPaquete = () => {
+    if (nuevoItemPaquete.trim()) {
+      setFormData(prev => ({
+        ...prev,
+        incluye_paquete: [...prev.incluye_paquete, nuevoItemPaquete.trim()]
+      }));
+      setNuevoItemPaquete("");
+    }
+  };
+
+  const handleRemoveItemPaquete = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      incluye_paquete: prev.incluye_paquete.filter((_, i) => i !== index)
     }));
   };
 
@@ -277,6 +330,105 @@ export default function Servicios() {
                 onChange={e => setFormData({ ...formData, precio_base: Number(e.target.value) })}
               />
             </Grid>
+            <Grid item xs={12} sm={6}>
+              <FormControl fullWidth>
+                <InputLabel>Tipo</InputLabel>
+                <Select
+                  value={formData.tipo}
+                  label="Tipo"
+                  onChange={e => setFormData({ ...formData, tipo: e.target.value as "paquete" | "individual" })}
+                >
+                  <MenuItem value="individual">Individual</MenuItem>
+                  <MenuItem value="paquete">Paquete</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            {formData.tipo === "paquete" && (
+              <>
+                <Grid item xs={12} sm={6}>
+                  <FormControl fullWidth>
+                    <InputLabel>Días del Paquete</InputLabel>
+                    <Select
+                      value={formData.paquete_dias}
+                      label="Días del Paquete"
+                      onChange={e => setFormData({ ...formData, paquete_dias: Number(e.target.value) as 3 | 5 | 7 })}
+                    >
+                      <MenuItem value={3}>3 días</MenuItem>
+                      <MenuItem value={5}>5 días</MenuItem>
+                      <MenuItem value={7}>7 días</MenuItem>
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Precio Paquete (COP)"
+                    type="number"
+                    fullWidth
+                    value={formData.precio_paquete}
+                    onChange={e => setFormData({ ...formData, precio_paquete: Number(e.target.value) })}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography variant="subtitle2" sx={{ mb: 1 }}>Objetivo</Typography>
+                  <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
+                    <TextField
+                      size="small"
+                      fullWidth
+                      placeholder="Añadir objetivo..."
+                      value={nuevoObjetivo}
+                      onChange={e => setNuevoObjetivo(e.target.value)}
+                      onKeyPress={e => e.key === 'Enter' && handleAddObjetivo()}
+                    />
+                    <Button variant="outlined" onClick={handleAddObjetivo}><FiPlusCircle /></Button>
+                  </Box>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 2 }}>
+                    {formData.objetivo.map((item, index) => (
+                      <Chip
+                        key={index}
+                        label={item}
+                        size="small"
+                        onDelete={() => handleRemoveObjetivo(index)}
+                        sx={{ fontSize: '0.7rem' }}
+                      />
+                    ))}
+                    {formData.objetivo.length === 0 && (
+                      <Typography variant="caption" sx={{ color: 'text.secondary' }}>No hay objetivos añadidos</Typography>
+                    )}
+                  </Box>
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography variant="subtitle2" sx={{ mb: 1 }}>Incluye (Paquete)</Typography>
+                  <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
+                    <TextField
+                      size="small"
+                      fullWidth
+                      placeholder="Añadir item del paquete..."
+                      value={nuevoItemPaquete}
+                      onChange={e => setNuevoItemPaquete(e.target.value)}
+                      onKeyPress={e => e.key === 'Enter' && handleAddItemPaquete()}
+                    />
+                    <Button variant="outlined" onClick={handleAddItemPaquete}><FiPlusCircle /></Button>
+                  </Box>
+                  <Paper variant="outlined" sx={{ p: 1, maxHeight: 150, overflow: 'auto' }}>
+                    <List dense>
+                      {formData.incluye_paquete.map((item, index) => (
+                        <ListItem key={index}>
+                          <ListItemText primary={item} />
+                          <ListItemSecondaryAction>
+                            <IconButton size="small" edge="end" onClick={() => handleRemoveItemPaquete(index)}>
+                              <FiX />
+                            </IconButton>
+                          </ListItemSecondaryAction>
+                        </ListItem>
+                      ))}
+                      {formData.incluye_paquete.length === 0 && (
+                        <Typography variant="caption" sx={{ p: 1, color: 'text.secondary' }}>No hay items añadidos</Typography>
+                      )}
+                    </List>
+                  </Paper>
+                </Grid>
+              </>
+            )}
             <Grid item xs={12}>
               <TextField
                 label="Descripción"

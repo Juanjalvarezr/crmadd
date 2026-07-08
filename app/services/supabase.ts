@@ -100,6 +100,11 @@ export type Tables = {
     incluye: string[];
     estado: "Activo" | "Inactivo";
     popularidad: number;
+    tipo: 'paquete' | 'individual';
+    paquete_dias?: 3 | 5 | 7;
+    objetivo?: string[];
+    incluye_paquete?: string[];
+    precio_paquete?: number;
     created_at: string;
   }; // Corregido: estaba como string en algunos lugares
   equipo: { // Renombrado de 'subagentes'
@@ -411,6 +416,12 @@ export const mapDBToProyecto = (p: any) => ({
   metodoPago: p.metodo_pago,
   faseAdministrativa: p.fase_administrativa,
   planContenido: p.plan_contenido || { reels: [], stories: [], pauta: [] },
+  cronograma: p.cronograma || {
+    paquete: 'mensual',
+    objetivos: [],
+    duracionDias: 30,
+    items: [],
+  },
   creadoEn: p.creado_en,
   actualizadoEn: p.actualizado_en
 });

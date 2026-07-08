@@ -72,6 +72,7 @@ export default function Clientes() {
   const itemsPerPage = 10;
 
   const [proyectosOptions, setProyectosOptions] = useState<any[]>([]);
+  const [allTransaccionesGlobal, setAllTransaccionesGlobal] = useState<any[]>([]);
   
   // Modales de Detalle e Historial
   const [selectedClient, setSelectedClient] = useState<Cliente | null>(null);
@@ -150,6 +151,14 @@ export default function Clientes() {
   useEffect(() => {
     loadClientes();
     loadProyectosOptions();
+    (async () => {
+      try {
+        const tx = (await transaccionesService.getAll()) as any[];
+        setAllTransaccionesGlobal(tx || []);
+      } catch {
+        // Silencioso: no romper el listado si falla la carga de transacciones
+      }
+    })();
   }, []);
 
   const filteredClientes = useMemo(() => {
@@ -198,6 +207,29 @@ export default function Clientes() {
       return created.getMonth() === now.getMonth() && created.getFullYear() === now.getFullYear();
     }).length;
   }, [clientes]);
+
+  const clientePaymentSummary = useMemo(() => {
+    const summary = new Map<number, number>();
+    filteredClientes.forEach(c => summary.set(c.id, 0));
+    
+    proyectosOptions.forEach((p: any) => {
+      const cid = Number(p.clienteId || p.cliente_id);
+      if (summary.has(cid)) {
+        const current = summary.get(cid) || 0;
+        summary.set(cid, current + Number(p.monto_pagado || p.presupuesto || 0));
+      }
+    });
+    
+    allTransaccionesGlobal.forEach((tx: any) => {
+      const cid = Number(tx.cliente_id);
+      if (summary.has(cid) && tx.tipo === 'ingreso') {
+        const current = summary.get(cid) || 0;
+        summary.set(cid, current + Number(tx.monto || 0));
+      }
+    });
+    
+    return summary;
+  }, [filteredClientes, proyectosOptions, allTransaccionesGlobal]);
 
   const getEstadoColor = (estado: string) => {
     return estado === "Activo" ? "success" : "error";
@@ -989,112 +1021,143 @@ export default function Clientes() {
           </Box>
         )}
 
-        {!loading && !error && (isMobile ? (
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            {paginatedClientes.map((cliente) => (
-              <ExpandableCard
-                key={cliente.id}
-                title={cliente.nombre}
-                subtitle={cliente.empresa || cliente.email}
-                status={{ label: cliente.estado, color: "default" }}
-                amount={cliente.telefono || "Sin teléfono"}
-                footer={
-                  <Box sx={{ display: "flex", justifyContent: "flex-end", gap: 1, flexWrap: "wrap" }}>
-                    <IconButton size="small" onClick={() => handleToggleFavorite(cliente)} sx={{ color: cliente.favorito ? '#ffb400' : '#ccc' }} aria-label="Favorito"><FiStar size={16} style={{ fill: cliente.favorito ? '#ffb400' : 'none' }} /></IconButton>
-                    <IconButton size="small" onClick={() => handleViewDetails(cliente)} sx={{ color: '#1976d2' }}><FiEye size={16} /></IconButton>
-                    <IconButton size="small" onClick={() => handleEdit(cliente)} sx={{ color: '#ff9800' }}><FiEdit size={16} /></IconButton>
-                    <IconButton size="small" onClick={() => handleDelete(cliente)} sx={{ color: '#f44336' }} aria-label={`Eliminar a ${cliente.nombre}`}><FiTrash2 size={16} /></IconButton>
-                  </Box>
-                }
-                onClick={() => handleViewDetails(cliente)}
-              >
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                  <FiTarget size={14} />
-                  <Typography variant="body2">Nicho: {cliente.nicho || "No definido"}</Typography>
-                </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'text.secondary' }}>
-                  <FiCalendar size={14} />
-                  <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>Interacción: {formatDate(cliente.ultima_interaccion)}</Typography>
-                </Box>
-              </ExpandableCard>
-            ))}
-          </Box>
-        ) : (
-          <TableContainer sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-            <Table sx={{ minWidth: { xs: 720, sm: 'auto' } }} size="small" aria-label="tabla de clientes">
-              <TableHead>
-                <TableRow sx={{ bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)' }}>
-                  <TableCell padding="checkbox" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
-                    <Checkbox
-                      indeterminate={selectedIds.length > 0 && selectedIds.length < paginatedClientes.length}
-                      checked={paginatedClientes.length > 0 && selectedIds.length === paginatedClientes.length}
-                      onChange={handleSelectAll}
-                      size="small"
-                    />
-                  </TableCell>
-                  <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' }, fontWeight: "bold" }}>Nombre</TableCell>
-                  <TableCell sx={{ display: { xs: 'none', md: 'table-cell' }, fontSize: { xs: '0.75rem', sm: '0.875rem' }, fontWeight: "bold" }}>Email</TableCell>
-                  <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }, fontSize: { xs: '0.75rem', sm: '0.875rem' }, fontWeight: "bold" }}>Teléfono</TableCell>
-                  <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' }, fontWeight: "bold" }}>Estado</TableCell>
-                  <TableCell sx={{ display: { xs: 'none', md: 'table-cell' }, fontSize: { xs: '0.75rem', sm: '0.875rem' }, fontWeight: "bold" }}>Última Interacción</TableCell>
-                  <TableCell align="right" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' }, fontWeight: "bold" }}>Acciones</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {paginatedClientes.map((cliente) => (
-                  <TableRow key={cliente.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                    <TableCell padding="checkbox">
+        {!loading && !error && (
+          <Grid container spacing={2}>
+            {paginatedClientes.map((cliente) => {
+              const totalPagado = clientePaymentSummary.get(cliente.id) || 0;
+
+              return (
+                <Grid item xs={12} sm={6} md={4} lg={3} key={cliente.id}>
+                  <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', border: '1px solid', borderColor: 'divider', position: 'relative' }}>
+                    <Box sx={{ position: 'absolute', top: 8, left: 8, zIndex: 1 }}>
                       <Checkbox
                         checked={selectedIds.includes(cliente.id)}
                         onChange={() => handleSelectOne(cliente.id)}
                         size="small"
+                        sx={{ padding: 0.5, '& .MuiSvgIcon-root': { fontSize: 20 } }}
                       />
-                    </TableCell>
-                    <TableCell sx={{ py: 1 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+                    </Box>
+
+                    <CardContent sx={{ flexGrow: 1, pb: 1 }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1, mb: 1, pl: 3 }}>
+                        <Typography variant="h6" sx={{ fontWeight: 'bold', fontSize: { xs: '1rem', sm: '1.1rem' }, lineHeight: 1.2 }}>
                           {cliente.nombre}
+                        </Typography>
+                        <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center', flexShrink: 0 }}>
+                          {isLeadFrio(cliente.ultima_interaccion) && (
+                            <Tooltip title="Lead frío">
+                              <FiAlertCircle size={16} color="#f44336" />
+                            </Tooltip>
+                          )}
+                          <Chip
+                            label={cliente.estado}
+                            color={getEstadoColor(cliente.estado)}
+                            size="small"
+                            sx={{ fontWeight: "medium", fontSize: { xs: '0.7rem', sm: '0.8rem' } }}
+                          />
                         </Box>
-                        <Box sx={{ display: { xs: 'block', sm: 'none' } }}>
-                          <Typography variant="body2" sx={{ fontWeight: 700, lineHeight: 1.2 }}>{cliente.nombre}</Typography>
-                          <Typography variant="caption" color="text.secondary">{cliente.telefono}</Typography>
+                      </Box>
+
+                      <Stack spacing={0.5} sx={{ pl: 3, mb: 1 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <FiMail size={14} color="text.secondary" />
+                          <Typography variant="body2" color="text.secondary" noWrap>{cliente.email}</Typography>
                         </Box>
-                        {isLeadFrio(cliente.ultima_interaccion) && (
-                          <Tooltip title="Lead frío">
-                            <FiAlertCircle size={14} color="#f44336" />
-                          </Tooltip>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <FiPhone size={14} color="text.secondary" />
+                          <Typography variant="body2" color="text.secondary">{cliente.telefono || '—'}</Typography>
+                        </Box>
+                        {cliente.empresa && (
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <FiBriefcase size={14} color="text.secondary" />
+                            <Typography variant="body2" color="text.secondary" noWrap>{cliente.empresa}</Typography>
+                          </Box>
                         )}
+                      </Stack>
+
+                      <Divider sx={{ my: 1, pl: 3 }} />
+
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pl: 3 }}>
+                        <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                          Total Pagado
+                        </Typography>
+                        <Typography variant="body2" color="success.main" sx={{ fontWeight: 'bold' }}>
+                          {new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(totalPagado)}
+                        </Typography>
                       </Box>
-                    </TableCell>
-                    <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>{cliente.email}</TableCell>
-                    <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>{cliente.telefono}</TableCell>
-                    <TableCell>
-                      <Chip label={cliente.estado} color={getEstadoColor(cliente.estado)} size="small" sx={{ fontWeight: "medium", fontSize: { xs: '0.7rem', sm: '0.8rem' } }} />
-                    </TableCell>
-                    <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                        <FiCalendar size={16} />
-                        {formatDate(cliente.ultima_interaccion)}
-                      </Box>
-                    </TableCell>
-                    <TableCell align="right">
-                      <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
-                        <Tooltip title="Ver detalles"><IconButton size="small" onClick={() => handleViewDetails(cliente)} sx={{ color: '#1976d2', padding: { xs: 0.5, sm: 1 } }} aria-label={`Ver detalles de ${cliente.nombre}`}><FiEye size={16} /></IconButton></Tooltip>
-                        <Tooltip title={cliente.favorito ? "Quitar de favoritos" : "Marcar como favorito"}><IconButton size="small" onClick={() => handleToggleFavorite(cliente)} sx={{ color: cliente.favorito ? '#ffb400' : '#ccc', padding: { xs: 0.5, sm: 1 } }} aria-label={`Favorito ${cliente.nombre}`}><FiStar size={16} style={{ fill: cliente.favorito ? '#ffb400' : 'none' }} /></IconButton></Tooltip>
-                        <Tooltip title="Editar"><IconButton size="small" onClick={() => handleEdit(cliente)} sx={{ color: '#ff9800', padding: { xs: 0.5, sm: 1 } }} aria-label={`Editar a ${cliente.nombre}`}><FiEdit size={16} /></IconButton></Tooltip>
-                        <Tooltip title="Llamar"><IconButton size="small" onClick={() => handleCall(cliente)} sx={{ color: '#4caf50', padding: { xs: 0.5, sm: 1 } }} aria-label={`Llamar a ${cliente.nombre}`}><FiPhone size={16} /></IconButton></Tooltip>
-                        <Tooltip title="Email"><IconButton size="small" onClick={() => handleEmail(cliente)} sx={{ color: '#9c27b0', padding: { xs: 0.5, sm: 1 } }} aria-label={`Email a ${cliente.nombre}`}><FiMail size={16} /></IconButton></Tooltip>
-                        <Tooltip title="Mensaje"><IconButton size="small" onClick={() => handleMessage(cliente)} sx={{ color: '#00bcd4', padding: { xs: 0.5, sm: 1 } }} aria-label={`Mensaje a ${cliente.nombre}`}><FiMessageSquare size={16} /></IconButton></Tooltip>
-                        <Tooltip title="Historial"><IconButton size="small" onClick={() => handleHistory(cliente)} sx={{ color: '#607d8b', padding: { xs: 0.5, sm: 1 } }} aria-label={`Historial de ${cliente.nombre}`}><FiFileText size={16} /></IconButton></Tooltip>
-                        <Tooltip title="Eliminar"><IconButton size="small" onClick={() => handleDelete(cliente)} sx={{ color: '#f44336', padding: { xs: 0.5, sm: 1 } }} aria-label={`Eliminar a ${cliente.nombre}`}><FiTrash2 size={16} /></IconButton></Tooltip>
-                      </Box>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        ))}
+                    </CardContent>
+
+                    <Box sx={{ p: 1, display: 'flex', flexWrap: 'wrap', gap: 0.5, justifyContent: 'center' }}>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        startIcon={<FiTarget size={14} />}
+                        onClick={(e) => { e.stopPropagation(); window.location.href = `/proyectos?cliente_id=${cliente.id}`; }}
+                      >
+                        Proyectos
+                      </Button>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        startIcon={<FiFileText size={14} />}
+                        onClick={(e) => { e.stopPropagation(); window.location.href = `/facturacion?cliente_id=${cliente.id}`; }}
+                      >
+                        Facturas
+                      </Button>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        startIcon={<FiDownload size={14} />}
+                        onClick={(e) => { e.stopPropagation(); window.location.href = `/contratos?cliente_id=${cliente.id}`; }}
+                      >
+                        Contratos
+                      </Button>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        startIcon={<FiCalendar size={14} />}
+                        onClick={(e) => { e.stopPropagation(); window.location.href = `/tareas?cliente_id=${cliente.id}`; }}
+                      >
+                        Tareas
+                      </Button>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        startIcon={<FiMail size={14} />}
+                        onClick={(e) => { e.stopPropagation(); window.location.href = `/email-marketing?email=${encodeURIComponent(cliente.email)}`; }}
+                      >
+                        Email
+                      </Button>
+                    </Box>
+
+                    <Box sx={{ p: 1, pt: 0, display: 'flex', justifyContent: 'flex-end', gap: 0.5, borderTop: '1px solid', borderColor: 'divider' }}>
+                      <Tooltip title={cliente.favorito ? "Quitar de favoritos" : "Marcar como favorito"}>
+                        <IconButton size="small" onClick={() => handleToggleFavorite(cliente)} sx={{ color: cliente.favorito ? '#ffb400' : '#ccc' }} aria-label={`Favorito ${cliente.nombre}`}>
+                          <FiStar size={16} style={{ fill: cliente.favorito ? '#ffb400' : 'none' }} />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Ver detalles">
+                        <IconButton size="small" onClick={() => handleViewDetails(cliente)} sx={{ color: '#1976d2' }} aria-label={`Ver detalles de ${cliente.nombre}`}>
+                          <FiEye size={16} />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Editar">
+                        <IconButton size="small" onClick={() => handleEdit(cliente)} sx={{ color: '#ff9800' }} aria-label={`Editar a ${cliente.nombre}`}>
+                          <FiEdit size={16} />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Eliminar">
+                        <IconButton size="small" onClick={() => handleDelete(cliente)} sx={{ color: '#f44336' }} aria-label={`Eliminar a ${cliente.nombre}`}>
+                          <FiTrash2 size={16} />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
+                  </Card>
+                </Grid>
+              );
+            })}
+          </Grid>
+        )}
 
         {!loading && !error && filteredClientes.length === 0 && (
           <Box sx={{ mt: 2 }}>

@@ -75,6 +75,24 @@ export interface PlanItem {
   responsable?: string;
 }
 
+export interface Servicio {
+  id: number;
+  nombre: string;
+  categoria: string;
+  descripcion: string;
+  precio_base: number;
+  duracion: string;
+  incluye: string[];
+  estado: "Activo" | "Inactivo";
+  popularidad: number;
+  tipo: 'paquete' | 'individual';
+  paquete_dias?: 3 | 5 | 7;
+  objetivo?: string[];
+  incluye_paquete?: string[];
+  precio_paquete?: number;
+  created_at: string;
+}
+
 export interface TareaProyecto {
   id: string;
   nombre: string;
@@ -118,6 +136,17 @@ export interface Proyecto {
     reels: (string | PlanItem)[];
     stories: (string | PlanItem)[];
     pauta: (string | PlanItem)[];
+  };
+  cronograma: {
+    paquete: '3_dias' | '5_dias' | '7_dias' | 'mensual';
+    objetivos: string[];
+    duracionDias: number;
+    items: {
+      dia: number;
+      checklist: { texto: string; completada: boolean; responsable?: string }[];
+      reels: { texto: string; gancho: string; estado: 'pendiente' | 'grabado' | 'editado' | 'publicado' }[];
+      stories: { texto: string; estado: 'pendiente' | 'publicada' }[];
+    }[];
   };
   creadoEn: string;
   actualizadoEn: string;
