@@ -274,9 +274,9 @@ export default function Facturacion() {
   };
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: 'auto', p: { xs: 2, sm: 3 } }}>
+    <Box sx={{ maxWidth: { xs: '100%', md: 1100 }, mx: 'auto', p: { xs: 1, sm: 1.5 } }}>
       {/* Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 1.5 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 1 }}>
         <Typography variant="h4" sx={{ fontWeight: 800, fontSize: { xs: '1.5rem', sm: '2rem' } }}>Facturación</Typography>
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
           <Button variant="contained" color="secondary" startIcon={<FiShoppingCart />} onClick={() => setScannerOpen(true)} size="small">Escanear</Button>
@@ -285,29 +285,26 @@ export default function Facturacion() {
       </Box>
 
       {/* Resumen Fiscal */}
-      <Grid container spacing={2} sx={{ mb: 3 }}>
-        <Grid item xs={6} sm={4} md={2}>
-          <Card variant="outlined"><CardContent><Typography variant="caption" color="text.secondary">Facturas</Typography><Typography variant="h6">{resumen.cantidad}</Typography></CardContent></Card>
-        </Grid>
-        <Grid item xs={6} sm={4} md={2}>
-          <Card variant="outlined"><CardContent><Typography variant="caption" color="text.secondary">Total</Typography><Typography variant="h6">{formatCOP(resumen.total)}</Typography></CardContent></Card>
-        </Grid>
-        <Grid item xs={6} sm={4} md={2}>
-          <Card variant="outlined" sx={{ borderColor: 'success.main' }}><CardContent><Typography variant="caption" color="text.secondary">Pagado</Typography><Typography variant="h6" color="success.main">{formatCOP(resumen.pagado)}</Typography></CardContent></Card>
-        </Grid>
-        <Grid item xs={6} sm={4} md={2}>
-          <Card variant="outlined" sx={{ borderColor: 'info.main' }}><CardContent><Typography variant="caption" color="text.secondary">Enviado</Typography><Typography variant="h6" color="info.main">{formatCOP(resumen.enviado)}</Typography></CardContent></Card>
-        </Grid>
-        <Grid item xs={6} sm={4} md={2}>
-          <Card variant="outlined" sx={{ borderColor: 'warning.main' }}><CardContent><Typography variant="caption" color="text.secondary">Pendiente</Typography><Typography variant="h6" color="warning.main">{formatCOP(resumen.pendiente)}</Typography></CardContent></Card>
-        </Grid>
-        <Grid item xs={6} sm={4} md={2}>
-          <Card variant="outlined" sx={{ borderColor: 'error.main' }}><CardContent><Typography variant="caption" color="text.secondary">Anulado</Typography><Typography variant="h6" color="error.main">{formatCOP(resumen.anulado)}</Typography></CardContent></Card>
-        </Grid>
-      </Grid>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(3, 1fr)', sm: 'repeat(3, 1fr)', md: 'auto' }, gap: 1.5, mb: 2, overflowX: { md: 'auto' } }}>
+        {[
+          { label: 'Facturas', value: resumen.cantidad },
+          { label: 'Total', value: formatCOP(resumen.total) },
+          { label: 'Pagado', value: formatCOP(resumen.pagado), color: 'success' as const },
+          { label: 'Enviado', value: formatCOP(resumen.enviado), color: 'info' as const },
+          { label: 'Pendiente', value: formatCOP(resumen.pendiente), color: 'warning' as const },
+          { label: 'Anulado', value: formatCOP(resumen.anulado), color: 'error' as const },
+        ].map((item) => (
+          <Card key={item.label} variant="outlined" sx={{ minWidth: { md: 110 }, borderColor: item.color ? `${item.color}.main` : 'divider' }}>
+            <CardContent sx={{ py: 0.75, px: 1, '&:last-child': { pb: 0.75 } }}>
+              <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem', display: 'block' }}>{item.label}</Typography>
+              <Typography variant="subtitle2" sx={{ fontSize: { xs: '1rem', md: '0.85rem' }, fontWeight: 700, color: item.color ? `${item.color}.main` : 'inherit' }}>{item.value}</Typography>
+            </CardContent>
+          </Card>
+        ))}
+      </Box>
 
       {/* Filtros avanzados */}
-      <Paper sx={{ p: 1.5, mb: 3, borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
+      <Paper sx={{ p: 1, mb: 2, borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
         <Grid container spacing={1.5} alignItems="center">
           <Grid item xs={12} md={3}>
             <TextField
@@ -390,8 +387,8 @@ export default function Facturacion() {
         <RouteSkeleton />
       ) : (
         <Fade in>
-          <TableContainer component={Paper} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
-            <Table size="small">
+          <TableContainer component={Paper} sx={{ borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
+            <Table size="small" sx={{ '& .MuiTableCell-root': { py: 0.75, fontSize: '0.85rem' } }}>
               <TableHead>
                 <TableRow>
                   <TableCell>Número</TableCell>

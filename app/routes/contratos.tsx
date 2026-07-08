@@ -309,8 +309,8 @@ export default function Contratos() {
   });
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: 'auto', p: { xs: 2, sm: 3 } }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 1.5 }}>
+    <Box sx={{ maxWidth: 1200, mx: 'auto', p: { xs: 1, sm: 1.5 } }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 1 }}>
         <Typography variant="h4" sx={{ fontWeight: 800, fontSize: { xs: '1.5rem', sm: '2rem' } }}>Contratos</Typography>
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
           <Button variant="outlined" startIcon={<FiFilter />} onClick={() => setFilterEstado('all')}>Limpiar filtros</Button>
@@ -320,7 +320,7 @@ export default function Contratos() {
       </Box>
 
       {renovacionesProximas.length > 0 && (
-        <Paper sx={{ p: 2, mb: 3, borderRadius: 3, border: '1px solid', borderColor: 'warning.main', bgcolor: 'warning.light' }}>
+        <Paper sx={{ p: 1.5, mb: 2, borderRadius: 2, border: '1px solid', borderColor: 'warning.main', bgcolor: 'warning.light' }}>
           <Typography variant="subtitle2" sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'warning.dark' }}>
             <FiAlertTriangle /> Renovaciones próximas ({renovacionesProximas.length})
           </Typography>
@@ -330,7 +330,7 @@ export default function Contratos() {
         </Paper>
       )}
 
-      <Paper sx={{ p: 2, mb: 3, borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
+      <Paper sx={{ p: 1.5, mb: 2, borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
           <TextField size="small" placeholder="Buscar contrato..." value={search} onChange={(e) => setSearch(e.target.value)} sx={{ flex: 1, minWidth: 200 }} />
           <Select size="small" value={filterEstado} onChange={(e) => setFilterEstado(String(e.target.value))} sx={{ minWidth: 160 }}>
@@ -344,8 +344,8 @@ export default function Contratos() {
         <RouteSkeleton />
       ) : (
         <Fade in>
-          <TableContainer component={Paper} sx={{ borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
-            <Table size="small">
+          <TableContainer component={Paper} sx={{ borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
+            <Table size="small" sx={{ '& .MuiTableCell-root': { py: 0.75, fontSize: '0.85rem' } }}>
               <TableHead>
                 <TableRow>
                   <TableCell>Número</TableCell>

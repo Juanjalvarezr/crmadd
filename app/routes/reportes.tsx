@@ -339,12 +339,12 @@ export default function Reportes() {
   };
 
   return (
-    <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
+    <Box sx={{ p: { xs: 1, sm: 1, md: 1.5 } }}>
       {/* Header */}
       <Paper sx={{ 
-        p: { xs: 2, sm: 3 }, 
-        mb: { xs: 2, sm: 3 }, 
-        backgroundColor: "#e3f2fd", 
+        p: { xs: 1.5, sm: 2 }, 
+        mb: { xs: 1.5, sm: 2 },
+        backgroundColor: "#e3f2fd",
         borderLeft: "5px solid #2196f3",
         borderRadius: 2
       }}>
@@ -360,7 +360,7 @@ export default function Reportes() {
       </Paper>
 
       {/* Controles de filtro */}
-      <Paper sx={{ p: { xs: 2, sm: 3 }, mb: 3, borderRadius: 2 }}>
+      <Paper sx={{ p: 2, mb: 2, borderRadius: 2 }}>
         <Grid container spacing={2} alignItems="center">
           <Grid item xs={12} md={3}>
             <FormControl fullWidth>
@@ -457,7 +457,7 @@ export default function Reportes() {
       {!loading && !error && (
         <>
           {/* Métricas principales */}
-          <Grid container spacing={3} sx={{ mb: 4 }}>
+          <Grid container spacing={2} sx={{ mb: 2 }}>
             {metricas.map((metrica, index) => (
               <Grid item xs={12} sm={6} md={3} key={index}>
                 <Card sx={{ 
@@ -467,10 +467,10 @@ export default function Reportes() {
                   transition: "all 0.3s ease",
                   "&:hover": { transform: "translateY(-4px)", boxShadow: 3 }
                 }}>
-                  <CardContent>
-                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 2 }}>
+                  <CardContent sx={{ p: 1.5, "&:last-child": { pb: 1.5 } }}>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1 }}>
                       <Box sx={{ 
-                        p: 1, 
+                        p: 0.75, 
                         borderRadius: 1, 
                         backgroundColor: `${metrica.color}20`,
                         color: metrica.color
@@ -485,7 +485,7 @@ export default function Reportes() {
                       />
                     </Box>
                     
-                    <Typography variant="h4" sx={{ fontWeight: "bold", mb: 1 }}>
+                    <Typography variant="h4" sx={{ fontWeight: "bold", mb: 0.5 }}>
                       {metrica.valor}
                     </Typography>
                     
@@ -503,8 +503,8 @@ export default function Reportes() {
             {/* Gráfico de Ingresos */}
             <Grid item xs={12} md={8}>
               <Card sx={{ borderRadius: 2 }}>
-                <CardContent>
-                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+                <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
                     <Typography variant="h6" sx={{ fontWeight: "bold" }}>
                       Tendencia de Ingresos
                     </Typography>
@@ -540,9 +540,9 @@ export default function Reportes() {
                   
                   {renderPieChart()}
                   
-                  <Box sx={{ mt: 2 }}>
+                  <Box sx={{ mt: 1.5 }}>
                     {reporteData.slice(0, 3).map((data, index) => (
-                      <Box key={data.periodo} sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+                      <Box key={data.periodo} sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.5 }}>
                         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                           <Box 
                             sx={{ 
@@ -567,8 +567,8 @@ export default function Reportes() {
             {/* Tabla de Detalles */}
             <Grid item xs={12}>
               <Card sx={{ borderRadius: 2 }}>
-                <CardContent>
-                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
+                <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
                     <Typography variant="h6" sx={{ fontWeight: "bold" }}>
                       Detalles del Período
                     </Typography>
@@ -594,25 +594,25 @@ export default function Reportes() {
                     <Box component="table" sx={{ width: "100%", borderCollapse: "collapse" }}>
                       <thead>
                         <Box component="tr" sx={{ borderBottom: "2px solid #e0e0e0" }}>
-                          <Box component="th" sx={{ padding: "12px", textAlign: "left", fontWeight: "bold" }}>Período</Box>
-                          <Box component="th" sx={{ padding: "12px", textAlign: "right", fontWeight: "bold" }}>Ingresos</Box>
-                          <Box component="th" sx={{ padding: "12px", textAlign: "right", fontWeight: "bold" }}>Nuevos Clientes</Box>
-                          <Box component="th" sx={{ padding: "12px", textAlign: "right", fontWeight: "bold" }}>Proyectos Completados</Box>
-                          <Box component="th" sx={{ padding: "12px", textAlign: "right", fontWeight: "bold" }}>Tasa Conversión</Box>
-                          <Box component="th" sx={{ padding: "12px", textAlign: "center", fontWeight: "bold" }}>Estado</Box>
+                          <Box component="th" sx={{ padding: "8px", textAlign: "left", fontWeight: "bold" }}>Período</Box>
+                          <Box component="th" sx={{ padding: "8px", textAlign: "right", fontWeight: "bold" }}>Ingresos</Box>
+                          <Box component="th" sx={{ padding: "8px", textAlign: "right", fontWeight: "bold" }}>Nuevos Clientes</Box>
+                          <Box component="th" sx={{ padding: "8px", textAlign: "right", fontWeight: "bold" }}>Proyectos Completados</Box>
+                          <Box component="th" sx={{ padding: "8px", textAlign: "right", fontWeight: "bold" }}>Tasa Conversión</Box>
+                          <Box component="th" sx={{ padding: "8px", textAlign: "center", fontWeight: "bold" }}>Estado</Box>
                         </Box>
                       </thead>
                       <tbody>
                         {reporteData.map((data, index) => (
                           <Box component="tr" key={data.periodo} sx={{ borderBottom: "1px solid #f0f0f0" }}>
-                            <Box component="td" sx={{ padding: "12px" }}>{data.periodo}</Box>
-                            <Box component="td" sx={{ padding: "12px", textAlign: "right", fontWeight: "bold" }}>
+                            <Box component="td" sx={{ padding: "8px" }}>{data.periodo}</Box>
+                            <Box component="td" sx={{ padding: "8px", textAlign: "right", fontWeight: "bold" }}>
                               {formatCOP(data.ingresos)}
                             </Box>
-                            <Box component="td" sx={{ padding: "12px", textAlign: "right" }}>{data.nuevosClientes}</Box>
-                            <Box component="td" sx={{ padding: "12px", textAlign: "right" }}>{data.proyectosCompletados}</Box>
-                            <Box component="td" sx={{ padding: "12px", textAlign: "right" }}>{data.tasaConversion}%</Box>
-                            <Box component="td" sx={{ padding: "12px", textAlign: "center" }}>
+                            <Box component="td" sx={{ padding: "8px", textAlign: "right" }}>{data.nuevosClientes}</Box>
+                            <Box component="td" sx={{ padding: "8px", textAlign: "right" }}>{data.proyectosCompletados}</Box>
+                            <Box component="td" sx={{ padding: "8px", textAlign: "right" }}>{data.tasaConversion}%</Box>
+                            <Box component="td" sx={{ padding: "8px", textAlign: "center" }}>
                               <Chip
                                 icon={data.tasaConversion > 20 ? <FiCheckCircle size={14} /> : <FiAlertCircle size={14} />}
                                 label={data.tasaConversion > 20 ? "Bueno" : "Regular"}
@@ -637,8 +637,8 @@ export default function Reportes() {
                     KPIs del Negocio
                   </Typography>
                   
-                  <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", p: 2, backgroundColor: "#f5f5f5", borderRadius: 1 }}>
+                  <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", p: 1.5, backgroundColor: "#f5f5f5", borderRadius: 1 }}>
                       <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                         <FiClock size={16} color="#ff9800" />
                         <Typography variant="body2">Tiempo Respuesta Cliente</Typography>
@@ -646,7 +646,7 @@ export default function Reportes() {
                       <Typography variant="body2" sx={{ fontWeight: "bold" }}>2.4 horas</Typography>
                     </Box>
                     
-                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", p: 2, backgroundColor: "#f5f5f5", borderRadius: 1 }}>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", p: 1.5, backgroundColor: "#f5f5f5", borderRadius: 1 }}>
                       <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                         <FiTarget size={16} color="#4caf50" />
                         <Typography variant="body2">Tasa Retención Clientes</Typography>
@@ -654,7 +654,7 @@ export default function Reportes() {
                       <Typography variant="body2" sx={{ fontWeight: "bold" }}>87.3%</Typography>
                     </Box>
                     
-                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", p: 2, backgroundColor: "#f5f5f5", borderRadius: 1 }}>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", p: 1.5, backgroundColor: "#f5f5f5", borderRadius: 1 }}>
                       <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                         <FiDollarSign size={16} color="#e91e63" />
                         <Typography variant="body2">Valor Promedio Cliente</Typography>
@@ -674,9 +674,9 @@ export default function Reportes() {
                     Próximos Hitos y Objetivos
                   </Typography>
                   
-                  <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-                    <Box sx={{ p: 2, border: "1px solid #e0e0e0", borderRadius: 1 }}>
-                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+                  <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
+                    <Box sx={{ p: 1.5, border: "1px solid #e0e0e0", borderRadius: 1 }}>
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.5 }}>
                         <Typography variant="body2" sx={{ fontWeight: "bold" }}>Meta Mensual</Typography>
                         <Chip label="En Progreso" color="info" size="small" />
                       </Box>
@@ -689,8 +689,8 @@ export default function Reportes() {
                       <Typography variant="caption" color="text.secondary">91.6% completado</Typography>
                     </Box>
                     
-                    <Box sx={{ p: 2, border: "1px solid #e0e0e0", borderRadius: 1 }}>
-                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+                    <Box sx={{ p: 1.5, border: "1px solid #e0e0e0", borderRadius: 1 }}>
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.5 }}>
                         <Typography variant="body2" sx={{ fontWeight: "bold" }}>Meta Trimestral</Typography>
                         <Chip label="En Camino" color="warning" size="small" />
                       </Box>

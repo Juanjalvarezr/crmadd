@@ -336,10 +336,10 @@ export default function Ventas() {
   };
 
   return (
-    <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
+    <Box sx={{ p: { xs: 1, sm: 1.5, md: 2 } }}>
       {/* Header */}
-      <Paper sx={{ p: 3, mb: 3, background: "linear-gradient(135deg, #fce4ec 0%, #fff8e1 100%)", borderLeft: "5px solid #E91E63" }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 1, flexWrap: "wrap" }}>
+      <Paper sx={{ p: 2, mb: 2, background: "linear-gradient(135deg, #fce4ec 0%, #fff8e1 100%)", borderLeft: "5px solid #E91E63" }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 0.5, flexWrap: "wrap" }}>
           <FiTrendingUp size={28} color="#E91E63" />
           <Typography variant="h5" sx={{ color: "#C2185B", flex: 1 }}>
             Pipeline de Oportunidades
@@ -354,7 +354,7 @@ export default function Ventas() {
       </Paper>
 
       {/* KPIs */}
-      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3, mb: 4 }}>
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 3 }}>
         {[
           { title: "Total Oportunidades", value: loading ? "..." : filtered.length, subtitle: "En pipeline", color: "primary" },
           { title: "Valor Potencial", value: loading ? "..." : formatValue(totalValor), subtitle: "Ingresos esperados", color: "success" },
@@ -368,15 +368,15 @@ export default function Ventas() {
       </Box>
 
       {/* Tabla */}
-      <Paper sx={{ p: 3 }}>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3, flexWrap: "wrap", gap: 2 }}>
+      <Paper sx={{ p: 2 }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, flexWrap: "wrap", gap: 1.5 }}>
           <Typography variant="h6">Lista ({filtered.length})</Typography>
           <Button variant="contained" startIcon={<FiPlus />} onClick={handleOpenModal}>
             Nueva Oportunidad
           </Button>
         </Box>
 
-        <Box sx={{ display: "flex", gap: 2, mb: 3, flexDirection: { xs: "column", md: "row" } }}>
+        <Box sx={{ display: "flex", gap: 1.5, mb: 2, flexDirection: { xs: "column", md: "row" } }}>
           <TextField
             fullWidth
             placeholder="Buscar por nombre o cliente..."
@@ -440,18 +440,18 @@ export default function Ventas() {
           </Box>
         ) : filtered.length > 0 ? (
           <DragDropContext onDragEnd={onDragEnd}>
-            <Box sx={{ display: 'flex', gap: 1.5, overflowX: 'auto', pb: 1.5, minHeight: 380 }}>
+            <Box sx={{ display: 'flex', gap: 1.5, overflowX: 'auto', pb: 1, minHeight: 340 }}>
               {["Prospección", "Propuesta", "Negociación", "Cierre"].map(col => {
                 const oppsCol = filtered.filter(o => o.etapa === col);
                 const sumValor = oppsCol.reduce((a, b) => a + b.valor, 0);
                 
                 return (
-                  <Paper key={col} sx={{ minWidth: 280, flex: 1, p: 1.5, bgcolor: '#f8f9fa', borderTop: `3px solid ${getEtapaColor(col) === 'primary' ? '#2196f3' : getEtapaColor(col) === 'success' ? '#4caf50' : getEtapaColor(col) === 'warning' ? '#ff9800' : '#e91e63'}` }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "text.primary", letterSpacing: '-0.01em' }}>{col}</Typography>
-                      <Chip label={oppsCol.length} size="small" sx={{ height: 20, fontSize: '0.7rem', fontWeight: 600 }} />
+                  <Paper key={col} sx={{ minWidth: 260, flex: 1, p: 1, bgcolor: '#f8f9fa', borderTop: `3px solid ${getEtapaColor(col) === 'primary' ? '#2196f3' : getEtapaColor(col) === 'success' ? '#4caf50' : getEtapaColor(col) === 'warning' ? '#ff9800' : '#e91e63'}` }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.25 }}>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "text.primary", letterSpacing: '-0.01em', fontSize: '0.8rem' }}>{col}</Typography>
+                      <Chip label={oppsCol.length} size="small" sx={{ height: 18, fontSize: '0.65rem', fontWeight: 600 }} />
                     </Box>
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5, fontWeight: 700 }}>
+                    <Typography variant="caption" color="text.secondary" sx={{ mb: 1, fontWeight: 700, fontSize: '0.75rem' }}>
                       {formatValue(sumValor)}
                     </Typography>
                     
@@ -461,7 +461,7 @@ export default function Ventas() {
                           ref={provided.innerRef} 
                           {...provided.droppableProps}
                           sx={{ 
-                            minHeight: 180, 
+                            minHeight: 160, 
                             bgcolor: snapshot.isDraggingOver ? 'rgba(0,0,0,0.06)' : 'transparent', 
                             transition: 'background-color 0.15s', 
                             borderRadius: 1 
@@ -471,15 +471,15 @@ export default function Ventas() {
                             <Draggable key={opp.id} draggableId={opp.id.toString()} index={index}>
                               {(provided, snapshot) => (
                                 <Box
-                                  ref={provided.innerRef}
-                                  {...provided.draggableProps}
-                                  sx={{ mb: 1.5 }}
+                                   ref={provided.innerRef}
+                                   {...provided.draggableProps}
+                                   sx={{ mb: 1 }}
                                 >
                                   <Paper
                                     elevation={snapshot.isDragging ? 3 : 0}
                                     sx={{ 
-                                      p: 1.5, 
-                                      borderRadius: 2, 
+                                       p: 1, 
+                                       borderRadius: 2, 
                                       border: '1px solid',
                                       borderColor: snapshot.isDragging ? 'primary.main' : 'divider',
                                       transition: 'all 0.15s', 
@@ -489,12 +489,12 @@ export default function Ventas() {
                                   >
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                       <Box sx={{ flex: 1, minWidth: 0 }}>
-                                        <Typography variant="body2" sx={{ fontWeight: 700, lineHeight: 1.2 }} noWrap>{opp.nombre}</Typography>
-                                        <Typography variant="caption" color="text.secondary" noWrap sx={{ display: 'block', mt: 0.25 }}>{opp.cliente_nombre}</Typography>
+                                        <Typography variant="body2" sx={{ fontWeight: 700, lineHeight: 1.1, fontSize: '0.8rem' }} noWrap>{opp.nombre}</Typography>
+                                        <Typography variant="caption" color="text.secondary" noWrap sx={{ display: 'block', mt: 0.25, fontSize: '0.7rem' }}>{opp.cliente_nombre}</Typography>
                                       </Box>
                                       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5, ml: 1 }}>
                                         <Tooltip title="Generar Propuesta IA">
-                                          <IconButton size="small" onClick={() => handleGenerarPropuestaAI(opp)} sx={{ color: '#daa520', padding: 0.5 }} aria-label="Generar propuesta">
+                                          <IconButton size="small" onClick={() => handleGenerarPropuestaAI(opp)} sx={{ color: '#daa520', padding: 0.25 }} aria-label="Generar propuesta">
                                             <FiZap size={14} />
                                           </IconButton>
                                         </Tooltip>
@@ -510,13 +510,13 @@ export default function Ventas() {
                                         </Box>
                                       </Box>
                                     </Box>
-                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1 }}>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 0.5 }}>
                                       <Typography variant="body2" sx={{ fontWeight: 700, color: "success.dark" }}>{formatValue(opp.valor)}</Typography>
-                                      <Chip label={`${opp.probabilidad}%`} size="small" color={opp.probabilidad >= 75 ? 'success' : opp.probabilidad >= 40 ? 'warning' : 'error'} sx={{ height: 18, fontSize: '0.65rem', fontWeight: 600 }} />
+                                      <Chip label={`${opp.probabilidad}%`} size="small" color={opp.probabilidad >= 75 ? 'success' : opp.probabilidad >= 40 ? 'warning' : 'error'} sx={{ height: 16, fontSize: '0.6rem', fontWeight: 600 }} />
                                     </Box>
-                                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.5, borderTop: '1px solid', borderColor: 'divider', pt: 0.75, mt: 0.75 }}>
-                                      <IconButton size="small" onClick={() => handleEdit(opp)} sx={{ color: 'text.secondary', padding: 0.25 }} aria-label="Editar"><FiEdit size={14}/></IconButton>
-                                      <IconButton size="small" onClick={() => handleDelete(opp)} color="error" sx={{ padding: 0.25 }} aria-label="Eliminar"><FiTrash2 size={14}/></IconButton>
+                                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.5, borderTop: '1px solid', borderColor: 'divider', pt: 0.5, mt: 0.5 }}>
+                                      <IconButton size="small" onClick={() => handleEdit(opp)} sx={{ color: 'text.secondary', padding: 0.25 }} aria-label="Editar"><FiEdit size={12}/></IconButton>
+                                      <IconButton size="small" onClick={() => handleDelete(opp)} color="error" sx={{ padding: 0.25 }} aria-label="Eliminar"><FiTrash2 size={12}/></IconButton>
                                     </Box>
                                   </Paper>
                                 </Box>
@@ -615,7 +615,7 @@ export default function Ventas() {
             </Box>
           </Box>
         </DialogContent>
-        <DialogActions sx={{ p: 3 }}>
+        <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setOpenModal(false)} variant="outlined" disabled={saving}>Cancelar</Button>
           <Button onClick={handleSave} variant="contained" disabled={saving}
             startIcon={saving ? <CircularProgress size={16} color="inherit" /> : <FiPlus />}>
@@ -640,10 +640,10 @@ export default function Ventas() {
               <Typography variant="body1">La IA está diseñando la estrategia de cierre...</Typography>
             </Box>
           ) : (
-            <Grid container spacing={3}>
-              <Grid item xs={12} md={7}>
+            <Box sx={{ display: 'grid', gap: 1.5, gridTemplateColumns: { xs: '1fr', md: '7fr 5fr' } }}>
+              <Box sx={{ gridColumn: { xs: '1 / -1', md: 'span 7' } }}>
                 <Typography variant="subtitle2" gutterBottom color="primary" sx={{ fontWeight: 'bold' }}>📄 Documento de Propuesta (Markdown)</Typography>
-                <Paper variant="outlined" sx={{ p: 2, bgcolor: '#fdfdfd', maxHeight: 400, overflowY: 'auto' }}>
+                <Paper variant="outlined" sx={{ p: 1.5, bgcolor: '#fdfdfd', maxHeight: 300, overflowY: 'auto' }}>
                   <Typography variant="body2" component="pre" sx={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit' }}>
                     {propuestaGenerada}
                   </Typography>
@@ -660,10 +660,10 @@ export default function Ventas() {
                 >
                   Copiar Propuesta Completa
                 </Button>
-              </Grid>
-              <Grid item xs={12} md={5}>
+              </Box>
+              <Box sx={{ gridColumn: { xs: '1 / -1', md: 'span 5' } }}>
                 <Typography variant="subtitle2" gutterBottom color="success.main" sx={{ fontWeight: 'bold' }}>💬 Resumen para WhatsApp</Typography>
-                <Paper variant="outlined" sx={{ p: 2, bgcolor: '#e8f5e9', border: '1px solid #4caf50' }}>
+                <Paper variant="outlined" sx={{ p: 1.5, bgcolor: '#e8f5e9', border: '1px solid #4caf50' }}>
                   <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
                     {resumenWhatsApp}
                   </Typography>
@@ -673,7 +673,7 @@ export default function Ventas() {
                   fullWidth 
                   variant="contained" 
                   color="success"
-                  sx={{ mt: 2 }} // Usar el Snackbar global
+                  sx={{ mt: 1.5 }}
                   onClick={() => {
                     navigator.clipboard.writeText(resumenWhatsApp);
                     showNotification("Resumen de WhatsApp copiado ✓", "success");
@@ -681,8 +681,8 @@ export default function Ventas() {
                 >
                   Copiar para WhatsApp
                 </Button>
-              </Grid>
-            </Grid>
+              </Box>
+            </Box>
           )}
         </DialogContent>
       </Dialog>

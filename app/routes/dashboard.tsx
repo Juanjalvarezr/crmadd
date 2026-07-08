@@ -247,18 +247,18 @@ export default function Dashboard() {
         </Alert>
       )}
 
-      <Grid container spacing={2} sx={{ mb: 3 }}>
-        <Grid item xs={6} sm={4} lg={2.4}>
+      <Grid container spacing={1} sx={{ mb: 2 }}>
+        <Grid item xs={6} sm={4} md={3} lg={2} xl={1.5}>
           <StatCard
             title="Clientes"
             value={stats.totalClientes}
             subtitle={presentationMode ? "" : "Total registrados"}
-            icon={<FiUsers size={20} />}
+            icon={<FiUsers size={16} />}
             color="primary"
             compact
           />
         </Grid>
-        <Grid item xs={6} sm={4} lg={2.4}>
+        <Grid item xs={6} sm={4} md={3} lg={2} xl={1.5}>
           <StatCard
             title="Proyectos activos"
             value={stats.proyectosActivos}
@@ -266,32 +266,32 @@ export default function Dashboard() {
             compact
           />
         </Grid>
-        <Grid item xs={6} sm={4} lg={2.4}>
+        <Grid item xs={6} sm={4} md={3} lg={2} xl={1.5}>
           <StatCard
             title="Pipeline"
             value={presentationMode ? "•••" : formatCOP(stats.valorPipeline)}
             subtitle={presentationMode ? "" : "En ventas"}
-            icon={<FiTarget size={20} />}
+            icon={<FiTarget size={16} />}
             color="warning"
             compact
           />
         </Grid>
-        <Grid item xs={6} sm={4} lg={2.4}>
+        <Grid item xs={6} sm={4} md={3} lg={2} xl={1.5}>
           <StatCard
             title="Presupuestado"
             value={presentationMode ? "•••" : formatCOP(stats.totalPresupuestado)}
             subtitle={presentationMode ? "" : "Total proyectos"}
-            icon={<FiDollarSign size={20} />}
+            icon={<FiDollarSign size={16} />}
             color="success"
             compact
           />
         </Grid>
-        <Grid item xs={6} sm={4} lg={2.4}>
+        <Grid item xs={6} sm={4} md={3} lg={2} xl={1.5}>
           <StatCard
             title="Recaudado"
             value={presentationMode ? "•••" : formatCOP(stats.totalRecaudado)}
             subtitle={presentationMode ? "" : "Vs presupuesto"}
-            icon={<FiTrendingUp size={20} />}
+            icon={<FiTrendingUp size={16} />}
             trend={
               stats.totalPresupuestado > 0
                 ? {
@@ -304,7 +304,7 @@ export default function Dashboard() {
             compact
           />
         </Grid>
-        <Grid item xs={6} sm={4} lg={2.4}>
+        <Grid item xs={6} sm={4} md={3} lg={2} xl={1.5}>
           <StatCard
             title="Tareas pendientes"
             value={stats.tareasPendientes}
@@ -312,22 +312,22 @@ export default function Dashboard() {
             compact
           />
         </Grid>
-        <Grid item xs={6} sm={4} lg={2.4}>
+        <Grid item xs={6} sm={4} md={3} lg={2} xl={1.5}>
           <StatCard
             title="Transacciones"
             value={stats.totalTransacciones}
             subtitle={presentationMode ? "" : "Total operaciones"}
-            icon={<FiActivity size={20} />}
+            icon={<FiActivity size={16} />}
             color="warning"
             compact
           />
         </Grid>
-        <Grid item xs={6} sm={4} lg={2.4}>
+        <Grid item xs={6} sm={4} md={3} lg={2} xl={1.5}>
           <StatCard
             title="Monto transacciones"
             value={presentationMode ? "•••" : formatCOP(stats.montoTransacciones)}
             subtitle={presentationMode ? "" : "En movimientos"}
-            icon={<FiDollarSign size={20} />}
+            icon={<FiDollarSign size={16} />}
             color="success"
             compact
           />
@@ -338,7 +338,7 @@ export default function Dashboard() {
         {proyectosActivos.length > 0 && (
           <Grid item xs={12} lg={7}>
             <Paper sx={{ 
-              p: 2, 
+              p: 1.5, 
               height: '100%',
               borderRadius: 2.5,
               border: '1px solid',
@@ -348,24 +348,24 @@ export default function Dashboard() {
                 display: 'flex', 
                 alignItems: 'center', 
                 gap: 1,
-                mb: 2
+                mb: 1
               }}>
-                <FiActivity size={18} color={theme.palette.info.main} />
-                <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+                <FiActivity size={16} color={theme.palette.info.main} />
+                <Typography variant="subtitle2" sx={{ fontWeight: 700, fontSize: { xs: '0.8rem', sm: '0.85rem' } }}>
                   Proyectos Activos
                 </Typography>
               </Box>
               <Box sx={{ 
                 display: 'flex', 
                 flexDirection: 'column', 
-                gap: 1.5 
+                gap: 1
               }}>
                 {proyectosActivos.map((proyecto: any) => (
                   <Box
                     key={proyecto.id}
                     sx={{
-                      p: 1.5,
-                      borderRadius: 2,
+                      p: 1,
+                      borderRadius: 1.5,
                       border: '1px solid',
                       borderColor: 'divider',
                       bgcolor: 'background.default',
@@ -407,8 +407,8 @@ export default function Dashboard() {
                         size="small"
                         color={getEstadoColor(proyecto.estado) as any}
                         sx={{ 
-                          height: 24,
-                          fontSize: '0.7rem',
+                          height: 20,
+                          fontSize: '0.65rem',
                           fontWeight: 600,
                           flexShrink: 0
                         }}
@@ -419,7 +419,7 @@ export default function Dashboard() {
                         display: 'flex', 
                         justifyContent: 'space-between',
                         alignItems: 'center',
-                        mt: 1
+                        mt: 0.5
                       }}>
                         <Typography variant="caption" color="text.secondary">
                           {presentationMode ? "•••" : formatCOP(Number(proyecto.presupuesto))}
@@ -458,7 +458,7 @@ export default function Dashboard() {
 
         <Grid item xs={12} lg={5}>
           <Paper sx={{ 
-            p: 2, 
+            p: 1.5, 
             height: '100%',
             borderRadius: 2.5,
             border: '1px solid',
@@ -468,25 +468,25 @@ export default function Dashboard() {
               display: 'flex', 
               alignItems: 'center', 
               gap: 1,
-              mb: 2
+              mb: 1
             }}>
-              <FiClock size={18} color={theme.palette.warning.main} />
-              <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+              <FiClock size={16} color={theme.palette.warning.main} />
+              <Typography variant="subtitle2" sx={{ fontWeight: 700, fontSize: { xs: '0.8rem', sm: '0.85rem' } }}>
                 Próximas Tareas
               </Typography>
             </Box>
             <Box sx={{ 
               display: 'flex', 
               flexDirection: 'column', 
-              gap: 1 
+              gap: 1
             }}>
               {proximasTareas.length > 0 ? (
                 proximasTareas.map((tarea: any) => (
                   <Box
                     key={tarea.id}
                     sx={{
-                      p: 1.5,
-                      borderRadius: 2,
+                      p: 1,
+                      borderRadius: 1.5,
                       border: '1px solid',
                       borderColor: 'divider',
                       bgcolor: 'background.default',

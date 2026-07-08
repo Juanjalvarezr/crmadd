@@ -39,9 +39,9 @@ export const StatCard: React.FC<StatCardProps> = ({
   return (
     <Paper 
       sx={{ 
-        p: compact ? 1.5 : 2.5,
+        p: compact ? 1 : 1.5,
         height: "100%",
-        borderRadius: 2.5,
+        borderRadius: 2,
         border: '1px solid',
         borderColor: 'divider',
         bgcolor: 'background.paper',
@@ -49,8 +49,8 @@ export const StatCard: React.FC<StatCardProps> = ({
         overflow: 'hidden',
         transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
         '&:hover': {
-          transform: { xs: 'none', sm: 'translateY(-3px)' },
-          boxShadow: 4,
+          transform: { xs: 'none', sm: 'translateY(-2px)' },
+          boxShadow: 3,
           borderColor: colorConfig.bg,
         },
         '&::before': {
@@ -59,7 +59,7 @@ export const StatCard: React.FC<StatCardProps> = ({
           top: 0,
           left: 0,
           right: 0,
-          height: 3,
+          height: 2,
           bgcolor: colorConfig.bg,
         }
       }}
@@ -71,28 +71,28 @@ export const StatCard: React.FC<StatCardProps> = ({
             sx={{ 
               fontWeight: 600, 
               textTransform: 'uppercase', 
-              letterSpacing: 0.8, 
-              fontSize: '0.7rem',
+              letterSpacing: 0.5, 
+              fontSize: '0.65rem',
               color: 'text.secondary',
               display: 'block',
-              mb: 0.5
+              mb: 0.25
             }}
           >
             {title}
           </Typography>
           <Typography 
-            variant={compact ? "h5" : "h4"} 
+            variant={compact ? "h6" : "h4"} 
             sx={{ 
               fontWeight: 800, 
               lineHeight: 1.1,
               letterSpacing: '-0.02em',
-              fontSize: compact ? '1.5rem' : '2rem'
+              fontSize: '1.25rem'
             }}
           >
             {value}
           </Typography>
           {subtitle && !compact && (
-            <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.75rem', mt: 0.5, display: 'block' }}>
+            <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem', mt: 0.5, display: 'block' }}>
               {subtitle}
             </Typography>
           )}
@@ -100,8 +100,8 @@ export const StatCard: React.FC<StatCardProps> = ({
         {icon && (
           <Box 
             sx={{ 
-              p: 1, 
-              borderRadius: 2, 
+              p: 0.5, 
+              borderRadius: 1.5, 
               bgcolor: `${color}.light`,
               color: `${color}.dark`,
               display: "flex",
@@ -124,11 +124,11 @@ export const StatCard: React.FC<StatCardProps> = ({
           />
           <Typography 
             variant="caption" 
-            sx={{ fontWeight: 700, fontSize: '0.75rem' }}
+            sx={{ fontWeight: 700, fontSize: '0.7rem' }}
           >
             {trend.isPositive ? "+" : ""}{trend.value}%
           </Typography>
-          <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem' }}>
+          <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>
             vs anterior
           </Typography>
         </Box>

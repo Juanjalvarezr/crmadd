@@ -639,14 +639,14 @@ export default function Clientes() {
   };
 
   return (
-    <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
+    <Box sx={{ p: { xs: 1, sm: 1, md: 1.5 } }}>
       {/* Indicador de conexión a Supabase */}
       <SupabaseStatus />
       
       {/* Header de sección con navegación clara - Responsive */}
       <Paper sx={{ 
-        p: { xs: 2, sm: 3 }, 
-        mb: { xs: 2, sm: 3 }, 
+        p: { xs: 1.5, sm: 2 }, 
+        mb: { xs: 1.5, sm: 2 },
         backgroundColor: "background.paper",
         borderLeft: "5px solid",
         borderColor: "primary.main",
@@ -789,7 +789,7 @@ export default function Clientes() {
       </Paper>
 
       {/* Tarjetas de Estadísticas */}
-      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3, mb: 4 }}>
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 2 }}>
         <Box sx={{ flex: { xs: "100%", sm: "48%", md: "23%" } }}>
           <StatCard
             title="Total Clientes"
@@ -830,11 +830,11 @@ export default function Clientes() {
 
       {/* Filtros y Búsqueda - Responsive */}
       <Paper sx={{ 
-        p: { xs: 2, sm: 3 }, 
-        mb: { xs: 2, sm: 3 },
+        p: 2, 
+        mb: 2,
         borderRadius: 2
       }}>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: { xs: 2, sm: 3 }, flexDirection: { xs: "column", sm: "row" }, gap: { xs: 2, sm: 0 } }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1, flexDirection: { xs: "column", sm: "row" }, gap: { xs: 2, sm: 0 } }}>
           <Typography variant="h6" sx={{ fontWeight: "bold", fontSize: { xs: "1rem", sm: "1.25rem" } }}>
             Lista ({filteredClientes.length})
           </Typography>
@@ -902,7 +902,7 @@ export default function Clientes() {
 
         {/* Desktop inline search */}
         {!isMobile && (
-          <Box sx={{ display: "flex", gap: 2, mb: 3 }}>
+          <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
             <Box sx={{ flex: 1 }}>
               <TextField
                 fullWidth
@@ -1032,7 +1032,7 @@ export default function Clientes() {
                         size="small"
                       />
                     </TableCell>
-                    <TableCell sx={{ py: { xs: 1.5, sm: 2 } }}>
+                    <TableCell sx={{ py: 1 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
                           {cliente.nombre}
@@ -1093,7 +1093,7 @@ export default function Clientes() {
 
         {/* Paginación */}
         {totalPages > 1 && (
-          <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
             <Pagination
               count={totalPages}
               page={page}
