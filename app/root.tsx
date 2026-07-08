@@ -1,5 +1,6 @@
 import React, { useEffect, useState, Suspense } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router";
+import { hydrateRoot } from "react-dom/client";
 import { Box, Snackbar, Alert, CircularProgress, ThemeProvider, CssBaseline, createTheme } from "@mui/material";
 import { useNotificationStore } from "./store/useNotificationStore";
 import { Sidebar } from "./components/Sidebar";
