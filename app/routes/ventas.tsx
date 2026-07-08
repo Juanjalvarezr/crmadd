@@ -344,6 +344,9 @@ export default function Ventas() {
           <Typography variant="h5" sx={{ color: "#C2185B", flex: 1 }}>
             Pipeline de Oportunidades
           </Typography>
+          <IconButton size="small" onClick={() => openAiRoute('ventas', 'Oportunidades', 'Pipeline de ventas')}>
+            <FiCpu size={18} />
+          </IconButton>
           <Button size="small" startIcon={<FiRefreshCw size={14} />} onClick={loadData} disabled={loading}>
             {loading ? "..." : "Recargar"}
           </Button>

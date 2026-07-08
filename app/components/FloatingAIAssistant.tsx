@@ -6,6 +6,15 @@ import confetti from 'canvas-confetti';
 import { aiService } from '../services/ai'; 
 import { useChatStore, ProposalSchema } from '../store/useChatStore';
 
+export const openAiRoute = (route: string, entity?: string, label?: string) => {
+  window.dispatchEvent(new CustomEvent('open-ai-chat'));
+  window.dispatchEvent(
+    new CustomEvent('open-assistant', {
+      detail: { route, entity, label },
+    })
+  );
+};
+
 export const FloatingAIAssistant = () => {
   const {
     isAssistantOpen: isOpen,
@@ -213,7 +222,7 @@ export const FloatingAIAssistant = () => {
             </Button>
           </Box>
 
-          <Box sx={{ p: 3, flex: 1, overflowY: 'auto', bgcolor: '#fbfbfb' }}>
+          <Box sx={{ p: 3, flex: 1, overflowY: 'auto', bgcolor: 'background.paper' }}>
             {mode === 'proposal' && (
               <>
                 {!resultText && !isLoading ? (
@@ -351,12 +360,13 @@ export const FloatingAIAssistant = () => {
                       key={i}
                       sx={{
                         alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
-                        bgcolor: msg.role === 'user' ? '#e91e63' : '#fff',
+                        bgcolor: msg.role === 'user' ? '#e91e63' : 'background.paper',
                         color: msg.role === 'user' ? '#fff' : 'text.primary',
                         px: 2,
                         py: 1,
                         borderRadius: 2,
-                        border: msg.role === 'assistant' ? '1px solid #e0e0e0' : 'none',
+                        border: msg.role === 'assistant' ? '1px solid' : 'none',
+                        borderColor: msg.role === 'assistant' ? 'divider' : 'transparent',
                         maxWidth: '85%',
                         whiteSpace: 'pre-wrap',
                       }}
@@ -365,7 +375,7 @@ export const FloatingAIAssistant = () => {
                     </Box>
                   ))}
                   {isLoading && (
-                    <Box sx={{ alignSelf: 'flex-start', bgcolor: '#fff', px: 2, py: 1, borderRadius: 2, border: '1px solid #e0e0e0' }}>
+                    <Box sx={{ alignSelf: 'flex-start', bgcolor: 'background.paper', px: 2, py: 1, borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
                       <Typography variant="body2">Pensando…</Typography>
                     </Box>
                   )}

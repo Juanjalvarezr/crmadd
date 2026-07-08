@@ -884,6 +884,28 @@ export default function Proyectos() {
           <Typography variant="h5" sx={{ fontWeight: "bold", color: "#1976d2" }}>
             Gestión de Proyectos
           </Typography>
+          <Box
+            sx={{
+              ml: 'auto',
+              width: 32,
+              height: 32,
+              borderRadius: 1,
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              color: 'text.secondary',
+              border: '1px solid',
+              borderColor: 'divider',
+            }}
+            onClick={() => window.dispatchEvent(new CustomEvent('open-ai-chat'))}
+          >
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="4" y="4" width="16" height="16" rx="2" />
+              <rect x="9" y="9" width="6" height="6" />
+              <path d="M9 1v3M15 1v3M9 20v3M15 20v3M1 9h3M1 15h3M20 9h3M20 15h3" />
+            </svg>
+          </Box>
         </Box>
         <Typography variant="body2" color="text.secondary">
           Organiza y gestiona todos los proyectos por cliente. Asigna servicios, seguimiento y controla el progreso.

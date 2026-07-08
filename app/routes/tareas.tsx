@@ -6,7 +6,7 @@ import {
   Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Alert, Snackbar, CircularProgress,
   Checkbox, FormControlLabel, Collapse, List, ListItem, ListItemText, ListItemIcon, Tooltip, Tabs, Tab, Divider, Accordion, AccordionSummary, AccordionDetails
 } from "@mui/material";
-import { FiPlus, FiEdit, FiTrash2, FiCheck, FiSearch, FiCalendar, FiX, FiRefreshCw, FiCheckSquare, FiTarget, FiUser, FiPlay, FiPause, FiFlag, FiPaperclip, FiMessageSquare, FiBell, FiClock } from "react-icons/fi";
+import { FiPlus, FiEdit, FiTrash2, FiCheck, FiSearch, FiCalendar, FiX, FiRefreshCw, FiCheckSquare, FiTarget, FiUser, FiPlay, FiPause, FiFlag, FiPaperclip, FiMessageSquare, FiBell, FiClock, FiCpu } from "react-icons/fi";
 import { tareasService, clientesService, equipoService, emailService } from "../services/database";
 import { useNotificationStore } from "../store/useNotificationStore";
 import { format, startOfDay, isBefore } from "date-fns";
@@ -391,6 +391,9 @@ export default function Tareas() {
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 0.5, flexWrap: "wrap" }}>
           <FiCheckSquare size={22} color="#9C27B0" />
           <Typography variant="h6" sx={{ color: "#7B1FA2", flex: 1, letterSpacing: '-0.01em' }}>Tareas y Actividades</Typography>
+          <IconButton size="small" onClick={() => openAiRoute('tareas', 'Actividades', 'Tareas')}>
+            <FiCpu size={16} />
+          </IconButton>
           <Button size="small" startIcon={<FiRefreshCw size={14} />} onClick={loadTareas} disabled={loading}>
             {loading ? "..." : "Recargar"}
           </Button>

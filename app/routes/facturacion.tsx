@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import {
   FiPlus, FiDownload, FiEye, FiEdit, FiTrash2, FiX, FiSearch,
-  FiMessageSquare, FiMail, FiFilter, FiSend, FiFileText, FiShoppingCart
+  FiMessageSquare, FiMail, FiFilter, FiSend, FiFileText, FiShoppingCart, FiCpu
 } from "react-icons/fi";
 import { facturasService } from "../services/facturacion";
 import { clientesService } from "../services/database";
@@ -279,6 +279,9 @@ export default function Facturacion() {
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 1 }}>
         <Typography variant="h4" sx={{ fontWeight: 800, fontSize: { xs: '1.5rem', sm: '2rem' } }}>Facturación</Typography>
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+          <IconButton size="small" onClick={() => openAiRoute('facturacion', 'Facturas', 'Facturación')}>
+            <FiCpu size={18} />
+          </IconButton>
           <Button variant="contained" color="secondary" startIcon={<FiShoppingCart />} onClick={() => setScannerOpen(true)} size="small">Escanear</Button>
           <Button variant="contained" startIcon={<FiPlus />} onClick={() => { setEditItem(null); setOpen(true); }} size="small">Nueva Factura</Button>
         </Box>

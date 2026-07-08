@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { RouteSkeleton } from '../components/RouteGuard';
 import { Box, Typography, Paper, Button, TextField, Select, MenuItem, FormControl, InputLabel, Dialog, DialogTitle, DialogContent, DialogActions, Chip, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Tooltip, Snackbar, Alert, Fade, Accordion, AccordionSummary, AccordionDetails, Divider, List, ListItem, ListItemText, Switch, FormControlLabel } from "@mui/material";
-import { FiPlus, FiEye, FiEdit, FiTrash2, FiFileText, FiMessageSquare, FiMail, FiFilter, FiShoppingCart, FiShield, FiGitBranch, FiList, FiAlertTriangle, FiCopy } from "react-icons/fi";
+import { FiPlus, FiEye, FiEdit, FiTrash2, FiFileText, FiMessageSquare, FiMail, FiFilter, FiShoppingCart, FiShield, FiGitBranch, FiList, FiAlertTriangle, FiCopy, FiCpu } from "react-icons/fi";
 import { contratosService, contratoVersionesService, contratoClausulasService } from "../services/facturacion";
 import { clientesService } from "../services/database";
 import { proyectosService } from "../services/database";
@@ -313,6 +313,9 @@ export default function Contratos() {
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 1 }}>
         <Typography variant="h4" sx={{ fontWeight: 800, fontSize: { xs: '1.5rem', sm: '2rem' } }}>Contratos</Typography>
         <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+          <IconButton size="small" onClick={() => openAiRoute('contratos', 'Contratos', 'Gestión de contratos')}>
+            <FiCpu size={18} />
+          </IconButton>
           <Button variant="outlined" startIcon={<FiFilter />} onClick={() => setFilterEstado('all')}>Limpiar filtros</Button>
           <Button variant="contained" startIcon={<FiPlus />} onClick={() => { setEditItem(null); setObligaciones([]); setVencimientos([]); setSelectedPlantilla(''); setOpen(true); }}>Nuevo Contrato</Button>
           <Button variant="contained" color="secondary" startIcon={<FiShoppingCart />} onClick={() => setScannerOpen(true)}>Escanear</Button>

@@ -21,7 +21,7 @@ const skeletonAgencyStyle = {
   border: '1px solid rgba(233, 30, 99, 0.05)'
 };
 import DOMPurify from 'dompurify';
-import { FiSearch, FiPlus, FiEdit, FiTrash2, FiFilter, FiCalendar, FiX, FiUsers, FiRefreshCw, FiPhone, FiMail, FiFileText, FiDownload, FiEye, FiMessageSquare, FiStar, FiBriefcase, FiTarget, FiAlertCircle } from "react-icons/fi";
+import { FiSearch, FiPlus, FiEdit, FiTrash2, FiFilter, FiCalendar, FiX, FiUsers, FiRefreshCw, FiPhone, FiMail, FiFileText, FiDownload, FiEye, FiMessageSquare, FiStar, FiBriefcase, FiTarget, FiAlertCircle, FiCpu } from "react-icons/fi";
 import { clientesService } from "../services/database";
 import { proyectosService, oportunidadesService, tareasService } from "../services/database";
 import { facturasService } from "../services/facturacion";
@@ -675,6 +675,9 @@ export default function Clientes() {
           flexDirection: { xs: "column", sm: "row" }
         }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <IconButton size="small" onClick={() => window.dispatchEvent(new CustomEvent('open-ai-chat'))}>
+              <FiCpu size={20} />
+            </IconButton>
             <FiUsers size={28} color="#1976d2" />
             <Typography variant="h5" sx={{ fontWeight: "bold", color: "#1976d2", fontSize: { xs: "1.25rem", sm: "1.5rem" } }}>
               Gestión de Clientes
