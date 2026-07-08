@@ -1166,7 +1166,14 @@ export default function Proyectos() {
                     <Chip
                       label={proyecto.faseAdministrativa || "operacion"}
                       size="small"
-                      sx={{ fontSize: '0.65rem', height: 20, bgcolor: 'action.hover', color: 'text.primary' }}
+                      variant="filled"
+                      sx={{
+                        fontSize: '0.65rem',
+                        height: 20,
+                        bgcolor: 'primary.main',
+                        color: 'primary.contrastText',
+                        textTransform: 'uppercase'
+                      }}
                     />
                   </Box>
                   <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
