@@ -23,6 +23,7 @@ export const FloatingAIAssistant = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' });
+  const [aiContext, setAiContext] = useState<{ route?: string; entity?: string; label?: string } | null>(null);
 
   const [chatMessages, setChatMessages] = useState<{ role: 'user' | 'assistant'; text: string }[]>([
     {
@@ -35,7 +36,11 @@ export const FloatingAIAssistant = () => {
   useEffect(() => { setIsClient(true); }, []);
 
   useEffect(() => {
-    const handler = () => setIsOpen(true);
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail as { route?: string; entity?: string; label?: string } | undefined;
+      setAiContext(detail || null);
+      setIsOpen(true);
+    };
     const el = document.getElementById('floating-ai-assistant');
     el?.addEventListener('open-assistant', handler as EventListener);
     return () => el?.removeEventListener('open-assistant', handler as EventListener);
@@ -47,6 +52,9 @@ export const FloatingAIAssistant = () => {
     const text = chatInput.trim();
     if (!text || isLoading) return;
 
+    const contexto = aiContext ? `\n\nCONTEXTO ACTUAL:\n- Ruta: ${aiContext.route || ''}\n- Entidad: ${aiContext.entity || ''}\n- Nombre/Referencia: ${aiContext.label || ''}` : '';
+    const fullText = text + contexto;
+
     setChatMessages((m) => [...m, { role: 'user', text }]);
     setChatInput('');
     setIsLoading(true);
@@ -56,7 +64,7 @@ export const FloatingAIAssistant = () => {
         clienteNombre: text,
         clienteEmpresa: '',
         servicios: [],
-        notasAdicionales: '',
+        notasAdicionales: contexto || '',
       });
 
       const textoFinal = typeof respuesta === 'string' ? respuesta : JSON.stringify(respuesta);
