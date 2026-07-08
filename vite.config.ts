@@ -9,9 +9,6 @@ export default defineConfig({
     reactRouter(),
     tsconfigPaths()
   ],
-  resolve: {
-    dedupe: ["react", "react-dom"]
-  },
   server: {
     allowedHosts: [".ngrok-free.app", ".ngrok-free.dev"]
   }
