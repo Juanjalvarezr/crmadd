@@ -290,6 +290,12 @@ export default function Proyectos() {
 
       const cliente = clientes.find(c => String(c.id) === String(data.clienteId));
       const equipoReal = (await equipoService.getAll()) || [];
+      if (!data.clienteId || String(data.clienteId).trim() === "") {
+        showNotification("Selecciona un cliente antes de guardar el proyecto", "error");
+        setSavingProject(false);
+        return;
+      }
+
       const responsablePrincipal = equipoReal.length > 0 ? equipoReal[0].nombre : "Juan José";
       
       // --- LÓGICA DE PLANTILLAS AUTOMÁTICAS ---
