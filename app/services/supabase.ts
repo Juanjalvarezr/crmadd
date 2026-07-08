@@ -427,6 +427,7 @@ export const mapDBToProyecto = (p: any) => ({
 });
 
 export const mapProyectoToDB = (p: any) => ({
+  id: p.id,
   nombre: p.nombre,
   descripcion: p.descripcion,
   cliente_id: p.clienteId,
