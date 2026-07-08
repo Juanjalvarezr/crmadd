@@ -3,7 +3,7 @@ import { Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Box
 import { 
   FiBarChart, FiUsers, FiTrendingUp, FiCheckSquare, FiSettings, FiHome, 
   FiBell, FiActivity, FiPackage, FiDownload, FiUpload, FiCalendar, 
-  FiFileText, FiDollarSign, FiTarget, FiChevronLeft, FiChevronRight 
+  FiFileText, FiDollarSign, FiTarget, FiChevronLeft, FiChevronRight, FiFolder
 } from "react-icons/fi";
 import { Link, useLocation } from "react-router";
 
@@ -12,6 +12,7 @@ const DRAWER_WIDTH = 260;
 const menuItems = [
   { label: "Inicio", icon: FiHome, path: "/", notifications: 0, color: "#1976d2" },
   { label: "Clientes", icon: FiUsers, path: "/clientes", notifications: 0, color: "#4caf50" },
+  { label: "Proyectos", icon: FiFolder, path: "/proyectos", notifications: 0, color: "#2196f3" },
   { label: "Equipo (Subagentes)", icon: FiUsers, path: "/equipo", notifications: 0, color: "#2196f3" },
   { label: "Servicios ★", icon: FiPackage, path: "/servicios", notifications: 0, color: "#ff9800" },
   { label: "Oportunidades", icon: FiTrendingUp, path: "/ventas", notifications: 0, color: "#9c27b0" },

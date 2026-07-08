@@ -24,6 +24,9 @@ import DOMPurify from 'dompurify';
 import { FiSearch, FiPlus, FiEdit, FiTrash2, FiFilter, FiCalendar, FiX, FiUsers, FiRefreshCw, FiPhone, FiMail, FiFileText, FiDownload, FiEye, FiMessageSquare, FiStar, FiBriefcase, FiTarget, FiAlertCircle } from "react-icons/fi";
 import { clientesService } from "../services/database";
 import { proyectosService, oportunidadesService, tareasService } from "../services/database";
+import { facturasService } from "../services/facturacion";
+import { contratosService } from "../services/facturacion";
+import { transaccionesService } from "../services/database";
 import { SupabaseStatus } from "../components/SupabaseTest";
 import { format } from "date-fns";
 import { EmptyState } from "../components/EmptyState";
@@ -76,6 +79,9 @@ export default function Clientes() {
   const [relatedProyectos, setRelatedProyectos] = useState<any[]>([]);
   const [relatedOportunidades, setRelatedOportunidades] = useState<any[]>([]);
   const [relatedTareas, setRelatedTareas] = useState<any[]>([]);
+  const [relatedFacturas, setRelatedFacturas] = useState<any[]>([]);
+  const [relatedContratos, setRelatedContratos] = useState<any[]>([]);
+  const [relatedTransacciones, setRelatedTransacciones] = useState<any[]>([]);
   
   // Estados para el modal
   const [openModal, setOpenModal] = useState(false);
@@ -441,19 +447,28 @@ export default function Clientes() {
     setSelectedClient(cliente);
     setDetailTab(0);
     try {
-      const [p, o, t] = await Promise.all([
+      const [p, o, t, f, c, tx] = await Promise.all([
         proyectosService.getAll(),
         oportunidadesService.getAll(),
         tareasService.getAll(),
+        facturasService.getAll(),
+        contratosService.getAll(),
+        transaccionesService.getAll(),
       ]);
       const clienteId = cliente.id;
       setRelatedProyectos(p.filter((x: any) => Number(x.clienteId) === Number(clienteId) || Number(x.cliente_id) === Number(clienteId)));
       setRelatedOportunidades(o.filter((x: any) => Number(x.cliente_id) === Number(clienteId)));
       setRelatedTareas(t.filter((x: any) => Number(x.cliente_id) === Number(clienteId)));
+      setRelatedFacturas(f.filter((x: any) => Number(x.cliente_id) === Number(clienteId)));
+      setRelatedContratos(c.filter((x: any) => Number(x.cliente_id) === Number(clienteId)));
+      setRelatedTransacciones(tx.filter((x: any) => Number(x.cliente_id) === Number(clienteId) || x.cliente_id === String(clienteId)));
     } catch (e) {
       setRelatedProyectos([]);
       setRelatedOportunidades([]);
       setRelatedTareas([]);
+      setRelatedFacturas([]);
+      setRelatedContratos([]);
+      setRelatedTransacciones([]);
     }
   };
 
@@ -1282,6 +1297,9 @@ export default function Clientes() {
                 <Tab label="Proyectos" />
                 <Tab label="Oportunidades" />
                 <Tab label="Tareas" />
+                <Tab label={`Facturas (${relatedFacturas.length})`} />
+                <Tab label={`Contratos (${relatedContratos.length})`} />
+                <Tab label={`Pagos (${relatedTransacciones.length})`} />
               </Tabs>
               <Divider sx={{ mb: 1 }} />
 
@@ -1381,6 +1399,45 @@ export default function Clientes() {
                     <Paper key={t.id} sx={{ p: 1.2 }}>
                       <Typography variant="body2" sx={{ fontWeight: 'bold' }}>{t.titulo}</Typography>
                       <Typography variant="caption" color="text.secondary">{t.estado} • Prioridad: {t.prioridad}</Typography>
+                    </Paper>
+                  ))}
+                </Stack>
+              )}
+
+              {detailTab === 5 && (
+                <Stack spacing={1}>
+                  <Typography variant="subtitle2">Facturas ({relatedFacturas.length})</Typography>
+                  {relatedFacturas.length === 0 && <Typography variant="body2">Sin facturas vinculadas</Typography>}
+                  {relatedFacturas.map((f: any) => (
+                    <Paper key={f.id} sx={{ p: 1.2, borderLeft: '3px solid', borderColor: f.estado === 'pagada' ? '#4caf50' : f.estado === 'enviada' ? '#2196f3' : '#ff9800' }}>
+                      <Typography variant="body2" sx={{ fontWeight: 'bold' }}>{f.numero || `#${f.id}`}</Typography>
+                      <Typography variant="caption" color="text.secondary">{f.estado} • {new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(Number(f.total || 0))}</Typography>
+                    </Paper>
+                  ))}
+                </Stack>
+              )}
+
+              {detailTab === 6 && (
+                <Stack spacing={1}>
+                  <Typography variant="subtitle2">Contratos ({relatedContratos.length})</Typography>
+                  {relatedContratos.length === 0 && <Typography variant="body2">Sin contratos vinculados</Typography>}
+                  {relatedContratos.map((c: any) => (
+                    <Paper key={c.id} sx={{ p: 1.2, borderLeft: '3px solid', borderColor: c.estado === 'firmado' ? '#4caf50' : c.estado === 'activo' ? '#2196f3' : '#ff9800' }}>
+                      <Typography variant="body2" sx={{ fontWeight: 'bold' }}>{c.titulo || c.numero || `Contrato #${c.id}`}</Typography>
+                      <Typography variant="caption" color="text.secondary">{c.estado} • {c.tipo || 'General'}</Typography>
+                    </Paper>
+                  ))}
+                </Stack>
+              )}
+
+              {detailTab === 7 && (
+                <Stack spacing={1}>
+                  <Typography variant="subtitle2">Pagos ({relatedTransacciones.length})</Typography>
+                  {relatedTransacciones.length === 0 && <Typography variant="body2">Sin pagos registrados</Typography>}
+                  {relatedTransacciones.map((tx: any) => (
+                    <Paper key={tx.id} sx={{ p: 1.2, borderLeft: '3px solid', borderColor: tx.tipo === 'ingreso' ? '#4caf50' : '#f44336' }}>
+                      <Typography variant="body2" sx={{ fontWeight: 'bold' }}>{tx.descripcion || tx.categoria}</Typography>
+                      <Typography variant="caption" color="text.secondary">{tx.tipo} • {new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(Number(tx.monto || 0))} • {tx.forma_pago}</Typography>
                     </Paper>
                   ))}
                 </Stack>
