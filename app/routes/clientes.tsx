@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, memo } from "react";
 import { StatCard, ClientesIcon } from "../components/StatCard";
+import ExpandableCard from "../components/ExpandableCard";
 import {
   Box, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid,
   Button, Chip, TextField, InputAdornment, FormControl, InputLabel, Select, MenuItem, Pagination, Checkbox,
