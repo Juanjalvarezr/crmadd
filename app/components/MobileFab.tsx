@@ -1,36 +1,73 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { SpeedDial, SpeedDialAction, SpeedDialIcon, useTheme, useMediaQuery, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, MenuItem, FormControl, InputLabel, Select, Snackbar, Alert, Box, IconButton } from '@mui/material';
-import { FiUsers, FiTrendingUp, FiDollarSign, FiPlus, FiUserPlus, FiList, FiX } from 'react-icons/fi';
+import { FiUsers, FiTrendingUp, FiDollarSign, FiPlus, FiUserPlus, FiList, FiX, FiFolder, FiFileText, FiBriefcase } from 'react-icons/fi';
 import { clientesService, proyectosService, tareasService, transaccionesService, oportunidadesService } from '../services/database';
-import { facturasService } from '../services/facturacion';
+import { facturasService, contratosService } from '../services/facturacion';
 
 type AccionRapida = {
   icon: React.ReactNode;
   name: string;
-  tipo: 'cliente' | 'tarea' | 'oportunidad' | 'factura';
+  tipo: 'cliente' | 'tarea' | 'oportunidad' | 'factura' | 'proyecto' | 'contrato';
 };
 
 export const MobileFab: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
+  const location = useLocation();
   const [open, setOpen] = useState(false);
   const [dialogoAbierto, setDialogoAbierto] = useState(false);
   const [tipoAccion, setTipoAccion] = useState<AccionRapida['tipo']>('cliente');
   const [snackbar, setSnackbar] = useState<{ open: boolean; mensaje: string; severity: 'success' | 'error' }>({ open: false, mensaje: '', severity: 'success' });
+  const [clientes, setClientes] = useState<any[]>([]);
 
-  const [formCliente, setFormCliente] = useState({ nombre: '', email: '', telefono: '', empresa: '' });
-  const [formTarea, setFormTarea] = useState({ titulo: '', descripcion: '', fecha: '', prioridad: 'Media' as const });
-  const [formOportunidad, setFormOportunidad] = useState({ nombre: '', valor: '', etapa: 'Prospección' as const, probabilidad: 25 });
-  const [formFactura, setFormFactura] = useState({ cliente_nombre: '', monto: '', concepto: '', estado_pago: 'pendiente' as const });
+  const [form, setForm] = useState({
+    cliente_nombre: '',
+    nombre: '',
+    email: '',
+    telefono: '',
+    empresa: '',
+    titulo: '',
+    descripcion: '',
+    fecha: '',
+    prioridad: 'Media' as const,
+    valor: '',
+    etapa: 'Prospección' as const,
+    probabilidad: 25,
+    monto: '',
+    concepto: '',
+    estado_pago: 'pendiente' as const,
+    cliente_id: undefined as number | undefined,
+    tipo: 'prestacion_servicios' as const,
+    fecha_inicio: '',
+    fecha_fin: '',
+    estado: 'borrador' as const,
+  });
 
-  const acciones: AccionRapida[] = [
+  useEffect(() => {
+    clientesService.getAll().then(setForm);
+  }, []);
+
+  const accionesBase: AccionRapida[] = [
     { icon: <FiUserPlus size={20} />, name: 'Nuevo Cliente', tipo: 'cliente' },
     { icon: <FiList size={20} />, name: 'Nueva Tarea', tipo: 'tarea' },
     { icon: <FiDollarSign size={20} />, name: 'Nueva Factura', tipo: 'factura' },
     { icon: <FiTrendingUp size={20} />, name: 'Nueva Venta', tipo: 'oportunidad' },
   ];
+
+  const getAcciones = (): AccionRapida[] => {
+    const ruta = location.pathname;
+    if (ruta.startsWith('/clientes')) return [{ icon: <FiUserPlus size={20} />, name: 'Nuevo Cliente', tipo: 'cliente' }];
+    if (ruta.startsWith('/proyectos')) return [{ icon: <FiFolder size={20} />, name: 'Nuevo Proyecto', tipo: 'proyecto' }];
+    if (ruta.startsWith('/tareas')) return [{ icon: <FiList size={20} />, name: 'Nueva Tarea', tipo: 'tarea' }];
+    if (ruta.startsWith('/ventas')) return [{ icon: <FiTrendingUp size={20} />, name: 'Nueva Venta', tipo: 'oportunidad' }];
+    if (ruta.startsWith('/facturacion')) return [{ icon: <FiDollarSign size={20} />, name: 'Nueva Factura', tipo: 'factura' }];
+    if (ruta.startsWith('/contratos')) return [{ icon: <FiFileText size={20} />, name: 'Nuevo Contrato', tipo: 'contrato' }];
+    return accionesBase;
+  };
+
+  const acciones = getAcciones();
 
   const abrirDialogo = (tipo: AccionRapida['tipo']) => {
     setTipoAccion(tipo);
@@ -40,106 +77,60 @@ export const MobileFab: React.FC = () => {
 
   const cerrarDialogo = () => {
     setDialogoAbierto(false);
-    setFormCliente({ nombre: '', email: '', telefono: '', empresa: '' });
-    setFormTarea({ titulo: '', descripcion: '', fecha: '', prioridad: 'Media' });
-    setFormOportunidad({ nombre: '', valor: '', etapa: 'Prospección', probabilidad: 25 });
-    setFormFactura({ cliente_nombre: '', monto: '', concepto: '', estado_pago: 'pendiente' });
+    setForm({ cliente_nombre: '', nombre: '', email: '', telefono: '', empresa: '', titulo: '', descripcion: '', fecha: '', prioridad: 'Media', valor: '', etapa: 'Prospección', probabilidad: 25, monto: '', concepto: '', estado_pago: 'pendiente', cliente_id: undefined, tipo: 'prestacion_servicios', fecha_inicio: '', fecha_fin: '', estado: 'borrador' });
   };
 
-  const handleGuardarCliente = async () => {
-    if (!formCliente.nombre.trim()) {
-      setSnackbar({ open: true, mensaje: 'El nombre es obligatorio', severity: 'error' });
-      return;
-    }
+  const handleGuardar = async () => {
     try {
-      const cliente = await clientesService.create({
-        nombre: formCliente.nombre,
-        email: formCliente.email,
-        telefono: formCliente.telefono,
-        empresa: formCliente.empresa,
-        fuente: 'FAB',
-        estado: 'nuevo',
-      } as any);
-      setSnackbar({ open: true, mensaje: `Cliente "${cliente.nombre}" creado correctamente`, severity: 'success' });
+      switch (tipoAccion) {
+        case 'cliente':
+          if (!form.nombre.trim()) throw new Error('El nombre es obligatorio');
+          const cliente = await clientesService.create({ nombre: form.nombre, email: form.email, telefono: form.telefono, empresa: form.empresa, fuente: 'FAB', estado: 'nuevo' } as any);
+          setSnackbar({ open: true, mensaje: `Cliente "${cliente.nombre}" creado correctamente`, severity: 'success' });
+          break;
+        case 'tarea':
+          if (!form.titulo.trim()) throw new Error('El título es obligatorio');
+          await tareasService.create({ titulo: form.titulo, descripcion: form.descripcion, fecha: form.fecha || undefined, prioridad: form.prioridad, estado: 'Pendiente', origen: 'FAB' } as any);
+          setSnackbar({ open: true, mensaje: 'Tarea creada correctamente', severity: 'success' });
+          break;
+        case 'oportunidad':
+          if (!form.nombre.trim()) throw new Error('El nombre es obligatorio');
+          await oportunidadesService.create({ nombre: form.nombre, valor: Number(form.valor) || 0, etapa: form.etapa, probabilidad: form.probabilidad, origen: 'FAB' } as any);
+          setSnackbar({ open: true, mensaje: 'Oportunidad creada correctamente', severity: 'success' });
+          break;
+        case 'factura':
+          if (!form.cliente_nombre.trim() || !form.monto) throw new Error('Cliente y monto son obligatorios');
+          const factura = await facturasService.create({ cliente_nombre: form.cliente_nombre, monto: Number(form.monto), concepto: form.concepto, estado_pago: form.estado_pago, origen: 'FAB' } as any);
+          setSnackbar({ open: true, mensaje: `Factura ${factura.numero || ''} creada correctamente`, severity: 'success' });
+          break;
+        case 'proyecto':
+          if (!form.nombre.trim()) throw new Error('El nombre es obligatorio');
+          await proyectosService.create({ nombre: form.nombre, descripcion: form.descripcion, cliente_id: form.cliente_id || undefined, estado: 'activo', origen: 'FAB' } as any);
+          setSnackbar({ open: true, mensaje: 'Proyecto creado correctamente', severity: 'success' });
+          break;
+        case 'contrato':
+          if (!form.titulo.trim()) throw new Error('El título es obligatorio');
+          await contratosService.create({ titulo: form.titulo, cliente_id: form.cliente_id || undefined, tipo: form.tipo, fecha_inicio: form.fecha_inicio || undefined, fecha_fin: form.fecha_fin || undefined, monto: Number(form.monto) || 0, estado: form.estado, origen: 'FAB' } as any);
+          setSnackbar({ open: true, mensaje: 'Contrato creado correctamente', severity: 'success' });
+          break;
+      }
       cerrarDialogo();
     } catch (err: any) {
-      setSnackbar({ open: true, mensaje: 'Error al crear cliente: ' + err.message, severity: 'error' });
+      setSnackbar({ open: true, mensaje: 'Error: ' + (err?.message || 'No se pudo guardar'), severity: 'error' });
     }
   };
 
-  const handleGuardarTarea = async () => {
-    if (!formTarea.titulo.trim()) {
-      setSnackbar({ open: true, mensaje: 'El título es obligatorio', severity: 'error' });
-      return;
-    }
-    try {
-      await tareasService.create({
-        titulo: formTarea.titulo,
-        descripcion: formTarea.descripcion,
-        fecha: formTarea.fecha || undefined,
-        prioridad: formTarea.prioridad,
-        estado: 'Pendiente',
-        origen: 'FAB',
-      } as any);
-      setSnackbar({ open: true, mensaje: 'Tarea creada correctamente', severity: 'success' });
-      cerrarDialogo();
-    } catch (err: any) {
-      setSnackbar({ open: true, mensaje: 'Error al crear tarea: ' + err.message, severity: 'error' });
-    }
-  };
+  const actualizar = (campo: string, valor: any) => setForm({ ...form, [campo]: valor });
 
-  const handleGuardarOportunidad = async () => {
-    if (!formOportunidad.nombre.trim()) {
-      setSnackbar({ open: true, mensaje: 'El nombre es obligatorio', severity: 'error' });
-      return;
-    }
-    try {
-      await oportunidadesService.create({
-        ...formOportunidad,
-        valor: Number(formOportunidad.valor) || 0,
-        origen: 'FAB',
-      } as any);
-      setSnackbar({ open: true, mensaje: 'Oportunidad creada correctamente', severity: 'success' });
-      cerrarDialogo();
-    } catch (err: any) {
-      setSnackbar({ open: true, mensaje: 'Error al crear oportunidad: ' + err.message, severity: 'error' });
-    }
-  };
-
-  const handleGuardarFactura = async () => {
-    if (!formFactura.cliente_nombre.trim() || !formFactura.monto) {
-      setSnackbar({ open: true, mensaje: 'Cliente y monto son obligatorios', severity: 'error' });
-      return;
-    }
-    try {
-      await facturasService.create({
-        cliente_nombre: formFactura.cliente_nombre,
-        monto: Number(formFactura.monto),
-        concepto: formFactura.concepto,
-        estado_pago: formFactura.estado_pago,
-        origen: 'FAB',
-      } as any);
-      setSnackbar({ open: true, mensaje: 'Factura creada correctamente', severity: 'success' });
-      cerrarDialogo();
-    } catch (err: any) {
-      setSnackbar({ open: true, mensaje: 'Error al crear factura: ' + err.message, severity: 'error' });
-    }
-  };
-
-  const handleGuardar = () => {
+  const tituloAccion = () => {
     switch (tipoAccion) {
-      case 'cliente':
-        handleGuardarCliente();
-        break;
-      case 'tarea':
-        handleGuardarTarea();
-        break;
-      case 'oportunidad':
-        handleGuardarOportunidad();
-        break;
-      case 'factura':
-        handleGuardarFactura();
-        break;
+      case 'cliente': return 'Nuevo Cliente';
+      case 'tarea': return 'Nueva Tarea';
+      case 'oportunidad': return 'Nueva Oportunidad';
+      case 'factura': return 'Nueva Factura';
+      case 'proyecto': return 'Nuevo Proyecto';
+      case 'contrato': return 'Nuevo Contrato';
+      default: return 'Nuevo';
     }
   };
 
@@ -193,31 +184,30 @@ export const MobileFab: React.FC = () => {
         ))}
       </SpeedDial>
 
-      {/* Diálogo genérico para creación rápida */}
       <Dialog open={dialogoAbierto} onClose={cerrarDialogo} maxWidth="xs" fullWidth>
         <DialogTitle>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            {acciones.find(a => a.tipo === tipoAccion)?.name}
+            {tituloAccion()}
             <IconButton size="small" onClick={cerrarDialogo}><FiX /></IconButton>
           </Box>
         </DialogTitle>
         <DialogContent>
           {tipoAccion === 'cliente' && (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-              <TextField label="Nombre *" fullWidth value={formCliente.nombre} onChange={(e) => setFormCliente({ ...formCliente, nombre: e.target.value })} />
-              <TextField label="Email" fullWidth value={formCliente.email} onChange={(e) => setFormCliente({ ...formCliente, email: e.target.value })} />
-              <TextField label="Teléfono" fullWidth value={formCliente.telefono} onChange={(e) => setFormCliente({ ...formCliente, telefono: e.target.value })} />
-              <TextField label="Empresa" fullWidth value={formCliente.empresa} onChange={(e) => setFormCliente({ ...formCliente, empresa: e.target.value })} />
+              <TextField label="Nombre *" fullWidth value={form.nombre} onChange={(e) => actualizar('nombre', e.target.value)} />
+              <TextField label="Email" fullWidth value={form.email} onChange={(e) => actualizar('email', e.target.value)} />
+              <TextField label="Teléfono" fullWidth value={form.telefono} onChange={(e) => actualizar('telefono', e.target.value)} />
+              <TextField label="Empresa" fullWidth value={form.empresa} onChange={(e) => actualizar('empresa', e.target.value)} />
             </Box>
           )}
           {tipoAccion === 'tarea' && (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-              <TextField label="Título *" fullWidth value={formTarea.titulo} onChange={(e) => setFormTarea({ ...formTarea, titulo: e.target.value })} />
-              <TextField label="Descripción" fullWidth multiline rows={2} value={formTarea.descripcion} onChange={(e) => setFormTarea({ ...formTarea, descripcion: e.target.value })} />
-              <TextField label="Fecha" type="date" fullWidth value={formTarea.fecha} onChange={(e) => setFormTarea({ ...formTarea, fecha: e.target.value })} InputLabelProps={{ shrink: true }} />
+              <TextField label="Título *" fullWidth value={form.titulo} onChange={(e) => actualizar('titulo', e.target.value)} />
+              <TextField label="Descripción" fullWidth multiline rows={2} value={form.descripcion} onChange={(e) => actualizar('descripcion', e.target.value)} />
+              <TextField label="Fecha" type="date" fullWidth value={form.fecha} onChange={(e) => actualizar('fecha', e.target.value)} InputLabelProps={{ shrink: true }} />
               <FormControl fullWidth>
                 <InputLabel>Prioridad</InputLabel>
-                <Select value={formTarea.prioridad} label="Prioridad" onChange={(e) => setFormTarea({ ...formTarea, prioridad: e.target.value as any })}>
+                <Select value={form.prioridad} label="Prioridad" onChange={(e) => actualizar('prioridad', e.target.value)}>
                   <MenuItem value="Alta">Alta</MenuItem>
                   <MenuItem value="Media">Media</MenuItem>
                   <MenuItem value="Baja">Baja</MenuItem>
@@ -227,11 +217,11 @@ export const MobileFab: React.FC = () => {
           )}
           {tipoAccion === 'oportunidad' && (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-              <TextField label="Nombre *" fullWidth value={formOportunidad.nombre} onChange={(e) => setFormOportunidad({ ...formOportunidad, nombre: e.target.value })} />
-              <TextField label="Valor (COP)" type="number" fullWidth value={formOportunidad.valor} onChange={(e) => setFormOportunidad({ ...formOportunidad, valor: e.target.value })} />
+              <TextField label="Nombre *" fullWidth value={form.nombre} onChange={(e) => actualizar('nombre', e.target.value)} />
+              <TextField label="Valor (COP)" type="number" fullWidth value={form.valor} onChange={(e) => actualizar('valor', e.target.value)} />
               <FormControl fullWidth>
                 <InputLabel>Etapa</InputLabel>
-                <Select value={formOportunidad.etapa} label="Etapa" onChange={(e) => setFormOportunidad({ ...formOportunidad, etapa: e.target.value as any })}>
+                <Select value={form.etapa} label="Etapa" onChange={(e) => actualizar('etapa', e.target.value)}>
                   <MenuItem value="Prospección">Prospección</MenuItem>
                   <MenuItem value="Propuesta">Propuesta</MenuItem>
                   <MenuItem value="Negociación">Negociación</MenuItem>
@@ -242,17 +232,58 @@ export const MobileFab: React.FC = () => {
           )}
           {tipoAccion === 'factura' && (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
-              <TextField label="Cliente *" fullWidth value={formFactura.cliente_nombre} onChange={(e) => setFormFactura({ ...formFactura, cliente_nombre: e.target.value })} />
-              <TextField label="Monto (COP) *" type="number" fullWidth value={formFactura.monto} onChange={(e) => setFormFactura({ ...formFactura, monto: e.target.value })} />
-              <TextField label="Concepto" fullWidth value={formFactura.concepto} onChange={(e) => setFormFactura({ ...formFactura, concepto: e.target.value })} />
+              <TextField label="Cliente *" fullWidth value={form.cliente_nombre} onChange={(e) => actualizar('cliente_nombre', e.target.value)} />
+              <TextField label="Monto (COP) *" type="number" fullWidth value={form.monto} onChange={(e) => actualizar('monto', e.target.value)} />
+              <TextField label="Concepto" fullWidth value={form.concepto} onChange={(e) => actualizar('concepto', e.target.value)} />
               <FormControl fullWidth>
                 <InputLabel>Estado</InputLabel>
-                <Select value={formFactura.estado_pago} label="Estado" onChange={(e) => setFormFactura({ ...formFactura, estado_pago: e.target.value as any })}>
+                <Select value={form.estado_pago} label="Estado" onChange={(e) => actualizar('estado_pago', e.target.value)}>
                   <MenuItem value="pendiente">Pendiente</MenuItem>
                   <MenuItem value="parcial">Parcial</MenuItem>
                   <MenuItem value="pagado">Pagado</MenuItem>
                 </Select>
               </FormControl>
+            </Box>
+          )}
+          {tipoAccion === 'proyecto' && (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+              <TextField label="Nombre *" fullWidth value={form.nombre} onChange={(e) => actualizar('nombre', e.target.value)} />
+              <TextField label="Descripción" fullWidth multiline rows={2} value={form.descripcion} onChange={(e) => actualizar('descripcion', e.target.value)} />
+              <FormControl fullWidth>
+                <InputLabel>Cliente</InputLabel>
+                <Select value={form.cliente_id || ''} label="Cliente" onChange={(e) => actualizar('cliente_id', Number(e.target.value) || undefined)}>
+                  <MenuItem value="">Sin cliente</MenuItem>
+                  {(clientes || []).map((c) => (
+                    <MenuItem key={c.id} value={c.id}>{c.nombre}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Box>
+          )}
+          {tipoAccion === 'contrato' && (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+              <TextField label="Título *" fullWidth value={form.titulo} onChange={(e) => actualizar('titulo', e.target.value)} />
+              <FormControl fullWidth>
+                <InputLabel>Cliente</InputLabel>
+                <Select value={form.cliente_id || ''} label="Cliente" onChange={(e) => actualizar('cliente_id', Number(e.target.value) || undefined)}>
+                  <MenuItem value="">Sin cliente</MenuItem>
+                  {(clientes || []).map((c) => (
+                    <MenuItem key={c.id} value={c.id}>{c.nombre}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <FormControl fullWidth>
+                <InputLabel>Tipo</InputLabel>
+                <Select value={form.tipo} label="Tipo" onChange={(e) => actualizar('tipo', e.target.value)}>
+                  <MenuItem value="prestacion_servicios">Prestación de servicios</MenuItem>
+                  <MenuItem value="acuerdo_confidencialidad">Confidencialidad</MenuItem>
+                  <MenuItem value="propiedad_intelectual">Propiedad intelectual</MenuItem>
+                  <MenuItem value="otro">Otro</MenuItem>
+                </Select>
+              </FormControl>
+              <TextField label="Monto (COP)" type="number" fullWidth value={form.monto} onChange={(e) => actualizar('monto', e.target.value)} />
+              <TextField label="Inicio" type="date" fullWidth value={form.fecha_inicio} onChange={(e) => actualizar('fecha_inicio', e.target.value)} InputLabelProps={{ shrink: true }} />
+              <TextField label="Fin" type="date" fullWidth value={form.fecha_fin} onChange={(e) => actualizar('fecha_fin', e.target.value)} InputLabelProps={{ shrink: true }} />
             </Box>
           )}
         </DialogContent>
