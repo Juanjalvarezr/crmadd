@@ -1049,7 +1049,7 @@ export default function Clientes() {
                               <FiAlertCircle size={16} color="#f44336" />
                             </Tooltip>
                           )}
-                          <Chip
+                          <SafeChip
                             label={cliente.estado}
                             color={getEstadoColor(cliente.estado)}
                             size="small"

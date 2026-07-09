@@ -106,7 +106,7 @@ export default function ScannerTarjetas({ open, onClose, onSave }: Props) {
             <TextField label="Email" fullWidth value={data.email || ''} onChange={(e) => setData({ ...data, email: e.target.value })} />
             <TextField label="Dirección" fullWidth value={data.direccion || ''} onChange={(e) => setData({ ...data, direccion: e.target.value })} />
             <TextField label="Redes" fullWidth value={(data.redes || []).join(', ')} onChange={(e) => setData({ ...data, redes: e.target.value.split(',').map((s) => s.trim()).filter(Boolean) })} />
-            <Chip label={`${(data.texto || '').split(/\r?\n/).length} líneas detectadas`} color="info" variant="outlined" />
+            <SafeChip label={`${(data.texto || '').split(/\r?\n/).length} líneas detectadas`} color="info" variant="outlined" />
           </Stack>
         )}
       </DialogContent>

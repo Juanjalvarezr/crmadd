@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import {
   Box, Typography, Paper, Chip, Stack, IconButton, Tooltip
 } from "@mui/material";
+import SafeChip from "../components/SafeChip";
 import {
   Play, Pause, CheckCircle, X, Folder, Edit2, Trash2, Eye
 } from "lucide-react";
@@ -66,7 +67,7 @@ export function ProyectoKanban({
             onDrop={() => handleDrop(col.key)}
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
-              <Chip
+              <SafeChip
                 label={items.length}
                 size="small"
                 sx={{ bgcolor: col.color, color: "#fff", fontWeight: "bold" }}
@@ -104,14 +105,14 @@ export function ProyectoKanban({
                   </Typography>
                   <Box sx={{ display: "flex", gap: 0.5, mb: 1, flexWrap: "wrap" }}>
                     {(proyecto.servicios || []).slice(0, 2).map((serv) => (
-                      <Chip key={serv} label={serv} size="small" variant="outlined" sx={{ fontSize: "0.65rem" }} />
+                      <SafeChip key={serv} label={serv} size="small" variant="outlined" sx={{ fontSize: "0.65rem" }} />
                     ))}
                     {(proyecto.servicios || []).length > 2 && (
-                      <Chip label={`+${proyecto.servicios.length - 2}`} size="small" sx={{ fontSize: "0.65rem" }} />
+                      <SafeChip label={`+${proyecto.servicios.length - 2}`} size="small" sx={{ fontSize: "0.65rem" }} />
                     )}
                   </Box>
                   <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    <Chip
+                    <SafeChip
                       label={`${proyecto.progreso}%`}
                       size="small"
                       sx={{

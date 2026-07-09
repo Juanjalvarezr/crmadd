@@ -6,6 +6,7 @@ import {
   Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Alert, Snackbar, CircularProgress,
   Checkbox, FormControlLabel, Collapse, List, ListItem, ListItemText, ListItemIcon, Tooltip, Tabs, Tab, Divider, Accordion, AccordionSummary, AccordionDetails
 } from "@mui/material";
+import SafeChip from "../components/SafeChip";
 import { FiPlus, FiEdit, FiTrash2, FiCheck, FiSearch, FiCalendar, FiX, FiRefreshCw, FiCheckSquare, FiTarget, FiUser, FiPlay, FiPause, FiFlag, FiPaperclip, FiMessageSquare, FiBell, FiClock, FiCpu } from "react-icons/fi";
 import { tareasService, clientesService, equipoService, emailService } from "../services/database";
 import { useNotificationStore } from "../store/useNotificationStore";
@@ -504,7 +505,7 @@ export default function Tareas() {
                         {tarea.titulo && (
                           <Typography variant="body2" sx={{ fontWeight: 500, lineHeight: 1.3 }}>{tarea.titulo}</Typography>
                         )}
-                        {isVencida(tarea) && <Chip label="⚠️ Vencida" size="small" color="error" variant="outlined" sx={{ height: 20, fontSize: '0.65rem' }} />}
+                        {isVencida(tarea) && <SafeChip label="⚠️ Vencida" size="small" color="error" variant="outlined" sx={{ height: 20, fontSize: '0.65rem' }} />}
                       </Box>
                       {subtareasTotal > 0 && (
                         <Typography variant="caption" color="text.secondary">
@@ -519,7 +520,7 @@ export default function Tareas() {
                             {clientes.find(c => c.id === tarea.cliente_id)?.nombre || 'Cargando...'}
                           </Typography>
                           {clientes.find(c => c.id === tarea.cliente_id)?.nicho && (
-                            <Chip
+                            <SafeChip
                               label={clientes.find(c => c.id === tarea.cliente_id)?.nicho}
                               size="small"
                               variant="outlined"
@@ -533,8 +534,8 @@ export default function Tareas() {
                     </TableCell>
                     <TableCell>
                       <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
-                        <Chip label={tarea.prioridad} color={getPrioridadColor(tarea.prioridad)} size="small" />
-                        <Chip label={tarea.estado} color={getEstadoColor(tarea.estado)} size="small" variant="outlined" />
+                        <SafeChip label={tarea.prioridad} color={getPrioridadColor(tarea.prioridad)} size="small" />
+                        <SafeChip label={tarea.estado} color={getEstadoColor(tarea.estado)} size="small" variant="outlined" />
                         {tarea.dependencias && tarea.dependencias.length > 0 && (
                           <Typography variant="caption" color="text.secondary">Depende de {tarea.dependencias.length}</Typography>
                         )}
@@ -548,7 +549,7 @@ export default function Tareas() {
                       {tarea.recordatorios && tarea.recordatorios.length > 0 && (
                         <Box sx={{ display: "flex", gap: 0.5, mt: 0.5 }}>
                           {(tarea.recordatorios as any[]).map((r: any) => (
-                            <Chip key={r.id} icon={r.tipo === 'whatsapp' ? <FiMessageSquare size={12} /> : <FiBell size={12} />} label={r.tipo} size="small" variant="outlined" sx={{ height: 18, fontSize: '0.6rem' }} />
+                            <SafeChip key={r.id} icon={r.tipo === 'whatsapp' ? <FiMessageSquare size={12} /> : <FiBell size={12} />} label={r.tipo} size="small" variant="outlined" sx={{ height: 18, fontSize: '0.6rem' }} />
                           ))}
                         </Box>
                       )}
@@ -656,7 +657,7 @@ export default function Tareas() {
                   {formData.cliente_id && (
                     <Paper variant="outlined" sx={{ p: 1, minWidth: 120, bgcolor: '#f0f7ff', textAlign: 'center' }}>
                       <Typography variant="caption" color="text.secondary" display="block">Nicho Heredado</Typography>
-                      <Chip label={clientes.find(c => c.id === formData.cliente_id)?.nicho || 'Sin nicho'} size="small" color="primary" sx={{ mt: 0.5 }} />
+                      <SafeChip label={clientes.find(c => c.id === formData.cliente_id)?.nicho || 'Sin nicho'} size="small" color="primary" sx={{ mt: 0.5 }} />
                     </Paper>
                   )}
                 </Box>
@@ -747,7 +748,7 @@ export default function Tareas() {
                     {c.menciones && c.menciones.length > 0 && (
                       <Box sx={{ display: 'flex', gap: 0.5, mt: 0.5 }}>
                         {c.menciones.map((m: string) => (
-                          <Chip key={m} label={m} size="small" />
+                          <SafeChip key={m} label={m} size="small" />
                         ))}
                       </Box>
                     )}
@@ -764,7 +765,7 @@ export default function Tareas() {
                 <Typography variant="subtitle2">Recordatorios programados</Typography>
                 {(editingTarea.recordatorios || []).map((r: any) => (
                   <Box key={r.id} sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <Chip label={r.tipo} size="small" />
+                    <SafeChip label={r.tipo} size="small" />
                     <Typography variant="body2">{format(new Date(r.fecha_envio), 'dd/MM/yyyy HH:mm')}</Typography>
                     <Button size="small" onClick={() => handleSendRecordatorio(editingTarea, r.tipo)}>Enviar ahora</Button>
                   </Box>

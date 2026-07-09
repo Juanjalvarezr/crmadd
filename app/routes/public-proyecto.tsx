@@ -6,6 +6,7 @@ import {
   Divider, Button, List, ListItem, ListItemIcon, ListItemText,
   ThemeProvider, createTheme, CssBaseline
 } from "@mui/material";
+import SafeChip from "../components/SafeChip";
 import { 
   FiBriefcase, FiCheckCircle, FiClock, FiLayers, FiLink, 
   FiCalendar, FiPlay, FiSmartphone, FiTrendingUp, FiActivity, FiStar 
@@ -163,12 +164,12 @@ export default function PublicProyecto() {
             <Grid container spacing={3} alignItems="center">
               <Grid item xs={12} md={8}>
                 <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 2 }}>
-                  <Chip 
+                  <SafeChip 
                     label="Magic Link Activo" 
                     size="small" 
                     sx={{ bgcolor: "rgba(0, 229, 255, 0.12)", color: "#00e5ff", fontWeight: "bold" }} 
                   />
-                  <Chip 
+                  <SafeChip 
                     label={getFaseLabel(proyecto.faseAdministrativa)} 
                     size="small" 
                     sx={{ bgcolor: `${getFaseColor(proyecto.faseAdministrativa)}20`, color: getFaseColor(proyecto.faseAdministrativa), fontWeight: "bold" }} 
@@ -213,7 +214,7 @@ export default function PublicProyecto() {
                       {proyecto.progreso}%
                     </Typography>
                   </Box>
-                  <Chip 
+                  <SafeChip 
                     label={getEstadoLabel(proyecto.estado)} 
                     sx={{ 
                       bgcolor: proyecto.estado === "en_progreso" ? "rgba(0, 200, 83, 0.12)" : "rgba(255, 255, 255, 0.05)",
@@ -253,7 +254,7 @@ export default function PublicProyecto() {
                         secondary="Obligatorio para iniciar operaciones comerciales"
                         primaryTypographyProps={{ sx: { fontWeight: proyecto.onboardingChecklist?.anticipo_50 ? "bold" : "normal" } }}
                       />
-                      <Chip 
+                      <SafeChip 
                         label={proyecto.onboardingChecklist?.anticipo_50 ? "Confirmado" : "Pendiente"} 
                         size="small" 
                         color={proyecto.onboardingChecklist?.anticipo_50 ? "success" : "warning"}
@@ -269,7 +270,7 @@ export default function PublicProyecto() {
                         secondary="Auditoría de marca y redes sociales realizada"
                         primaryTypographyProps={{ sx: { fontWeight: proyecto.onboardingChecklist?.analisis_presencia ? "bold" : "normal" } }}
                       />
-                      <Chip 
+                      <SafeChip 
                         label={proyecto.onboardingChecklist?.analisis_presencia ? "Listo" : "En proceso"} 
                         size="small" 
                         color={proyecto.onboardingChecklist?.analisis_presencia ? "success" : "default"}
@@ -285,7 +286,7 @@ export default function PublicProyecto() {
                         secondary="Facebook Business, Instagram, etc."
                         primaryTypographyProps={{ sx: { fontWeight: proyecto.onboardingChecklist?.solicitud_accesos ? "bold" : "normal" } }}
                       />
-                      <Chip 
+                      <SafeChip 
                         label={proyecto.onboardingChecklist?.solicitud_accesos ? "Recibidos" : "Pendiente"} 
                         size="small" 
                         color={proyecto.onboardingChecklist?.solicitud_accesos ? "success" : "warning"}
@@ -381,7 +382,7 @@ export default function PublicProyecto() {
                             color: tarea.completada ? "text.secondary" : "text.primary"
                           } }}
                         />
-                        <Chip 
+                        <SafeChip 
                           label={tarea.completada ? "Completado" : "En Progreso"} 
                           size="small" 
                           color={tarea.completada ? "success" : "warning"} 

@@ -1073,7 +1073,7 @@ export default function Proyectos() {
               {proyectosVencimiento.map(p => {
                 const dias = differenceInCalendarDays(new Date(p.fechaFin), new Date());
                 return (
-                  <Chip
+                  <SafeChip
                     key={p.id}
                     label={`${p.nombre} (${dias <= 0 ? Math.abs(dias) + " días vencido" : dias + " días restantes"})`}
                     size="small"
@@ -1179,7 +1179,7 @@ export default function Proyectos() {
                   </Box>
                   <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
                     {(proyecto.servicios || []).map((servicio, index) => (
-                      <Chip
+                      <SafeChip
                         key={index}
                         label={servicio}
                         size="small"
@@ -1427,7 +1427,7 @@ export default function Proyectos() {
                         <Typography variant="subtitle2" gutterBottom>💰 Control de Pagos (50/50)</Typography>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                           <Typography variant="caption">Anticipo (50%): {formatCOP(selectedProyecto.presupuesto * 0.5)}</Typography>
-                          <Chip
+                          <SafeChip
                             label={selectedProyecto.montoPagado >= (selectedProyecto.presupuesto * 0.5) ? "RECIBIDO" : "PENDIENTE"}
                             size="small"
                             variant={selectedProyecto.montoPagado >= (selectedProyecto.presupuesto * 0.5) ? "filled" : "outlined"}

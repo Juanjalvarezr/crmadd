@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   Box, Typography, Paper, List, ListItem, IconButton, Chip, Button, ListItemIcon, ListItemText
 } from "@mui/material";
+import SafeChip from "../components/SafeChip";
 import { ExternalLink, FileText, ScrollText, Eye } from "lucide-react";
 import { facturasService } from "../services/facturacion";
 import { contratosService } from "../services/facturacion";
@@ -98,7 +99,7 @@ export function ProyectoDocuments({ proyecto, onViewInvoice, onViewContract }: P
                     primary={<Typography variant="body2" sx={{ fontWeight: "bold" }}>#{f.numero || f.id}</Typography>}
                     secondary={
                       <Box sx={{ display: "flex", gap: 1, alignItems: "center", mt: 0.5 }}>
-                        <Chip
+                        <SafeChip
                           label={f.estado}
                           size="small"
                           color={getEstadoFacturaColor(f.estado) as any}
@@ -148,7 +149,7 @@ export function ProyectoDocuments({ proyecto, onViewInvoice, onViewContract }: P
                     primary={<Typography variant="body2" sx={{ fontWeight: "bold" }}>{c.titulo}</Typography>}
                     secondary={
                       <Box sx={{ display: "flex", gap: 1, alignItems: "center", mt: 0.5 }}>
-                        <Chip
+                        <SafeChip
                           label={c.estado}
                           size="small"
                           color={getEstadoContratoColor(c.estado) as any}
