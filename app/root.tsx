@@ -10,6 +10,7 @@ import { FloatingAIAssistant } from "./components/FloatingAIAssistant";
 import GlobalSearch from "./components/GlobalSearch";
 
 // __INVALIDATE_BUILD_CACHE__ 2026-07-09T00:01:26.934Z
+// __BUILD_CACHE_BUSTER__=1783570756122
 const DRAWER_WIDTH = 260;
 
 export default function Root() {
