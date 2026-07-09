@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { StatCard, VentasIcon } from "../components/StatCard";
 import { 
@@ -345,7 +346,7 @@ export default function Ventas() {
             Pipeline de Oportunidades
           </Typography>
           <IconButton size="small" onClick={() => openAiRoute('ventas', 'Oportunidades', 'Pipeline de ventas')}>
-            <FiCpu size={18} />
+            <Chip label="CPU" size="small" />
           </IconButton>
           <Button size="small" startIcon={<FiRefreshCw size={14} />} onClick={loadData} disabled={loading}>
             {loading ? "..." : "Recargar"}
