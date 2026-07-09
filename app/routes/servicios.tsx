@@ -6,6 +6,7 @@ import {
   FormControl, InputLabel, Select, MenuItem, IconButton, Snackbar, Alert,
   CircularProgress, Divider, List, ListItem, ListItemText, ListItemSecondaryAction
 } from "@mui/material";
+import SafeChip from "../components/SafeChip";
 import { 
   FiPackage, FiPlus, FiEdit, FiTrash2, FiStar, FiClock, FiCheck, FiX, FiPlusCircle 
 } from "react-icons/fi";
@@ -248,7 +249,7 @@ export default function Servicios() {
               }}>
                 <CardContent sx={{ flexGrow: 1 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                    <Chip label={servicio.categoria} size="small" color="primary" variant="outlined" />
+                    <SafeChip label={servicio.categoria} size="small" color="primary" variant="outlined" />
                     <Box sx={{ display: 'flex', alignItems: 'center', color: '#daa520' }}>
                       {[...Array(5)].map((_, i) => (
                         <FiStar key={i} size={14} fill={i < servicio.popularidad ? "#daa520" : "none"} />
@@ -274,7 +275,7 @@ export default function Servicios() {
                   <Typography variant="caption" sx={{ fontWeight: 'bold', display: 'block', mb: 1 }}>Incluye:</Typography>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                     {servicio.incluye?.map((item: string, i: number) => (
-                      <Chip key={i} label={item} size="small" variant="outlined" sx={{ fontSize: '0.7rem' }} />
+                      <SafeChip key={i} label={item} size="small" variant="outlined" sx={{ fontSize: '0.7rem' }} />
                     ))}
                   </Box>
                 </CardContent>
@@ -384,7 +385,7 @@ export default function Servicios() {
                   </Box>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 2 }}>
                     {formData.objetivo.map((item, index) => (
-                      <Chip
+                      <SafeChip
                         key={index}
                         label={item}
                         size="small"

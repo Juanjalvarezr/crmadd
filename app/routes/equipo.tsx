@@ -6,6 +6,7 @@ import {
   DialogContent, DialogActions, TextField, Select, MenuItem,
   InputLabel, FormControl, Divider
 } from "@mui/material";
+import SafeChip from "../components/SafeChip";
 import { FiUserPlus, FiMail, FiEdit2, FiTrash2 } from "react-icons/fi";
 import { equipoService } from '../services/database';
 
@@ -121,9 +122,9 @@ export default function Equipo() {
                 </Box>
 
                 <Box sx={{ display: "flex", gap: 1, mb: 2, flexWrap: "wrap" }}>
-                  <Chip label={miembro.rol} size="small" color="primary" variant="outlined" />
-                  <Chip label={miembro.especialidad || "General"} size="small" color="secondary" />
-                  <Chip
+                  <SafeChip label={miembro.rol} size="small" color="primary" variant="outlined" />
+                  <SafeChip label={miembro.especialidad || "General"} size="small" color="secondary" />
+                  <SafeChip
                     label={miembro.estado || "Activo"}
                     size="small"
                     color={(miembro.estado || "Activo") === 'Activo' ? 'success' : 'default'}

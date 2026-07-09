@@ -36,14 +36,22 @@ export default function Root() {
     const themeRaw = createTheme({
       palette: {
         mode: themeMode,
-        primary: { main: '#e91e63', light: '#f48fb1', dark: '#c2185b', contrastText: '#ffffff' },
-        secondary: { main: '#9c27b0', light: '#ce93d8', dark: '#7b1fa2', contrastText: '#ffffff' },
-        success: { main: '#4caf50', light: '#81c784', dark: '#2e7d32', contrastText: '#ffffff' },
-        warning: { main: '#ff9800', light: '#ffb74d', dark: '#f57c00', contrastText: '#ffffff' },
-        info: { main: '#2196f3', light: '#64b5f6', dark: '#1976d2', contrastText: '#ffffff' },
-        error: { main: '#f44336', light: '#e57373', dark: '#d32f2f', contrastText: '#ffffff' },
+        primary: { main: '#e91e63', light: '#f48fb1', dark: '#c2185b' },
+        secondary: { main: '#9c27b0', light: '#ce93d8', dark: '#7b1fa2' },
+        success: { main: '#4caf50', light: '#81c784', dark: '#2e7d32' },
+        warning: { main: '#ff9800', light: '#ffb74d', dark: '#f57c00' },
+        info: { main: '#2196f3', light: '#64b5f6', dark: '#1976d2' },
+        error: { main: '#f44336', light: '#e57373', dark: '#d32f2f' },
         background: { default: themeMode === 'dark' ? '#0d0e15' : '#f6f7fb', paper: themeMode === 'dark' ? '#12131a' : '#ffffff' },
         text: { primary: themeMode === 'dark' ? '#e2e8f0' : '#1f232e', secondary: themeMode === 'dark' ? '#a0aec0' : '#617182' },
+      },
+      contrastText: {
+        primary: '#ffffff',
+        secondary: '#ffffff',
+        success: '#ffffff',
+        warning: '#ffffff',
+        info: '#ffffff',
+        error: '#ffffff',
       },
       shape: { borderRadius: 12 },
       typography: {

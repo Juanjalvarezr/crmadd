@@ -7,6 +7,7 @@ import {
   Switch, FormControlLabel, Divider, Chip, List, ListItem, ListItemText,
   ListItemIcon, ListItemSecondaryAction, Dialog, DialogTitle, DialogContent, DialogActions
 } from "@mui/material";
+import SafeChip from "../components/SafeChip";
 import { 
   FiSettings, FiSave, FiRefreshCw, FiUser, FiMail, FiGlobe,
   FiBell, FiShield, FiDatabase, FiDownload, FiUpload, FiX,
@@ -932,7 +933,7 @@ export default function Configuracion() {
             </Typography>
           </Box>
           {dbStatus && (
-            <Chip 
+            <SafeChip 
               icon={dbStatus.success ? <FiCheck /> : <FiAlertCircle />} 
               label={dbStatus.success ? "Conectado a Supabase" : "Error de Conexión"} 
               color={dbStatus.success ? "success" : "error"}

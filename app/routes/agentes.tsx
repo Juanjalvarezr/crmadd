@@ -7,6 +7,7 @@ import {
   Table, TableHead, TableRow, TableCell, TableBody, TableContainer, Dialog, DialogTitle, DialogContent, DialogActions,
   Select, MenuItem, FormControl, InputLabel, Switch, CircularProgress
 } from "@mui/material";
+import SafeChip from "../components/SafeChip";
 import { FiPlus, FiEdit3, FiTrash2, FiX } from "react-icons/fi";
 
 export function meta() {
@@ -213,7 +214,7 @@ export default function Agentes() {
               {RUTAS_DISPONIBLES.map((r) => {
                 const active = form.rutas_activas.includes(r.value);
                 return (
-                  <Chip
+                  <SafeChip
                     key={r.value}
                     label={r.label}
                     size="small"

@@ -6,6 +6,7 @@ import {
   Box, Typography, Paper, Button, TextField, InputAdornment, FormControl, InputLabel, Select, MenuItem,
   IconButton, Alert, Snackbar, CircularProgress, Card, CardContent, Divider, Chip
 } from "@mui/material";
+import SafeChip from "../components/SafeChip";
 import { 
   FiDownload, FiRefreshCw, FiFilter, FiBarChart, FiTrendingUp, FiDollarSign, FiUsers, FiCalendar,
   FiPieChart, FiActivity, FiTarget, FiFileText, FiX, FiClock, FiCheckCircle, FiAlertCircle
@@ -478,7 +479,7 @@ export default function Reportes() {
                       }}>
                         {metrica.icono}
                       </Box>
-                      <Chip
+                      <SafeChip
                         label={`${metrica.cambio > 0 ? "+" : ""}${metrica.cambio}%`}
                         size="small"
                         color={metrica.cambio > 0 ? "success" : "error"}
@@ -614,7 +615,7 @@ export default function Reportes() {
                             <Box component="td" sx={{ padding: "8px", textAlign: "right" }}>{data.proyectosCompletados}</Box>
                             <Box component="td" sx={{ padding: "8px", textAlign: "right" }}>{data.tasaConversion}%</Box>
                             <Box component="td" sx={{ padding: "8px", textAlign: "center" }}>
-                              <Chip
+                              <SafeChip
                                 icon={data.tasaConversion > 20 ? <FiCheckCircle size={14} /> : <FiAlertCircle size={14} />}
                                 label={data.tasaConversion > 20 ? "Bueno" : "Regular"}
                                 color={data.tasaConversion > 20 ? "success" : "warning"}

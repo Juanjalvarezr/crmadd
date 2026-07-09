@@ -2,6 +2,7 @@ import { Outlet, useNavigate, useLocation } from "react-router";
 import { useState, useEffect } from 'react';
 import { RouteSkeleton } from '../components/RouteGuard';
 import { Box, Typography, Paper, Button, TextField, Select, MenuItem, FormControl, InputLabel, Dialog, DialogTitle, DialogContent, DialogActions, Chip, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Tooltip, Snackbar, Alert, Fade, Accordion, AccordionSummary, AccordionDetails, Divider, List, ListItem, ListItemText, Switch, FormControlLabel } from "@mui/material";
+import SafeChip from "../components/SafeChip";
 import { FiPlus, FiEye, FiEdit, FiTrash2, FiFileText, FiMessageSquare, FiMail, FiFilter, FiShoppingCart, FiShield, FiGitBranch, FiList, FiAlertTriangle, FiCopy, FiCpu } from "react-icons/fi";
 import { contratosService, contratoVersionesService, contratoClausulasService } from "../services/facturacion";
 import { clientesService } from "../services/database";
@@ -380,7 +381,7 @@ export default function Contratos() {
                       <TableCell>{proyecto?.nombre || '-'}</TableCell>
                       <TableCell><SafeChip label={item.tipo} size="small" /></TableCell>
                       <TableCell>
-                        <Chip
+                        <SafeChip
                           label={item.estado}
                           size="small"
                           sx={{

@@ -11,6 +11,7 @@ import {
   useTheme,
   IconButton,
 } from "@mui/material";
+import SafeChip from "../components/SafeChip";
 import {
   FiRefreshCw,
   FiCalendar,
@@ -403,7 +404,7 @@ export default function Dashboard() {
                           {proyecto.clienteNombre || "Sin cliente"}
                         </Typography>
                       </Box>
-                      <Chip
+                      <SafeChip
                         label={proyecto.estado === "en_progreso" ? "En progreso" : "Planificación"}
                         size="small"
                         color={getEstadoColor(proyecto.estado) as any}
@@ -516,7 +517,7 @@ export default function Dashboard() {
                           month: "short" 
                         }) : "Sin fecha"}
                       </Typography>
-                      <Chip
+                      <SafeChip
                         label={tarea.estado || "Pendiente"}
                         size="small"
                         color={tarea.prioridad === "Alta" ? "error" : tarea.prioridad === "Media" ? "warning" : "default"}

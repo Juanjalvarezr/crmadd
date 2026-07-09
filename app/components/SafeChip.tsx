@@ -16,3 +16,4 @@ export const SafeChip = (props: ChipProps) => {
 
   return <MuiChip color={color} sx={sx} {...rest} />;
 };
+export default SafeChip;
