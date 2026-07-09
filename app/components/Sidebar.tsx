@@ -166,7 +166,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <Typography variant="h6" sx={{ fontWeight: "bold", letterSpacing: 4, color: "#9c27b0", fontSize: "1.1rem", mb: 1 }}>
               DIGITAL
             </Typography>
-            <Chip 
+            <SafeChip 
               label="Agencia Inteligente" 
               size="small" 
               sx={{ 
@@ -414,7 +414,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </Tooltip>
         ) : (
           <Box>
-            <Chip 
+            <SafeChip 
               label="v2.0.1" 
               size="small" 
               variant="outlined"
@@ -504,3 +504,5 @@ export const Sidebar: React.FC<SidebarProps> = ({
 };
 
 export const DRAWER_WIDTH_CONST = DRAWER_WIDTH;
+
+import { SafeChip } from "../components/SafeChip";

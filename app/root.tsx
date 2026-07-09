@@ -32,33 +32,43 @@ export default function Root() {
     return "dark";
   });
 
-  const theme = React.useMemo(() => createTheme({
-    palette: {
-      mode: themeMode,
-      primary: { main: '#e91e63', light: '#f48fb1', dark: '#c2185b', contrastText: '#ffffff' },
-      secondary: { main: '#9c27b0', light: '#ce93d8', dark: '#7b1fa2', contrastText: '#ffffff' },
-      success: { main: '#4caf50', light: '#81c784', dark: '#2e7d32', contrastText: '#ffffff' },
-      warning: { main: '#ff9800', light: '#ffb74d', dark: '#f57c00', contrastText: '#ffffff' },
-      info: { main: '#2196f3', light: '#64b5f6', dark: '#1976d2', contrastText: '#ffffff' },
-      error: { main: '#f44336', light: '#e57373', dark: '#d32f2f', contrastText: '#ffffff' },
-      background: { default: themeMode === 'dark' ? '#0d0e15' : '#f6f7fb', paper: themeMode === 'dark' ? '#12131a' : '#ffffff' },
-      text: { primary: themeMode === 'dark' ? '#e2e8f0' : '#1f232e', secondary: themeMode === 'dark' ? '#a0aec0' : '#617182' },
-    },
-    shape: { borderRadius: 12 },
-    typography: {
-      fontFamily: 'Inter, Roboto, system-ui, -apple-system, Segoe UI, sans-serif',
-      h4: { fontSize: { xs: '1.25rem', sm: '1.6rem', md: '2rem' }, fontWeight: 800 },
-      h5: { fontSize: { xs: '1.1rem', sm: '1.25rem' }, fontWeight: 700 },
-      h6: { fontSize: { xs: '1rem', sm: '1.1rem' }, fontWeight: 700 },
-      button: { textTransform: 'none', fontWeight: 600 },
-    },
-    components: {
-      MuiCard: { styleOverrides: { root: { borderRadius: 16, border: '1px solid', borderColor: 'divider', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' } } },
-      MuiPaper: { styleOverrides: { root: { backgroundImage: 'none' } } },
-      MuiButton: { styleOverrides: { root: { borderRadius: 10, padding: '6px 12px' } } },
-      MuiTableCell: { styleOverrides: { root: { borderBottom: '1px solid', borderColor: 'divider' } } },
+  const theme = React.useMemo(() => {
+    const themeRaw = createTheme({
+      palette: {
+        mode: themeMode,
+        primary: { main: '#e91e63', light: '#f48fb1', dark: '#c2185b', contrastText: '#ffffff' },
+        secondary: { main: '#9c27b0', light: '#ce93d8', dark: '#7b1fa2', contrastText: '#ffffff' },
+        success: { main: '#4caf50', light: '#81c784', dark: '#2e7d32', contrastText: '#ffffff' },
+        warning: { main: '#ff9800', light: '#ffb74d', dark: '#f57c00', contrastText: '#ffffff' },
+        info: { main: '#2196f3', light: '#64b5f6', dark: '#1976d2', contrastText: '#ffffff' },
+        error: { main: '#f44336', light: '#e57373', dark: '#d32f2f', contrastText: '#ffffff' },
+        background: { default: themeMode === 'dark' ? '#0d0e15' : '#f6f7fb', paper: themeMode === 'dark' ? '#12131a' : '#ffffff' },
+        text: { primary: themeMode === 'dark' ? '#e2e8f0' : '#1f232e', secondary: themeMode === 'dark' ? '#a0aec0' : '#617182' },
+      },
+      shape: { borderRadius: 12 },
+      typography: {
+        fontFamily: 'Inter, Roboto, system-ui, -apple-system, Segoe UI, sans-serif',
+        h4: { fontSize: { xs: '1.25rem', sm: '1.6rem', md: '2rem' }, fontWeight: 800 },
+        h5: { fontSize: { xs: '1.1rem', sm: '1.25rem' }, fontWeight: 700 },
+        h6: { fontSize: { xs: '1rem', sm: '1.1rem' }, fontWeight: 700 },
+        button: { textTransform: 'none', fontWeight: 600 },
+      },
+      components: {
+        MuiCard: { styleOverrides: { root: { borderRadius: 16, border: '1px solid', borderColor: 'divider', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' } } },
+        MuiPaper: { styleOverrides: { root: { backgroundImage: 'none' } } },
+        MuiButton: { styleOverrides: { root: { borderRadius: 10, padding: '6px 12px' } } },
+        MuiTableCell: { styleOverrides: { root: { borderBottom: '1px solid', borderColor: 'divider' } } },
+      }
+    });
+
+    const p = themeRaw.palette as any;
+    for (const c of ['primary','secondary','success','warning','info','error','grey','text','background']) {
+      if (p[c] && !('contrastText' in p[c])) {
+        (p[c] as any).contrastText = '#ffffff';
+      }
     }
-  }), [themeMode]);
+    return themeRaw;
+  }, [themeMode]);
 
   useEffect(() => {
     const isAuthenticated =

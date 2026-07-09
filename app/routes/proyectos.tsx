@@ -1279,7 +1279,7 @@ export default function Proyectos() {
                 renderValue={(selected) => (
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                     {(selected as string[]).map((value) => (
-                      <Chip key={value} label={value} size="small" />
+                      <SafeChip key={value} label={value} size="small" />
                     ))}
                   </Box>
                 )}
@@ -1498,7 +1498,7 @@ export default function Proyectos() {
                   </Box>
                   <Box sx={{ display: 'flex', gap: 1, mb: 4, flexWrap: 'wrap' }}>
                     {["propuesta", "contrato", "onboarding", "operacion", "capacitacion", "renovacion"].map((fase) => (
-                      <Chip 
+                      <SafeChip 
                         key={fase}
                         label={fase.toUpperCase()}
                         onClick={() => handleCambiarFase(selectedProyecto, fase as any)}
@@ -1784,3 +1784,5 @@ export default function Proyectos() {
     </Box>
   );
 }
+
+import { SafeChip } from "../components/SafeChip";

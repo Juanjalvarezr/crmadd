@@ -678,7 +678,7 @@ export default function Reportes() {
                     <Box sx={{ p: 1.5, border: "1px solid #e0e0e0", borderRadius: 1 }}>
                       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.5 }}>
                         <Typography variant="body2" sx={{ fontWeight: "bold" }}>Meta Mensual</Typography>
-                        <Chip label="En Progreso" color="info" size="small" />
+                        <SafeChip label="En Progreso" color="info" size="small" />
                       </Box>
                       <Typography variant="body2" color="text.secondary">
                         Alcanzar $50M COP en ingresos
@@ -692,7 +692,7 @@ export default function Reportes() {
                     <Box sx={{ p: 1.5, border: "1px solid #e0e0e0", borderRadius: 1 }}>
                       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.5 }}>
                         <Typography variant="body2" sx={{ fontWeight: "bold" }}>Meta Trimestral</Typography>
-                        <Chip label="En Camino" color="warning" size="small" />
+                        <SafeChip label="En Camino" color="warning" size="small" />
                       </Box>
                       <Typography variant="body2" color="text.secondary">
                         150 nuevos clientes
@@ -727,3 +727,5 @@ export default function Reportes() {
     </Box>
   );
 }
+
+import { SafeChip } from "../components/SafeChip";
