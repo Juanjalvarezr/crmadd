@@ -1,3 +1,4 @@
+import { Outlet, useNavigate, useLocation } from "react-router";
 import { useState, useEffect } from "react";
 import { agentesService } from "../services/agentes";
 import type { Agente } from "../types/crm";

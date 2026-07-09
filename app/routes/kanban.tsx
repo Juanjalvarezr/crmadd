@@ -1,3 +1,4 @@
+import { Outlet, useNavigate, useLocation } from "react-router";
 import { useState } from "react";
 import { Box, Typography, Paper, Button, Stack, Chip } from "@mui/material";
 import { Folder, Plus, Play, Pause, CheckCircle, X } from "lucide-react";

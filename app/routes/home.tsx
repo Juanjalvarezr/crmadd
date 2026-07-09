@@ -1,3 +1,4 @@
+import { Outlet, useNavigate, useLocation } from "react-router";
 import { Welcome } from "../welcome/welcome";
 
 export function meta() {
