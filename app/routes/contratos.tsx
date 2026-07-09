@@ -2,7 +2,6 @@ import { Outlet, useNavigate, useLocation } from "react-router";
 import { useState, useEffect } from 'react';
 import { RouteSkeleton } from '../components/RouteGuard';
 import { Box, Typography, Paper, Button, TextField, Select, MenuItem, FormControl, InputLabel, Dialog, DialogTitle, DialogContent, DialogActions, Chip, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Tooltip, Snackbar, Alert, Fade, Accordion, AccordionSummary, AccordionDetails, Divider, List, ListItem, ListItemText, Switch, FormControlLabel } from "@mui/material";
-import SafeChip from "../components/SafeChip";
 import { FiPlus, FiEye, FiEdit, FiTrash2, FiFileText, FiMessageSquare, FiMail, FiFilter, FiShoppingCart, FiShield, FiGitBranch, FiList, FiAlertTriangle, FiCopy, FiCpu } from "react-icons/fi";
 import { contratosService, contratoVersionesService, contratoClausulasService } from "../services/facturacion";
 import { clientesService } from "../services/database";
@@ -379,9 +378,9 @@ export default function Contratos() {
                       <TableCell>{item.titulo}</TableCell>
                       <TableCell>{cliente?.nombre || '-'}</TableCell>
                       <TableCell>{proyecto?.nombre || '-'}</TableCell>
-                      <TableCell><SafeChip label={item.tipo} size="small" /></TableCell>
+                      <TableCell><Chip label={item.tipo} size="small" /></TableCell>
                       <TableCell>
-                        <SafeChip
+                        <Chip
                           label={item.estado}
                           size="small"
                           sx={{
@@ -396,7 +395,7 @@ export default function Contratos() {
                       <TableCell>
                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.2 }}>
                           {item.fecha_renovacion && <Typography variant="caption">{item.fecha_renovacion}</Typography>}
-                          {renovacionCercana && <SafeChip size="small" color="warning" label={`En ${Math.ceil((new Date(item.fecha_renovacion!).getTime() - Date.now()) / 86400000)} días`} />}
+                          {renovacionCercana && <Chip size="small" color="warning" label={`En ${Math.ceil((new Date(item.fecha_renovacion!).getTime() - Date.now()) / 86400000)} días`} />}
                         </Box>
                       </TableCell>
                       <TableCell align="right">
@@ -609,7 +608,7 @@ export default function Contratos() {
                 </Paper>
               )}
               {itemDetalle.bloqueado_post_firma && (
-                <SafeChip color="error" label="Bloqueado post-firma" />
+                <Chip color="error" label="Bloqueado post-firma" />
               )}
               <Divider />
               <Typography variant="subtitle2">Obligaciones</Typography>
@@ -617,7 +616,7 @@ export default function Contratos() {
               {(itemDetalle.obligaciones || []).map((o: any, idx: number) => (
                 <Box key={idx} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Typography variant="body2">{o.descripcion}</Typography>
-                  <SafeChip size="small" label={o.estado} />
+                  <Chip size="small" label={o.estado} />
                 </Box>
               ))}
               <Typography variant="subtitle2">Vencimientos</Typography>
@@ -625,7 +624,7 @@ export default function Contratos() {
               {(itemDetalle.vencimientos || []).map((v: any, idx: number) => (
                 <Box key={idx} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Typography variant="body2">{v.descripcion} - {v.fecha}</Typography>
-                  <SafeChip size="small" label={v.cumplido ? 'Cumplido' : 'Pendiente'} />
+                  <Chip size="small" label={v.cumplido ? 'Cumplido' : 'Pendiente'} />
                 </Box>
               ))}
             </Box>
@@ -662,4 +661,3 @@ export default function Contratos() {
   );
 }
 
-import { SafeChip } from "../components/SafeChip";

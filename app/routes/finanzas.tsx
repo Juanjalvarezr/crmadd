@@ -184,7 +184,7 @@ export default function Finanzas() {
             value={filtroFechaFin}
             onChange={(e) => setFiltroFechaFin(e.target.value)}
           />
-          <SafeChip label={`${filtradas.length} registros`} color="primary" variant="outlined" />
+          <Chip label={`${filtradas.length} registros`} color="primary" variant="outlined" />
         </Box>
       </Paper>
 
@@ -212,7 +212,7 @@ export default function Finanzas() {
               {filtradas.map((t) => (
                 <TableRow key={t.id} hover>
                   <TableCell>{t.fecha}</TableCell>
-                  <TableCell><SafeChip label={t.tipo === "ingreso" ? "Ingreso" : "Egreso"} color={t.tipo === "ingreso" ? "success" : "error"} size="small" /></TableCell>
+                  <TableCell><Chip label={t.tipo === "ingreso" ? "Ingreso" : "Egreso"} color={t.tipo === "ingreso" ? "success" : "error"} size="small" /></TableCell>
                   <TableCell sx={{ textTransform: "capitalize" }}>{t.categoria}</TableCell>
                   <TableCell>{t.descripcion || "-"}</TableCell>
                   <TableCell sx={{ fontWeight: 700 }}>{FORMATO_MONEDA.format(Number(t.monto))}</TableCell>
@@ -277,4 +277,3 @@ export default function Finanzas() {
   );
 }
 
-import { SafeChip } from "../components/SafeChip";

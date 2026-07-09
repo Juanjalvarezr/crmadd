@@ -8,7 +8,6 @@ import {
   TableHead, TableRow, IconButton, Tooltip, Snackbar, Alert,
   Fade, Grid, Card, CardContent, InputAdornment
 } from "@mui/material";
-import SafeChip from "../components/SafeChip";
 import {
   FiPlus, FiDownload, FiEye, FiEdit, FiTrash2, FiX, FiSearch,
   FiMessageSquare, FiMail, FiFilter, FiSend, FiFileText, FiShoppingCart, FiCpu
@@ -416,10 +415,10 @@ export default function Facturacion() {
                       <TableCell sx={{ fontWeight: 600 }}>{item.numero}</TableCell>
                       <TableCell>{cliente?.nombre || '-'}</TableCell>
                       <TableCell>{proyecto?.nombre || '-'}</TableCell>
-                      <TableCell><SafeChip label={item.tipo} size="small" /></TableCell>
+                      <TableCell><Chip label={item.tipo} size="small" /></TableCell>
                       <TableCell>{item.moneda} {formatCOP(item.total)}</TableCell>
                       <TableCell>
-                        <SafeChip
+                        <Chip
                           label={item.estado}
                           size="small"
                           sx={{

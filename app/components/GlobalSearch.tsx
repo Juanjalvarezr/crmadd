@@ -108,7 +108,7 @@ export default function GlobalSearch({ open, onClose }: { open: boolean, onClose
                 </ListItemIcon>
                 <ListItemText 
                   primary={item.nombre} 
-                  secondary={<SafeChip label={item.tipo} size="small" sx={{ height: 16, fontSize: '0.6rem' }} />} 
+                  secondary={<Chip label={item.tipo} size="small" sx={{ height: 16, fontSize: '0.6rem' }} />} 
                 />
                 <FiZap size={14} color="#ddd" />
               </ListItem>

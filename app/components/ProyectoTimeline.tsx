@@ -2,7 +2,6 @@ import React, { useMemo } from "react";
 import {
   Box, Typography, Paper, Chip, Stack
 } from "@mui/material";
-import SafeChip from "../components/SafeChip";
 import {
   Calendar, Clock, CheckCircle, AlertTriangle
 } from "lucide-react";
@@ -44,20 +43,20 @@ export function ProyectoTimeline({ proyecto }: ProyectoTimelineProps) {
         </Typography>
 
         <Stack direction="row" spacing={2} sx={{ mb: 3, flexWrap: "wrap", gap: 1 }}>
-          <SafeChip
+          <Chip
             icon={<Clock size={16} />}
             label={`Inicio: ${format(new Date(proyecto.fechaInicio), "dd/MM/yyyy")}`}
             variant="outlined"
             size="small"
           />
-          <SafeChip
+          <Chip
             label={`Fin: ${format(new Date(proyecto.fechaFin), "dd/MM/yyyy")}`}
             variant="outlined"
             size="small"
             color={estaVencido ? "error" : estaProximo ? "warning" : "default"}
           />
           {estaVencido && (
-            <SafeChip
+            <Chip
               icon={<AlertTriangle size={16} />}
               label={`Vencido hace ${Math.abs(diasRestantes)} días`}
               color="error"
@@ -65,14 +64,14 @@ export function ProyectoTimeline({ proyecto }: ProyectoTimelineProps) {
             />
           )}
           {estaProximo && !estaVencido && (
-            <SafeChip
+            <Chip
               label={`Faltan ${diasRestantes} días`}
               color="warning"
               size="small"
             />
           )}
           {proyecto.estado === "completado" && (
-            <SafeChip
+            <Chip
               icon={<CheckCircle size={16} />}
               label="Completado"
               color="success"
@@ -114,7 +113,7 @@ export function ProyectoTimeline({ proyecto }: ProyectoTimelineProps) {
                       top: 2
                     }}
                   />
-                  <SafeChip
+                  <Chip
                     label={fase.label}
                     size="small"
                     sx={{

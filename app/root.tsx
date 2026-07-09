@@ -70,12 +70,13 @@ export default function Root() {
       }
     });
 
-    const p = themeRaw.palette as any;
-    for (const c of ['primary','secondary','success','warning','info','error','grey','text','background']) {
-      if (p[c] && !('contrastText' in p[c])) {
-        (p[c] as any).contrastText = '#ffffff';
-      }
-    }
+    // Close theme contrastText for all palette colors to avoid Chip/Button crashes
+    if (!themeRaw.palette.primary.contrastText) themeRaw.palette.primary.contrastText = '#ffffff';
+    if (!themeRaw.palette.secondary.contrastText) themeRaw.palette.secondary.contrastText = '#ffffff';
+    if (!themeRaw.palette.success.contrastText) themeRaw.palette.success.contrastText = '#ffffff';
+    if (!themeRaw.palette.warning.contrastText) themeRaw.palette.warning.contrastText = '#ffffff';
+    if (!themeRaw.palette.info.contrastText) themeRaw.palette.info.contrastText = '#ffffff';
+    if (!themeRaw.palette.error.contrastText) themeRaw.palette.error.contrastText = '#ffffff';
     return themeRaw;
   }, [themeMode]);
 

@@ -6,7 +6,6 @@ import {
   DialogActions, Chip, Alert, Snackbar, CircularProgress, Stack,
   Grid, Card, CardContent, CardActions, Divider, Tabs, Tab
 } from "@mui/material";
-import SafeChip from "../components/SafeChip";
 import { FiSend, FiSave, FiList, FiMail, FiPlus, FiEye, FiTrash2, FiBarChart } from "react-icons/fi";
 import { emailMarketingService } from "../services/database";
 
@@ -111,7 +110,7 @@ export default function EmailMarketing() {
               <TextField label="Contenido HTML" value={html} onChange={(e) => setHtml(e.target.value)} fullWidth multiline minRows={6} size="small" />
             </Stack>
             <Box sx={{ mt: 1.5, display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
-              <SafeChip label={template} size="small" sx={{ bgcolor: tpl.color, color: 'common.white' }} />
+              <Chip label={template} size="small" sx={{ bgcolor: tpl.color, color: 'common.white' }} />
               <Typography variant="caption" color="text.secondary">Vista previa automática</Typography>
             </Box>
           </Paper>
@@ -146,7 +145,7 @@ export default function EmailMarketing() {
                         <Typography variant="body2" sx={{ fontWeight: 700 }}>{c.asunto}</Typography>
                         <Typography variant="caption" color="text.secondary">{c.plantilla} • {c.fecha}</Typography>
                       </Box>
-                      <SafeChip size="small" label={`${c.apertura}% apertura`} color={c.apertura > 50 ? 'success' : 'warning'} />
+                      <Chip size="small" label={`${c.apertura}% apertura`} color={c.apertura > 50 ? 'success' : 'warning'} />
                     </Box>
                   </CardContent>
                 </Card>

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import {
   Box, Typography, Paper, List, ListItem, IconButton, Button, ListItemSecondaryAction, Chip, TextField, Stack
 } from "@mui/material";
-import SafeChip from "../components/SafeChip";
 import { Download, Trash2, Paperclip, Link2 } from "lucide-react";
 import type { Proyecto } from "../types/crm";
 
@@ -126,7 +125,7 @@ export function ProyectoAdjuntos({ proyecto }: ProyectoAdjuntosProps) {
                 <Typography variant="body2" sx={{ flexGrow: 1 }}>
                   {getFileIcon(adj.tipo)} {adj.nombre}
                 </Typography>
-                <SafeChip label={adj.tipo} size="small" sx={{ mr: 1, fontSize: "0.65rem" }} />
+                <Chip label={adj.tipo} size="small" sx={{ mr: 1, fontSize: "0.65rem" }} />
                 <ListItemSecondaryAction>
                   <IconButton
                     size="small"

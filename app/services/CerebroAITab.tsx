@@ -4,7 +4,6 @@ import {
   IconButton, Divider, Chip, List, ListItem, ListItemText, ListItemIcon, Card, CardContent, Grid,
   Dialog, DialogTitle, DialogContent, DialogActions
 } from "@mui/material";
-import SafeChip from "../components/SafeChip";
 import { FiZap, FiPlus, FiTrash2, FiEdit, FiCheck, FiList, FiDollarSign } from "react-icons/fi";
 import KnowledgeFileUploader from "./KnowledgeFileUploader";
 
@@ -76,7 +75,7 @@ export const CerebroAITab: React.FC<CerebroAITabProps> = ({
             }
           >
             <ListItemIcon>
-              <SafeChip label={regla.categoria} size="small" variant="outlined" color="primary" />
+              <Chip label={regla.categoria} size="small" variant="outlined" color="primary" />
             </ListItemIcon>
             <ListItemText primary={regla.instruccion} />
           </ListItem>
@@ -95,7 +94,7 @@ export const CerebroAITab: React.FC<CerebroAITabProps> = ({
                   <Typography variant="subtitle1" sx={{ fontWeight: 'bold', textTransform: 'capitalize' }}>
                     {prompt.slug.replace(/_/g, ' ')}
                   </Typography>
-                  <SafeChip label={`v${prompt.version}`} size="small" />
+                  <Chip label={`v${prompt.version}`} size="small" />
                 </Box>
                 <Button size="small" startIcon={<FiEdit />} onClick={() => onEditPrompt(prompt)}>
                   Editar Personalidad
@@ -120,7 +119,7 @@ export const CerebroAITab: React.FC<CerebroAITabProps> = ({
             <Card variant="outlined">
               <CardContent>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                  <SafeChip label={item.categoria} size="small" color="secondary" />
+                  <Chip label={item.categoria} size="small" color="secondary" />
                   <IconButton size="small" color="error" onClick={() => onDeleteConocimiento(item.id)}>
                     <FiTrash2 size={14} />
                   </IconButton>

@@ -33,7 +33,7 @@ export function SupabaseStatus() {
     return (
       <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
         <CircularProgress size={16} />
-        <SafeChip 
+        <Chip 
           label="Conectando a Supabase..." 
           size="small" 
           color="default" 
@@ -48,7 +48,7 @@ export function SupabaseStatus() {
       <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
         <FiWifi color="#4caf50" size={18} />
         <Tooltip title="Base de datos conectada y sincronizada">
-          <SafeChip 
+          <Chip 
             icon={<FiDatabase size={14} />}
             label={`Supabase • ${clientesCount} clientes`} 
             size="small" 
@@ -65,7 +65,7 @@ export function SupabaseStatus() {
     <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
       <FiWifiOff color="#f44336" size={18} />
       <Tooltip title="Verifica que la tabla 'clientes' exista en Supabase y la política RLS esté creada">
-        <SafeChip 
+        <Chip 
           label="Sin conexión a Supabase" 
           size="small" 
           color="error" 
