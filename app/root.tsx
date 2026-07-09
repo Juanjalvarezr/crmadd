@@ -63,6 +63,13 @@ export default function Root() {
       }
     });
 
+    // Force contrastText after createTheme to avoid Chip/Button crashes in production
+    themeRaw.palette.primary.contrastText = '#ffffff';
+    themeRaw.palette.secondary.contrastText = '#ffffff';
+    themeRaw.palette.success.contrastText = '#ffffff';
+    themeRaw.palette.warning.contrastText = '#ffffff';
+    themeRaw.palette.info.contrastText = '#ffffff';
+    themeRaw.palette.error.contrastText = '#ffffff';
     return themeRaw;
   }, [themeMode]);
 
