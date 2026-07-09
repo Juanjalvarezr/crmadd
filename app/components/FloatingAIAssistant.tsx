@@ -3,7 +3,7 @@ import { Box, IconButton, Paper, Typography, TextField, Button, Fade, Tooltip, S
 import { FiX, FiCpu } from 'react-icons/fi';
 import confetti from 'canvas-confetti';
 // Inyectamos la lógica a través de un servicio desacoplado
-import { aiService } from '../services/ai'; 
+import { aiService, ejecutarAccionSincrona } from '../services/ai'; 
 import { useChatStore, ProposalSchema } from '../store/useChatStore';
 
 export const openAiRoute = (route: string, entity?: string, label?: string) => {
@@ -61,8 +61,12 @@ export const FloatingAIAssistant = () => {
     const text = chatInput.trim();
     if (!text || isLoading) return;
 
-    const contexto = aiContext ? `\n\nCONTEXTO ACTUAL:\n- Ruta: ${aiContext.route || ''}\n- Entidad: ${aiContext.entity || ''}\n- Nombre/Referencia: ${aiContext.label || ''}` : '';
-    const fullText = text + contexto;
+    const contexto = aiContext ? `
+
+CONTEXTO ACTUAL:
+- Ruta: ${aiContext.route || ''}
+- Entidad: ${aiContext.entity || ''}
+- Nombre/Referencia: ${aiContext.label || ''}` : '';
 
     setChatMessages((m) => [...m, { role: 'user', text }]);
     setChatInput('');
@@ -70,15 +74,26 @@ export const FloatingAIAssistant = () => {
 
     try {
       const respuesta = await aiService.chatAsistente(text, contexto);
-
       const textoFinal = typeof respuesta === 'string' ? respuesta : JSON.stringify(respuesta);
-      setChatMessages((m) => [...m, { role: 'assistant', text: textoFinal }]);
+
+      let ejecucion = '';
+      try {
+        const res = await ejecutarAccionSincrona(text, textoFinal);
+        if (typeof res === 'string') ejecucion = res;
+      } catch {}
+
+      const mensajeFinal = ejecucion ? `${textoFinal}
+
+---
+✅ ${ejecucion}` : textoFinal;
+      setChatMessages((m) => [...m, { role: 'assistant', text: mensajeFinal }]);
     } catch (e: any) {
       setChatMessages((m) => [...m, { role: 'assistant', text: `Error: ${e?.message || 'No se pudo ejecutar'}` }]);
     } finally {
       setIsLoading(false);
     }
   };
+;
 
   const executeGenerateProposal = async () => {
     const validation = ProposalSchema.safeParse(proposalInput);

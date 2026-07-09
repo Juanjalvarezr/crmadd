@@ -298,43 +298,94 @@ export const ejecutarAccionSincrona = async (pregunta: string, respuestaIA: stri
       const { id, ...updates } = infoAccion.datos;
       if (id && (typeof id === "string" || typeof id === "number")) {
         const idLimpio = String(id).trim();
+        if (!confirm(`¿Actualizar el proyecto ${idLimpio}?`)) return "Acción cancelada por el usuario.";
         return await proyectosService.update(idLimpio, { ...updates, actualizadoEn: new Date().toISOString() } as any)
           .then(() => infoAccion.confirmacion)
           .catch(async (error: any) => {
-            await logsService.create({
+            await logsService.create?.({
               accion: "Error Actualización IA",
               modulo: "Proyectos",
               detalle: `Error al intentar actualizar ID ${idLimpio}: ${error.message}`,
               usuario: "Sistema IA"
-            });
+            }).catch(() => {});
             console.error("Error en acción IA:", error);
             return `⚠️ Error técnico al actualizar: ${error.message || "Verifica los datos"}`;
           });
       }
     }
 
+    if (infoAccion.accion === "CREAR_TAREA") {
+      return await safeCreate(() => tareasService.create({
+        titulo: String(infoAccion.datos.titulo || "Nueva Tarea IA"),
+        descripcion: String(infoAccion.datos.descripcion || ""),
+        prioridad: infoAccion.datos.prioridad || "Media",
+        estado: "Pendiente",
+        tipo: "Tarea",
+        cliente_id: infoAccion.datos.cliente_id && !isNaN(Number(infoAccion.datos.cliente_id)) ? Number(infoAccion.datos.cliente_id) : null,
+        proyecto_id: infoAccion.datos.proyecto_id || null,
+        fecha: new Date().toISOString().split("T")[0]
+      }), infoAccion.confirmacion, "tarea");
+    }
+
+    if (infoAccion.accion === "ENVIAR_CORREO") {
+      const { email, asunto, cuerpo } = infoAccion.datos || {};
+      if (!email || !asunto || !cuerpo) return "Faltan datos para enviar el correo.";
+      await emailService.sendRealEmail([email], asunto, cuerpo);
+      return infoAccion.confirmacion;
+    }
+
     if (infoAccion.accion === "CREAR_FACTURA") {
-      // ...existing code...
+      const datos = infoAccion.datos || {};
+      return await safeCreate(() => facturasService.create?.({
+        cliente_id: Number(datos.cliente_id),
+        proyecto_id: datos.proyecto_id || null,
+        numero: datos.numero || `FAC-${Date.now()}`,
+        tipo: datos.tipo || "electronica",
+        subtotal: Number(datos.subtotal || 0),
+        iva: Number(datos.iva || 0),
+        total: Number(datos.total || 0),
+        moneda: datos.moneda || "COP",
+        estado: datos.estado || "pendiente",
+        notas: datos.notas || ""
+      }), infoAccion.confirmacion, "factura");
+    }
+
+    if (infoAccion.accion === "GENERAR_PDF_FACTURA" && infoAccion.datos?.factura_id) {
+      return `📄 Se generaría el PDF de la factura ${infoAccion.datos.factura_id}. Requiere endpoint de PDF.`;
     }
 
     if (infoAccion.accion === "CREAR_CONTRATO") {
-      // ...existing code...
+      const datos = infoAccion.datos || {};
+      return await safeCreate(() => contratosService.create?.({
+        cliente_id: Number(datos.cliente_id),
+        proyecto_id: datos.proyecto_id || null,
+        tipo: datos.tipo || "servicios",
+        titulo: datos.titulo || "Contrato",
+        contenido: datos.contenido || "",
+        numero: datos.numero || `CTR-${Date.now()}`,
+        estado: datos.estado || "borrador",
+        valor: Number(datos.valor || 0)
+      }), infoAccion.confirmacion, "contrato");
     }
 
-    if (infoAccion.accion === "GENERAR_PDF_FACTURA") {
-      // ...existing code...
-    }
-
-    if (infoAccion.accion === "GENERAR_PDF_CONTRATO") {
-      // ...existing code...
+    if (infoAccion.accion === "GENERAR_PDF_CONTRATO" && infoAccion.datos?.contrato_id) {
+      return `📄 Se generaría el PDF del contrato ${infoAccion.datos.contrato_id}. Requiere endpoint de PDF.`;
     }
 
     if (infoAccion.accion === "ENVIAR_WHATSAPP") {
-      // ...existing code...
+      const { telefono, mensaje } = infoAccion.datos || {};
+      if (!telefono || !mensaje) return "Faltan datos para enviar WhatsApp.";
+      return `📱 Se enviaría WhatsApp a ${telefono}: "${mensaje}" (requiere integración).`;
     }
 
     if (infoAccion.accion === "ENVIAR_CORREO_CON_PDF") {
-      // ...existing code...
+      const { email, asunto, cuerpo, pdf_url } = infoAccion.datos || {};
+      if (!email || !asunto) return "Faltan datos para enviar el correo.";
+      const cuerpoFinal = `${cuerpo || ""}
+
+Documento: ${pdf_url || "(sin PDF)"}`;
+      await emailService.sendRealEmail([email], asunto, cuerpoFinal);
+      return infoAccion.confirmacion;
     }
 
     return infoAccion.confirmacion;
@@ -343,6 +394,16 @@ export const ejecutarAccionSincrona = async (pregunta: string, respuestaIA: stri
     throw new Error("No se pudo ejecutar la acción automática.");
   }
 };
+
+async function safeCreate(fn: () => Promise<any>, confirmacion: string, tipo: string) {
+  try {
+    await fn();
+    return confirmacion;
+  } catch (error: any) {
+    console.error(`Error creando ${tipo}:`, error);
+    return `⚠️ Error técnico al crear ${tipo}: ${error.message || "Verifica los datos"}`;
+  }
+}
 
 export interface AIPropuestaParams {
   clienteNombre: string;
