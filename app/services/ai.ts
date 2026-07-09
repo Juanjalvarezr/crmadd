@@ -30,7 +30,7 @@ const getLocalEmbeddingModel = () => {
     throw new Error("Falta la API Key de Gemini. Debes configurar VITE_GEMINI_API_KEY en tu archivo .env");
   }
   const genAI = new GoogleGenerativeAI(apiKey);
-  return genAI.getGenerativeModel({ model: "text-embedding-004" });
+  return genAI.getGenerativeModel({ model: "embedding-001" });
 };
 
 /**
