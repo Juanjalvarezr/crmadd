@@ -9,6 +9,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { FiChevronDown, FiChevronUp, FiMoreVertical } from "react-icons/fi";
+import SafeChip from "../components/SafeChip";
 
 export interface ExpandableCardProps {
   title: string;
@@ -131,7 +132,7 @@ const ExpandableCard: React.FC<ExpandableCardProps> = ({
       {/* Chips compactos */}
       <Box sx={{ display: "flex", gap: 0.75, mt: 1, flexWrap: "wrap" }}>
         {status && (
-          <Chip
+          <SafeChip
             label={status.label}
             color={status.color || "default"}
             size="small"
@@ -139,7 +140,7 @@ const ExpandableCard: React.FC<ExpandableCardProps> = ({
           />
         )}
         {priority && (
-          <Chip
+          <SafeChip
             label={priority.label}
             color={priority.color || "default"}
             size="small"
@@ -148,7 +149,7 @@ const ExpandableCard: React.FC<ExpandableCardProps> = ({
           />
         )}
         {date && (
-          <Chip
+          <SafeChip
             label={date}
             size="small"
             variant="outlined"

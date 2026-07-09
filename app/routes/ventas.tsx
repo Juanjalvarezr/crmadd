@@ -28,6 +28,7 @@ import { EmptyState } from "../components/EmptyState";
 import { useLocation } from "react-router";
 import type { Oportunidad, Cliente } from "../types/crm";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import SafeChip from "../components/SafeChip";
 
 export function meta() {
   return [
@@ -346,7 +347,7 @@ export default function Ventas() {
             Pipeline de Oportunidades
           </Typography>
           <IconButton size="small" onClick={() => openAiRoute('ventas', 'Oportunidades', 'Pipeline de ventas')}>
-            <Chip label="CPU" size="small" />
+            <SafeChip label="CPU" size="small" />
           </IconButton>
           <Button size="small" startIcon={<FiRefreshCw size={14} />} onClick={loadData} disabled={loading}>
             {loading ? "..." : "Recargar"}
@@ -453,7 +454,7 @@ export default function Ventas() {
                   <Paper key={col} sx={{ minWidth: 260, flex: 1, p: 1, bgcolor: '#f8f9fa', borderTop: `3px solid ${getEtapaColor(col) === 'primary' ? '#2196f3' : getEtapaColor(col) === 'success' ? '#4caf50' : getEtapaColor(col) === 'warning' ? '#ff9800' : '#e91e63'}` }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.25 }}>
                       <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "text.primary", letterSpacing: '-0.01em', fontSize: '0.8rem' }}>{col}</Typography>
-                      <Chip label={oppsCol.length} size="small" sx={{ height: 18, fontSize: '0.65rem', fontWeight: 600 }} />
+                      <SafeChip label={oppsCol.length} size="small" sx={{ height: 18, fontSize: '0.65rem', fontWeight: 600 }} />
                     </Box>
                     <Typography variant="caption" color="text.secondary" sx={{ mb: 1, fontWeight: 700, fontSize: '0.75rem' }}>
                       {formatValue(sumValor)}
@@ -516,7 +517,7 @@ export default function Ventas() {
                                     </Box>
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 0.5 }}>
                                       <Typography variant="body2" sx={{ fontWeight: 700, color: "success.dark" }}>{formatValue(opp.valor)}</Typography>
-                                      <Chip label={`${opp.probabilidad}%`} size="small" color={opp.probabilidad >= 75 ? 'success' : opp.probabilidad >= 40 ? 'warning' : 'error'} sx={{ height: 16, fontSize: '0.6rem', fontWeight: 600 }} />
+                                      <SafeChip label={`${opp.probabilidad}%`} size="small" color={opp.probabilidad >= 75 ? 'success' : opp.probabilidad >= 40 ? 'warning' : 'error'} sx={{ height: 16, fontSize: '0.6rem', fontWeight: 600 }} />
                                     </Box>
                                     <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.5, borderTop: '1px solid', borderColor: 'divider', pt: 0.5, mt: 0.5 }}>
                                       <IconButton size="small" onClick={() => handleEdit(opp)} sx={{ color: 'text.secondary', padding: 0.25 }} aria-label="Editar"><FiEdit size={12}/></IconButton>
@@ -588,7 +589,7 @@ export default function Ventas() {
                 renderValue={(selected: any) => (
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                     {selected.map((value: any) => (
-                      <Chip key={value} label={value} size="small" />
+                      <SafeChip key={value} label={value} size="small" />
                     ))}
                   </Box>
                 )}

@@ -2,6 +2,7 @@ import { Outlet, useNavigate, useLocation } from "react-router";
 import { useState } from "react";
 import { Box, Typography, Paper, Button, Stack, Chip } from "@mui/material";
 import { Folder, Plus, Play, Pause, CheckCircle, X } from "lucide-react";
+import SafeChip from "../components/SafeChip";
 
 type Estado = "planificacion" | "en_progreso" | "pausado" | "completado" | "cancelado";
 
@@ -51,7 +52,7 @@ export default function Kanban() {
           return (
             <Paper key={col.key} sx={{ minWidth: 260, flex: 1, borderRadius: 3, border: "1px solid", borderColor: "divider", p: 2 }}>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
-                <Chip label={items.length} size="small" sx={{ bgcolor: col.color, color: "#fff" }} />
+                <SafeChip label={items.length} size="small" sx={{ bgcolor: col.color, color: "#fff" }} />
                 <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{col.label}</Typography>
               </Box>
 

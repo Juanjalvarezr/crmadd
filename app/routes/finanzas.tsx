@@ -15,6 +15,7 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { transaccionesService } from "../services/database";
 import type { Transaccion } from "../types/crm";
+import SafeChip from "../components/SafeChip";
 
 const FORMATO_MONEDA = new Intl.NumberFormat("es-CO", {
   style: "currency",
@@ -184,7 +185,7 @@ export default function Finanzas() {
             value={filtroFechaFin}
             onChange={(e) => setFiltroFechaFin(e.target.value)}
           />
-          <Chip label={`${filtradas.length} registros`} color="primary" variant="outlined" />
+          <SafeChip label={`${filtradas.length} registros`} color="primary" variant="outlined" />
         </Box>
       </Paper>
 
@@ -212,7 +213,7 @@ export default function Finanzas() {
               {filtradas.map((t) => (
                 <TableRow key={t.id} hover>
                   <TableCell>{t.fecha}</TableCell>
-                  <TableCell><Chip label={t.tipo === "ingreso" ? "Ingreso" : "Egreso"} color={t.tipo === "ingreso" ? "success" : "error"} size="small" /></TableCell>
+                  <TableCell><SafeChip label={t.tipo === "ingreso" ? "Ingreso" : "Egreso"} color={t.tipo === "ingreso" ? "success" : "error"} size="small" /></TableCell>
                   <TableCell sx={{ textTransform: "capitalize" }}>{t.categoria}</TableCell>
                   <TableCell>{t.descripcion || "-"}</TableCell>
                   <TableCell sx={{ fontWeight: 700 }}>{FORMATO_MONEDA.format(Number(t.monto))}</TableCell>

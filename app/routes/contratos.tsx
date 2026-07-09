@@ -11,6 +11,7 @@ import { generarContratoPDF } from "../services/pdf";
 import { uploadPDFToStorage } from "../services/storage";
 import ScannerTarjetas from "../components/ScannerTarjetas";
 import type { Contrato, ContratoVersion, ContratoClausula } from "../types/crm";
+import SafeChip from "../components/SafeChip";
 
 const TIPOS_CONTRATO = [
   { value: "prestacion_servicios", label: "Prestación de servicios" },
@@ -378,9 +379,9 @@ export default function Contratos() {
                       <TableCell>{item.titulo}</TableCell>
                       <TableCell>{cliente?.nombre || '-'}</TableCell>
                       <TableCell>{proyecto?.nombre || '-'}</TableCell>
-                      <TableCell><Chip label={item.tipo} size="small" /></TableCell>
+                      <TableCell><SafeChip label={item.tipo} size="small" /></TableCell>
                       <TableCell>
-                        <Chip
+                        <SafeChip
                           label={item.estado}
                           size="small"
                           sx={{
@@ -395,7 +396,7 @@ export default function Contratos() {
                       <TableCell>
                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.2 }}>
                           {item.fecha_renovacion && <Typography variant="caption">{item.fecha_renovacion}</Typography>}
-                          {renovacionCercana && <Chip size="small" color="warning" label={`En ${Math.ceil((new Date(item.fecha_renovacion!).getTime() - Date.now()) / 86400000)} días`} />}
+                          {renovacionCercana && <SafeChip size="small" color="warning" label={`En ${Math.ceil((new Date(item.fecha_renovacion!).getTime() - Date.now()) / 86400000)} días`} />}
                         </Box>
                       </TableCell>
                       <TableCell align="right">
@@ -608,7 +609,7 @@ export default function Contratos() {
                 </Paper>
               )}
               {itemDetalle.bloqueado_post_firma && (
-                <Chip color="error" label="Bloqueado post-firma" />
+                <SafeChip color="error" label="Bloqueado post-firma" />
               )}
               <Divider />
               <Typography variant="subtitle2">Obligaciones</Typography>
@@ -616,7 +617,7 @@ export default function Contratos() {
               {(itemDetalle.obligaciones || []).map((o: any, idx: number) => (
                 <Box key={idx} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Typography variant="body2">{o.descripcion}</Typography>
-                  <Chip size="small" label={o.estado} />
+                  <SafeChip size="small" label={o.estado} />
                 </Box>
               ))}
               <Typography variant="subtitle2">Vencimientos</Typography>
@@ -624,7 +625,7 @@ export default function Contratos() {
               {(itemDetalle.vencimientos || []).map((v: any, idx: number) => (
                 <Box key={idx} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Typography variant="body2">{v.descripcion} - {v.fecha}</Typography>
-                  <Chip size="small" label={v.cumplido ? 'Cumplido' : 'Pendiente'} />
+                  <SafeChip size="small" label={v.cumplido ? 'Cumplido' : 'Pendiente'} />
                 </Box>
               ))}
             </Box>

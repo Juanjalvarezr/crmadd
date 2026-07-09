@@ -6,6 +6,7 @@ import { ExternalLink, FileText, ScrollText, Eye } from "lucide-react";
 import { facturasService } from "../services/facturacion";
 import { contratosService } from "../services/facturacion";
 import type { Proyecto } from "../types/crm";
+import SafeChip from "../components/SafeChip";
 
 function formatCOP(value: number) {
   return new Intl.NumberFormat("es-CO", {
@@ -98,7 +99,7 @@ export function ProyectoDocuments({ proyecto, onViewInvoice, onViewContract }: P
                     primary={<Typography variant="body2" sx={{ fontWeight: "bold" }}>#{f.numero || f.id}</Typography>}
                     secondary={
                       <Box sx={{ display: "flex", gap: 1, alignItems: "center", mt: 0.5 }}>
-                        <Chip
+                        <SafeChip
                           label={f.estado}
                           size="small"
                           color={getEstadoFacturaColor(f.estado) as any}
@@ -148,7 +149,7 @@ export function ProyectoDocuments({ proyecto, onViewInvoice, onViewContract }: P
                     primary={<Typography variant="body2" sx={{ fontWeight: "bold" }}>{c.titulo}</Typography>}
                     secondary={
                       <Box sx={{ display: "flex", gap: 1, alignItems: "center", mt: 0.5 }}>
-                        <Chip
+                        <SafeChip
                           label={c.estado}
                           size="small"
                           color={getEstadoContratoColor(c.estado) as any}

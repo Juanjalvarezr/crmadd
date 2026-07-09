@@ -6,6 +6,7 @@ import {
   FiFileText, FiDollarSign, FiTarget, FiChevronLeft, FiChevronRight, FiFolder
 } from "react-icons/fi";
 import { Link, useLocation } from "react-router";
+import SafeChip from "../components/SafeChip";
 
 const DRAWER_WIDTH = 260;
 
@@ -166,7 +167,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <Typography variant="h6" sx={{ fontWeight: "bold", letterSpacing: 4, color: "#9c27b0", fontSize: "1.1rem", mb: 1 }}>
               DIGITAL
             </Typography>
-            <Chip 
+            <SafeChip 
               label="Agencia Inteligente" 
               size="small" 
               sx={{ 
@@ -414,7 +415,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </Tooltip>
         ) : (
           <Box>
-            <Chip 
+            <SafeChip 
               label="v2.0.1" 
               size="small" 
               variant="outlined"

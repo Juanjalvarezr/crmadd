@@ -17,6 +17,7 @@ import { configuracionService, reglasAIService, conocimientoService, promptsAISe
 import { useNotificationStore } from "../store/useNotificationStore";
 import { EmpresaTab } from "../services/EmpresaTab";
 import { CerebroAITab } from "../services/CerebroAITab";
+import SafeChip from "../components/SafeChip";
 
 // Tipos para configuración
 interface EmpresaConfig {
@@ -932,7 +933,7 @@ export default function Configuracion() {
             </Typography>
           </Box>
           {dbStatus && (
-            <Chip 
+            <SafeChip 
               icon={dbStatus.success ? <FiCheck /> : <FiAlertCircle />} 
               label={dbStatus.success ? "Conectado a Supabase" : "Error de Conexión"} 
               color={dbStatus.success ? "success" : "error"}

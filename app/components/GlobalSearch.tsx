@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router'; // Hook de React Router
 import { tareasService } from '../services/supabase'; // Mantener servicios no modularizados
 import { clientesService } from '../services/clientesService'; // Importar desde el nuevo módulo
 import { proyectosService } from '../services/proyectosService'; // Importar desde el nuevo módulo
+import SafeChip from "../components/SafeChip";
 
 export default function GlobalSearch({ open, onClose }: { open: boolean, onClose: () => void }) {
   const [query, setQuery] = useState('');
@@ -108,7 +109,7 @@ export default function GlobalSearch({ open, onClose }: { open: boolean, onClose
                 </ListItemIcon>
                 <ListItemText 
                   primary={item.nombre} 
-                  secondary={<Chip label={item.tipo} size="small" sx={{ height: 16, fontSize: '0.6rem' }} />} 
+                  secondary={<SafeChip label={item.tipo} size="small" sx={{ height: 16, fontSize: '0.6rem' }} />} 
                 />
                 <FiZap size={14} color="#ddd" />
               </ListItem>

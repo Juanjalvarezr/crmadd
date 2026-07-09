@@ -33,6 +33,7 @@ import { EmptyState } from "../components/EmptyState";
 import { useLocation } from "react-router"; // Corregido: estaba como string en algunos lugares
 import ScannerTarjetas from "../components/ScannerTarjetas";
 import type { Cliente } from "../types/crm";
+import SafeChip from "../components/SafeChip";
 
 const isLeadFrio = (fechaStr: string) => {
   const fecha = new Date(fechaStr);
@@ -726,13 +727,13 @@ export default function Clientes() {
           alignItems: "center",
           flexWrap: "wrap"
         }}>
-          <Chip 
+          <SafeChip 
             label={`${clientes.length} clientes`} 
             color="primary" 
             size="small" 
             sx={{ fontWeight: 500 }}
           />
-          <Chip 
+          <SafeChip 
             label={`${clientesActivos} activos`} 
             color="success" 
             size="small"
@@ -1049,7 +1050,7 @@ export default function Clientes() {
                               <FiAlertCircle size={16} color="#f44336" />
                             </Tooltip>
                           )}
-                          <Chip
+                          <SafeChip
                             label={cliente.estado}
                             color={getEstadoColor(cliente.estado)}
                             size="small"
@@ -1394,7 +1395,7 @@ export default function Clientes() {
                     </Box>
                     <Box>
                       <Typography variant="subtitle2">Estado</Typography>
-                      <Chip size="small" label={selectedClient.estado} color={selectedClient.estado === 'Activo' ? 'success' : 'default'} />
+                      <SafeChip size="small" label={selectedClient.estado} color={selectedClient.estado === 'Activo' ? 'success' : 'default'} />
                     </Box>
                   </Box>
                 </Stack>
@@ -1403,9 +1404,9 @@ export default function Clientes() {
               {detailTab === 1 && (
                 <Stack spacing={1.5} sx={{ mt: 1 }}>
                   <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                    <Chip size="small" label={`${relatedProyectos.length} proyectos`} color="primary" variant="outlined" />
-                    <Chip size="small" label={`${relatedOportunidades.length} oportunidades`} color="secondary" variant="outlined" />
-                    <Chip size="small" label={`${relatedTareas.length} tareas`} color="warning" variant="outlined" />
+                    <SafeChip size="small" label={`${relatedProyectos.length} proyectos`} color="primary" variant="outlined" />
+                    <SafeChip size="small" label={`${relatedOportunidades.length} oportunidades`} color="secondary" variant="outlined" />
+                    <SafeChip size="small" label={`${relatedTareas.length} tareas`} color="warning" variant="outlined" />
                   </Box>
                   {relatedProyectos.length === 0 && relatedOportunidades.length === 0 && relatedTareas.length === 0 && (
                     <Typography variant="body2" color="text.secondary">Sin historial vinculado.</Typography>

@@ -62,6 +62,7 @@ import ExpandableCard from "../components/ExpandableCard";
 import type { Proyecto, TareaProyecto, RecursoProyecto, PlanItem } from "../types/crm";
 import { aiService } from "../services/ai";
 import { useNotificationStore } from "../store/useNotificationStore";
+import SafeChip from "../components/SafeChip";
 
 // Esquema de validación con Zod
 const proyectoSchema = z.object({
@@ -1073,7 +1074,7 @@ export default function Proyectos() {
               {proyectosVencimiento.map(p => {
                 const dias = differenceInCalendarDays(new Date(p.fechaFin), new Date());
                 return (
-                  <Chip
+                  <SafeChip
                     key={p.id}
                     label={`${p.nombre} (${dias <= 0 ? Math.abs(dias) + " días vencido" : dias + " días restantes"})`}
                     size="small"
@@ -1164,7 +1165,7 @@ export default function Proyectos() {
                     <Typography variant="body2" sx={{ fontWeight: "bold" }}>
                       Cliente: {proyecto.clienteNombre}
                     </Typography>
-                    <Chip
+                    <SafeChip
                       label={proyecto.faseAdministrativa || "operacion"}
                       size="small"
                       variant="outlined"
@@ -1179,7 +1180,7 @@ export default function Proyectos() {
                   </Box>
                   <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
                     {(proyecto.servicios || []).map((servicio, index) => (
-                      <Chip
+                      <SafeChip
                         key={index}
                         label={servicio}
                         size="small"
@@ -1280,7 +1281,7 @@ export default function Proyectos() {
                 renderValue={(selected) => (
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                     {(selected as string[]).map((value) => (
-                      <Chip key={value} label={value} size="small" />
+                      <SafeChip key={value} label={value} size="small" />
                     ))}
                   </Box>
                 )}
@@ -1427,7 +1428,7 @@ export default function Proyectos() {
                         <Typography variant="subtitle2" gutterBottom>💰 Control de Pagos (50/50)</Typography>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                           <Typography variant="caption">Anticipo (50%): {formatCOP(selectedProyecto.presupuesto * 0.5)}</Typography>
-                          <Chip
+                          <SafeChip
                             label={selectedProyecto.montoPagado >= (selectedProyecto.presupuesto * 0.5) ? "RECIBIDO" : "PENDIENTE"}
                             size="small"
                             variant={selectedProyecto.montoPagado >= (selectedProyecto.presupuesto * 0.5) ? "filled" : "outlined"}
@@ -1499,7 +1500,7 @@ export default function Proyectos() {
                   </Box>
                   <Box sx={{ display: 'flex', gap: 1, mb: 4, flexWrap: 'wrap' }}>
                     {["propuesta", "contrato", "onboarding", "operacion", "capacitacion", "renovacion"].map((fase) => (
-                      <Chip 
+                      <SafeChip 
                         key={fase}
                         label={fase.toUpperCase()}
                         onClick={() => handleCambiarFase(selectedProyecto, fase as any)}

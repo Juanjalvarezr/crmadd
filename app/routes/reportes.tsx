@@ -4,7 +4,7 @@ import type { Route } from "./+types/reportes";
 import Grid from "@mui/material/Grid";
 import { 
   Box, Typography, Paper, Button, TextField, InputAdornment, FormControl, InputLabel, Select, MenuItem,
-  IconButton, Alert, Snackbar, CircularProgress, Card, CardContent, Divider, Chip
+  IconButton, Alert, Snackbar, CircularProgress, Card, CardContent, Divider
 } from "@mui/material";
 import { 
   FiDownload, FiRefreshCw, FiFilter, FiBarChart, FiTrendingUp, FiDollarSign, FiUsers, FiCalendar,
@@ -12,6 +12,7 @@ import {
 } from "react-icons/fi";
 import { format, startOfMonth, endOfMonth, subMonths, startOfYear, endOfYear, getMonth, getYear } from "date-fns";
 import { es } from "date-fns/locale";
+import SafeChip from "../components/SafeChip";
 import {
   tareasService,
   clientesService,
@@ -478,7 +479,7 @@ export default function Reportes() {
                       }}>
                         {metrica.icono}
                       </Box>
-                      <Chip
+                      <SafeChip
                         label={`${metrica.cambio > 0 ? "+" : ""}${metrica.cambio}%`}
                         size="small"
                         color={metrica.cambio > 0 ? "success" : "error"}
@@ -614,7 +615,7 @@ export default function Reportes() {
                             <Box component="td" sx={{ padding: "8px", textAlign: "right" }}>{data.proyectosCompletados}</Box>
                             <Box component="td" sx={{ padding: "8px", textAlign: "right" }}>{data.tasaConversion}%</Box>
                             <Box component="td" sx={{ padding: "8px", textAlign: "center" }}>
-                              <Chip
+                              <SafeChip
                                 icon={data.tasaConversion > 20 ? <FiCheckCircle size={14} /> : <FiAlertCircle size={14} />}
                                 label={data.tasaConversion > 20 ? "Bueno" : "Regular"}
                                 color={data.tasaConversion > 20 ? "success" : "warning"}
@@ -679,7 +680,7 @@ export default function Reportes() {
                     <Box sx={{ p: 1.5, border: "1px solid #e0e0e0", borderRadius: 1 }}>
                       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.5 }}>
                         <Typography variant="body2" sx={{ fontWeight: "bold" }}>Meta Mensual</Typography>
-                        <Chip label="En Progreso" color="info" size="small" />
+                        <SafeChip label="En Progreso" color="info" size="small" />
                       </Box>
                       <Typography variant="body2" color="text.secondary">
                         Alcanzar $50M COP en ingresos
@@ -693,7 +694,7 @@ export default function Reportes() {
                     <Box sx={{ p: 1.5, border: "1px solid #e0e0e0", borderRadius: 1 }}>
                       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.5 }}>
                         <Typography variant="body2" sx={{ fontWeight: "bold" }}>Meta Trimestral</Typography>
-                        <Chip label="En Camino" color="warning" size="small" />
+                        <SafeChip label="En Camino" color="warning" size="small" />
                       </Box>
                       <Typography variant="body2" color="text.secondary">
                         150 nuevos clientes

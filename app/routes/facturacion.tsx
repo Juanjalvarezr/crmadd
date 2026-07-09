@@ -18,6 +18,7 @@ import { proyectosService } from "../services/database";
 import { generarFacturaPDF } from "../services/pdf";
 import { uploadPDFToStorage } from "../services/storage";
 import ScannerTarjetas from "../components/ScannerTarjetas";
+import SafeChip from "../components/SafeChip";
 
 export default function Facturacion() {
   const [items, setItems] = useState<any[]>([]);
@@ -415,10 +416,10 @@ export default function Facturacion() {
                       <TableCell sx={{ fontWeight: 600 }}>{item.numero}</TableCell>
                       <TableCell>{cliente?.nombre || '-'}</TableCell>
                       <TableCell>{proyecto?.nombre || '-'}</TableCell>
-                      <TableCell><Chip label={item.tipo} size="small" /></TableCell>
+                      <TableCell><SafeChip label={item.tipo} size="small" /></TableCell>
                       <TableCell>{item.moneda} {formatCOP(item.total)}</TableCell>
                       <TableCell>
-                        <Chip
+                        <SafeChip
                           label={item.estado}
                           size="small"
                           sx={{

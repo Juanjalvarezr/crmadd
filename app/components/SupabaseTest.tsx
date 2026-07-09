@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Box, Chip, Tooltip, CircularProgress } from '@mui/material';
 import { FiWifi, FiWifiOff, FiDatabase } from 'react-icons/fi';
 import { supabase } from '../services/supabase';
+import SafeChip from "../components/SafeChip";
 
 export function SupabaseStatus() {
   const [status, setStatus] = useState<'checking' | 'connected' | 'error'>('checking');
@@ -33,7 +34,7 @@ export function SupabaseStatus() {
     return (
       <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
         <CircularProgress size={16} />
-        <Chip 
+        <SafeChip 
           label="Conectando a Supabase..." 
           size="small" 
           color="default" 
@@ -48,7 +49,7 @@ export function SupabaseStatus() {
       <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
         <FiWifi color="#4caf50" size={18} />
         <Tooltip title="Base de datos conectada y sincronizada">
-          <Chip 
+          <SafeChip 
             icon={<FiDatabase size={14} />}
             label={`Supabase • ${clientesCount} clientes`} 
             size="small" 
@@ -65,7 +66,7 @@ export function SupabaseStatus() {
     <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
       <FiWifiOff color="#f44336" size={18} />
       <Tooltip title="Verifica que la tabla 'clientes' exista en Supabase y la política RLS esté creada">
-        <Chip 
+        <SafeChip 
           label="Sin conexión a Supabase" 
           size="small" 
           color="error" 

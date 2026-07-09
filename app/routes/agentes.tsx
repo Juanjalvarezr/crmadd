@@ -8,6 +8,7 @@ import {
   Select, MenuItem, FormControl, InputLabel, Switch, CircularProgress
 } from "@mui/material";
 import { FiPlus, FiEdit3, FiTrash2, FiX } from "react-icons/fi";
+import SafeChip from "../components/SafeChip";
 
 export function meta() {
   return [{ title: "Agentes | CRM Agencia" }];
@@ -151,15 +152,15 @@ export default function Agentes() {
                       <Typography sx={{ fontWeight: 600 }}>{a.nombre}</Typography>
                       <Typography variant="caption" color="text.secondary">{a.descripcion}</Typography>
                     </TableCell>
-                    <TableCell><Chip size="small" label={a.tipo} /></TableCell>
-                    <TableCell><Chip size="small" label={a.estado} color={a.estado === "activo" ? "success" : a.estado === "pausado" ? "warning" : "default"} /></TableCell>
-                    <TableCell><Chip size="small" label={a.trigger} variant="outlined" /></TableCell>
+                    <TableCell><SafeChip size="small" label={a.tipo} /></TableCell>
+                    <TableCell><SafeChip size="small" label={a.estado} color={a.estado === "activo" ? "success" : a.estado === "pausado" ? "warning" : "default"} /></TableCell>
+                    <TableCell><SafeChip size="small" label={a.trigger} variant="outlined" /></TableCell>
                     <TableCell><Switch size="small" checked={a.activo} onChange={async (_, checked) => { await agentesService.update(a.id, { activo: checked }); load(); }} /></TableCell>
                     <TableCell>
                       <Box sx={{ display: "flex", gap: 0.5, flexWrap: "wrap" }}>
                         {(a.rutas_activas ?? []).map((ruta) => {
                           const found = RUTAS_DISPONIBLES.find(r => r.value === ruta);
-                          return <Chip key={ruta} size="small" label={found ? found.label : ruta} variant="outlined" sx={{ fontSize: "0.7rem", height: 24 }} />;
+                          return <SafeChip key={ruta} size="small" label={found ? found.label : ruta} variant="outlined" sx={{ fontSize: "0.7rem", height: 24 }} />;
                         })}
                         {(!a.rutas_activas || a.rutas_activas.length === 0) && <Typography variant="caption" color="text.secondary">—</Typography>}
                       </Box>
@@ -213,7 +214,7 @@ export default function Agentes() {
               {RUTAS_DISPONIBLES.map((r) => {
                 const active = form.rutas_activas.includes(r.value);
                 return (
-                  <Chip
+                  <SafeChip
                     key={r.value}
                     label={r.label}
                     size="small"

@@ -4,6 +4,7 @@ import {
 } from "@mui/material";
 import { Download, Trash2, Paperclip, Link2 } from "lucide-react";
 import type { Proyecto } from "../types/crm";
+import SafeChip from "../components/SafeChip";
 
 interface Adjunto {
   id: string;
@@ -125,7 +126,7 @@ export function ProyectoAdjuntos({ proyecto }: ProyectoAdjuntosProps) {
                 <Typography variant="body2" sx={{ flexGrow: 1 }}>
                   {getFileIcon(adj.tipo)} {adj.nombre}
                 </Typography>
-                <Chip label={adj.tipo} size="small" sx={{ mr: 1, fontSize: "0.65rem" }} />
+                <SafeChip label={adj.tipo} size="small" sx={{ mr: 1, fontSize: "0.65rem" }} />
                 <ListItemSecondaryAction>
                   <IconButton
                     size="small"
