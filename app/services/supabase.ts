@@ -122,25 +122,30 @@ export type Tables = {
     descripcion: string;
     cliente_id?: number;
     cliente_nombre?: string;
-    servicios: string[]; // Corregido: estaba como string en algunos lugares
-    oportunidad_id?: number; // Para trazabilidad desde la venta
+    servicios: string[];
+    oportunidad_id?: number;
     estado: string;
     prioridad: string;
     fecha_inicio: string;
     fecha_fin: string;
     progreso: number;
     presupuesto: number;
-    costo_actual: number; // Corregido: estaba como string en algunos lugares
+    costo_actual: number;
     tareas: any[];
     recursos: any[];
-    monto_pagado: number; // Para rastrear el 50% inicial
-    onboarding_checklist: any; // Checkbox de contraseñas, accesos, etc.
+    monto_pagado: number;
+    onboarding_checklist: any;
     estado_pago: "pendiente" | "parcial" | "pagado" | "vencido";
     metodo_pago?: "nequi" | "daviplata" | "transferencia" | "efectivo";
     fase_administrativa: "propuesta" | "contrato" | "onboarding" | "operacion" | "capacitacion" | "renovacion";
-    plan_contenido: any; // Para Reels, Stories e ideas
+    plan_contenido: any;
     creado_en: string;
-    actualizado_en: string; // Corregido: estaba como string en algunos lugares
+    actualizado_en: string;
+    estrategia?: any;
+    canales?: any;
+    contrato_url?: string;
+    facturacion_detalle?: any;
+    codigo?: string;
   };
   campanas_email: { // Ya existente
     id: string;
