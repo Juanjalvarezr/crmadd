@@ -169,7 +169,7 @@ export default function Calendario() {
       </Paper>
 
       <Paper sx={{ p: 2, height: '100%', minHeight: { xs: 'calc(100vh - 180px)', sm: '600px' }, borderRadius: 2, overflow: 'hidden' }}>
-        <Box sx={{ height: '100%', minHeight: { xs: 'calc(100vh - 220px)', sm: '520px' } }}>
+        <Box sx={{ height: '100%', minHeight: { xs: 'calc(100vh - 260px)', sm: '520px' }, overflow: 'hidden', '& .react-big-calendar': { height: '100%', minHeight: { xs: 'calc(100vh - 300px)', sm: '520px' } } }}>
           <Calendar
             localizer={localizer}
             events={events}

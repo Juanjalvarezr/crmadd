@@ -1,14 +1,15 @@
-import { Outlet, useNavigate, useLocation } from "react-router";
-import { Welcome } from "../welcome/welcome";
+import { useEffect } from "react";
+import { useNavigate } from "react-router";
 
 export function meta() {
   return [
-    { title: "New React Router App" },
-    { name: "description", content: "Welcome to React Router!" },
+    { title: "DESEO DIGITAL | CRM" },
+    { name: "description", content: "CRM Agencia" },
   ];
 }
 
 export default function Home() {
-  return <Welcome />;
+  const navigate = useNavigate();
+  useEffect(() => { navigate("/dashboard", { replace: true }); }, [navigate]);
+  return null;
 }
-
