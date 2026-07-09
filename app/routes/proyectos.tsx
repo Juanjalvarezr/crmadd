@@ -1164,7 +1164,7 @@ export default function Proyectos() {
                     <Typography variant="body2" sx={{ fontWeight: "bold" }}>
                       Cliente: {proyecto.clienteNombre}
                     </Typography>
-                    <Chip
+                    <SafeChip
                       label={proyecto.faseAdministrativa || "operacion"}
                       size="small"
                       variant="outlined"
