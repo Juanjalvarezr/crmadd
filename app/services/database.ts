@@ -239,30 +239,26 @@ export const authService = {
 };
 
 export const transaccionesService = {
-  getAll: () => withTimeout(new Promise((resolve, reject) => {
-    supabase.from('transacciones').select('*').order('created_at', { ascending: false }).then(({data, error}) => {
-      if (error) return reject(new Error(error.message));
-      resolve(data || []);
-    }).catch(reject);
-  }), 'transaccionesService.getAll').catch(() => []),
-  create: (item: any) => withTimeout(new Promise((resolve, reject) => {
-    supabase.from('transacciones').insert(item).select().single().then(({data, error}) => {
-      if (error) return reject(new Error(error.message));
-      resolve(data);
-    }).catch(reject);
-  }), 'transaccionesService.create'),
-  update: (id: string, updates: any) => withTimeout(new Promise((resolve, reject) => {
-    supabase.from('transacciones').update(updates).eq('id', id).select().single().then(({data, error}) => {
-      if (error) return reject(new Error(error.message));
-      resolve(data);
-    }).catch(reject);
-  }), 'transaccionesService.update'),
-  delete: (id: number) => withTimeout(new Promise((resolve, reject) => {
-    supabase.from('transacciones').delete().eq('id', id).then(({error}) => {
-      if (error) return reject(new Error(error.message));
-      resolve(true);
-    }).catch(reject);
-  }), 'transaccionesService.delete'),
+  getAll: () => withTimeout((async () => {
+    const { data, error } = await supabase.from('transacciones').select('*').order('created_at', { ascending: false });
+    if (error) throw new Error(error.message);
+    return data || [];
+  })(), 'transaccionesService.getAll').catch(() => []),
+  create: (item: any) => withTimeout((async () => {
+    const { data, error } = await supabase.from('transacciones').insert(item).select().single();
+    if (error) throw new Error(error.message);
+    return data;
+  })(), 'transaccionesService.create'),
+  update: (id: string, updates: any) => withTimeout((async () => {
+    const { data, error } = await supabase.from('transacciones').update(updates).eq('id', id).select().single();
+    if (error) throw new Error(error.message);
+    return data;
+  })(), 'transaccionesService.update'),
+  delete: (id: number) => withTimeout((async () => {
+    const { error } = await supabase.from('transacciones').delete().eq('id', id);
+    if (error) throw new Error(error.message);
+    return true;
+  })(), 'transaccionesService.delete'),
 };
 
 export async function testConnection() {
@@ -317,9 +313,21 @@ export const emailMarketingService = {
 };
 
 export const notificacionesService = {
-  getAll: () => withTimeout(supabase.from('notificaciones').select('*').order('created_at', { ascending: false }), 'notificacionesService.getAll').then(r => r.data || []),
-  create: (item: any) => withTimeout(supabase.from('notificaciones').insert(item).select().single(), 'notificacionesService.create').then(r => r.data),
-  markRead: (id: string) => withTimeout(supabase.from('notificaciones').update({ leida: true }).eq('id', id), 'notificacionesService.markRead'),
+  getAll: () => withTimeout((async () => {
+    const { data, error } = await supabase.from('notificaciones').select('*').order('created_at', { ascending: false });
+    if (error) throw error;
+    return data || [];
+  })(), 'notificacionesService.getAll'),
+  create: (item: any) => withTimeout((async () => {
+    const { data, error } = await supabase.from('notificaciones').insert(item).select().single();
+    if (error) throw error;
+    return data;
+  })(), 'notificacionesService.create'),
+  markRead: (id: string) => withTimeout((async () => {
+    const { data, error } = await supabase.from('notificaciones').update({ leida: true }).eq('id', id);
+    if (error) throw error;
+    return data;
+  })(), 'notificacionesService.markRead'),
 };
 
 

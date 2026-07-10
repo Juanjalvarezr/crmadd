@@ -29,6 +29,7 @@ import { useLocation } from "react-router";
 import type { Oportunidad, Cliente } from "../types/crm";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import SafeChip from "../components/SafeChip";
+import { openAiRoute } from "../components/FloatingAIAssistant";
 
 export function meta() {
   return [
@@ -92,7 +93,7 @@ export default function Ventas() {
     nombre: "",
     cliente_nombre: "",
     valor: 0,
-    etapa: "Prospección" as "Prospección" | "Propuesta" | "Negociación" | "Cierre",
+    etapa: "Prospección" as Oportunidad["etapa"],
     probabilidad: 25,
     servicios_interes: [] as string[],
   });
@@ -243,11 +244,16 @@ export default function Ventas() {
     setLoadingPropuesta(true);
     setOpenPropuestaModal(true);
     try {
+      const clienteInfo = clientes.find((c) => c.id === opp.cliente_id);
       const propuesta = await aiService.generarPropuesta({
         clienteNombre: opp.cliente_nombre,
-        clienteEmpresa: opp.cliente_nombre, // Por ahora usamos el mismo
+        clienteEmpresa: clienteInfo?.empresa || opp.cliente_nombre,
         servicios: opp.servicios_interes || ["Servicios Digitales 360"],
-        notasAdicionales: `Valor: ${formatCOP(opp.valor)}. Etapa: ${opp.etapa}`
+        notasAdicionales: `Valor: ${formatCOP(opp.valor)}. Etapa: ${opp.etapa}`,
+        dolorNecesidad: clienteInfo?.dolores || "",
+        presenciaRedes: clienteInfo?.origen || "",
+        objetivos: clienteInfo?.necesidades || "",
+        presupuestoEstimado: opp.valor
       });
       setPropuestaPropuesta(propuesta);
       
@@ -284,16 +290,16 @@ export default function Ventas() {
 
   const handleSave = async () => {
     if (!formData.nombre || !formData.cliente_nombre || formData.cliente_nombre === "__otro__") {
-      setSnackbar({ open: true, message: "Debes asignar un cliente real a la oportunidad.", severity: "error" });
+      showNotification("Debes asignar un cliente real a la oportunidad.", "error");
       return;
     }
 
     if (formData.valor <= 0) {
-      setSnackbar({ open: true, message: "Asigna un valor estimado para proyectar tus ingresos.", severity: "warning" });
+      showNotification("Asigna un valor estimado para proyectar tus ingresos.", "warning");
     }
 
     if ((formData.etapa === "Negociación" || formData.etapa === "Cierre") && formData.valor <= 0) {
-      setSnackbar({ open: true, message: "Se requiere un valor mayor a 0 para esta etapa.", severity: "error" });
+      showNotification("Se requiere un valor mayor a 0 para esta etapa.", "error");
       return;
     }
 
@@ -454,7 +460,7 @@ export default function Ventas() {
                   <Paper key={col} sx={{ minWidth: 260, flex: 1, p: 1, bgcolor: '#f8f9fa', borderTop: `3px solid ${getEtapaColor(col) === 'primary' ? '#2196f3' : getEtapaColor(col) === 'success' ? '#4caf50' : getEtapaColor(col) === 'warning' ? '#ff9800' : '#e91e63'}` }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.25 }}>
                       <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "text.primary", letterSpacing: '-0.01em', fontSize: '0.8rem' }}>{col}</Typography>
-                      <SafeChip label={oppsCol.length} size="small" sx={{ height: 18, fontSize: '0.65rem', fontWeight: 600 }} />
+                      <SafeChip label={String(oppsCol.length)} size="small" sx={{ height: 18, fontSize: '0.65rem', fontWeight: 600 }} />
                     </Box>
                     <Typography variant="caption" color="text.secondary" sx={{ mb: 1, fontWeight: 700, fontSize: '0.75rem' }}>
                       {formatValue(sumValor)}

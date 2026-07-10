@@ -12,7 +12,8 @@ import {
   clientesService,
   oportunidadesService
 } from "./database";
-import type { Proyecto, Tarea } from "../types/crm";
+import type { Proyecto } from "../types/crm";
+import { facturasService, contratosService } from "./facturacion";
 
 // Inicializamos el SDK de Gemini. 
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
@@ -395,7 +396,7 @@ Documento: ${pdf_url || "(sin PDF)"}`;
   }
 };
 
-async function safeCreate(fn: () => Promise<any>, confirmacion: string, tipo: string) {
+async function safeCreate(fn: () => PromiseLike<any> | Promise<any>, confirmacion: string, tipo: string) {
   try {
     await fn();
     return confirmacion;

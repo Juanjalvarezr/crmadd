@@ -12,6 +12,7 @@ import { uploadPDFToStorage } from "../services/storage";
 import ScannerTarjetas from "../components/ScannerTarjetas";
 import type { Contrato, ContratoVersion, ContratoClausula } from "../types/crm";
 import SafeChip from "../components/SafeChip";
+import { openAiRoute } from "../components/FloatingAIAssistant";
 
 const TIPOS_CONTRATO = [
   { value: "prestacion_servicios", label: "Prestación de servicios" },

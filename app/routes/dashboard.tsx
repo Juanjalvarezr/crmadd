@@ -188,358 +188,203 @@ export default function Dashboard() {
   };
 
   return (
-    <Box>
-      <Box sx={{ 
-        mb: 3, 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: 1
-      }}>
+    <Box sx={{ p: { xs: 0.5, sm: 0 } }}>
+      {/* Header tipo Notion */}
+      <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1 }}>
         <Box>
-          <Typography 
-            variant={presentationMode ? "h4" : "h5"} 
-            sx={{ 
-              fontWeight: 800,
-              letterSpacing: '-0.02em',
-              lineHeight: 1.2
-            }}
-          >
+          <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
             Dashboard
           </Typography>
-          <Typography 
-            variant="caption" 
-            sx={{ 
-              color: 'text.secondary',
-              textTransform: 'capitalize',
-              fontWeight: 500
-            }}
-          >
+          <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500, textTransform: 'capitalize' }}>
             {todayLabel}
           </Typography>
         </Box>
-        <IconButton 
-          onClick={() => fetchDashboardData(true)} 
+        <IconButton
+          onClick={() => fetchDashboardData(true)}
           disabled={loading}
           size="small"
-          sx={{ 
-            bgcolor: 'action.hover',
-            '&:hover': { bgcolor: 'action.selected' }
-          }}
+          sx={{ bgcolor: 'action.hover', '&:hover': { bgcolor: 'action.selected' } }}
         >
-          <FiRefreshCw size={18} />
+          <FiRefreshCw size={16} />
         </IconButton>
       </Box>
 
-      {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
-        </Alert>
-      )}
+      {error && <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>{error}</Alert>}
 
       {presentationMode && (
-        <Alert severity="info" sx={{ mb: 2 }}>
+        <Alert severity="info" sx={{ mb: 2, borderRadius: 2 }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <FiActivity size={20} />
-            <Typography variant="body2">
-              Modo presentación activo — los valores están ocultos
-            </Typography>
+            <FiActivity size={16} />
+            <Typography variant="body2">Modo presentación activo — los valores están ocultos</Typography>
           </Box>
         </Alert>
       )}
 
+      {/* KPI strip compacto — 4 cols mobile, 8 desktop */}
       <Grid container spacing={1} sx={{ mb: 2 }}>
-        <Grid item xs={6} sm={4} md={3} lg={2} xl={1.5}>
-          <StatCard
-            title="Clientes"
-            value={stats.totalClientes}
-            subtitle={presentationMode ? "" : "Total registrados"}
-            icon={<FiUsers size={16} />}
-            color="primary"
-            compact
-          />
-        </Grid>
-        <Grid item xs={6} sm={4} md={3} lg={2} xl={1.5}>
-          <StatCard
-            title="Proyectos activos"
-            value={stats.proyectosActivos}
-            color="info"
-            compact
-          />
-        </Grid>
-        <Grid item xs={6} sm={4} md={3} lg={2} xl={1.5}>
-          <StatCard
-            title="Pipeline"
-            value={presentationMode ? "•••" : formatCOP(stats.valorPipeline)}
-            subtitle={presentationMode ? "" : "En ventas"}
-            icon={<FiTarget size={16} />}
-            color="warning"
-            compact
-          />
-        </Grid>
-        <Grid item xs={6} sm={4} md={3} lg={2} xl={1.5}>
-          <StatCard
-            title="Presupuestado"
-            value={presentationMode ? "•••" : formatCOP(stats.totalPresupuestado)}
-            subtitle={presentationMode ? "" : "Total proyectos"}
-            icon={<FiDollarSign size={16} />}
-            color="success"
-            compact
-          />
-        </Grid>
-        <Grid item xs={6} sm={4} md={3} lg={2} xl={1.5}>
-          <StatCard
-            title="Recaudado"
-            value={presentationMode ? "•••" : formatCOP(stats.totalRecaudado)}
-            subtitle={presentationMode ? "" : "Vs presupuesto"}
-            icon={<FiTrendingUp size={16} />}
-            trend={
-              stats.totalPresupuestado > 0
-                ? {
-                    value: Math.round((stats.totalRecaudado / stats.totalPresupuestado) * 100),
-                    isPositive: stats.totalRecaudado >= stats.totalPresupuestado * 0.5,
-                  }
-                : undefined
-            }
-            color="success"
-            compact
-          />
-        </Grid>
-        <Grid item xs={6} sm={4} md={3} lg={2} xl={1.5}>
-          <StatCard
-            title="Tareas pendientes"
-            value={stats.tareasPendientes}
-            color="error"
-            compact
-          />
-        </Grid>
-        <Grid item xs={6} sm={4} md={3} lg={2} xl={1.5}>
-          <StatCard
-            title="Transacciones"
-            value={stats.totalTransacciones}
-            subtitle={presentationMode ? "" : "Total operaciones"}
-            icon={<FiActivity size={16} />}
-            color="warning"
-            compact
-          />
-        </Grid>
-        <Grid item xs={6} sm={4} md={3} lg={2} xl={1.5}>
-          <StatCard
-            title="Monto transacciones"
-            value={presentationMode ? "•••" : formatCOP(stats.montoTransacciones)}
-            subtitle={presentationMode ? "" : "En movimientos"}
-            icon={<FiDollarSign size={16} />}
-            color="success"
-            compact
-          />
-        </Grid>
-      </Grid>
-
-      <Grid container spacing={2}>
-        {proyectosActivos.length > 0 && (
-          <Grid item xs={12} lg={7}>
-            <Paper sx={{ 
-              p: 1.5, 
-              height: '100%',
-              borderRadius: 2.5,
-              border: '1px solid',
-              borderColor: 'divider'
-            }}>
-              <Box sx={{ 
-                display: 'flex', 
-                alignItems: 'center', 
+        {[
+          { title: "Clientes", value: stats.totalClientes, icon: <FiUsers size={14} />, color: "#4caf50", bg: "#e8f5e9" },
+          { title: "Proyectos", value: stats.proyectosActivos, icon: <FiActivity size={14} />, color: "#2196f3", bg: "#e3f2fd" },
+          { title: "Pipeline", value: presentationMode ? "•••" : formatCOP(stats.valorPipeline), icon: <FiTarget size={14} />, color: "#ff9800", bg: "#fff3e0" },
+          { title: "Recaudado", value: presentationMode ? "•••" : formatCOP(stats.totalRecaudado), icon: <FiTrendingUp size={14} />, color: "#9c27b0", bg: "#f3e5f5" },
+          { title: "Presupuestado", value: presentationMode ? "•••" : formatCOP(stats.totalPresupuestado), icon: <FiDollarSign size={14} />, color: "#00897b", bg: "#e0f2f1" },
+          { title: "Tareas pend.", value: stats.tareasPendientes, icon: <FiClock size={14} />, color: "#f44336", bg: "#ffebee" },
+          { title: "Transacciones", value: stats.totalTransacciones, icon: <FiActivity size={14} />, color: "#607d8b", bg: "#eceff1" },
+          { title: "Mov. ($)", value: presentationMode ? "•••" : formatCOP(stats.montoTransacciones), icon: <FiDollarSign size={14} />, color: "#1976d2", bg: "#e3f2fd" },
+        ].map((kpi) => (
+          <Grid item xs={6} sm={4} md={3} lg={3} key={kpi.title}>
+            <Paper
+              variant="outlined"
+              sx={{
+                p: { xs: 1, sm: 1.25 },
+                borderRadius: 2,
+                borderColor: 'divider',
+                display: 'flex',
+                alignItems: 'center',
                 gap: 1,
-                mb: 1
-              }}>
-                <FiActivity size={16} color={theme.palette.info.main} />
-                <Typography variant="subtitle2" sx={{ fontWeight: 700, fontSize: { xs: '0.8rem', sm: '0.85rem' } }}>
-                  Proyectos Activos
+                transition: 'box-shadow 0.15s',
+                '&:hover': { boxShadow: 2 },
+              }}
+            >
+              <Box sx={{ width: 30, height: 30, borderRadius: 1.5, bgcolor: kpi.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: kpi.color, flexShrink: 0 }}>
+                {kpi.icon}
+              </Box>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem', lineHeight: 1, display: 'block' }}>{kpi.title}</Typography>
+                <Typography sx={{ fontWeight: 800, fontSize: { xs: '0.85rem', sm: '0.95rem' }, color: kpi.color, lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {kpi.value}
                 </Typography>
               </Box>
-              <Box sx={{ 
-                display: 'flex', 
-                flexDirection: 'column', 
-                gap: 1
-              }}>
-                {proyectosActivos.map((proyecto: any) => (
+            </Paper>
+          </Grid>
+        ))}
+      </Grid>
+
+      {/* Contenido principal: 2 columnas */}
+      <Grid container spacing={1.5}>
+        {/* Proyectos activos */}
+        <Grid item xs={12} lg={7}>
+          <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
+            <Box sx={{ px: 1.5, py: 1, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', alignItems: 'center', gap: 1 }}>
+              <FiActivity size={14} color={theme.palette.info.main} />
+              <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>Proyectos activos</Typography>
+              <Box sx={{ ml: 'auto', bgcolor: 'info.main', color: 'white', borderRadius: '50%', width: 18, height: 18, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Typography sx={{ fontSize: '0.6rem', fontWeight: 700 }}>{proyectosActivos.length}</Typography>
+              </Box>
+            </Box>
+
+            {proyectosActivos.length === 0 && !loading ? (
+              <Box sx={{ py: 4, textAlign: 'center' }}>
+                <FiActivity size={32} color="#ccc" />
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>Sin proyectos activos</Typography>
+              </Box>
+            ) : (
+              <Box>
+                {/* Cabeceras */}
+                <Box sx={{ px: 1.5, py: 0.75, display: { xs: 'none', sm: 'grid' }, gridTemplateColumns: '2fr 1fr 1fr 60px', bgcolor: '#f8f9fa', borderBottom: '1px solid', borderColor: 'divider', gap: 1 }}>
+                  {['Proyecto', 'Cliente', 'Estado', '%'].map(h => (
+                    <Typography key={h} variant="caption" sx={{ fontWeight: 700, color: 'text.secondary', textTransform: 'uppercase', fontSize: '0.62rem' }}>{h}</Typography>
+                  ))}
+                </Box>
+                {proyectosActivos.map((proyecto: any, i: number) => (
                   <Box
                     key={proyecto.id}
                     sx={{
-                      p: 1,
-                      borderRadius: 1.5,
-                      border: '1px solid',
+                      px: 1.5, py: 1,
+                      borderBottom: i < proyectosActivos.length - 1 ? '1px solid' : 'none',
                       borderColor: 'divider',
-                      bgcolor: 'background.default',
-                      transition: 'all 0.15s',
-                      '&:hover': {
-                        borderColor: 'primary.main',
-                        bgcolor: 'action.hover'
-                      }
+                      display: { xs: 'block', sm: 'grid' },
+                      gridTemplateColumns: '2fr 1fr 1fr 60px',
+                      gap: 1,
+                      alignItems: 'center',
+                      '&:hover': { bgcolor: 'action.hover' },
+                      transition: 'background 0.1s'
                     }}
                   >
-                    <Box sx={{ 
-                      display: 'flex', 
-                      justifyContent: 'space-between', 
-                      alignItems: 'flex-start',
-                      gap: 1
-                    }}>
-                      <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <Typography 
-                          variant="body2" 
-                          sx={{ 
-                            fontWeight: 600,
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap'
-                          }}
-                        >
-                          {proyecto.nombre}
-                        </Typography>
-                        <Typography 
-                          variant="caption" 
-                          color="text.secondary"
-                          sx={{ display: 'block', mt: 0.25 }}
-                        >
-                          {proyecto.clienteNombre || "Sin cliente"}
-                        </Typography>
-                      </Box>
+                    <Box sx={{ mb: { xs: 0.5, sm: 0 } }}>
+                      <Typography variant="body2" sx={{ fontWeight: 600, lineHeight: 1.2 }} noWrap>{proyecto.nombre}</Typography>
+                      <Typography variant="caption" color="text.secondary" sx={{ display: { xs: 'inline', sm: 'none' } }}>
+                        {proyecto.clienteNombre || 'Sin cliente'} • {proyecto.estado}
+                      </Typography>
+                    </Box>
+                    <Typography variant="caption" color="text.secondary" noWrap sx={{ display: { xs: 'none', sm: 'block' } }}>
+                      {proyecto.clienteNombre || 'Sin cliente'}
+                    </Typography>
+                    <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
                       <SafeChip
-                        label={proyecto.estado === "en_progreso" ? "En progreso" : "Planificación"}
+                        label={proyecto.estado === 'en_progreso' ? 'En progreso' : 'Planificación'}
                         size="small"
                         color={getEstadoColor(proyecto.estado) as any}
-                        sx={{ 
-                          height: 20,
-                          fontSize: '0.65rem',
-                          fontWeight: 600,
-                          flexShrink: 0
-                        }}
+                        sx={{ height: 18, fontSize: '0.62rem', fontWeight: 600 }}
                       />
                     </Box>
-                    {proyecto.presupuesto && (
-                      <Box sx={{ 
-                        display: 'flex', 
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        mt: 0.5
-                      }}>
-                        <Typography variant="caption" color="text.secondary">
-                          {presentationMode ? "•••" : formatCOP(Number(proyecto.presupuesto))}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary">
-                          {proyecto.progreso || 0}%
-                        </Typography>
+                    <Box sx={{ display: { xs: 'none', sm: 'flex' }, alignItems: 'center', gap: 0.5 }}>
+                      <Box sx={{ flex: 1, height: 4, borderRadius: 1, bgcolor: '#e0e0e0', overflow: 'hidden' }}>
+                        <Box sx={{ height: '100%', width: `${proyecto.progreso || 0}%`, bgcolor: proyecto.progreso >= 80 ? '#4caf50' : proyecto.progreso >= 40 ? '#2196f3' : '#ff9800', borderRadius: 1, transition: 'width 0.4s' }} />
                       </Box>
-                    )}
+                      <Typography variant="caption" sx={{ fontWeight: 700, fontSize: '0.65rem', minWidth: 24 }}>{proyecto.progreso || 0}%</Typography>
+                    </Box>
                   </Box>
                 ))}
               </Box>
-            </Paper>
-          </Grid>
-        )}
+            )}
+          </Paper>
+        </Grid>
 
-        {proyectosActivos.length === 0 && !loading && (
-          <Grid item xs={12}>
-            <Paper sx={{ 
-              p: 4, 
-              textAlign: 'center',
-              borderRadius: 2.5,
-              border: '1px solid',
-              borderColor: 'divider'
-            }}>
-              <FiActivity size={48} color={theme.palette.text.secondary} />
-              <Typography variant="body1" sx={{ mt: 2, fontWeight: 600 }}>
-                Sin proyectos activos
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                Crea tu primer proyecto para ver el seguimiento aquí
-              </Typography>
-            </Paper>
-          </Grid>
-        )}
-
+        {/* Próximas tareas */}
         <Grid item xs={12} lg={5}>
-          <Paper sx={{ 
-            p: 1.5, 
-            height: '100%',
-            borderRadius: 2.5,
-            border: '1px solid',
-            borderColor: 'divider'
-          }}>
-            <Box sx={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: 1,
-              mb: 1
-            }}>
-              <FiClock size={16} color={theme.palette.warning.main} />
-              <Typography variant="subtitle2" sx={{ fontWeight: 700, fontSize: { xs: '0.8rem', sm: '0.85rem' } }}>
-                Próximas Tareas
-              </Typography>
+          <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
+            <Box sx={{ px: 1.5, py: 1, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', alignItems: 'center', gap: 1 }}>
+              <FiClock size={14} color={theme.palette.warning.main} />
+              <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>Próximas tareas</Typography>
+              {proximasTareas.length > 0 && (
+                <Box sx={{ ml: 'auto', bgcolor: 'warning.main', color: 'white', borderRadius: '50%', width: 18, height: 18, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Typography sx={{ fontSize: '0.6rem', fontWeight: 700 }}>{proximasTareas.length}</Typography>
+                </Box>
+              )}
             </Box>
-            <Box sx={{ 
-              display: 'flex', 
-              flexDirection: 'column', 
-              gap: 1
-            }}>
-              {proximasTareas.length > 0 ? (
-                proximasTareas.map((tarea: any) => (
+            {proximasTareas.length > 0 ? (
+              <Box>
+                {proximasTareas.map((tarea: any, i: number) => (
                   <Box
                     key={tarea.id}
                     sx={{
-                      p: 1,
-                      borderRadius: 1.5,
-                      border: '1px solid',
+                      px: 1.5, py: 1,
+                      borderBottom: i < proximasTareas.length - 1 ? '1px solid' : 'none',
                       borderColor: 'divider',
-                      bgcolor: 'background.default',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1,
+                      '&:hover': { bgcolor: 'action.hover' },
+                      transition: 'background 0.1s'
                     }}
                   >
-                    <Typography 
-                      variant="body2" 
-                      sx={{ 
-                        fontWeight: 500,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap'
-                      }}
-                    >
-                      {tarea.titulo || tarea.descripcion || "Sin título"}
-                    </Typography>
-                    <Box sx={{ 
-                      display: 'flex', 
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      mt: 0.5
-                    }}>
-                      <Typography variant="caption" color="text.secondary">
-                        {tarea.fecha ? new Date(tarea.fecha).toLocaleDateString("es-CO", { 
-                          day: "numeric", 
-                          month: "short" 
-                        }) : "Sin fecha"}
+                    {/* Indicador de prioridad */}
+                    <Box sx={{ width: 4, height: 32, borderRadius: 1, bgcolor: tarea.prioridad === 'Alta' ? '#f44336' : tarea.prioridad === 'Media' ? '#ff9800' : '#4caf50', flexShrink: 0 }} />
+                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                      <Typography variant="body2" sx={{ fontWeight: 600, lineHeight: 1.2 }} noWrap>
+                        {tarea.titulo || tarea.descripcion || 'Sin título'}
                       </Typography>
-                      <SafeChip
-                        label={tarea.estado || "Pendiente"}
-                        size="small"
-                        color={tarea.prioridad === "Alta" ? "error" : tarea.prioridad === "Media" ? "warning" : "default"}
-                        sx={{ 
-                          height: 20,
-                          fontSize: '0.65rem',
-                          fontWeight: 600
-                        }}
-                      />
+                      <Typography variant="caption" color="text.secondary">
+                        {tarea.fecha ? new Date(tarea.fecha).toLocaleDateString('es-CO', { day: 'numeric', month: 'short' }) : 'Sin fecha'}
+                        {tarea.prioridad && ` • ${tarea.prioridad}`}
+                      </Typography>
                     </Box>
+                    <SafeChip
+                      label={tarea.estado || 'Pendiente'}
+                      size="small"
+                      color={tarea.prioridad === 'Alta' ? 'error' : tarea.prioridad === 'Media' ? 'warning' : 'default'}
+                      sx={{ height: 18, fontSize: '0.62rem', fontWeight: 600, flexShrink: 0 }}
+                    />
                   </Box>
-                ))
-              ) : (
-                <Typography 
-                  variant="body2" 
-                  color="text.secondary"
-                  sx={{ textAlign: 'center', py: 3 }}
-                >
-                  No hay tareas pendientes
-                </Typography>
-              )}
-            </Box>
+                ))}
+              </Box>
+            ) : (
+              <Box sx={{ py: 4, textAlign: 'center' }}>
+                <FiClock size={32} color="#ccc" />
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>No hay tareas pendientes</Typography>
+              </Box>
+            )}
           </Paper>
         </Grid>
       </Grid>

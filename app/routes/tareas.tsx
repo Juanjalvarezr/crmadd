@@ -13,6 +13,7 @@ import { format, startOfDay, isBefore } from "date-fns";
 import { EmptyState } from "../components/EmptyState";
 import { useLocation } from "react-router";
 import SafeChip from "../components/SafeChip";
+import { openAiRoute } from "../components/FloatingAIAssistant";
 
 export function meta() {
   return [
@@ -424,7 +425,7 @@ export default function Tareas() {
       <Paper sx={{ p: 2 }}>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, flexWrap: "wrap", gap: 1 }}>
           <Typography variant="h6" sx={{ fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>Lista de Tareas ({filtered.length})</Typography>
-          <Button variant="contained" size="small" startIcon={<FiPlus />} onClick={handleOpenModal}>Nueva Tarea</Button>
+          <Button variant="contained" size="small" startIcon={<FiPlus />} onClick={() => handleOpenModal()}>Nueva Tarea</Button>
         </Box>
 
         <Box sx={{ display: "flex", gap: 1.5, mb: 2, flexDirection: { xs: "column", md: "row" } }}>
@@ -469,7 +470,7 @@ export default function Tareas() {
               ))}
             </Select>
           </FormControl>
-          <FormControl sx={{ minWidth: 160 }} displayFlex alignItems="center">
+          <FormControl sx={{ minWidth: 160, display: 'flex', alignItems: 'center' }}>
             <FormControlLabel
               control={<Checkbox checked={soloVencidas} onChange={(e: any) => setSoloVencidas(e.target.checked)} />}
               label="Solo vencidas"
@@ -608,7 +609,7 @@ export default function Tareas() {
               description={searchTerm ? `No hay resultados para "${searchTerm}".` : "Tu lista de tareas está limpia. ¡Buen trabajo! O crea una nueva tarea para hoy."}
               icon={<FiCheckSquare size={40} />}
               actionLabel="Nueva Tarea"
-              onAction={handleOpenModal}
+              onAction={() => handleOpenModal()}
               color="#9C27B0"
             />
           </Box>

@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import {
   Box, Typography, Paper, Button, TextField, FormControl, InputLabel, Select, MenuItem,
-  IconButton, Divider, Chip, List, ListItem, ListItemText, ListItemIcon, Card, CardContent, Grid,
-  Dialog, DialogTitle, DialogContent, DialogActions
+  IconButton, Divider, List, ListItem, ListItemText, ListItemIcon, Card, CardContent, Grid
 } from "@mui/material";
-import { FiZap, FiPlus, FiTrash2, FiEdit, FiCheck, FiList, FiDollarSign } from "react-icons/fi";
+import { FiPlus, FiTrash2, FiEdit } from "react-icons/fi";
 import KnowledgeFileUploader from "./KnowledgeFileUploader";
 import SafeChip from "../components/SafeChip";
 
@@ -22,7 +21,7 @@ interface CerebroAITabProps {
 
 export const CerebroAITab: React.FC<CerebroAITabProps> = ({
   reglasAI, onAddRegla, onDeleteRegla, promptsAI, onEditPrompt, 
-  conocimiento, onAddConocimiento, onDeleteConocimiento, onRefreshConocimiento
+  conocimiento, onDeleteConocimiento, onRefreshConocimiento
 }) => {
   const [nuevaRegla, setNuevaRegla] = useState({ categoria: "estrategia", instruccion: "" });
 

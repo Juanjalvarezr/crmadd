@@ -19,6 +19,7 @@ import { generarFacturaPDF } from "../services/pdf";
 import { uploadPDFToStorage } from "../services/storage";
 import ScannerTarjetas from "../components/ScannerTarjetas";
 import SafeChip from "../components/SafeChip";
+import { openAiRoute } from "../components/FloatingAIAssistant";
 
 export default function Facturacion() {
   const [items, setItems] = useState<any[]>([]);
