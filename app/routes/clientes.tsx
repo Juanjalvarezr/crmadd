@@ -4,9 +4,10 @@ import ExpandableCard from "../components/ExpandableCard";
 import {
   Box, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid,
   Button, Chip, TextField, InputAdornment, FormControl, InputLabel, Select, MenuItem, Pagination, Checkbox,
-  Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Alert, Snackbar, CircularProgress, Tooltip, keyframes,
+  Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Alert, Snackbar, CircularProgress, Tooltip,
   Card, CardContent, Drawer, Divider, useTheme, useMediaQuery, Skeleton, Tabs, Tab, Stack
 } from "@mui/material"; // Importaciones de Material-UI
+import { keyframes } from "@mui/material/styles";
 
 // Animación de pulso con colores de la agencia
 export const pulseAgency = keyframes`

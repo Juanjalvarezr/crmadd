@@ -200,28 +200,20 @@ export const oportunidadesService = {
    * Calcula estadísticas de oportunidades
    * @returns Promise<{total: number, valorTotal: number, cerradas: number, tasaConversion: number}>
    */
-  getEstadisticas: async (): Promise<{
-    total: number;
-    valorTotal: number;
-    cerradas: number;
-    tasaConversion: number;
-  }> => {
-    try {
-      const oportunidades = await this.getAll();
-      
-      if (!oportunidades || oportunidades.length === 0) {
-        return { total: 0, valorTotal: 0, cerradas: 0, tasaConversion: 0 };
-      }
-      
-      const total = oportunidades.length;
-      const valorTotal = oportunidades.reduce((acc: number, opp: Oportunidad) => acc + (opp.valor || 0), 0);
-      const cerradas = oportunidades.filter((opp: Oportunidad) => opp.etapa === 'Cierre').length;
-      const tasaConversion = total > 0 ? Math.round((cerradas / total) * 100) : 0;
+async function getEstadisticas(): Promise<{ total: number; valorTotal: number; cerradas: number; tasaConversion: number }> {
+  try {
+    const { data, error } = await supabase.from('oportunidades').select('*');
+    if (error) throw error;
+    const oportunidades = data || [];
+    if (!oportunidades.length) return { total: 0, valorTotal: 0, cerradas: 0, tasaConversion: 0 };
+    const total = oportunidades.length;
+    const valorTotal = oportunidades.reduce((acc: number, opp: any) => acc + (opp.valor || 0), 0);
+    const cerradas = oportunidades.filter((opp: any) => opp.etapa === 'Cierre').length;
+    const tasaConversion = total > 0 ? Math.round((cerradas / total) * 100) : 0;
+    return { total, valorTotal, cerradas, tasaConversion };
+  } catch (error) {
+    console.error('Error al calcular estadísticas:', error);
+    throw error;
+  }
+}
 
-      return { total, valorTotal, cerradas, tasaConversion };
-    } catch (error) {
-      console.error('Error al calcular estadísticas:', error);
-      throw error;
-    }
-  },
-};

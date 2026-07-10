@@ -17,6 +17,7 @@ interface SafeChipProps {
   size?: "small" | "medium";
   variant?: "filled" | "outlined";
   sx?: Record<string, any>;
+  icon?: React.ReactNode;
   [key: string]: any;
 }
 
@@ -26,6 +27,7 @@ const SafeChip: React.FC<SafeChipProps> = ({
   size = "small",
   variant = "filled",
   sx = {},
+  icon,
   ...rest
 }) => {
   const safe = SAFE_COLORS[color] || SAFE_COLORS.default;
@@ -60,6 +62,7 @@ const SafeChip: React.FC<SafeChipProps> = ({
 
   return (
     <span style={base} {...rest}>
+      {icon && <span style={{ display: 'inline-flex', marginRight: '0.25rem', alignItems: 'center' }}>{icon}</span>}
       {label}
     </span>
   );

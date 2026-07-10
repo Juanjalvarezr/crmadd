@@ -294,7 +294,7 @@ export default function Proyectos() {
       const equipoReal = (await equipoService.getAll()) || [];
       if (!data.clienteId || String(data.clienteId).trim() === "") {
         showNotification("Selecciona un cliente antes de guardar el proyecto", "error");
-        setSavingProject(false);
+        setGeneratingPlan(false);
         return;
       }
 

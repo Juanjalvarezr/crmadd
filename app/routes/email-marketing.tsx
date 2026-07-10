@@ -286,9 +286,7 @@ export default function EmailMarketing() {
                 <Box sx={{ flex: 1, bgcolor: "white", borderRadius: 1, px: 1.5, py: 0.4, border: "1px solid", borderColor: "divider" }}>
                   <Typography variant="caption" color="text.secondary" noWrap>Vista previa del email</Typography>
                 </Box>
-                <Tooltip title="Esta es la vista previa de como verá el destinatario el correo">
-                  <IconButton size="small"><FiEye size={14} /></IconButton>
-                </Tooltip>
+                <IconButton size="small" onClick={() => window.open(`mailto:${to || "destinatario@empresa.com"}?subject=${encodeURIComponent(subject || TEMPLATES[template].subject)}`, "_blank")}><FiEye size={14} /></IconButton>
               </Box>
               {/* Cabecera del email */}
               <Box sx={{ px: 2, py: 1, bgcolor: "background.paper", borderBottom: "1px solid", borderColor: "divider" }}>
@@ -323,9 +321,7 @@ export default function EmailMarketing() {
                     </Box>
                   )}
                 </Box>
-                <Tooltip title="Actualizar">
-                  <IconButton size="small"><FiRefreshCw size={13} /></IconButton>
-                </Tooltip>
+                <IconButton size="small" onClick={() => window.location.reload()}><FiRefreshCw size={13} /></IconButton>
               </Box>
 
               {campanas.length === 0 ? (

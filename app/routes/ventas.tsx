@@ -4,8 +4,9 @@ import { StatCard, VentasIcon } from "../components/StatCard";
 import { 
   Box, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, 
   Grid, Button, Chip, LinearProgress, TextField, InputAdornment, FormControl, InputLabel, Select, MenuItem,
-  Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Alert, Snackbar, Slider, CircularProgress, Tooltip, Skeleton, keyframes
+  Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Alert, Snackbar, Slider, CircularProgress, Tooltip, Skeleton,
 } from "@mui/material";
+import { keyframes } from "@mui/material/styles";
 
 // Animación de pulso con colores de la agencia
 const pulseAgency = keyframes`
