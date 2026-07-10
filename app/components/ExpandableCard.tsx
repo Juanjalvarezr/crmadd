@@ -87,7 +87,9 @@ const ExpandableCard: React.FC<ExpandableCardProps> = ({
               sx={{
                 fontWeight: 700,
                 color: "text.primary",
-                whiteSpace: "nowrap",
+                display: "-webkit-box",
+                WebkitLineClamp: { xs: 2, md: 1 },
+                WebkitBoxOrient: "vertical",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
               }}
