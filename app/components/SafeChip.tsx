@@ -69,4 +69,3 @@ const SafeChip: React.FC<SafeChipProps> = ({
 };
 
 export default SafeChip;
-// v2.2
