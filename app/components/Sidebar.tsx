@@ -5,8 +5,9 @@ import {
   FiBell, FiActivity, FiPackage, FiDownload, FiUpload, FiCalendar, 
   FiFileText, FiDollarSign, FiTarget, FiChevronLeft, FiChevronRight, FiFolder
 } from "react-icons/fi";
-import { Link, useLocation } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import SafeChip from "../components/SafeChip";
+import { supabase } from "../services/supabase";
 
 const DRAWER_WIDTH = 260;
 
@@ -50,6 +51,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onToggleCollapse 
 }) => {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const getNotificationCount = (path: string) => {
     const item = menuItems.find(item => item.path === path);
@@ -408,10 +410,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
         textAlign: "center"
       }}>
         {isCollapsed ? (
-          <Tooltip title="Versión 2.0.1 - © 2026 CRM Agencia" placement="right">
-            <Typography variant="caption" sx={{ fontWeight: "bold", color: "rgba(255,255,255,0.2)", cursor: "pointer" }}>
-              v2.0
-            </Typography>
+          <Tooltip title="Cerrar sesión" placement="right">
+            <IconButton size="small" sx={{ color: "rgba(255,255,255,0.6)" }} onClick={async () => { await supabase.auth.signOut(); navigate("/login"); }}>
+              <FiLogOut size={18} />
+            </IconButton>
           </Tooltip>
         ) : (
           <Box>
@@ -428,9 +430,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 mb: 1
               }} 
             />
-            <Typography variant="caption" sx={{ display: "block", color: "rgba(255,255,255,0.35)", fontSize: "0.68rem" }}>
-              © 2026 DESEO DIGITAL CRM
-            </Typography>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5, alignItems: "center" }}>
+              <Typography variant="caption" sx={{ display: "block", color: "rgba(255,255,255,0.35)", fontSize: "0.68rem" }}>
+                © 2026 DESEO DIGITAL CRM
+              </Typography>
+              <Button size="small" onClick={async () => { await supabase.auth.signOut(); navigate("/login"); }} sx={{ color: "rgba(255,255,255,0.55)", fontSize: "0.68rem", textTransform: "none", minHeight: 24 }}>
+                Cerrar sesión
+              </Button>
+            </Box>
           </Box>
         )}
       </Box>

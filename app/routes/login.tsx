@@ -1,15 +1,31 @@
 import { Outlet, useNavigate, useLocation } from "react-router";
-import React from "react";
-import { Box, Typography, Button, Paper } from "@mui/material";
+import React, { useState } from "react";
+import { Box, Typography, Button, Paper, TextField, Alert } from "@mui/material";
+import { authService } from "../services/supabase";
 
 export default function Login() {
   const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleAbrirPanel = () => {
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem("crm_logged_in", "true");
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    try {
+      const { error } = await authService.signIn(email, password);
+      if (error) {
+        setError(error.message ?? "Credenciales inválidas");
+      } else {
+        navigate("/");
+      }
+    } catch (err) {
+      setError("Error de conexión. Intenta de nuevo.");
+    } finally {
+      setLoading(false);
     }
-    navigate("/");
   };
 
   return (
@@ -38,79 +54,126 @@ export default function Login() {
         sx={{
           position: "relative",
           zIndex: 1,
-          maxWidth: 500,
+          maxWidth: 420,
           width: "92%",
           borderRadius: 6,
           bgcolor: "rgba(255, 255, 255, 0.04)",
           border: "1px solid rgba(255,255,255,0.08)",
           backdropFilter: "blur(18px)",
-          p: { xs: 4, sm: 6 },
-          textAlign: "center",
+          p: { xs: 3, sm: 5 },
         }}
       >
-        <Typography
-          variant="h4"
-          sx={{
-            fontWeight: 900,
-            letterSpacing: 6,
-            color: "#e91e63",
-            textTransform: "uppercase",
-          }}
-        >
-          DESEO
-        </Typography>
-        <Typography
-          variant="h6"
-          sx={{
-            fontWeight: 400,
-            letterSpacing: 8,
-            color: "#ffffff",
-            mt: 0.5,
-          }}
-        >
-          DIGITAL
-        </Typography>
-        <Typography
-          variant="body2"
-          sx={{
-            mt: 1.5,
-            color: "rgba(255,255,255,0.65)",
-            letterSpacing: 1.2,
-          }}
-        >
-          Agencia Inteligente
-        </Typography>
+        <Box sx={{ textAlign: "center", mb: 3 }}>
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: 900,
+              letterSpacing: 6,
+              color: "#e91e63",
+              textTransform: "uppercase",
+            }}
+          >
+            DESEO
+          </Typography>
+          <Typography
+            variant="h6"
+            sx={{
+              fontWeight: 400,
+              letterSpacing: 8,
+              color: "#ffffff",
+              mt: 0.5,
+            }}
+          >
+            DIGITAL
+          </Typography>
+          <Typography
+            variant="body2"
+            sx={{
+              mt: 1,
+              color: "rgba(255,255,255,0.65)",
+              letterSpacing: 1.2,
+            }}
+          >
+            Agencia Inteligente
+          </Typography>
+          <Box
+            sx={{
+              width: 64,
+              height: 3,
+              bgcolor: "#e91e63",
+              mx: "auto",
+              my: 3,
+              borderRadius: 1,
+            }}
+          />
+          <Typography variant="body1" sx={{ color: "rgba(255,255,255,0.85)", mb: 1 }}>
+            Inicia sesión para continuar
+          </Typography>
+          <Typography variant="body2" sx={{ color: "rgba(255,255,255,0.55)" }}>
+            Gestiona clientes, proyectos y operaciones en un solo lugar.
+          </Typography>
+        </Box>
+
         <Box
-          sx={{
-            width: 64,
-            height: 3,
-            bgcolor: "#e91e63",
-            mx: "auto",
-            my: 4,
-            borderRadius: 1,
-          }}
-        />
-        <Typography variant="body1" sx={{ color: "rgba(255,255,255,0.85)", mb: 1 }}>
-          Bienvenido al panel principal
-        </Typography>
-        <Typography variant="body2" sx={{ color: "rgba(255,255,255,0.55)", mb: 4 }}>
-          Accede para gestionar clientes, proyectos y operaciones.
-        </Typography>
-        <Button
-          variant="contained"
-          onClick={handleAbrirPanel}
-          fullWidth
-          sx={{
-            bgcolor: "#e91e63",
-            color: "#ffffff",
-            fontWeight: 700,
-            py: 1.4,
-            letterSpacing: 1,
-            "&:hover": { bgcolor: "#c2185b" },
-          }}
+          component="form"
+          onSubmit={handleSubmit}
+          sx={{ display: "flex", flexDirection: "column", gap: 2 }}
         >
-          Abrir panel
-        </Button>
+          <TextField
+            label="Email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            fullWidth
+            size="small"
+            InputLabelProps={{ shrink: true }}
+            sx={{
+              "& .MuiInputBase-root": { color: "#fff" },
+              "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(255,255,255,0.25)" },
+              "& .MuiInputBase-input": { color: "#fff" },
+              "& .MuiInputLabel-root": { color: "rgba(255,255,255,0.7)" },
+            }}
+          />
+          <TextField
+            label="Contraseña"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            fullWidth
+            size="small"
+            InputLabelProps={{ shrink: true }}
+            sx={{
+              "& .MuiInputBase-root": { color: "#fff" },
+              "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(255,255,255,0.25)" },
+              "& .MuiInputBase-input": { color: "#fff" },
+              "& .MuiInputLabel-root": { color: "rgba(255,255,255,0.7)" },
+            }}
+          />
+          {error && (
+            <Alert severity="error" sx={{ bgcolor: "rgba(211,47,47,0.15)", color: "#ff8a80" }}>
+              {error}
+            </Alert>
+          )}
+          <Button
+            type="submit"
+            variant="contained"
+            disabled={loading}
+            fullWidth
+            sx={{
+              bgcolor: "#e91e63",
+              color: "#ffffff",
+              fontWeight: 700,
+              py: 1.3,
+              letterSpacing: 1,
+              "&:hover": { bgcolor: "#c2185b" },
+              "&.Mui-disabled": { bgcolor: "rgba(233,30,99,0.5)" },
+            }}
+          >
+            {loading ? "Ingresando..." : "Ingresar"}
+          </Button>
+        </Box>
       </Paper>
     </Box>
   );

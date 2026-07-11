@@ -8,9 +8,10 @@ import { Header } from "./components/Header";
 import { MobileFab } from "./components/MobileFab";
 import { FloatingAIAssistant } from "./components/FloatingAIAssistant";
 import GlobalSearch from "./components/GlobalSearch";
+import { supabase } from "./services/supabase";
 
-// __INVALIDATE_BUILD_CACHE__ 2026-07-09T00:01:26.934Z
-// __BUILD_CACHE_BUSTER__=1783570756122
+// __INVALIDATE_BUILD_CACHE__ 2026-07-10T00:00:00.000Z
+// __BUILD_CACHE_BUSTER__=9999999999999
 const DRAWER_WIDTH = 260;
 
 export default function Root() {
@@ -32,6 +33,7 @@ export default function Root() {
     }
     return "dark";
   });
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
   const theme = React.useMemo(() => {
     const themeRaw = createTheme({
@@ -74,9 +76,33 @@ export default function Root() {
   }, [themeMode]);
 
   useEffect(() => {
-    const isAuthenticated =
-      typeof window !== "undefined" &&
-      window.localStorage.getItem("crm_logged_in") === "true";
+    let cancelled = false;
+    const checkAuth = async () => {
+      try {
+        const { data } = await supabase.auth.getSession();
+        if (!cancelled) {
+          setIsAuthenticated(!!data.session);
+        }
+      } catch {
+        if (!cancelled) {
+          setIsAuthenticated(false);
+        }
+      }
+    };
+    checkAuth();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAuthenticated(!!session);
+    });
+
+    return () => {
+      cancelled = true;
+      authListener.subscription.unsubscribe();
+    };
+  }, [navigate]);
+
+  useEffect(() => {
+    if (isAuthenticated === null) return;
     const isLoginPage = location.pathname === "/login";
 
     if (!isAuthenticated && !isLoginPage) {
@@ -84,7 +110,7 @@ export default function Root() {
     } else if (isAuthenticated && isLoginPage) {
       navigate("/");
     }
-  }, [navigate, location.pathname]);
+  }, [isAuthenticated, navigate, location.pathname]);
 
   useEffect(() => {
     const handler = (e: Event) => {
@@ -108,6 +134,14 @@ export default function Root() {
 
   if (location.pathname === "/login") {
     return <Outlet />;
+  }
+
+  if (isAuthenticated === null) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", bgcolor: "background.default" }}>
+        <CircularProgress />
+      </Box>
+    );
   }
 
   const handleDrawerToggle = () => setMobileOpen((prev) => !prev);
