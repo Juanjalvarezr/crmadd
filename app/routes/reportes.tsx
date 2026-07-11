@@ -475,11 +475,11 @@ export default function Reportes() {
                   transition: "all 0.3s ease",
                   "&:hover": { transform: "translateY(-4px)", boxShadow: 3 }
                 }}>
-                  <CardContent sx={{ p: 1.5, "&:last-child": { pb: 1.5 } }}>
-                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1 }}>
+                  <CardContent sx={{ p: 1, "&:last-child": { pb: 1 } }}>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 0.5 }}>
                       <Box sx={{ 
-                        p: 0.75, 
-                        borderRadius: 1, 
+                        p: 0.5, 
+                        borderRadius: 0.5, 
                         backgroundColor: `${metrica.color}20`,
                         color: metrica.color
                       }}>
@@ -489,18 +489,18 @@ export default function Reportes() {
                         label={`${metrica.cambio > 0 ? "+" : ""}${metrica.cambio}%`}
                         size="small"
                         color={metrica.cambio > 0 ? "success" : "error"}
-                        sx={{ fontSize: "0.7rem" }}
+                        sx={{ fontSize: "0.65rem", height: 20 }}
                       />
                     </Box>
+                  
+                      <Typography variant="h5" sx={{ fontWeight: 700, mb: 0.25, lineHeight: 1 }}>
+                        {metrica.valor}
+                      </Typography>
                     
-                    <Typography variant="h4" sx={{ fontWeight: "bold", mb: 0.5 }}>
-                      {metrica.valor}
-                    </Typography>
-                    
-                    <Typography variant="body2" color="text.secondary">
-                      {metrica.titulo}
-                    </Typography>
-                  </CardContent>
+                      <Typography variant="caption" sx={{ fontSize: "0.65rem", color: "text.secondary", fontWeight: 500 }}>
+                        {metrica.titulo}
+                      </Typography>
+                    </CardContent>
                 </Card>
               </Grid>
             ))}

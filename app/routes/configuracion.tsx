@@ -919,11 +919,11 @@ export default function Configuracion() {
   );
 
   return (
-    <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
+    <Box sx={{ p: { xs: 1, sm: 1.5 } }}>
       {/* Header */}
       <Paper sx={{ 
-        p: { xs: 2, sm: 3 }, 
-        mb: { xs: 2, sm: 3 }, 
+        p: { xs: 1.5, sm: 2 }, 
+        mb: { xs: 1.5, sm: 2 },
         backgroundColor: (theme) => theme.palette.mode === 'dark' ? '#0d0e15' : '#e3f2fd', 
         borderLeft: "5px solid",
         borderColor: (theme) => theme.palette.mode === 'dark' ? '#e91e63' : '#2196f3',
@@ -953,8 +953,8 @@ export default function Configuracion() {
 
       {/* Pestañas de navegación */}
       <Paper sx={{ 
-        p: 2, 
-        mb: 3, 
+        p: { xs: 1.5, sm: 2 }, 
+        mb: { xs: 1.5, sm: 2 }, 
         borderRadius: 2,
         backgroundColor: (theme) => theme.palette.mode === 'dark' ? '#12131a' : '#fff',
         border: (theme) => theme.palette.mode === 'dark' ? '1px solid rgba(255,255,255,0.05)' : 'none',
