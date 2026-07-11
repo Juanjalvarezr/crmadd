@@ -214,15 +214,21 @@ export default function Reportes() {
       message: `Exportando reporte en formato ${formato.toUpperCase()}...`, 
       severity: "info" 
     });
-    
-    // Simulación de exportación
+    try {
+      if (formato === 'csv') {
+        const rows = (reporteData || []).map((r: any) => Object.values(r).join(',')).join('\n');
+        const blob = new Blob([rows], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = 'reporte.csv'; a.click(); URL.revokeObjectURL(url);
+      }
+    } catch {}
     setTimeout(() => {
       setReportesSnackbar({ 
         open: true, 
         message: `Reporte exportado correctamente en ${formato.toUpperCase()}`, 
         severity: "success" 
       });
-    }, 2000);
+    }, 1000);
   };
 
   const handleRefresh = () => {

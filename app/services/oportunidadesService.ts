@@ -217,3 +217,6 @@ async function getEstadisticas(): Promise<{ total: number; valorTotal: number; c
   }
 }
 
+export const oportunidadesService = {
+  getEstadisticas,
+};

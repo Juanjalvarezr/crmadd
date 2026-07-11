@@ -154,10 +154,12 @@ export const equipoService = {
   delete: (id: number) => withTimeout(baseSubagentesService.delete(id), 'equipoService.delete'),
 };
 
+// DEPRECATED: sin uso en rutas actuales. Eliminar o integrar en UI.
 export const interaccionesService = {
   create: (interaccion: any) => withTimeout(baseInteraccionesService.create(interaccion), 'interaccionesService.create'),
 };
 
+// DEPRECATED: sin uso en rutas actuales. Eliminar o integrar en UI.
 export const logsService = {
   create: (log: any) => {
     baseLogsService.create(log).catch(() => {});
@@ -238,6 +240,7 @@ export const authService = {
   signOut: () => withTimeout(baseAuthService.signOut(), 'authService.signOut'),
 };
 
+// DEPRECATED: sin uso en rutas actuales. Eliminar o integrar en UI.
 export const transaccionesService = {
   getAll: () => withTimeout((async () => {
     const { data, error } = await supabase.from('transacciones').select('*').order('created_at', { ascending: false });
@@ -312,6 +315,7 @@ export const emailMarketingService = {
   },
 };
 
+// DEPRECATED: sin uso en rutas actuales. Eliminar o integrar en UI.
 export const notificacionesService = {
   getAll: () => withTimeout((async () => {
     const { data, error } = await supabase.from('notificaciones').select('*').order('created_at', { ascending: false });

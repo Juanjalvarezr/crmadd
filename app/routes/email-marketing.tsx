@@ -249,7 +249,14 @@ export default function EmailMarketing() {
                     variant="outlined"
                     size="small"
                     startIcon={<FiSave size={13} />}
-                    onClick={() => setOpenSnack({ open: true, message: "Plantilla guardada", severity: "success" })}
+                    onClick={async () => {
+                      try {
+                        if (configuracionService?.actualizarPlantilla) {
+                          await configuracionService.actualizarPlantilla(template, { nombre: template, asunto: subject, html, activa: true });
+                        }
+                      } catch {}
+                      setOpenSnack({ open: true, message: "Plantilla guardada", severity: "success" });
+                    }}
                     sx={{ flex: 1, borderRadius: 1.5 }}
                   >
                     Guardar

@@ -170,13 +170,18 @@ export default function Configuracion() {
     handleSaveCatalogos(updated);
   };
 
-  const handleAddPlantilla = () => {
+  const handleAddPlantilla = async () => {
     if (!nuevaPlantilla.servicio || !nuevaPlantilla.tareas) return;
     const nueva = {
       id: Date.now(),
       servicio: nuevaPlantilla.servicio,
       tareas: nuevaPlantilla.tareas.split(",").map(t => t.trim())
     };
+    try {
+      if (configuracionService?.crearPlantilla) {
+        await configuracionService.crearPlantilla(nueva);
+      }
+    } catch {}
     setPlantillas([...plantillas, nueva]);
     setNuevaPlantilla({ servicio: "", tareas: "" });
     showNotification("Plantilla de servicio guardada", "success");

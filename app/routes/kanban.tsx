@@ -50,7 +50,7 @@ export default function Kanban() {
         {columnas.map((col) => {
           const items = proyectos.filter((p) => p.estado === col.key);
           return (
-            <Paper key={col.key} sx={{ minWidth: 260, flex: 1, borderRadius: 3, border: "1px solid", borderColor: "divider", p: 2 }}>
+            <Paper key={col.key} sx={{ minWidth: 220, flex: 1, borderRadius: 3, border: "1px solid", borderColor: "divider", p: 2 }}>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
                 <SafeChip label={items.length} size="small" sx={{ bgcolor: col.color, color: "#fff" }} />
                 <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{col.label}</Typography>

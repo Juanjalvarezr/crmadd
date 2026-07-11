@@ -506,10 +506,7 @@ export default function Contratos() {
                     <ListItem key={c.id} dense>
                       <ListItemText primary={c.titulo} secondary={c.contenido.slice(0, 120) + (c.contenido.length > 120 ? '...' : '')} />
                       <Button size="small" variant="text" onClick={() => {
-                        const textarea = document.getElementById('contenido-textarea') as HTMLTextAreaElement;
-                        const actual = textarea?.value || '';
-                        const nuevo = `${actual}\n\n## ${c.titulo}\n${c.contenido}`;
-                        if (textarea) textarea.value = nuevo;
+                        setEditItem({ ...editItem, contenido: `${editItem?.contenido || ''}\n\n## ${c.titulo}\n${c.contenido}` });
                       }}>Añadir</Button>
                     </ListItem>
                   ))}

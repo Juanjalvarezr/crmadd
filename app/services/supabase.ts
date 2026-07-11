@@ -393,7 +393,7 @@ export const mapClienteToDB = (c: any) => ({
   necesidades: c.necesidades,
   intereses: c.intereses,
   estado: c.estado,
-  ultima_interaccion: c.ultimaInteraccion,
+  ultima_interaccion: c.ultima_interaccion,
   favorito: c.favorito
 });
 

@@ -356,7 +356,7 @@ export default function Ventas() {
           <IconButton size="small" onClick={() => openAiRoute('ventas', 'Oportunidades', 'Pipeline de ventas')}>
             <SafeChip label="CPU" size="small" />
           </IconButton>
-          <Button size="small" startIcon={<FiRefreshCw size={14} />} onClick={loadData} disabled={loading}>
+          <Button type="submit" size="small" startIcon={<FiRefreshCw size={14} />} onClick={loadData} disabled={loading}>
             {loading ? "..." : "Recargar"}
           </Button>
         </Box>
