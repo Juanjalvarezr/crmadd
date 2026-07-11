@@ -273,14 +273,19 @@ export default function Calendario() {
           overflow: "hidden",
           minHeight: { xs: 420, sm: 520 },
           "& .rbc-calendar": { fontFamily: "inherit", height: "100%" },
-          "& .rbc-header": { py: 0.75, fontSize: "0.72rem", fontWeight: 700, textTransform: "uppercase", color: "text.secondary", bgcolor: "#f8f9fa" },
+          "& .rbc-header": { py: 0.75, fontSize: "0.72rem", fontWeight: 700, textTransform: "uppercase", color: "text.secondary", bgcolor: "#f8f9fa", borderRight: "none" },
           "& .rbc-today": { bgcolor: "#E3F2FD !important" },
           "& .rbc-off-range-bg": { bgcolor: "#fafafa" },
           "& .rbc-toolbar": { display: "none" }, // usamos nuestro propio toolbar
           "& .rbc-month-row": { minHeight: "70px" },
           "& .rbc-show-more": { fontSize: "0.68rem", color: "#1976d2", fontWeight: 600 },
-          "& .rbc-date-cell": { fontSize: "0.72rem", px: 0.5, py: 0.25 },
+          "& .rbc-date-cell": { fontSize: "0.72rem", px: 0.5, py: 0.25, borderRight: "none" },
+          "& .rbc-day-bg + .rbc-day-bg": { borderLeft: "1px solid #f0f0f0" },
           "& .rbc-event": { fontSize: "0.7rem !important" },
+          "& .rbc-time-content": { borderTop: "none" },
+          "& .rbc-time-header": { borderRight: "none" },
+          "& .rbc-time-gutter": { borderRight: "none" },
+          "& .rbc-day-slot": { borderRight: "none" },
         }}
       >
         <Box sx={{ height: { xs: 420, sm: 520, md: "calc(100vh - 360px)", lg: "calc(100vh - 340px)" }, minHeight: 380 }}>

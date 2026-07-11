@@ -945,7 +945,13 @@ export default function Clientes() {
               variant="outlined" 
               startIcon={<FiFileText size={18} />} 
               onClick={() => setOpenScanner(true)}
-              sx={{ minWidth: { xs: "100%", sm: "auto" } }}
+              sx={{ 
+                minWidth: { xs: "100%", sm: "auto" },
+                borderColor: "primary.main",
+                color: "primary.main",
+                fontWeight: 700,
+                "&:hover": { borderColor: "primary.dark", bgcolor: "rgba(233,30,99,0.04)" }
+              }}
             >
               Escanear Tarjeta
             </Button>

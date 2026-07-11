@@ -140,7 +140,7 @@ export const MobileFab: React.FC = () => {
           position: 'fixed',
           bottom: { xs: 20, sm: 28 },
           right: { xs: 16, sm: 24 },
-          zIndex: 1400,
+          zIndex: 1600,
           display: 'flex',
           '& .MuiSpeedDial-fab': {
             background: 'linear-gradient(135deg, #e91e63 0%, #9c27b0 100%)',
