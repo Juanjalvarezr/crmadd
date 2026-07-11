@@ -253,8 +253,8 @@ export const ejecutarAccionSincrona = async (pregunta: string, respuestaIA: stri
     if (infoAccion.accion === "ACTUALIZAR_CLIENTE") {
       const { id, cambios } = infoAccion.datos;
       if (id && !isNaN(Number(id))) {
-        await clientesService.update(Number(id), cambios);
-        return infoAccion.confirmacion;
+        const actualizado = await clientesService.update(Number(id), cambios);
+        return infoAccion.confirmacion + (actualizado ? ` (ID ${id})` : '');
       }
     }
 
@@ -361,8 +361,8 @@ Documento: ${pdf_url || "(sin PDF)"}`;
 
 async function safeCreate(fn: () => PromiseLike<any> | Promise<any>, confirmacion: string, tipo: string) {
   try {
-    await fn();
-    return confirmacion;
+    const entidad = await fn();
+    return (entidad ? `✅ ${confirmacion}` : confirmacion);
   } catch (error: any) {
     console.error(`Error creando ${tipo}:`, error);
     return `⚠️ Error técnico al crear ${tipo}: ${error.message || "Verifica los datos"}`;

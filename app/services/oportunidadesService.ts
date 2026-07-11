@@ -99,7 +99,7 @@ export const oportunidadesService = {
    * @param id ID de la oportunidad a eliminar
    * @returns Promise<void>
    */
-  delete: async (id: number): Promise<void> => {
+  delete: async (id: number): Promise<boolean> => {
     try {
       const { error } = await supabase
         .from('oportunidades')
@@ -107,6 +107,7 @@ export const oportunidadesService = {
         .eq('id', id);
 
       if (error) throw error;
+      return true;
     } catch (error) {
       console.error('Error al eliminar oportunidad:', error);
       throw error;
@@ -218,5 +219,14 @@ async function getEstadisticas(): Promise<{ total: number; valorTotal: number; c
 }
 
 export const oportunidadesService = {
+  getAll,
+  getById,
+  create,
+  update,
+  delete,
+  search,
+  getByEtapa,
+  getByCliente,
+  getCerradas,
   getEstadisticas,
 };

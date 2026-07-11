@@ -253,8 +253,8 @@ export default function Configuracion() {
   const handleSaveEmpresa = async () => {
     setLoading(true);
     try {
-      await configuracionService.updateEmpresa(empresaConfig);
-
+      const guardado = await configuracionService.updateEmpresa(empresaConfig);
+      setEmpresaConfig(guardado || empresaConfig);
       showNotification("Configuración de empresa guardada correctamente", "success");
     } catch (err: any) {
       showNotification("Error al guardar configuración: " + err.message, "error");

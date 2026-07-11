@@ -48,12 +48,13 @@ export async function uploadFileToStorage(file: File, folder: string) {
   };
 }
 
-export async function deleteStorageFile(path: string) {
+export async function deleteStorageFile(path: string): Promise<boolean> {
   const { error } = await supabase.storage
     .from(BUCKET)
     .remove([path.replace(`${BUCKET}/`, '')]);
 
   if (error) throw error;
+  return true;
 }
 
 export function getPublicPDFUrl(path: string) {
