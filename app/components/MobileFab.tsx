@@ -45,9 +45,7 @@ export const MobileFab: React.FC = () => {
     estado: 'borrador' as const,
   });
 
-  useEffect(() => {
-    clientesService.getAll().then(setForm);
-  }, []);
+
 
   const accionesBase: AccionRapida[] = [
     { icon: <FiUserPlus size={20} />, name: 'Nuevo Cliente', tipo: 'cliente' },

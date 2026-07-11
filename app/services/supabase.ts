@@ -935,7 +935,7 @@ export const authService = {
 // Verificar conexión
 export async function testConnection() {
   try {
-    const { data, error } = await supabase.from('clientes').select('count', { count: 'exact', head: true });
+    const { data, error } = await supabase.from('clientes').select('*', { count: 'exact', head: true });
     if (error) throw error;
     return { success: true, message: 'Conexión exitosa a Supabase' };
   } catch (error: any) {

@@ -23,11 +23,11 @@ const columnas: { key: Estado; label: string; color: string }[] = [
 
 const getIcon = (estado: Estado) => {
   switch (estado) {
-    case "en_progreso": return <FiPlay size={16} />;
-    case "pausado": return <FiPause size={16} />;
-    case "completado": return <FiCheckCircle size={16} />;
-    case "cancelado": return <FiX size={16} />;
-    default: return <FiFolder size={16} />;
+    case "en_progreso": return <Play size={16} />;
+    case "pausado": return <Pause size={16} />;
+    case "completado": return <CheckCircle size={16} />;
+    case "cancelado": return <X size={16} />;
+    default: return <Folder size={16} />;
   }
 };
 
@@ -43,7 +43,7 @@ export default function Kanban() {
     <Box sx={{ maxWidth: 1400, mx: "auto", p: { xs: 2, sm: 3 } }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3, flexWrap: "wrap", gap: 1.5 }}>
         <Typography variant="h4" sx={{ fontWeight: 800, fontSize: { xs: "1.5rem", sm: "2rem" } }}>Kanban de Proyectos</Typography>
-        <Button variant="contained" startIcon={<FiPlus />}>Nuevo Proyecto</Button>
+        <Button variant="contained" startIcon={<Plus />}>Nuevo Proyecto</Button>
       </Box>
 
       <Box sx={{ display: "flex", gap: 2, overflowX: "auto", pb: 2 }}>

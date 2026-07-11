@@ -248,39 +248,7 @@ export const ejecutarAccionSincrona = async (pregunta: string, respuestaIA: stri
       return infoAccion.confirmacion;
     }
     
-    if (infoAccion.accion === "CREAR_TAREA") {
-      // Sanitización de prioridad para cumplir con las reglas de negocio y restricciones de la DB
-      let prioridad: "Baja" | "Media" | "Alta" = "Media";
-      const p = String(infoAccion.datos.prioridad || "").toLowerCase();
-      if (p.includes("alta")) prioridad = "Alta";
-      else if (p.includes("baja")) prioridad = "Baja";
 
-      await tareasService.create({ // Corregido: estaba como string en algunos lugares
-        titulo: String(infoAccion.datos.titulo || "Nueva Tarea IA"),
-        descripcion: String(infoAccion.datos.descripcion || ""),
-        prioridad,
-        estado: "Pendiente",
-        tipo: "Tarea",
-        cliente_id: datos.cliente_id && !isNaN(Number(datos.cliente_id)) ? Number(datos.cliente_id) : null,
-        fecha: new Date().toISOString().split('T')[0]
-      });
-      return infoAccion.confirmacion;
-    }
-
-    if (infoAccion.accion === "ENVIAR_CORREO") {
-      const { email, asunto, cuerpo, cliente_id } = infoAccion.datos;
-      // Ejecutar envío real
-      await emailService.sendRealEmail([email], asunto, cuerpo);
-      // Registrar interacción
-      await interaccionesService.create({
-        cliente_id,
-        tipo: 'Email',
-        asunto,
-        contenido: cuerpo,
-        usuario: 'Asistente IA'
-      });
-      return infoAccion.confirmacion;
-    }
 
     if (infoAccion.accion === "ACTUALIZAR_CLIENTE") {
       const { id, cambios } = infoAccion.datos;
@@ -328,12 +296,7 @@ export const ejecutarAccionSincrona = async (pregunta: string, respuestaIA: stri
       }), infoAccion.confirmacion, "tarea");
     }
 
-    if (infoAccion.accion === "ENVIAR_CORREO") {
-      const { email, asunto, cuerpo } = infoAccion.datos || {};
-      if (!email || !asunto || !cuerpo) return "Faltan datos para enviar el correo.";
-      await emailService.sendRealEmail([email], asunto, cuerpo);
-      return infoAccion.confirmacion;
-    }
+
 
     if (infoAccion.accion === "CREAR_FACTURA") {
       const datos = infoAccion.datos || {};
