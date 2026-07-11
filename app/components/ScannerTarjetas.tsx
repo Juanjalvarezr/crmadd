@@ -67,8 +67,11 @@ export default function ScannerTarjetas({ open, onClose, onSave }: Props) {
 
         {!preview && (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'center', py: 4 }}>
-            <Typography variant="body2" color="text.secondary">
-              Seleccioná una foto o tomala con la cámara
+            <Typography variant="body2" sx={{ fontWeight: 700, textAlign: 'center' }}>
+              Escaner de tarjetas
+            </Typography>
+            <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center' }}>
+              Selecciona una foto o tomala con la cámara
             </Typography>
             <Stack direction="row" spacing={2}>
               <Button variant="contained" startIcon={<FiCamera />} onClick={() => fileRef.current?.click()}>

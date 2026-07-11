@@ -45,8 +45,6 @@ export const MobileFab: React.FC = () => {
     estado: 'borrador' as const,
   });
 
-
-
   const accionesBase: AccionRapida[] = [
     { icon: <FiUserPlus size={20} />, name: 'Nuevo Cliente', tipo: 'cliente' },
     { icon: <FiList size={20} />, name: 'Nueva Tarea', tipo: 'tarea' },
@@ -75,7 +73,11 @@ export const MobileFab: React.FC = () => {
 
   const cerrarDialogo = () => {
     setDialogoAbierto(false);
-    setForm({ cliente_nombre: '', nombre: '', email: '', telefono: '', empresa: '', titulo: '', descripcion: '', fecha: '', prioridad: 'Media', valor: '', etapa: 'Prospección', probabilidad: 25, monto: '', concepto: '', estado_pago: 'pendiente', cliente_id: undefined, tipo: 'prestacion_servicios', fecha_inicio: '', fecha_fin: '', estado: 'borrador' });
+    setForm({
+      cliente_nombre: '', nombre: '', email: '', telefono: '', empresa: '', titulo: '', descripcion: '', fecha: '', prioridad: 'Media',
+      valor: '', etapa: 'Prospección', probabilidad: 25, monto: '', concepto: '', estado_pago: 'pendiente', cliente_id: undefined,
+      tipo: 'prestacion_servicios', fecha_inicio: '', fecha_fin: '', estado: 'borrador'
+    });
   };
 
   const handleGuardar = async () => {
@@ -134,53 +136,50 @@ export const MobileFab: React.FC = () => {
 
   return (
     <>
-      <SpeedDial
-        ariaLabel="Acciones rápidas"
-        sx={{
-          position: 'fixed',
-          bottom: { xs: 20, sm: 28 },
-          right: { xs: 16, sm: 24 },
-          zIndex: 1600,
-          display: 'flex',
-          '& .MuiSpeedDial-fab': {
-            background: 'linear-gradient(135deg, #e91e63 0%, #9c27b0 100%)',
-            boxShadow: '0 8px 24px rgba(233,30,99,0.4)',
-            '&:hover': {
-              background: 'linear-gradient(135deg, #d81b60 0%, #8e24aa 100%)',
-              transform: 'scale(1.05)',
-            },
-            transition: 'all 0.2s cubic-bezier(0.4,0,0.2,1)',
-          },
-          '& .MuiSpeedDialAction-staticTooltipLabel': {
-            whiteSpace: 'nowrap',
-          },
-        }}
-        icon={<SpeedDialIcon icon={<FiPlus size={24} />} openIcon={<FiPlus style={{ transform: 'rotate(45deg)' }} size={24} />} />}
-        open={open}
-        onOpen={() => setOpen(true)}
-        onClose={() => setOpen(false)}
-      >
-        {acciones.map((action) => (
-          <SpeedDialAction
-            key={action.name}
-            icon={action.icon}
-            title={action.name}
-            onClick={() => abrirDialogo(action.tipo)}
-            sx={{
-              backgroundColor: theme.palette.mode === 'dark' ? '#1e1e2e' : '#ffffff',
-              color: theme.palette.mode === 'dark' ? '#e2e8f0' : '#1f232e',
-              border: '1px solid',
-              borderColor: 'divider',
-              boxShadow: theme.palette.mode === 'dark' ? '0 4px 12px rgba(0,0,0,0.4)' : '0 2px 8px rgba(0,0,0,0.08)',
+      <Box sx={{ position: 'fixed', bottom: { xs: 20, sm: 28 }, right: { xs: 16, sm: 24 }, zIndex: 2000 }}>
+        <SpeedDial
+          ariaLabel="Acciones rápidas"
+          sx={{
+            '& .MuiSpeedDial-fab': {
+              background: 'linear-gradient(135deg, #e91e63 0%, #9c27b0 100%)',
+              boxShadow: '0 8px 24px rgba(233,30,99,0.4)',
               '&:hover': {
-                backgroundColor: theme.palette.mode === 'dark' ? '#2a2a3a' : '#f5f5f5',
-                transform: 'scale(1.08)',
+                background: 'linear-gradient(135deg, #d81b60 0%, #8e24aa 100%)',
+                transform: 'scale(1.05)',
               },
               transition: 'all 0.2s cubic-bezier(0.4,0,0.2,1)',
-            }}
-          />
-        ))}
-      </SpeedDial>
+            },
+            '& .MuiSpeedDialAction-staticTooltipLabel': {
+              whiteSpace: 'nowrap',
+            },
+          }}
+          icon={<SpeedDialIcon icon={<FiPlus size={24} />} openIcon={<FiPlus style={{ transform: 'rotate(45deg)' }} size={24} />} />}
+          open={open}
+          onOpen={() => setOpen(true)}
+          onClose={() => setOpen(false)}
+        >
+          {acciones.map((action) => (
+            <SpeedDialAction
+              key={action.name}
+              icon={action.icon}
+              title={action.name}
+              onClick={() => abrirDialogo(action.tipo)}
+              sx={{
+                backgroundColor: theme.palette.mode === 'dark' ? '#1e1e2e' : '#ffffff',
+                color: theme.palette.mode === 'dark' ? '#e2e8f0' : '#1f232e',
+                border: '1px solid',
+                borderColor: 'divider',
+                boxShadow: theme.palette.mode === 'dark' ? '0 4px 12px rgba(0,0,0,0.4)' : '0 2px 8px rgba(0,0,0,0.08)',
+                '&:hover': {
+                  backgroundColor: theme.palette.mode === 'dark' ? '#2a2a3a' : '#f5f5f5',
+                  transform: 'scale(1.08)',
+                },
+                transition: 'all 0.2s cubic-bezier(0.4,0,0.2,1)',
+              }}
+            />
+          ))}
+        </SpeedDial>
+      </Box>
 
       <Dialog open={dialogoAbierto} onClose={cerrarDialogo} maxWidth="xs" fullWidth>
         <DialogTitle>
