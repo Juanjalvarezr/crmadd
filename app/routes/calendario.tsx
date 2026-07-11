@@ -150,7 +150,7 @@ export default function Calendario() {
   }
 
   return (
-    <Box sx={{ p: { xs: 1, sm: 2 }, height: "100%", display: "flex", flexDirection: "column", gap: 1.5 }}>
+    <Box sx={{ p: { xs: 1, sm: 2 }, height: "100%", display: "flex", flexDirection: "column", gap: 1.5, overflow: "hidden" }}>
       {/* Header compacto */}
       <Paper variant="outlined" sx={{ p: { xs: 1.5, sm: 2 }, borderRadius: 2, borderLeft: "4px solid #1976d2" }}>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 1 }}>
