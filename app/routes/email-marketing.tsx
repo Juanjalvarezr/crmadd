@@ -111,7 +111,7 @@ export default function EmailMarketing() {
   const tpl = TEMPLATES[template];
 
   return (
-    <Box sx={{ p: { xs: 1, sm: 2 }, maxWidth: 1400, mx: "auto" }}>
+    <Box sx={{ p: { xs: 1, sm: 1.5 }, maxWidth: 1400, mx: "auto" }}>
       {/* Header estilo HubSpot */}
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2.5, flexWrap: "wrap", gap: 1 }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
@@ -304,7 +304,7 @@ export default function EmailMarketing() {
                 </Typography>
               </Box>
               {/* Cuerpo del email */}
-              <Box sx={{ p: { xs: 2, sm: 3 }, minHeight: 200, bgcolor: "#fafafa" }}>
+              <Box sx={{ p: { xs: 1.5, sm: 2 }, minHeight: 200, bgcolor: "#fafafa" }}>
                 <Box
                   sx={{ maxWidth: 600, mx: "auto", bgcolor: "white", borderRadius: 1.5, p: 3, boxShadow: "0 1px 6px rgba(0,0,0,0.08)" }}
                   dangerouslySetInnerHTML={{ __html: html || TEMPLATES[template].html }}
