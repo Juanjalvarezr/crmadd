@@ -983,7 +983,7 @@ export default function Clientes() {
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             {[...Array(5)].map((_, i) => (
               isMobile ? (
-                <Card key={i} sx={{ p: 2, borderRadius: 3 }}>
+                <Card key={i} sx={{ p: 1.5, borderRadius: 3, '&:hover': { boxShadow: 3 } }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                     <Skeleton variant="circular" width={45} height={45} sx={skeletonAgencyStyle} />
                     <Box sx={{ flex: 1 }}>
@@ -1112,6 +1112,17 @@ export default function Clientes() {
                       >
                         Email
                       </Button>
+                      {cliente.telefono && (
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          startIcon={<FiMessageSquare size={14} />}
+                          color="success"
+                          onClick={(e) => { e.stopPropagation(); window.open(`https://wa.me/${cliente.telefono.replace(/\D/g, '')}?text=${encodeURIComponent('Hola ' + cliente.nombre + ', ¿cómo estás?')}`, '_blank'); }}
+                        >
+                          WhatsApp
+                        </Button>
+                      )}
                     </Box>
 
                     <Box sx={{ p: 1, pt: 0, display: 'flex', justifyContent: 'flex-end', gap: 0.5, borderTop: '1px solid', borderColor: 'divider' }}>
