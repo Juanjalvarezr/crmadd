@@ -18,6 +18,9 @@ import {
   clientesService,
   oportunidadesService
 } from "../services/database";
+import {
+  BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
+} from "recharts";
 
 // Tipos para reportes
 interface Metrica {
@@ -567,6 +570,49 @@ export default function Reportes() {
                         </Typography>
                       </Box>
                     ))}
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            {/* Gráficos visuales */}
+            <Grid item xs={12} md={6}>
+              <Card sx={{ borderRadius: 2 }}>
+                <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>Ingresos (barras)</Typography>
+                  <Box sx={{ height: 260 }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={metricas.map((m) => ({ name: m.titulo, valor: typeof m.valor === 'number' ? m.valor : 0, color: m.color }))}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" tick={{ fontSize: 12 }} hide />
+                        <YAxis tick={{ fontSize: 12 }} />
+                        <Tooltip />
+                        <Bar dataKey="valor">
+                          {metricas.map((entry, index) => (
+                            <Cell key={index} fill={entry.color} />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Card sx={{ borderRadius: 2 }}>
+                <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 700, mb: 1 }}>Distribución</Typography>
+                  <Box sx={{ height: 260 }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie data={[{ name: 'Ingresos', value: metricas[0]?.valor ? Number(metricas[0].valor) : 0 }, { name: 'Otros', value: Math.max(0, (metricas[1]?.valor ? Number(metricas[1].valor) : 0)) }]} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80}>
+                          <Cell fill="#e91e63" />
+                          <Cell fill="#9c27b0" />
+                        </Pie>
+                        <Tooltip />
+                        <Legend />
+                      </PieChart>
+                    </ResponsiveContainer>
                   </Box>
                 </CardContent>
               </Card>

@@ -48,6 +48,7 @@ export const MobileFab: React.FC = () => {
 
   const accionesBase: AccionRapida[] = [
     { icon: <FiUserPlus size={20} />, name: 'Nuevo Cliente', tipo: 'cliente' },
+    { icon: <FiCalendar size={20} />, name: 'Agendar Reunión', tipo: 'reunion' },
     { icon: <FiMessageSquare size={20} />, name: 'WhatsApp Rápido', tipo: 'whatsapp' },
     { icon: <FiList size={20} />, name: 'Nueva Tarea', tipo: 'tarea' },
     { icon: <FiDollarSign size={20} />, name: 'Nueva Factura', tipo: 'factura' },
@@ -115,6 +116,14 @@ export const MobileFab: React.FC = () => {
           await contratosService.create({ titulo: form.titulo, cliente_id: form.cliente_id || undefined, tipo: form.tipo, fecha_inicio: form.fecha_inicio || undefined, fecha_fin: form.fecha_fin || undefined, monto: Number(form.monto) || 0, estado: form.estado, origen: 'FAB' } as any);
           setSnackbar({ open: true, mensaje: 'Contrato creado correctamente', severity: 'success' });
           break;
+        case 'reunion':
+          const meetUrl = 'https://meet.google.com/new';
+          if (navigator?.clipboard) {
+            try { await navigator.clipboard.writeText(meetUrl); } catch {}
+          }
+          window.open(meetUrl, '_blank');
+          setSnackbar({ open: true, mensaje: 'Reunión creada y link copiado', severity: 'success' });
+          break;
       }
       cerrarDialogo();
       try {
@@ -138,6 +147,7 @@ export const MobileFab: React.FC = () => {
       case 'factura': return 'Nueva Factura';
       case 'proyecto': return 'Nuevo Proyecto';
       case 'contrato': return 'Nuevo Contrato';
+      case 'reunion': return 'Agendar Reunión';
       default: return 'Nuevo';
     }
   };

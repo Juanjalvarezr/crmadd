@@ -118,6 +118,11 @@ export default function Cliente360() {
               <FiEye style={{ marginRight: 4 }} />Web
             </Button>
           )}
+          <Button size="small" variant="outlined" startIcon={<FiCalendar />} onClick={async () => {
+            const url = 'https://meet.google.com/new';
+            try { await navigator.clipboard?.writeText(url); } catch {}
+            window.open(url, '_blank');
+          }}>Agendar reunión</Button>
         </Stack>
 
         <Tabs value={tab} onChange={(_, v) => setTab(v)} variant="scrollable" allowScrollButtonsMobile>
