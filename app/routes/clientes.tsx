@@ -478,32 +478,8 @@ export default function Clientes() {
 
   // Funciones para las nuevas acciones
   const handleViewDetails = async (cliente: Cliente) => {
-    setSelectedClient(cliente);
-    setDetailTab(0);
-    try {
-      const [p, o, t, f, c, tx] = await Promise.all([
-        proyectosService.getAll(),
-        oportunidadesService.getAll(),
-        tareasService.getAll(),
-        facturasService.getAll(),
-        contratosService.getAll(),
-        transaccionesService.getAll(),
-      ]);
-      const clienteId = cliente.id;
-      setRelatedProyectos(p.filter((x: any) => Number(x.clienteId) === Number(clienteId) || Number(x.cliente_id) === Number(clienteId)));
-      setRelatedOportunidades(o.filter((x: any) => Number(x.cliente_id) === Number(clienteId)));
-      setRelatedTareas(t.filter((x: any) => Number(x.cliente_id) === Number(clienteId)));
-      setRelatedFacturas(f.filter((x: any) => Number(x.cliente_id) === Number(clienteId)));
-      setRelatedContratos(c.filter((x: any) => Number(x.cliente_id) === Number(clienteId)));
-      setRelatedTransacciones(tx.filter((x: any) => Number(x.cliente_id) === Number(clienteId) || x.cliente_id === String(clienteId)));
-    } catch (e) {
-      setRelatedProyectos([]);
-      setRelatedOportunidades([]);
-      setRelatedTareas([]);
-      setRelatedFacturas([]);
-      setRelatedContratos([]);
-      setRelatedTransacciones([]);
-    }
+    const url = `/clientes/${cliente.id}`;
+    window.location.href = url;
   };
 
   const handleCall = (cliente: Cliente) => {

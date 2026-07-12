@@ -5,6 +5,7 @@ export default [
 	route("/dashboard", "routes/dashboard.tsx"),
 	route("/bienvenida", "routes/home.tsx"),
 	route("/clientes", "routes/clientes.tsx"),
+	route("/clientes/:id", "routes/clientes-vista.tsx"),
 	route("/servicios", "routes/servicios.tsx"),
 	route("/ventas", "routes/ventas.tsx"),
 	route("/tareas", "routes/tareas.tsx"),

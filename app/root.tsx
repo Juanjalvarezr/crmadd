@@ -8,6 +8,7 @@ import { Header } from "./components/Header";
 import { MobileFab } from "./components/MobileFab";
 import { FloatingAIAssistant } from "./components/FloatingAIAssistant";
 import GlobalSearch from "./components/GlobalSearch";
+import { OnboardingTour } from "./components/OnboardingTour";
 import { supabase } from "./services/supabase";
 
 // __INVALIDATE_BUILD_CACHE__ 2026-07-10T00:00:00.000Z
@@ -27,6 +28,7 @@ export default function Root() {
     return false;
   });
   const [searchOpen, setSearchOpen] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const [themeMode, setThemeMode] = useState<"light" | "dark">(() => {
     if (typeof window !== "undefined") {
       return (window.localStorage.getItem("theme_mode") as "light" | "dark") || "dark";
@@ -124,6 +126,18 @@ export default function Root() {
   }, []);
 
   useEffect(() => {
+    const handler = () => setSearchOpen(true);
+    window.addEventListener("open-global-search", handler as EventListener);
+    return () => window.removeEventListener("open-global-search", handler as EventListener);
+  }, []);
+
+  useEffect(() => {
+    const handler = () => setShowOnboarding(true);
+    window.addEventListener("open-onboarding", handler as EventListener);
+    return () => window.removeEventListener("open-onboarding", handler as EventListener);
+  }, []);
+
+  useEffect(() => {
     const handler = () => {
       const el = document.getElementById('floating-ai-assistant');
       if (el) el.dispatchEvent(new CustomEvent('open-assistant'));
@@ -209,6 +223,7 @@ export default function Root() {
           <MobileFab />
           <FloatingAIAssistant />
           <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
+          {showOnboarding && <OnboardingTour open={showOnboarding} onClose={() => setShowOnboarding(false)} />}
         </Box>
       </Box>
       <Snackbar

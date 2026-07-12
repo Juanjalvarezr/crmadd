@@ -103,6 +103,9 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick, themeMode = "dark",
           )}
         </Box>
 
+        <IconButton color="inherit" onClick={handleOpenSearch} sx={{ display: { xs: 'none', sm: 'flex' } }}>
+          <FiSearch />
+        </IconButton>
         <IconButton color="inherit" onClick={(e) => setNotificationAnchor(e.currentTarget)}>
           <FiBell />
           {unreadCount > 0 && (

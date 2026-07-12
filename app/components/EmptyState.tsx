@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Typography, Button, Paper } from "@mui/material";
+import { Box, Typography, Button, Paper, useTheme } from "@mui/material";
 import { FiPlus } from "react-icons/fi";
 
 interface EmptyStateProps {
@@ -19,10 +19,12 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
   onAction,
   color = "#e91e63"
 }) => {
+  const theme = useTheme();
+  const isDark = theme.palette.mode === 'dark';
   return (
     <Paper
       sx={{
-        p: 6,
+        p: { xs: 4, sm: 6 },
         textAlign: "center",
         display: "flex",
         flexDirection: "column",
@@ -30,9 +32,10 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
         justifyContent: "center",
         gap: 2,
         borderRadius: 4,
-        border: "2px dashed #e0e0e0",
-        backgroundColor: "rgba(255, 255, 255, 0.5)",
-        minHeight: 300,
+        border: "2px dashed",
+        borderColor: 'divider',
+        backgroundColor: isDark ? 'rgba(255,255,255,0.02)' : "rgba(0,0,0,0.02)",
+        minHeight: 260,
         boxShadow: "none"
       }}
     >
@@ -44,14 +47,14 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: `${color}15`,
+          backgroundColor: isDark ? alpha(color, 0.2) : `${color}15`,
           color: color,
           mb: 1
         }}
       >
         {icon}
       </Box>
-      <Typography variant="h6" sx={{ fontWeight: "bold", color: "#333" }}>
+      <Typography variant="h6" sx={{ fontWeight: "bold", color: 'text.primary' }}>
         {title}
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 400, mb: 2 }}>
@@ -82,3 +85,10 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
     </Paper>
   );
 };
+
+function alpha(hex: string, a: number) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${a})`;
+}
