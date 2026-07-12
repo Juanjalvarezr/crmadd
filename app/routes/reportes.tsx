@@ -368,7 +368,7 @@ export default function Reportes() {
       </Paper>
 
       {/* Controles de filtro */}
-      <Paper sx={{ p: 2, mb: 2, borderRadius: 2 }}>
+      <Paper sx={{ p: 1.5, mb: 1.5, borderRadius: 2 }}>
         <Grid container spacing={2} alignItems="center">
           <Grid item xs={12} md={3}>
             <FormControl fullWidth>
