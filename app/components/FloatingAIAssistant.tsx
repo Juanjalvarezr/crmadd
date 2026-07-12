@@ -86,9 +86,9 @@ CONTEXTO ACTUAL:
 
 ---
 ✅ ${ejecucion}` : textoFinal;
-      setChatMessages((m) => [...m, { role: 'assistant', text: mensajeFinal }]);
+      setChatMessages((m) => [...m, { role: 'assistant', text: mensajeFinal, context: aiContext }]);
     } catch (e: any) {
-      setChatMessages((m) => [...m, { role: 'assistant', text: `Error: ${e?.message || 'No se pudo ejecutar'}` }]);
+      setChatMessages((m) => [...m, { role: 'assistant', text: `Error: ${e?.message || 'No se pudo ejecutar'}`, context: aiContext }]);
     } finally {
       setIsLoading(false);
     }
