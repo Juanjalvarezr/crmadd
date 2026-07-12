@@ -878,7 +878,7 @@ export default function Proyectos() {
   const proyectosFiltrados = getProyectosPorTab();
 
   return (
-    <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
+    <Box sx={{ p: { xs: 1, sm: 1.5 }, maxWidth: 1400, mx: "auto" }}>
       {/* Header */}
       <Paper sx={{ 
         p: { xs: 2, sm: 3 }, 

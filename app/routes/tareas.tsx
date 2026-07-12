@@ -387,9 +387,9 @@ export default function Tareas() {
   };
 
   return (
-    <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
+    <Box sx={{ p: { xs: 1, sm: 1.5 }, maxWidth: 1400, mx: "auto" }}>
       {/* Header */}
-      <Paper sx={{ p: 2, mb: 2, background: "linear-gradient(135deg, #f3e5f5 0%, #e8eaf6 100%)", borderLeft: "4px solid #9C27B0" }}>
+      <Paper sx={{ p: 1.5, mb: 1.5, borderRadius: 2, background: "linear-gradient(135deg, #f3e5f5 0%, #e8eaf6 100%)", borderLeft: "4px solid #9C27B0" }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 0.5, flexWrap: "wrap" }}>
           <FiCheckSquare size={22} color="#9C27B0" />
           <Typography variant="h6" sx={{ color: "#7B1FA2", flex: 1, letterSpacing: '-0.01em' }}>Tareas y Actividades</Typography>

@@ -58,7 +58,7 @@ export default function Kanban() {
 
               <Stack spacing={1.5}>
                 {items.map((item) => (
-                  <Paper key={item.id} sx={{ p: 2, borderRadius: 2, border: "1px solid", borderColor: "divider", cursor: "pointer" }}>
+                  <Paper key={item.id} sx={{ p: 1.5, borderRadius: 2, border: "1px solid", borderColor: "divider", cursor: "pointer" }}>
                     <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
                       {getIcon(item.estado)}
                       <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>{item.nombre}</Typography>

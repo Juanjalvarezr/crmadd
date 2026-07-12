@@ -326,7 +326,7 @@ export default function Contratos() {
       </Box>
 
       {renovacionesProximas.length > 0 && (
-        <Paper sx={{ p: 1.5, mb: 2, borderRadius: 2, border: '1px solid', borderColor: 'warning.main', bgcolor: 'warning.light' }}>
+        <Paper sx={{ p: 1, mb: 2, borderRadius: 2, border: '1px solid', borderColor: 'warning.main', bgcolor: 'warning.light' }}>
           <Typography variant="subtitle2" sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'warning.dark' }}>
             <FiAlertTriangle /> Renovaciones próximas ({renovacionesProximas.length})
           </Typography>
@@ -567,7 +567,7 @@ export default function Contratos() {
           ) : (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
               {versionHistory.map((v) => (
-                <Paper key={v.id} variant="outlined" sx={{ p: 2 }}>
+                <Paper key={v.id} variant="outlined" sx={{ p: 1.5 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                     <Typography variant="subtitle2">v{v.version}</Typography>
                     <Typography variant="caption">{new Date(v.created_at).toLocaleString()}</Typography>
