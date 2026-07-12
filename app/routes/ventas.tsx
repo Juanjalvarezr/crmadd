@@ -347,7 +347,7 @@ export default function Ventas() {
   return (
     <Box sx={{ p: { xs: 1, sm: 1.5, md: 2 } }}>
       {/* Header */}
-      <Paper sx={{ p: 2, mb: 2, background: "linear-gradient(135deg, #fce4ec 0%, #fff8e1 100%)", borderLeft: "5px solid #E91E63" }}>
+      <Paper sx={{ p: 1.5, mb: 1.5, background: "linear-gradient(135deg, #fce4ec 0%, #fff8e1 100%)", borderLeft: "5px solid #E91E63" }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 0.5, flexWrap: "wrap" }}>
           <FiTrendingUp size={28} color="#E91E63" />
           <Typography variant="h5" sx={{ color: "#C2185B", flex: 1 }}>
@@ -655,7 +655,7 @@ export default function Ventas() {
             <Box sx={{ display: 'grid', gap: 1.5, gridTemplateColumns: { xs: '1fr', md: '7fr 5fr' } }}>
               <Box sx={{ gridColumn: { xs: '1 / -1', md: 'span 7' } }}>
                 <Typography variant="subtitle2" gutterBottom color="primary" sx={{ fontWeight: 'bold' }}>📄 Documento de Propuesta (Markdown)</Typography>
-                <Paper variant="outlined" sx={{ p: 1.5, bgcolor: '#fdfdfd', maxHeight: 300, overflowY: 'auto' }}>
+                <Paper variant="outlined" sx={{ p: 1, bgcolor: '#fdfdfd', maxHeight: 300, overflowY: 'auto' }}>
                   <Typography variant="body2" component="pre" sx={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit' }}>
                     {propuestaGenerada}
                   </Typography>
@@ -675,7 +675,7 @@ export default function Ventas() {
               </Box>
               <Box sx={{ gridColumn: { xs: '1 / -1', md: 'span 5' } }}>
                 <Typography variant="subtitle2" gutterBottom color="success.main" sx={{ fontWeight: 'bold' }}>💬 Resumen para WhatsApp</Typography>
-                <Paper variant="outlined" sx={{ p: 1.5, bgcolor: '#e8f5e9', border: '1px solid #4caf50' }}>
+                <Paper variant="outlined" sx={{ p: 1, bgcolor: '#e8f5e9', border: '1px solid #4caf50' }}>
                   <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
                     {resumenWhatsApp}
                   </Typography>
