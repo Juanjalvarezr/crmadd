@@ -342,13 +342,25 @@ export default function Configuracion() {
   const handleBackup = async () => {
     setLoading(true);
     try {
-      // Simulación de backup
+      const [clientes, proyectos, facturas, contratos] = await Promise.all([
+        clientesService.getAll(),
+        proyectosService.getAll(),
+        facturasService.getAll(),
+        (await import('../services/database')).contratosService.getAll(),
+      ]);
+
       const backupData = {
         empresa: empresaConfig,
         preferencias: preferenciasConfig,
-        fecha: new Date().toISOString()
+        fecha: new Date().toISOString(),
+        datos: {
+          clientes: Array.isArray(clientes) ? clientes : [],
+          proyectos: Array.isArray(proyectos) ? proyectos : [],
+          facturas: Array.isArray(facturas) ? facturas : [],
+          contratos: Array.isArray(contratos) ? contratos : [],
+        },
       };
-      
+
       const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");

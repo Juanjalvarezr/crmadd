@@ -503,9 +503,12 @@ export default function Tareas() {
                   <TableRow key={tarea.id} hover sx={{ backgroundColor: isVencida(tarea) ? (theme => theme.palette.mode === 'dark' ? 'rgba(255,87,34,0.15)' : "#fff3e0") : "inherit", '&:last-child td, &:last-child th': { border: 0 } }}>
                     <TableCell sx={{ py: { xs: 1, sm: 1.5 } }}>
                       <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                        {tarea.titulo && (
+                        <Checkbox size="small" checked={tarea.estado === "Completada"} onChange={() => handleComplete(tarea)} />
+                        <Box sx={{ minWidth: 0 }}>
                           <Typography variant="body2" sx={{ fontWeight: 500, lineHeight: 1.3 }}>{tarea.titulo}</Typography>
-                        )}
+                          <Typography variant="caption" color="text.secondary">ID: {tarea.id}</Typography>
+                        </Box>
+                      </Box>
                         {isVencida(tarea) && <SafeChip label="⚠️ Vencida" size="small" color="error" variant="outlined" sx={{ height: 20, fontSize: '0.65rem' }} />}
                       </Box>
                       {subtareasTotal > 0 && (

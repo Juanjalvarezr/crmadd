@@ -185,7 +185,9 @@ CONTEXTO ACTUAL:
           <Box
             sx={{
               p: 2,
-              background: 'linear-gradient(135deg, #e91e63, #9c27b0)',
+              background: (theme) => theme.palette.mode === 'dark'
+                ? 'linear-gradient(135deg, #ad1457 0%, #7b1fa2 100%)'
+                : 'linear-gradient(135deg, #e91e63, #9c27b0)',
               color: 'white',
               display: 'flex',
               justifyContent: 'space-between',
