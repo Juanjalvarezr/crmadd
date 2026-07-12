@@ -30,14 +30,30 @@ export default function Facturacion() {
   const [success, setSuccess] = useState<string | null>(null);
   const [clientes, setClientes] = useState<any[]>([]);
   const [proyectos, setProyectos] = useState<any[]>([]);
-  const [search, setSearch] = useState("");
-  const [filterEstado, setFilterEstado] = useState("all");
-  const [filterTipo, setFilterTipo] = useState("all");
-  const [filterEstadoPago, setFilterEstadoPago] = useState("all");
-  const [filterCliente, setFilterCliente] = useState("");
-  const [filterProyecto, setFilterProyecto] = useState("");
-  const [filterFechaDesde, setFilterFechaDesde] = useState("");
-  const [filterFechaHasta, setFilterFechaHasta] = useState("");
+  const [search, setSearch] = useState(() => {
+    try { return localStorage.getItem('filtros-facturacion-search') || ''; } catch { return ''; }
+  });
+  const [filterEstado, setFilterEstado] = useState(() => {
+    try { return localStorage.getItem('filtros-facturacion-estado') || 'all'; } catch { return 'all'; }
+  });
+  const [filterTipo, setFilterTipo] = useState(() => {
+    try { return localStorage.getItem('filtros-facturacion-tipo') || 'all'; } catch { return 'all'; }
+  });
+  const [filterEstadoPago, setFilterEstadoPago] = useState(() => {
+    try { return localStorage.getItem('filtros-facturacion-estado-pago') || 'all'; } catch { return 'all'; }
+  });
+  const [filterCliente, setFilterCliente] = useState(() => {
+    try { return localStorage.getItem('filtros-facturacion-cliente') || ''; } catch { return ''; }
+  });
+  const [filterProyecto, setFilterProyecto] = useState(() => {
+    try { return localStorage.getItem('filtros-facturacion-proyecto') || ''; } catch { return ''; }
+  });
+  const [filterFechaDesde, setFilterFechaDesde] = useState(() => {
+    try { return localStorage.getItem('filtros-facturacion-desde') || ''; } catch { return ''; }
+  });
+  const [filterFechaHasta, setFilterFechaHasta] = useState(() => {
+    try { return localStorage.getItem('filtros-facturacion-hasta') || ''; } catch { return ''; }
+  });
   const [scannerOpen, setScannerOpen] = useState(false);
   const [sendingWhatsApp, setSendingWhatsApp] = useState<string | null>(null);
   const [numeroSugerido, setNumeroSugerido] = useState("");
@@ -67,6 +83,23 @@ export default function Facturacion() {
   };
 
   useEffect(() => { load(); }, []);
+
+  // Persistir filtros en localStorage con debounce
+  useEffect(() => {
+    const t = setTimeout(() => {
+      try {
+        localStorage.setItem('filtros-facturacion-search', search);
+        localStorage.setItem('filtros-facturacion-estado', filterEstado);
+        localStorage.setItem('filtros-facturacion-tipo', filterTipo);
+        localStorage.setItem('filtros-facturacion-estado-pago', filterEstadoPago);
+        localStorage.setItem('filtros-facturacion-cliente', filterCliente);
+        localStorage.setItem('filtros-facturacion-proyecto', filterProyecto);
+        localStorage.setItem('filtros-facturacion-desde', filterFechaDesde);
+        localStorage.setItem('filtros-facturacion-hasta', filterFechaHasta);
+      } catch {}
+    }, 300);
+    return () => clearTimeout(t);
+  }, [search, filterEstado, filterTipo, filterEstadoPago, filterCliente, filterProyecto, filterFechaDesde, filterFechaHasta]);
 
   useEffect(() => {
     if (open && !editItem) {

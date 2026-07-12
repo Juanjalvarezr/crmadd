@@ -39,8 +39,12 @@ export default function Contratos() {
   const [clientes, setClientes] = useState<any[]>([]);
   const [proyectos, setProyectos] = useState<any[]>([]);
   const [facturas, setFacturas] = useState<any[]>([]);
-  const [search, setSearch] = useState("");
-  const [filterEstado, setFilterEstado] = useState("all");
+  const [search, setSearch] = useState(() => {
+    try { return localStorage.getItem('filtros-contratos-search') || ''; } catch { return ''; }
+  });
+  const [filterEstado, setFilterEstado] = useState(() => {
+    try { return localStorage.getItem('filtros-contratos-estado') || 'all'; } catch { return 'all'; }
+  });
   const [scannerOpen, setScannerOpen] = useState(false);
   const [sendingWhatsApp, setSendingWhatsApp] = useState<string | null>(null);
   const [selectedPlantilla, setSelectedPlantilla] = useState<string>("");

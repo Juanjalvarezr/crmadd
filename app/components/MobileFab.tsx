@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { SpeedDial, SpeedDialAction, SpeedDialIcon, useTheme, useMediaQuery, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, MenuItem, FormControl, InputLabel, Select, Snackbar, Alert, Box, IconButton } from '@mui/material';
+import { SpeedDial, SpeedDialAction, SpeedDialIcon, useTheme, useMediaQuery, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, MenuItem, FormControl, InputLabel, Select, Snackbar, Alert, Box, IconButton, Tooltip } from '@mui/material';
 import { FiUsers, FiTrendingUp, FiDollarSign, FiPlus, FiUserPlus, FiList, FiX, FiFolder, FiFileText, FiBriefcase } from 'react-icons/fi';
 import { clientesService, proyectosService, tareasService, transaccionesService, oportunidadesService } from '../services/database';
 import { facturasService, contratosService } from '../services/facturacion';
@@ -21,6 +21,7 @@ export const MobileFab: React.FC = () => {
   const [tipoAccion, setTipoAccion] = useState<AccionRapida['tipo']>('cliente');
   const [snackbar, setSnackbar] = useState<{ open: boolean; mensaje: string; severity: 'success' | 'error' }>({ open: false, mensaje: '', severity: 'success' });
   const [clientes, setClientes] = useState<any[]>([]);
+  const audioRef = React.useRef<HTMLAudioElement | null>(null);
 
   const [form, setForm] = useState({
     cliente_nombre: '',
@@ -115,6 +116,12 @@ export const MobileFab: React.FC = () => {
           break;
       }
       cerrarDialogo();
+      try {
+        if (audioRef.current) {
+          audioRef.current.currentTime = 0;
+          void audioRef.current.play();
+        }
+      } catch {}
     } catch (err: any) {
       setSnackbar({ open: true, mensaje: 'Error: ' + (err?.message || 'No se pudo guardar'), severity: 'error' });
     }
@@ -299,7 +306,8 @@ export const MobileFab: React.FC = () => {
         <Alert onClose={() => setSnackbar({ ...snackbar, open: false })} severity={snackbar.severity} sx={{ width: '100%' }}>
           {snackbar.mensaje}
         </Alert>
-      </Snackbar>
-    </>
+        </Snackbar>
+        <audio ref={audioRef} src="data:audio/mp3;base64,//NExAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq" preload="auto" />
+        </>
   );
 };
