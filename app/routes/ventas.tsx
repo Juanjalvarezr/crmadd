@@ -366,7 +366,7 @@ export default function Ventas() {
       </Paper>
 
       {/* KPIs */}
-      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 3 }}>
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1.5, mb: 1.5 }}>
         {[
           { title: "Total Oportunidades", value: loading ? "..." : filtered.length, subtitle: "En pipeline", color: "primary" },
           { title: "Valor Potencial", value: loading ? "..." : formatValue(totalValor), subtitle: "Ingresos esperados", color: "success" },

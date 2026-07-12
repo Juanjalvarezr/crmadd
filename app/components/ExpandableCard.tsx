@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import {
   Box,
   Typography,
-  Chip,
   IconButton,
   Collapse,
   Paper,
@@ -23,6 +22,9 @@ export interface ExpandableCardProps {
   children?: React.ReactNode;
   actions?: React.ReactNode[];
   onClick?: () => void;
+  compact?: boolean;
+  defaultExpanded?: boolean;
+  titleColor?: string;
 }
 
 const ExpandableCard: React.FC<ExpandableCardProps> = ({
@@ -37,13 +39,26 @@ const ExpandableCard: React.FC<ExpandableCardProps> = ({
   children,
   actions = [],
   onClick,
+  compact = false,
+  defaultExpanded = false,
+  titleColor,
 }) => {
   const theme = useTheme();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultExpanded);
 
   const isDark = theme.palette.mode === "dark";
   const bgPaper = isDark ? "#12131a" : "#ffffff";
   const border = isDark ? "1px solid rgba(255,255,255,0.06)" : "1px solid rgba(0,0,0,0.06)";
+  const accentColor = titleColor || (isDark ? "#8b5cf6" : "#4f46e5");
+
+  const handleActionClick = (event: React.MouseEvent) => {
+    event.stopPropagation();
+  };
+
+  const toggleOpen = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    setOpen((prev) => !prev);
+  };
 
   return (
     <Paper
@@ -51,30 +66,31 @@ const ExpandableCard: React.FC<ExpandableCardProps> = ({
       sx={{
         bgcolor: bgPaper,
         border,
-        borderRadius: 2,
-        p: 2,
+        borderRadius: 2.5,
+        p: compact ? 1.5 : 2,
         cursor: onClick ? "pointer" : "default",
         transition: "all 0.2s ease",
+        overflow: "hidden",
+        boxShadow: open ? (isDark ? 3 : 2) : (isDark ? 1 : 0.5),
         "&:hover": {
-          transform: "translateY(-2px)",
-          boxShadow: isDark ? 3 : 1,
+          transform: "translateY(-1px)",
+          boxShadow: isDark ? 3 : 2,
         },
       }}
     >
-      {/* Encabezado compacto */}
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 1 }}>
-        <Box sx={{ display: "flex", gap: 1.5, alignItems: "center", flex: 1, minWidth: 0 }}>
+        <Box sx={{ display: "flex", gap: 1, alignItems: "center", flex: 1, minWidth: 0 }}>
           {icon && (
             <Box
               sx={{
-                width: 36,
-                height: 36,
+                width: 34,
+                height: 34,
                 borderRadius: 1.5,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 bgcolor: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)",
-                color: "text.secondary",
+                color: accentColor,
                 flexShrink: 0,
               }}
             >
@@ -85,8 +101,9 @@ const ExpandableCard: React.FC<ExpandableCardProps> = ({
             <Typography
               variant="subtitle2"
               sx={{
-                fontWeight: 700,
-                color: "text.primary",
+                fontWeight: 800,
+                color: accentColor,
+                lineHeight: 1.2,
                 display: "-webkit-box",
                 WebkitLineClamp: { xs: 2, md: 1 },
                 WebkitBoxOrient: "vertical",
@@ -96,7 +113,7 @@ const ExpandableCard: React.FC<ExpandableCardProps> = ({
             >
               {title}
             </Typography>
-            {subtitle && (
+            {subtitle && (!compact || open) && (
               <Typography
                 variant="caption"
                 sx={{ color: "text.secondary", display: "block", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}
@@ -107,32 +124,24 @@ const ExpandableCard: React.FC<ExpandableCardProps> = ({
           </Box>
         </Box>
 
-        <Box sx={{ display: "flex", gap: 0.5, alignItems: "center", flexShrink: 0 }}>
+        <Box sx={{ display: "flex", gap: 0.35, alignItems: "center", flexShrink: 0 }}>
           {amount && (
-            <Typography variant="body2" sx={{ fontWeight: 700, color: "text.primary", fontSize: "0.8rem" }}>
+            <Typography variant="body2" sx={{ fontWeight: 700, color: "text.primary", fontSize: "0.78rem" }}>
               {amount}
             </Typography>
           )}
           {actions.length > 0 && (
-            <IconButton size="small" sx={{ p: 0.5 }} onClick={(e) => { e.stopPropagation(); }}>
+            <IconButton size="small" sx={{ p: 0.5 }} onClick={handleActionClick}>
               <FiMoreVertical size={14} />
             </IconButton>
           )}
-          <IconButton
-            size="small"
-            sx={{ p: 0.5 }}
-            onClick={(e) => {
-              e.stopPropagation();
-              setOpen((prev) => !prev);
-            }}
-          >
+          <IconButton size="small" sx={{ p: 0.5 }} onClick={toggleOpen}>
             {open ? <FiChevronUp size={16} /> : <FiChevronDown size={16} />}
           </IconButton>
         </Box>
       </Box>
 
-      {/* Chips compactos */}
-      <Box sx={{ display: "flex", gap: 0.75, mt: 1, flexWrap: "wrap" }}>
+      <Box sx={{ display: "flex", gap: 0.75, mt: 1, flexWrap: "wrap", alignItems: "center" }}>
         {status && (
           <SafeChip
             label={status.label}
@@ -160,13 +169,17 @@ const ExpandableCard: React.FC<ExpandableCardProps> = ({
         )}
       </Box>
 
-      {/* Contenido expandible */}
+      {compact && !open && subtitle && (
+        <Typography variant="caption" sx={{ display: "block", mt: 0.75, color: "text.secondary", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+          {subtitle}
+        </Typography>
+      )}
+
       <Collapse in={open} timeout="auto" unmountOnExit>
-        <Box sx={{ mt: 2, pt: 1.5, borderTop: border }}>{children}</Box>
+        <Box sx={{ mt: 1.5, pt: 1.25, borderTop: border }}>{children}</Box>
       </Collapse>
 
-      {/* Footer / acciones */}
-      {footer && <Box sx={{ mt: open ? 2 : 0, pt: open ? 1.5 : 0, borderTop: open ? border : "none" }}>{footer}</Box>}
+      {footer && <Box sx={{ mt: open ? 1.5 : 0, pt: open ? 1.25 : 0, borderTop: open ? border : "none" }}>{footer}</Box>}
     </Paper>
   );
 };

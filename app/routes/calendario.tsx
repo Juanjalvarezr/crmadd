@@ -119,18 +119,34 @@ export default function Calendario() {
     setIsModalOpen(true);
   };
 
-  const eventStyleGetter = (event: CalEvent) => ({
-    style: {
-      backgroundColor: event.color,
-      borderRadius: '6px',
-      opacity: 0.92,
-      color: 'white',
-      border: 'none',
-      display: 'block',
-      fontSize: '0.72rem',
-      fontWeight: 600,
-      padding: '1px 6px',
-      boxShadow: `0 1px 4px ${event.color}55`,
+  const eventStyleGetter = (event: CalEvent) => {
+    const icon = event.type === 'tarea' ? '☑️' : event.type === 'venta' ? '💰' : '📌';
+    const time = event.start ? format(event.start, 'HH:mm') : '';
+    return {
+      style: {
+        backgroundColor: event.color,
+        borderRadius: '6px',
+        opacity: 0.95,
+        color: 'white',
+        border: 'none',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '4px',
+        fontSize: '0.68rem',
+        fontWeight: 600,
+        padding: '2px 6px',
+        boxShadow: `0 1px 4px ${event.color}55`,
+        overflow: 'hidden',
+        whiteSpace: 'nowrap',
+        textOverflow: 'ellipsis',
+      }
+    };
+  };
+
+  const eventPropGetter = (event: CalEvent) => ({
+    event: {
+      title: `${event.type === 'tarea' ? '☑️' : event.type === 'venta' ? '💰' : '📌'} ${event.title}`,
+      ...(event.start ? ({ time: format(event.start, 'HH:mm') } as any) : {})
     }
   });
 
@@ -297,7 +313,7 @@ export default function Calendario() {
             style={{ height: "100%" }}
             culture="es"
             onSelectEvent={handleSelectEvent}
-            eventPropGetter={eventStyleGetter}
+            eventPropGetter={eventPropGetter}
             views={['month', 'week', 'day']}
             view={view}
             date={date}

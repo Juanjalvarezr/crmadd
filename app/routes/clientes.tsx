@@ -1037,59 +1037,35 @@ export default function Clientes() {
               return (
                 <Grid item xs={12} sm={6} md={4} lg={3} key={cliente.id}>
                   <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', border: '1px solid', borderColor: 'divider', position: 'relative' }}>
-                    <Box sx={{ position: 'absolute', top: 8, left: 8, zIndex: 1 }}>
-                      <Checkbox
-                        checked={selectedIds.includes(cliente.id)}
-                        onChange={() => handleSelectOne(cliente.id)}
-                        size="small"
-                        sx={{ padding: 0.5, '& .MuiSvgIcon-root': { fontSize: 20 } }}
-                      />
-                    </Box>
-
-                    <CardContent sx={{ flexGrow: 1, pb: 1 }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1, mb: 1, pl: 3 }}>
-                        <Typography variant="h6" sx={{ fontWeight: 'bold', fontSize: { xs: '1rem', sm: '1.1rem' }, lineHeight: 1.2 }}>
-                          {cliente.nombre}
-                        </Typography>
-                        <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center', flexShrink: 0 }}>
-                          {isLeadFrio(cliente.ultima_interaccion) && (
-                            <Tooltip title="Lead frío">
-                              <FiAlertCircle size={16} color="#f44336" />
-                            </Tooltip>
-                          )}
-                          <SafeChip
-                            label={cliente.estado}
-                            color={getEstadoColor(cliente.estado)}
-                            size="small"
-                            sx={{ fontWeight: "medium", fontSize: { xs: '0.7rem', sm: '0.8rem' } }}
-                          />
+                    <CardContent sx={{ flexGrow: 1, py: 1, px: 1.5, '&:last-child': { pb: 1 } }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1, mb: 0.5, pl: 3 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
+                          <Box sx={{ width: 28, height: 28, borderRadius: '50%', bgcolor: 'primary.main', color: 'primary.contrastText', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700, flexShrink: 0 }}>
+                            {cliente.nombre?.charAt(0).toUpperCase()}
+                          </Box>
+                          <Typography variant="subtitle2" sx={{ fontWeight: 700, fontSize: { xs: '0.85rem', sm: '0.9rem' }, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {cliente.nombre}
+                          </Typography>
                         </Box>
+                        <SafeChip label={cliente.estado} color={getEstadoColor(cliente.estado)} size="small" sx={{ fontWeight: 500, fontSize: { xs: '0.65rem', sm: '0.7rem' }, height: 20 }} />
                       </Box>
 
-                      <Stack spacing={0.5} sx={{ pl: 3, mb: 1 }}>
+                      <Stack spacing={0.25} sx={{ pl: 3 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <FiMail size={14} color="text.secondary" />
-                          <Typography variant="body2" color="text.secondary" noWrap>{cliente.email}</Typography>
+                          <FiMail size={12} color="text.secondary" />
+                          <Typography variant="caption" color="text.secondary" noWrap sx={{ fontSize: '0.7rem' }}>{cliente.email}</Typography>
                         </Box>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <FiPhone size={14} color="text.secondary" />
-                          <Typography variant="body2" color="text.secondary">{cliente.telefono || '—'}</Typography>
+                          <FiPhone size={12} color="text.secondary" />
+                          <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem' }}>{cliente.telefono || '—'}</Typography>
                         </Box>
-                        {cliente.empresa && (
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <FiBriefcase size={14} color="text.secondary" />
-                            <Typography variant="body2" color="text.secondary" noWrap>{cliente.empresa}</Typography>
-                          </Box>
-                        )}
                       </Stack>
 
-                      <Divider sx={{ my: 1, pl: 3 }} />
+                      <Divider sx={{ my: 0.75, pl: 3 }} />
 
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pl: 3 }}>
-                        <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-                          Total Pagado
-                        </Typography>
-                        <Typography variant="body2" color="success.main" sx={{ fontWeight: 'bold' }}>
+                        <Typography variant="caption" sx={{ fontWeight: 600, fontSize: '0.7rem' }}>Total Pagado</Typography>
+                        <Typography variant="caption" color="success.main" sx={{ fontWeight: 700, fontSize: '0.7rem' }}>
                           {new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(totalPagado)}
                         </Typography>
                       </Box>

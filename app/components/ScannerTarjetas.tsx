@@ -17,6 +17,7 @@ export default function ScannerTarjetas({ open, onClose, onSave }: Props) {
   const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [phase, setPhase] = useState('');
   const [data, setData] = useState<ExtractedCard | null>(null);
   const [error, setError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
@@ -26,15 +27,28 @@ export default function ScannerTarjetas({ open, onClose, onSave }: Props) {
     setError(null);
     setData(null);
     setProgress(0);
+    setPhase('Leyendo imagen...');
 
     const reader = new FileReader();
     reader.onload = async () => {
       try {
         setPreview(reader.result as string);
-        const result = await scanCardFromImage(file);
+        setPhase('Inicializando OCR…');
+        setProgress(10);
+
+        const result = await scanCardFromImage(file, (p) => {
+          setProgress(p);
+          if (p < 40) setPhase('Descargando modelo…');
+          else if (p < 90) setPhase('Reconociendo texto…');
+          else setPhase('Finalizando…');
+        });
+
+        setPhase('Completado');
+        setProgress(100);
         setData(result);
       } catch (e: any) {
         setError(e?.message || 'Error al procesar la imagen');
+        setPhase('');
       } finally {
         setLoading(false);
       }
@@ -97,8 +111,11 @@ export default function ScannerTarjetas({ open, onClose, onSave }: Props) {
 
         {loading && (
           <Box sx={{ mb: 2 }}>
-            <Typography variant="body2">Procesando OCR…</Typography>
-            <LinearProgress variant="indeterminate" />
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+              <Typography variant="body2">{phase || 'Procesando OCR…'}</Typography>
+              <Typography variant="caption" color="text.secondary">{Math.round(progress)}%</Typography>
+            </Box>
+            <LinearProgress variant="determinate" value={progress} />
           </Box>
         )}
 

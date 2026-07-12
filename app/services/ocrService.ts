@@ -47,19 +47,29 @@ function extractCardData(text: string): ExtractedCard {
   };
 }
 
-export async function scanCardFromImage(file: File): Promise<ExtractedCard> {
+export async function scanCardFromImage(file: File, onProgress?: (p: number) => void): Promise<ExtractedCard> {
   const worker = await Tesseract.createWorker('spa', 1, {
-    logger: () => {},
+    logger: (m) => {
+      if (m.status === 'recognizing text' && typeof m.progress === 'number') {
+        onProgress?.(Math.round(m.progress * 100));
+      }
+    },
   });
 
   try {
     const { data } = await worker.recognize(file);
+    onProgress?.(100);
     return extractCardData((data.text || '').trim());
   } catch (e) {
     try {
-      const worker2 = await Tesseract.createWorker('eng', 1, { logger: () => {} });
+      const worker2 = await Tesseract.createWorker('eng', 1, { logger: (m) => {
+        if (m.status === 'recognizing text' && typeof m.progress === 'number') {
+          onProgress?.(Math.round(m.progress * 100));
+        }
+      }});
       const { data } = await worker2.recognize(file);
       await worker2.terminate();
+      onProgress?.(100);
       return extractCardData((data.text || '').trim());
     } catch (e2) {
       throw new Error('No se pudo leer la imagen. Probá con otra foto más clara.');

@@ -1102,16 +1102,18 @@ export default function Proyectos() {
       )}
 
       {!loading && !error && (
-        <Grid container spacing={2} sx={{ overflowX: "hidden" }}>
+        <Grid container spacing={1.25} sx={{ overflowX: "hidden" }}>
           {proyectosFiltrados.map((proyecto) => (
-            <Grid item xs={12} md={6} lg={4} key={proyecto.id}>
+            <Grid item xs={12} key={proyecto.id}>
               <ExpandableCard
                 title={proyecto.nombre}
-                subtitle={proyecto.descripcion}
+                subtitle={proyecto.descripcion ? `${proyecto.descripcion.slice(0, 100)}${proyecto.descripcion.length > 100 ? "…" : ""}` : "Sin descripción"}
                 status={{ label: proyecto.estado.replace("_", " "), color: getEstadoColor(proyecto.estado) }}
                 priority={{ label: proyecto.prioridad, color: getPrioridadColor(proyecto.prioridad) }}
-                date={`\u{1F4C5} ${format(new Date(proyecto.fechaInicio), "dd/MM/yyyy")} \u{1F3AF} ${format(new Date(proyecto.fechaFin), "dd/MM/yyyy")}`}
+                date={`📅 ${format(new Date(proyecto.fechaInicio), "dd/MM/yyyy")} · ${format(new Date(proyecto.fechaFin), "dd/MM/yyyy")}`}
                 amount={`Presupuesto: ${formatCOP(proyecto.presupuesto)}`}
+                compact
+                defaultExpanded={false}
                 titleColor={getEstadoColor(proyecto.estado)}
                 footer={
                   <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
