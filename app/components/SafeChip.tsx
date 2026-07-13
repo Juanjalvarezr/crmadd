@@ -1,14 +1,13 @@
 import React from "react";
-import SafeChip from "../components/SafeChip";
 
-const SAFE_COLORS: Record<string, { bg: string; text: string }> = {
-  default: { bg: "#e0e0e0", text: "#333333" },
-  primary: { bg: "#e91e63", text: "#ffffff" },
-  secondary: { bg: "#9c27b0", text: "#ffffff" },
-  success: { bg: "#4caf50", text: "#ffffff" },
-  warning: { bg: "#ff9800", text: "#ffffff" },
-  info: { bg: "#2196f3", text: "#ffffff" },
-  error: { bg: "#f44336", text: "#ffffff" },
+const SAFE_COLORS: Record<string, { bg: string; text: string; contrastText?: string }> = {
+  default: { bg: "#e0e0e0", text: "#333333", contrastText: "#333333" },
+  primary: { bg: "#e91e63", text: "#ffffff", contrastText: "#ffffff" },
+  secondary: { bg: "#9c27b0", text: "#ffffff", contrastText: "#ffffff" },
+  success: { bg: "#4caf50", text: "#ffffff", contrastText: "#ffffff" },
+  warning: { bg: "#ff9800", text: "#ffffff", contrastText: "#ffffff" },
+  info: { bg: "#2196f3", text: "#ffffff", contrastText: "#ffffff" },
+  error: { bg: "#f44336", text: "#ffffff", contrastText: "#ffffff" },
 };
 
 interface SafeChipProps {
@@ -47,18 +46,11 @@ const SafeChip: React.FC<SafeChipProps> = ({
     whiteSpace: "nowrap",
     boxSizing: "border-box",
     transition: "all 0.2s ease",
+    color: safe.text,
+    backgroundColor: variant === "outlined" ? "transparent" : safe.bg,
+    border: variant === "outlined" ? `1px solid ${safe.bg}` : "none",
     ...sx,
   };
-
-  if (variant === "outlined") {
-    base.backgroundColor = "transparent";
-    base.color = safe.text;
-    base.border = `1px solid ${safe.bg}`;
-  } else {
-    base.backgroundColor = safe.bg;
-    base.color = safe.text;
-    base.border = "none";
-  }
 
   return (
     <span style={base} {...rest}>

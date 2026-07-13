@@ -210,12 +210,21 @@ export default function Dashboard() {
       </Box>
 
       {error && <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>{error}</Alert>}
-
+      {error && <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>{error}</Alert>}
       {presentationMode && (
         <Alert severity="info" sx={{ mb: 2, borderRadius: 2 }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <FiActivity size={16} />
             <Typography variant="body2">Modo presentación activo — los valores están ocultos</Typography>
+          </Box>
+        </Alert>
+      )}
+
+      {loading && (
+        <Alert severity="info" sx={{ mb: 2, borderRadius: 2 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <FiRefreshCw size={16} />
+            <Typography variant="body2">Actualizando datos…</Typography>
           </Box>
         </Alert>
       )}
