@@ -55,19 +55,30 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const location = useLocation();
   const navigate = useNavigate();
 
-  const getNotificationCount = (path: string) => {
-    const counts: Record<string, number> = {
-      '/tareas': 0,
-      '/ventas': 0,
-      '/proyectos': 0,
-      '/clientes': 0,
-      '/facturacion': 0,
-      '/contratos': 0,
-      '/calendario': 0,
-      '/whatsapp': 0,
-    };
-    return counts[path] || 0;
-  };
+  const [notificationCounts, setNotificationCounts] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    (async () => {
+      const counts: Record<string, number> = {};
+      try {
+        const [tareasRes, proyectosRes, facturasRes, contratosRes, clientesRes] = await Promise.all([
+          supabase.from('tareas').select('id', { count: 'exact', head: true }).eq('estado', 'Pendiente'),
+          supabase.from('proyectos').select('id', { count: 'exact', head: true }).eq('estado', 'En riesgo'),
+          supabase.from('facturas').select('id', { count: 'exact', head: true }).eq('estado_pago', 'vencida'),
+          supabase.from('contratos').select('id', { count: 'exact', head: true }).eq('estado', 'Pendiente de firma'),
+          supabase.from('clientes').select('id', { count: 'exact', head: true }).eq('estado', 'nuevo'),
+        ]);
+        counts['/tareas'] = tareasRes.count || 0;
+        counts['/proyectos'] = proyectosRes.count || 0;
+        counts['/facturacion'] = facturasRes.count || 0;
+        counts['/contratos'] = contratosRes.count || 0;
+        counts['/clientes'] = clientesRes.count || 0;
+      } catch {}
+      setNotificationCounts(counts);
+    })();
+  }, [location.pathname]);
+
+  const getNotificationCount = (path: string) => notificationCounts[path] || 0;
 
   const handleQuickAction = (action: string) => {
     switch (action) {

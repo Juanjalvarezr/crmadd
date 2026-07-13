@@ -146,6 +146,8 @@ export type Tables = {
     contrato_url?: string;
     facturacion_detalle?: any;
     codigo?: string;
+    brief?: any;
+    cronograma?: any;
   };
   campanas_email: { // Ya existente
     id: string;
@@ -178,9 +180,21 @@ export type Tables = {
     descripcion?: string;
     direccion?: string;
     ciudad?: string;
-    pais?: string; // Corregido: estaba como string en algunos lugares
+    pais?: string;
     actualizado_en: string;
     google_business_link?: string;
+  };
+  credenciales_proyecto: {
+    id: number;
+    proyecto_id: number;
+    tipo: string;
+    canal: string;
+    usuario?: string;
+    contrasena?: string;
+    url?: string;
+    notas?: string;
+    created_at: string;
+    updated_at: string;
   };
   reglas_negocio_ai: { // Ya existente
     id: number;
@@ -270,7 +284,7 @@ export const tareasService = {
   async getAll() {
     const { data, error } = await supabase
       .from('tareas')
-      .select('*')
+      .select('id, titulo, descripcion, estado, prioridad, fecha, cliente_id, proyecto_id, subtareas, comentarios, recordatorios, tiempo_inicio, tiempo_total, tiempo_pausa, tiempo_fin, timer_activo, created_at')
       .order('fecha', { ascending: true });
     
     if (error) throw error;
@@ -569,6 +583,43 @@ export const proyectosService = {
   },
   async delete(id: string) {
     const { error } = await supabase.from('proyectos').delete().eq('id', id);
+    if (error) throw error;
+    return true;
+  },
+  async updateBrief(id: string, brief: any) {
+    const { data, error } = await supabase.from('proyectos').update({ brief }).eq('id', id).select().single();
+    if (error) throw error;
+    return mapDBToProyecto(data);
+  },
+  async updateCronograma(id: string, cronograma: any[]) {
+    const { data, error } = await supabase.from('proyectos').update({ cronograma }).eq('id', id).select().single();
+    if (error) throw error;
+    return mapDBToProyecto(data);
+  }
+};
+
+export const credencialesService = {
+  async getAll(proyectoId: number) {
+    const { data, error } = await supabase
+      .from('credenciales_proyecto')
+      .select('*')
+      .eq('proyecto_id', proyectoId)
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return data || [];
+  },
+  async create(item: Tables['credenciales_proyecto']) {
+    const { data, error } = await supabase.from('credenciales_proyecto').insert([item]).select().single();
+    if (error) throw error;
+    return data;
+  },
+  async update(id: string | number, updates: Partial<Tables['credenciales_proyecto']>) {
+    const { data, error } = await supabase.from('credenciales_proyecto').update(updates).eq('id', id).select().single();
+    if (error) throw error;
+    return data;
+  },
+  async delete(id: number) {
+    const { error } = await supabase.from('credenciales_proyecto').delete().eq('id', id);
     if (error) throw error;
     return true;
   }
