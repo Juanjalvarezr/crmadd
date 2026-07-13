@@ -583,10 +583,16 @@ export default function Reportes() {
                   <Box sx={{ height: 260 }}>
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={metricas.map((m) => ({ name: m.titulo, valor: typeof m.valor === 'number' ? m.valor : 0, color: m.color }))}>
-                        <CartesianGrid strokeDasharray="3 3" />
+                        <CartesianGrid strokeDasharray="3 3" stroke={theme.palette.divider} />
                         <XAxis dataKey="name" tick={{ fontSize: 12 }} hide />
-                        <YAxis tick={{ fontSize: 12 }} />
-                        <Tooltip />
+                        <YAxis tick={{ fontSize: 12 }} stroke={theme.palette.text.secondary} />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: theme.palette.background.paper,
+                            border: `1px solid ${theme.palette.divider}`,
+                            color: theme.palette.text.primary,
+                          }}
+                        />
                         <Bar dataKey="valor">
                           {metricas.map((entry, index) => (
                             <Cell key={index} fill={entry.color} />
@@ -609,8 +615,14 @@ export default function Reportes() {
                           <Cell fill="#e91e63" />
                           <Cell fill="#9c27b0" />
                         </Pie>
-                        <Tooltip />
-                        <Legend />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: theme.palette.background.paper,
+                            border: `1px solid ${theme.palette.divider}`,
+                            color: theme.palette.text.primary,
+                          }}
+                        />
+                        <Legend wrapperStyle={{ color: theme.palette.text.primary }} />
                       </PieChart>
                     </ResponsiveContainer>
                   </Box>

@@ -1748,6 +1748,31 @@ export default function Proyectos() {
                   </Stack>
                 </Box>
               ) : activeProjectTab === 6 ? (
+                <Box sx={{ py: 1 }}>
+                  <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 700 }}>Contrato y Facturación</Typography>
+                  <Stack spacing={1}>
+                    <Button variant="outlined" size="small" startIcon={<FiFileText />} onClick={async () => {
+                      try {
+                        const pdfUrl = await contratosService.generarContratoPDF(selectedProyecto);
+                        showNotification('Contrato generado: descargalo desde /contratos', 'success');
+                      } catch (e: any) { showNotification('Error: ' + e.message, 'error'); }
+                    }}>Generar contrato</Button>
+                    <Button variant="outlined" size="small" startIcon={<FiFileText />} onClick={async () => {
+                      try {
+                        const pdfUrl = await facturasService.generarFacturaPDF(selectedProyecto);
+                        showNotification('Factura generada', 'success');
+                      } catch (e: any) { showNotification('Error: ' + e.message, 'error'); }
+                    }}>Generar factura</Button>
+                    {(selectedProyecto as any).contrato_url && (
+                      <Button size="small" variant="text" href={(selectedProyecto as any).contrato_url} target="_blank">Abrir contrato</Button>
+                    )}
+                    {selectedProyecto.facturacion_detalle && (
+                      <Alert severity="info" sx={{ whiteSpace: 'pre-wrap' }}>{typeof selectedProyecto.facturacion_detalle === 'string' ? selectedProyecto.facturacion_detalle : JSON.stringify(selectedProyecto.facturacion_detalle, null, 2)}</Alert>
+                    )}
+                  </Stack>
+                </Box>
+              ) : (
+                /* PESTAÑA DE CREDENCIALES */
                 <Stack spacing={1}>
                   <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
                     <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>Credenciales y Accesos</Typography>
