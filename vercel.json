@@ -1,7 +1,7 @@
 {
   "build": {
     "env": {
-      "FORCE_REBUILD": "cache-invalid-2026-07-13-v3"
+      "FORCE_REBUILD": "cache-invalid-2026-07-13-v4-dashboard-theme-todaylabel"
     }
   },
   "functions": {
