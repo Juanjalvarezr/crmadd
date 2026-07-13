@@ -4,6 +4,7 @@ import {
 } from "@mui/material";
 import { Send, User } from "lucide-react";
 import type { Proyecto } from "../types/crm";
+import { safeReadJsonArray, safeWriteJson } from "../utils/safeStorage";
 
 interface Comentario {
   id: string;
@@ -16,16 +17,11 @@ interface Comentario {
 const STORAGE_KEY = "crm_proyecto_comentarios";
 
 function cargarComentarios(proyectoId: string): Comentario[] {
-  try {
-    const raw = localStorage.getItem(`${STORAGE_KEY}_${proyectoId}`);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
+  return safeReadJsonArray<Comentario>(`${STORAGE_KEY}_${proyectoId}`);
 }
 
 function guardarComentarios(proyectoId: string, comentarios: Comentario[]) {
-  localStorage.setItem(`${STORAGE_KEY}_${proyectoId}`, JSON.stringify(comentarios));
+  safeWriteJson(`${STORAGE_KEY}_${proyectoId}`, comentarios);
 }
 
 interface ProyectoComentariosProps {

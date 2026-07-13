@@ -6,6 +6,7 @@ import { Download, Trash2, Paperclip, Link2, Upload } from "lucide-react";
 import type { Proyecto } from "../types/crm";
 import SafeChip from "../components/SafeChip";
 import { uploadFileToStorage, deleteStorageFile, getPublicPDFUrl } from "../services/storage";
+import { safeReadJsonArray, safeWriteJson } from "../utils/safeStorage";
 
 interface Adjunto {
   id: string;
@@ -21,16 +22,11 @@ interface Adjunto {
 const STORAGE_KEY = "crm_proyecto_adjuntos";
 
 function cargarAdjuntos(proyectoId: string): Adjunto[] {
-  try {
-    const raw = localStorage.getItem(`${STORAGE_KEY}_${proyectoId}`);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
+  return safeReadJsonArray<Adjunto>(`${STORAGE_KEY}_${proyectoId}`);
 }
 
 function guardarAdjuntos(proyectoId: string, adjuntos: Adjunto[]) {
-  localStorage.setItem(`${STORAGE_KEY}_${proyectoId}`, JSON.stringify(adjuntos));
+  safeWriteJson(`${STORAGE_KEY}_${proyectoId}`, adjuntos);
 }
 
 interface ProyectoAdjuntosProps {

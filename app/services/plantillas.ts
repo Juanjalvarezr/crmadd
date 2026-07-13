@@ -1,3 +1,5 @@
+import { safeReadJsonArray, safeWriteJson } from "../utils/safeStorage";
+
 export interface Plantilla {
   id: string;
   nombre: string;
@@ -11,13 +13,7 @@ export interface Plantilla {
 const STORAGE_KEY = 'crm_plantillas';
 
 export function getPlantillas(): Plantilla[] {
-  if (typeof window === 'undefined') return [];
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
+  return safeReadJsonArray<Plantilla>(STORAGE_KEY);
 }
 
 export function savePlantilla(plantilla: Omit<Plantilla, 'id' | 'creado_en' | 'actualizado_en'>): Plantilla {
@@ -30,7 +26,7 @@ export function savePlantilla(plantilla: Omit<Plantilla, 'id' | 'creado_en' | 'a
     actualizado_en: now,
   };
   plantas.push(nueva);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(plantas));
+  safeWriteJson(STORAGE_KEY, plantas);
   return nueva;
 }
 
@@ -39,7 +35,7 @@ export function updatePlantilla(id: string, cambios: Partial<Omit<Plantilla, 'id
   const idx = plantas.findIndex(p => p.id === id);
   if (idx === -1) return null;
   plantas[idx] = { ...plantas[idx], ...cambios, actualizado_en: new Date().toISOString() };
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(plantas));
+  safeWriteJson(STORAGE_KEY, plantas);
   return plantas[idx];
 }
 
@@ -47,7 +43,7 @@ export function deletePlantilla(id: string): boolean {
   const plantas = getPlantillas();
   const filtered = plantas.filter(p => p.id !== id);
   if (filtered.length === plantas.length) return false;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+  safeWriteJson(STORAGE_KEY, filtered);
   return true;
 }
 

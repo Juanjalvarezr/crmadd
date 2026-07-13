@@ -217,5 +217,5 @@ export const oportunidadesService = {
       throw error;
     }
   }
-  getEstadisticas,
+};
 };

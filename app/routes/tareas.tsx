@@ -504,13 +504,12 @@ export default function Tareas() {
                     <TableCell sx={{ py: { xs: 1, sm: 1.5 } }}>
                       <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                         <Checkbox size="small" checked={tarea.estado === "Completada"} onChange={() => handleComplete(tarea)} />
-                        <Box sx={{ minWidth: 0 }}>
-                          <Typography variant="body2" sx={{ fontWeight: 500, lineHeight: 1.3 }}>{tarea.titulo}</Typography>
-                          <Typography variant="caption" color="text.secondary">ID: {tarea.id}</Typography>
-                        </Box>
-                      </Box>
-                        {isVencida(tarea) && <SafeChip label="⚠️ Vencida" size="small" color="error" variant="outlined" sx={{ height: 20, fontSize: '0.65rem' }} />}
-                      </Box>
+                            <Box sx={{ minWidth: 0 }}>
+                              <Typography variant="body2" sx={{ fontWeight: 500, lineHeight: 1.3 }}>{tarea.titulo}</Typography>
+                              <Typography variant="caption" color="text.secondary">ID: {tarea.id}</Typography>
+                            </Box>
+                            {isVencida(tarea) && <SafeChip label="⚠️ Vencida" size="small" color="error" variant="outlined" sx={{ height: 20, fontSize: '0.65rem' }} />}
+                          </Box>
                       {subtareasTotal > 0 && (
                         <Typography variant="caption" color="text.secondary">
                           Subtareas: {subtareasCompletadas}/{subtareasTotal}

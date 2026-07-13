@@ -38,121 +38,34 @@ export default function Dashboard() {
   const [data, setData] = useState(initialState);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [stats, setStats] = useState({
-    totalClientes: 0,
-    proyectosActivos: 0,
-    valorPipeline: 0,
-    totalPresupuestado: 0,
-    totalRecaudado: 0,
-    tareasPendientes: 0,
-    totalTransacciones: 0,
-    montoTransacciones: 0,
-  });
-  const [presentationMode, setPresentationMode] = useState(false);
-  const todayLabel = new Date().toLocaleDateString("es-CO", {
-    weekday: "long",
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-
-  const theme = useTheme();
-
-  useEffect(() => {
-    const handler = (event: Event) => {
-      const detail = (event as CustomEvent).detail;
-      setPresentationMode(detail === "on");
-    };
-    window.addEventListener("presentation-mode-changed", handler);
-    if (typeof window !== "undefined") {
-      setPresentationMode(localStorage.getItem("presentation_mode") === "true");
-    }
-    return () => window.removeEventListener("presentation-mode-changed", handler);
-  }, []);
-
-  const calculateStats = useCallback((source: any) => {
-    const proyectos = Array.isArray(source.proyectos) ? source.proyectos : [];
-    const clientes = Array.isArray(source.clientes) ? source.clientes : [];
-    const oportunidades = Array.isArray(source.oportunidades) ? source.oportunidades : [];
-    const tareas = Array.isArray(source.tareas) ? source.tareas : [];
-    const transacciones = Array.isArray(source.transacciones) ? source.transacciones : [];
-
-    const totalPresupuestado = proyectos.reduce(
-      (acc: number, current: any) => acc + (Number(current.presupuesto) || 0),
-      0
-    );
-    const totalRecaudado = proyectos.reduce(
-      (acc: number, current: any) => acc + (Number(current.montoPagado) || 0),
-      0
-    );
-    const valorPipeline = oportunidades
-      .filter(
-        (oportunidad: any) =>
-          oportunidad.estado === "Abierta" ||
-          oportunidad.etapa === "Prospección" ||
-          oportunidad.etapa === "Propuesta"
-      )
-      .reduce((acc: number, current: any) => acc + (Number(current.valor) || 0), 0);
-
-    const montoTransacciones = transacciones.reduce(
-      (acc: number, current: any) => acc + (Number(current.monto) || Number(current.valor) || 0),
-      0
-    );
-
-    setStats({
-      totalClientes: clientes.length,
-      proyectosActivos: proyectos.filter(
-        (proyecto: any) =>
-          proyecto.estado === "en_progreso" || proyecto.estado === "planificacion"
-      ).length,
-      valorPipeline,
-      totalPresupuestado,
-      totalRecaudado,
-      tareasPendientes: Array.isArray(tareas)
-        ? tareas.filter((t: any) => t.estado !== "Completada" && t.estado !== "Cancelada").length
-        : 0,
-      totalTransacciones: transacciones.length,
-      montoTransacciones,
-    });
-  }, [setStats]);
+  const [partial, setPartial] = useState<{ proyectos: any[]; clientes: any[]; oportunidades: any[]; tareas: any[]; transacciones: any[] } | null>(null);
 
   const fetchDashboardData = useCallback(async (forceRefresh = false) => {
     setLoading(true);
     setError(null);
-    try {
-      const [proyectos, clientes, oportunidades, tareas, transacciones] =
-        await Promise.all([
-          proyectosService.getAll(),
-          clientesService.getAll(),
-          oportunidadesService.getAll(),
-          tareasService.getAll(),
-          transaccionesService.getAll(),
-        ]);
+    setPartial(null);
 
-      const source = {
-        proyectos,
-        clientes,
-        oportunidades,
-        tareas,
-        transacciones,
-      };
+    try {
+      const proyectos = await proyectosService.getAll().catch(() => []);
+      const clientes = await clientesService.getAll().catch(() => []);
+      const oportunidades = await oportunidadesService.getAll().catch(() => []);
+      const tareas = await tareasService.getAll().catch(() => []);
+      const transacciones = await transaccionesService.getAll().catch(() => []);
 
       setData({
-        proyectos,
-        clientes,
-        oportunidades,
-        tareas,
-        transacciones,
+        proyectos: Array.isArray(proyectos) ? proyectos : [],
+        clientes: Array.isArray(clientes) ? clientes : [],
+        oportunidades: Array.isArray(oportunidades) ? oportunidades : [],
+        tareas: Array.isArray(tareas) ? tareas : [],
+        transacciones: Array.isArray(transacciones) ? transacciones : [],
         isUsingMockData: false,
       });
-
-      calculateStats(source);
     } catch (err: any) {
       setError("Error al cargar datos: " + err.message);
     } finally {
       setLoading(false);
     }
-  }, [calculateStats]);
+  }, []);
 
   useEffect(() => {
     fetchDashboardData();
@@ -187,6 +100,34 @@ export default function Dashboard() {
     }
   };
 
+  const proyectos = data.proyectos || [];
+  const clientes = data.clientes || [];
+  const oportunidades = data.oportunidades || [];
+  const tareas = data.tareas || [];
+  const transacciones = data.transacciones || [];
+
+  const totalPresupuestado = proyectos.reduce(
+    (acc: number, current: any) => acc + (Number(current.presupuesto) || 0),
+    0
+  );
+  const totalRecaudado = proyectos.reduce(
+    (acc: number, current: any) => acc + (Number(current.montoPagado) || 0),
+    0
+  );
+  const valorPipeline = oportunidades
+    .filter(
+      (oportunidad: any) =>
+        oportunidad.estado === "Abierta" ||
+        oportunidad.etapa === "Prospección" ||
+        oportunidad.etapa === "Propuesta"
+    )
+    .reduce((acc: number, current: any) => acc + (Number(current.valor) || 0), 0);
+
+  const montoTransacciones = transacciones.reduce(
+    (acc: number, current: any) => acc + (Number(current.monto) || Number(current.valor) || 0),
+    0
+  );
+
   return (
     <Box sx={{ p: { xs: 0.5, sm: 0 } }}>
       {/* Header tipo Notion */}
@@ -210,16 +151,6 @@ export default function Dashboard() {
       </Box>
 
       {error && <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>{error}</Alert>}
-      {error && <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>{error}</Alert>}
-      {presentationMode && (
-        <Alert severity="info" sx={{ mb: 2, borderRadius: 2 }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <FiActivity size={16} />
-            <Typography variant="body2">Modo presentación activo — los valores están ocultos</Typography>
-          </Box>
-        </Alert>
-      )}
-
       {loading && (
         <Alert severity="info" sx={{ mb: 2, borderRadius: 2 }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -232,14 +163,14 @@ export default function Dashboard() {
       {/* KPI strip compacto — 4 cols mobile, 8 desktop */}
       <Grid container spacing={1} sx={{ mb: 2 }}>
         {[
-          { title: "Clientes", value: stats.totalClientes, icon: <FiUsers size={14} />, color: "#4caf50", bg: "#e8f5e9" },
-          { title: "Proyectos", value: stats.proyectosActivos, icon: <FiActivity size={14} />, color: "#2196f3", bg: "#e3f2fd" },
-          { title: "Pipeline", value: presentationMode ? "•••" : formatCOP(stats.valorPipeline), icon: <FiTarget size={14} />, color: "#ff9800", bg: "#fff3e0" },
-          { title: "Recaudado", value: presentationMode ? "•••" : formatCOP(stats.totalRecaudado), icon: <FiTrendingUp size={14} />, color: "#9c27b0", bg: "#f3e5f5" },
-          { title: "Presupuestado", value: presentationMode ? "•••" : formatCOP(stats.totalPresupuestado), icon: <FiDollarSign size={14} />, color: "#00897b", bg: "#e0f2f1" },
-          { title: "Tareas pend.", value: stats.tareasPendientes, icon: <FiClock size={14} />, color: "#f44336", bg: "#ffebee" },
-          { title: "Transacciones", value: stats.totalTransacciones, icon: <FiActivity size={14} />, color: "#607d8b", bg: "#eceff1" },
-          { title: "Mov. ($)", value: presentationMode ? "•••" : formatCOP(stats.montoTransacciones), icon: <FiDollarSign size={14} />, color: "#1976d2", bg: "#e3f2fd" },
+          { title: "Clientes", value: clientes.length, icon: <FiUsers size={14} />, color: "#4caf50", bg: "#e8f5e9" },
+          { title: "Proyectos", value: proyectos.filter((p: any) => p.estado === "en_progreso" || p.estado === "planificacion").length, icon: <FiActivity size={14} />, color: "#2196f3", bg: "#e3f2fd" },
+          { title: "Pipeline", value: formatCOP(valorPipeline), icon: <FiTarget size={14} />, color: "#ff9800", bg: "#fff3e0" },
+          { title: "Recaudado", value: formatCOP(totalRecaudado), icon: <FiTrendingUp size={14} />, color: "#9c27b0", bg: "#f3e5f5" },
+          { title: "Presupuestado", value: formatCOP(totalPresupuestado), icon: <FiDollarSign size={14} />, color: "#00897b", bg: "#e0f2f1" },
+          { title: "Tareas pend.", value: tareas.filter((t: any) => t.estado !== "Completada" && t.estado !== "Cancelada").length, icon: <FiClock size={14} />, color: "#f44336", bg: "#ffebee" },
+          { title: "Transacciones", value: transacciones.length, icon: <FiActivity size={14} />, color: "#607d8b", bg: "#eceff1" },
+          { title: "Mov. ($)", value: formatCOP(montoTransacciones), icon: <FiDollarSign size={14} />, color: "#1976d2", bg: "#e3f2fd" },
         ].map((kpi) => (
           <Grid item xs={6} sm={4} md={3} lg={3} key={kpi.title}>
             <Paper

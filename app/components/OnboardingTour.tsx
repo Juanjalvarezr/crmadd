@@ -4,6 +4,7 @@ import {
   Box, Stepper, Step, StepLabel, Chip, Paper, Alert, List, ListItem, ListItemIcon, ListItemText
 } from '@mui/material';
 import { FiUser, FiFolder, FiCheckSquare, FiMessageSquare, FiBarChart } from 'react-icons/fi';
+import { safeGetStorageItem, safeSetStorageItem } from '../utils/safeStorage';
 
 const steps = [
   { title: 'Bienvenido a DESEO DIGITAL', desc: 'Este es tu CRM inteligente. Vamos a configurarlo en 4 pasos.', icon: <FiUser size={28} /> },
@@ -17,7 +18,7 @@ export function OnboardingTour({ open, onClose }: { open: boolean, onClose: () =
 
   useEffect(() => {
     if (open) {
-      const visited = localStorage.getItem('onboarding_completed');
+      const visited = safeGetStorageItem('onboarding_completed');
       if (!visited) {
         setActiveStep(0);
       } else {
@@ -28,7 +29,7 @@ export function OnboardingTour({ open, onClose }: { open: boolean, onClose: () =
 
   const handleNext = async () => {
     if (activeStep === steps.length - 1) {
-      localStorage.setItem('onboarding_completed', 'true');
+      safeSetStorageItem('onboarding_completed', 'true');
       onClose();
     } else {
       setActiveStep((prev) => prev + 1);
@@ -36,7 +37,7 @@ export function OnboardingTour({ open, onClose }: { open: boolean, onClose: () =
   };
 
   const handleSkip = () => {
-    localStorage.setItem('onboarding_completed', 'true');
+    safeSetStorageItem('onboarding_completed', 'true');
     onClose();
   };
 
