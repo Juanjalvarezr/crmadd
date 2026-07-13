@@ -31,9 +31,11 @@ import {
   credencialesService as baseCredencialesService,
 } from './supabase';
 
-const TIMEOUT_MS = 60000; // cache-bust rebuild
+const TIMEOUT_MS = 65000;
+const CACHE_BUST = 'v3-65s-dashboard-visible-2026-07-13';
 
-const withTimeout = async <T>(promise: Promise<T>, label = 'operación'): Promise<T> => {
+const withTimeout = async <T>(promise: Promise<T>, label = 'operación', ms = TIMEOUT_MS): Promise<T> => {
+  const start = Date.now();
   return Promise.race([
     promise.catch((err) => {
       console.error(`[database.ts] Error en ${label}:`, err);
@@ -41,9 +43,9 @@ const withTimeout = async <T>(promise: Promise<T>, label = 'operación'): Promis
     }),
     new Promise<T>((_, reject) =>
       setTimeout(() => {
-        console.warn(`[database.ts] Timeout en ${label} (${TIMEOUT_MS}ms)`);
+        console.warn(`[database.ts] Timeout en ${label} (${ms}ms) elapsed=${Date.now() - start}ms cache=${CACHE_BUST}`);
         reject(new Error('Timeout en base de datos'));
-      }, TIMEOUT_MS)
+      }, ms)
     ),
   ]);
 };
