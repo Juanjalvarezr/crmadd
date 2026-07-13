@@ -35,6 +35,7 @@ const initialState = {
 };
 
 export default function Dashboard() {
+  const theme = useTheme();
   const [data, setData] = useState(initialState);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -99,6 +100,10 @@ export default function Dashboard() {
         return "default";
     }
   };
+
+  const todayLabel = new Date().toLocaleDateString('es-CO', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+  });
 
   const proyectos = data.proyectos || [];
   const clientes = data.clientes || [];
