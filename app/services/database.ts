@@ -31,7 +31,7 @@ import {
   credencialesService as baseCredencialesService,
 } from './supabase';
 
-const TIMEOUT_MS = 60000;
+const TIMEOUT_MS = 60000; // cache-bust rebuild
 
 const withTimeout = async <T>(promise: Promise<T>, label = 'operación'): Promise<T> => {
   return Promise.race([
@@ -319,7 +319,7 @@ export const emailMarketingService = {
 // DEPRECATED: sin uso en rutas actuales. Eliminar o integrar en UI.
 export const notificacionesService = {
   getAll: () => withTimeout((async () => {
-    const { data, error } = await supabase.from('notificaciones').select('*').order('created_at', { ascending: false });
+    const { data, error } = await supabase.from('notificaciones').select('id, leida, tipo, titulo, mensaje, created_at').order('created_at', { ascending: false });
     if (error) throw error;
     return data || [];
   })(), 'notificacionesService.getAll'),
