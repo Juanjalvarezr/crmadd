@@ -1,6 +1,13 @@
 {
-  "cleanUrls": true,
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/" }
-  ]
+  "build": {
+    "env": {
+      "FORCE_REBUILD": "cache-invalid-2026-07-13-v3"
+    }
+  },
+  "functions": {
+    "app/**/*.js": {
+      "memory": 1024,
+      "maxDuration": 60
+    }
+  }
 }
