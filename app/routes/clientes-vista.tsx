@@ -5,7 +5,7 @@ import {
 } from "@mui/material";
 import {
   FiArrowLeft, FiUser, FiMail, FiPhone, FiMapPin, FiCalendar, FiFileText,
-  FiDollarSign, FiCheckSquare, FiFolder, FiMessageSquare, FiEye
+  FiDollarSign, FiCheckSquare, FiFolder, FiMessageSquare, FiEye, FiKey
 } from "react-icons/fi";
 import {
   clientesService, proyectosService, facturasService, contratosService, tareasService
@@ -145,6 +145,26 @@ export default function Cliente360() {
           <Typography variant="caption" color="text.secondary">
             Origen: {cliente.origen || '-'} · Última interacción: {cliente.ultima_interaccion ? new Date(cliente.ultima_interaccion).toLocaleDateString('es-CO') : '-'}
           </Typography>
+          {(selectedProyecto as any) && ((selectedProyecto as any).brief || (selectedProyecto as any).identidad_digital || (selectedProyecto as any).canales) && (
+            <>
+              <Divider sx={{ my: 2 }} />
+              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700 }}>Identidad Digital</Typography>
+              {(selectedProyecto as any).brief && (
+                <Alert severity="info" sx={{ mb: 1, whiteSpace: 'pre-wrap' }}>{typeof (selectedProyecto as any).brief === 'string' ? (selectedProyecto as any).brief : JSON.stringify((selectedProyecto as any).brief)}</Alert>
+              )}
+              {(selectedProyecto as any).identidad_digital && (
+                <Box sx={{ mb: 1 }}>
+                  <Typography variant="caption" color="text.secondary">Documento identidad: </Typography>
+                  <Button size="small" variant="text" href={(selectedProyecto as any).identidad_digital} target="_blank">Abrir</Button>
+                </Box>
+              )}
+              {(selectedProyecto as any).canales && Object.keys((selectedProyecto as any).canales).length > 0 && (
+                <Stack direction="row" spacing={0.5} sx={{ flexWrap: 'wrap', mt: 1 }}>
+                  {Object.entries((selectedProyecto as any).canales).map(([k, v]) => v ? <Chip key={k} label={k} size="small" variant="outlined" /> : null)}
+                </Stack>
+              )}
+            </>
+          )}
         </Paper>
       )}
 

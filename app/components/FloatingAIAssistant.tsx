@@ -32,7 +32,7 @@ export const FloatingAIAssistant = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' });
-  const [aiContext, setAiContext] = useState<{ route?: string; entity?: string; label?: string } | null>(null);
+  const [aiContext, setAiContext] = useState<{ route?: string; entity?: string; label?: string; brief?: any; cronograma?: any; canales?: any } | null>(null);
 
   const [chatMessages, setChatMessages] = useState<{ role: 'user' | 'assistant'; text: string }[]>([
     {
@@ -46,7 +46,7 @@ export const FloatingAIAssistant = () => {
 
   useEffect(() => {
     const handler = (e: Event) => {
-      const detail = (e as CustomEvent).detail as { route?: string; entity?: string; label?: string } | undefined;
+      const detail = (e as CustomEvent).detail as { route?: string; entity?: string; label?: string; brief?: any; cronograma?: any; canales?: any } | undefined;
       setAiContext(detail || null);
       setIsOpen(true);
     };
@@ -66,7 +66,10 @@ export const FloatingAIAssistant = () => {
 CONTEXTO ACTUAL:
 - Ruta: ${aiContext.route || ''}
 - Entidad: ${aiContext.entity || ''}
-- Nombre/Referencia: ${aiContext.label || ''}` : '';
+- Nombre/Referencia: ${aiContext.label || ''}
+- Brief: ${typeof aiContext.brief === 'string' ? aiContext.brief.slice(0, 800) : !!aiContext.brief ? '(definido)' : '(pendiente)'}
+- Cronograma: ${Array.isArray(aiContext.cronograma) ? `${aiContext.cronograma.length} hitos` : '(pendiente)'}
+- Canales: ${typeof aiContext.canales === 'object' ? Object.keys(aiContext.canales || {}).filter(Boolean).join(', ') || 'sin cargar' : '(pendiente)'}` : '';
 
     setChatMessages((m) => [...m, { role: 'user', text }]);
     setChatInput('');

@@ -51,7 +51,7 @@ import {
 } from "lucide-react";
 import { format, formatDistanceToNow, differenceInCalendarDays } from "date-fns";
 import { es } from "date-fns/locale";
-import { emailService, equipoService, logsService, clientesService, proyectosService } from "../services/database";
+import { emailService, equipoService, logsService, clientesService, proyectosService, credencialesService } from "../services/database";
 import { TareasTab } from "./TareasTab";
 import { ProyectoKanban } from "../components/ProyectoKanban";
 import { ProyectoTimeline } from "../components/ProyectoTimeline";
@@ -117,6 +117,19 @@ export default function Proyectos() {
   const [previewEmailContent, setPreviewEmailContent] = useState<{asunto: string, cuerpo: string} | null>(null);
   const [sendingEmail, setSendingEmail] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [credenciales, setCredenciales] = useState<any[]>([]);
+  const [ mostrarPwd, setMostrarPwd ] = useState<Record<number, boolean>>({});
+
+  useEffect(() => {
+    (async () => {
+      if (!selectedProyecto) return;
+      try {
+        const data = await credencialesService.getAll(Number(selectedProyecto.id));
+        setCredenciales(data);
+        (selectedProyecto as any).__credentials = data;
+      } catch {}
+    })();
+  }, [selectedProyecto]);
 
   // React Hook Form con Zod
   const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm({
@@ -906,7 +919,20 @@ export default function Proyectos() {
               border: '1px solid',
               borderColor: 'divider',
             }}
-            onClick={() => window.dispatchEvent(new CustomEvent('open-ai-chat'))}
+            onClick={() => {
+              const project = selectedProyecto || editingProyecto;
+              window.dispatchEvent(new CustomEvent('open-assistant', {
+                detail: {
+                  route: '/proyectos',
+                  entity: project ? 'Proyecto' : '',
+                  label: project?.nombre || '',
+                  brief: project?.brief,
+                  cronograma: project?.cronograma,
+                  canales: project?.canales,
+                }
+              }));
+              window.dispatchEvent(new CustomEvent('open-ai-chat'));
+            }}
           >
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <rect x="4" y="4" width="16" height="16" rx="2" />
@@ -1402,12 +1428,18 @@ export default function Proyectos() {
                 onChange={(_, v) => setActiveProjectTab(v)}
                 textColor="primary"
                 indicatorColor="primary"
-                sx={{ mt: 1 }}
+                sx={{ mt: 1, flexWrap: 'wrap' }}
+                variant="scrollable"
+                allowScrollButtonsMobile
               >
                 <Tab label="Información General" />
                 <Tab label={`Tareas (${selectedProyecto.tareas?.length || 0})`} />
-                <Tab label={`Recursos (${selectedProyecto.recursos?.length || 0})`} />
+                <Tab label="Brief" />
+                <Tab label="Cronograma" />
                 <Tab label="Estrategia y Contenido" />
+                <Tab label="Canales" />
+                <Tab label="Credenciales" />
+                <Tab label={`Recursos (${selectedProyecto.recursos?.length || 0})`} />
               </Tabs>
             </DialogTitle>
             <DialogContent dividers>
@@ -1482,7 +1514,70 @@ export default function Proyectos() {
                   onToggleTarea={handleToggleTarea}
                   onDeleteTarea={handleDeleteTarea}
                 />
+              ) : activeProjectTab === 2 ? (
+                <Box sx={{ py: 1 }}>
+                  <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 700 }}>Brief Creativo</Typography>
+                  <TextField
+                    label="Responde las preguntas del brief de forma libre"
+                    size="small"
+                    fullWidth
+                    multiline
+                    minRows={8}
+                    value={typeof selectedProyecto.brief === 'string' ? selectedProyecto.brief : JSON.stringify(selectedProyecto.brief || {}, null, 2)}
+                    onChange={(e) => proyectosService.update(selectedProyecto.id, { brief: e.target.value })}
+                    sx={{ bgcolor: 'background.paper', borderRadius: 1 }}
+                  />
+                </Box>
               ) : activeProjectTab === 3 ? (
+                <Box sx={{ py: 1 }}>
+                  <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 700 }}>Cronograma del Proyecto</Typography>
+                  {(() => {
+                    const items = Array.isArray(selectedProyecto.cronograma) ? selectedProyecto.cronograma : [];
+                    const [nuevo, setNuevo] = useState('');
+                    const add = async () => {
+                      if (!nuevo.trim()) return;
+                      await proyectosService.updateCronograma(selectedProyecto.id, [...items, { titulo: nuevo.trim(), completado: false, fecha: new Date().toISOString().split('T')[0] }]);
+                      setSelectedProyecto(await proyectosService.getById(selectedProyecto.id));
+                      setNuevo('');
+                    };
+                    const toggle = async (idx: number) => {
+                      const next = [...items];
+                      next[idx] = { ...next[idx], completado: !next[idx].completado };
+                      await proyectosService.updateCronograma(selectedProyecto.id, next);
+                      setSelectedProyecto(await proyectosService.getById(selectedProyecto.id));
+                    };
+                    return (
+                      <Stack spacing={1}>
+                        <Stack direction="row" spacing={1}>
+                          <TextField
+                            size="small"
+                            fullWidth
+                            placeholder="Ej: Grabación reel semana 2"
+                            value={nuevo}
+                            onChange={(e) => setNuevo(e.target.value)}
+                          />
+                          <Button variant="contained" size="small" onClick={add} disabled={!nuevo.trim()}>Agregar</Button>
+                        </Stack>
+                        <List dense>
+                          {items.map((item: any, i: number) => (
+                            <ListItem key={i} disableGutters secondaryAction={
+                              <IconButton size="small" onClick={() => toggle(i)}>
+                                {item.completado ? <CheckCircle size={16} color="#4caf50" /> : <Play size={16} color="#9e9e9e" />}
+                              </IconButton>
+                            }>
+                              <ListItemIcon sx={{ minWidth: 32 }}>
+                                {item.completado ? <CheckCircle size={18} color="#4caf50" /> : <Clock size={18} color="#9e9e9e" />}
+                              </ListItemIcon>
+                              <ListItemText primaryTypographyProps={{ fontSize: '0.75rem', sx: { textDecoration: item.completado ? 'line-through' : 'none', color: item.completado ? 'text.disabled' : 'text.primary' } }} primary={item.titulo || item} secondary={item.fecha ? new Date(item.fecha).toLocaleDateString('es-CO') : undefined} secondaryTypographyProps={{ fontSize: '0.65rem' }} />
+                            </ListItem>
+                          ))}
+                          {items.length === 0 && <ListItem disableGutters><ListItemText primaryTypographyProps={{fontSize: '0.75rem'}} primary="Pendiente por definir" /></ListItem>}
+                        </List>
+                      </Stack>
+                    );
+                  })()}
+                </Box>
+              ) : activeProjectTab === 4 ? (
                 /* PESTAÑA DE ESTRATEGIA Y CONTENIDO */
                 <Box sx={{ py: 1 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
@@ -1627,6 +1722,78 @@ export default function Proyectos() {
                     </Grid>
                   </Grid>
                 </Box>
+              ) : activeProjectTab === 5 ? (
+                <Box sx={{ py: 1 }}>
+                  <Typography variant="subtitle2" gutterBottom sx={{ fontWeight: 700 }}>Canales Digitales</Typography>
+                  <Stack spacing={1}>
+                    {['Instagram', 'Facebook', 'TikTok', 'YouTube', 'LinkedIn', 'Google Business', 'Página Web'].map((canal) => {
+                      const link = (selectedProyecto.canales || {})[canal];
+                      return (
+                        <Box key={canal} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Chip label={canal} size="small" variant="outlined" sx={{ minWidth: 160 }} />
+                          <TextField
+                            size="small"
+                            fullWidth
+                            placeholder={`https://...`}
+                            value={link || ''}
+                            onChange={(e) => {
+                              const updated = { ...(selectedProyecto.canales || {}), [canal]: e.target.value };
+                              proyectosService.update(selectedProyecto.id, { canales: updated });
+                              setSelectedProyecto({ ...selectedProyecto, canales: updated });
+                            }}
+                          />
+                        </Box>
+                      );
+                    })}
+                  </Stack>
+                </Box>
+              ) : activeProjectTab === 6 ? (
+                <Stack spacing={1}>
+                  <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>Credenciales y Accesos</Typography>
+                    <Button
+                      size="small"
+                      variant="contained"
+                      onClick={async () => {
+                        const canal = prompt('Canal (Google, Hostinger, Meta, Tiendanube...)', 'Google') || '';
+                        const usuario = prompt('Usuario / email') || '';
+                        const contrasena = prompt('Contraseña', '') || '';
+                        const url = prompt('URL (opcional)') || '';
+                        if (!canal) return;
+                        try {
+                          await credencialesService.create({ proyecto_id: Number(selectedProyecto.id), tipo: 'cuenta', canal, usuario, contrasena, url });
+                          showNotification('Credencial guardada', 'success');
+                        } catch (e: any) { showNotification('Error: ' + e.message, 'error'); }
+                      }}
+                      startIcon={<Plus size={14} />}
+                    >Agregar</Button>
+                  </Stack>
+                  {credenciales.length === 0 && (
+                    <Alert severity="info">Sin credenciales cargadas.</Alert>
+                  )}
+                  <List dense>
+                    {credenciales.map((c: any) => (
+                      <ListItem key={c.id} disableGutters secondaryAction={
+                        <IconButton size="small" color="error" onClick={async () => { try { await credencialesService.delete(c.id); setCredenciales((prev: any[]) => prev.filter((x: any) => x.id !== c.id)); showNotification('Eliminado', 'success'); } catch (e:any) { showNotification('Error','error'); } }}>
+                          <Trash2 size={16} />
+                        </IconButton>
+                      }>
+                        <ListItemIcon sx={{ minWidth: 32 }}><ExternalLink size={18} /></ListItemIcon>
+                        <ListItemText
+                          primary={<Typography variant="body2" sx={{ fontWeight: 600 }}>{c.canal} · {c.usuario}</Typography>}
+                          secondary={
+                            <Stack direction="row" spacing={1} alignItems="center">
+                              <Typography variant="caption" sx={{ fontFamily: 'monospace' }}>{mostrarPwd[c.id] ? (c.contrasena || '') : '••••••••'}</Typography>
+                              <IconButton size="small" onClick={() => setMostrarPwd((prev) => ({ ...prev, [c.id]: !prev[c.id] }))}>
+                                {mostrarPwd[c.id] ? <Eye size={14} color="#9e9e9e"/> : <Eye size={14} color="#9e9e9e"/>}
+                              </IconButton>
+                            </Stack>
+                          }
+                        />
+                      </ListItem>
+                    ))}
+                  </List>
+                </Stack>
               ) : (
                 /* PESTAÑA DE RECURSOS (GOOGLE INTEGRATION) */
                 <Box sx={{ py: 1 }}>
