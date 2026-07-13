@@ -48,6 +48,10 @@ const withTimeout = async <T>(promise: Promise<T>, label = 'operación'): Promis
   ]);
 };
 
+export const loadMultiple = async <T>(items: { service: () => Promise<T>; label: string }[]): Promise<T[]> => {
+  return Promise.all(items.map(item => withTimeout(item.service(), item.label).catch(() => [] as any)));
+};
+
 export const supabase = supabaseClient;
 export type { Tables };
 export { ClienteSchema, mapDBToCliente, mapClienteToDB, mapDBToProyecto, mapProyectoToDB };

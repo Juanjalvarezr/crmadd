@@ -149,49 +149,48 @@ export default function Dashboard() {
           <FiRefreshCw size={16} />
         </IconButton>
       </Box>
-
-      {error && <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>{error}</Alert>}
+      {error && <Alert severity="error" sx={{ mb: 1.5, borderRadius: 2 }}>{error}</Alert>}
       {loading && (
-        <Alert severity="info" sx={{ mb: 2, borderRadius: 2 }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <FiRefreshCw size={16} />
+        <Alert severity="info" sx={{ mb: 1.5, borderRadius: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <FiRefreshCw size={14} />
             <Typography variant="body2">Actualizando datos…</Typography>
           </Box>
         </Alert>
       )}
 
       {/* KPI strip compacto — 4 cols mobile, 8 desktop */}
-      <Grid container spacing={1} sx={{ mb: 2 }}>
+      <Grid container spacing={{ xs: 0.5, sm: 1 }} sx={{ mb: 1.5 }}>
         {[
-          { title: "Clientes", value: clientes.length, icon: <FiUsers size={14} />, color: "#4caf50", bg: "#e8f5e9" },
-          { title: "Proyectos", value: proyectos.filter((p: any) => p.estado === "en_progreso" || p.estado === "planificacion").length, icon: <FiActivity size={14} />, color: "#2196f3", bg: "#e3f2fd" },
-          { title: "Pipeline", value: formatCOP(valorPipeline), icon: <FiTarget size={14} />, color: "#ff9800", bg: "#fff3e0" },
-          { title: "Recaudado", value: formatCOP(totalRecaudado), icon: <FiTrendingUp size={14} />, color: "#9c27b0", bg: "#f3e5f5" },
-          { title: "Presupuestado", value: formatCOP(totalPresupuestado), icon: <FiDollarSign size={14} />, color: "#00897b", bg: "#e0f2f1" },
-          { title: "Tareas pend.", value: tareas.filter((t: any) => t.estado !== "Completada" && t.estado !== "Cancelada").length, icon: <FiClock size={14} />, color: "#f44336", bg: "#ffebee" },
-          { title: "Transacciones", value: transacciones.length, icon: <FiActivity size={14} />, color: "#607d8b", bg: "#eceff1" },
-          { title: "Mov. ($)", value: formatCOP(montoTransacciones), icon: <FiDollarSign size={14} />, color: "#1976d2", bg: "#e3f2fd" },
+          { title: "Clientes", value: clientes.length, icon: <FiUsers size={12} />, color: "#4caf50", bg: "#e8f5e9" },
+          { title: "Proyectos", value: proyectos.filter((p: any) => p.estado === "en_progreso" || p.estado === "planificacion").length, icon: <FiActivity size={12} />, color: "#2196f3", bg: "#e3f2fd" },
+          { title: "Pipeline", value: formatCOP(valorPipeline), icon: <FiTarget size={12} />, color: "#ff9800", bg: "#fff3e0" },
+          { title: "Recaudado", value: formatCOP(totalRecaudado), icon: <FiTrendingUp size={12} />, color: "#9c27b0", bg: "#f3e5f5" },
+          { title: "Presupuestado", value: formatCOP(totalPresupuestado), icon: <FiDollarSign size={12} />, color: "#00897b", bg: "#e0f2f1" },
+          { title: "Tareas pend.", value: tareas.filter((t: any) => t.estado !== "Completada" && t.estado !== "Cancelada").length, icon: <FiClock size={12} />, color: "#f44336", bg: "#ffebee" },
+          { title: "Transacciones", value: transacciones.length, icon: <FiActivity size={12} />, color: "#607d8b", bg: "#eceff1" },
+          { title: "Mov. ($)", value: formatCOP(montoTransacciones), icon: <FiDollarSign size={12} />, color: "#1976d2", bg: "#e3f2fd" },
         ].map((kpi) => (
           <Grid item xs={6} sm={4} md={3} lg={3} key={kpi.title}>
             <Paper
               variant="outlined"
               sx={{
-                p: { xs: 1, sm: 1.25 },
-                borderRadius: 2,
+                p: { xs: 0.75, sm: 1 },
+                borderRadius: 1.5,
                 borderColor: 'divider',
                 display: 'flex',
                 alignItems: 'center',
-                gap: 1,
+                gap: 0.75,
                 transition: 'box-shadow 0.15s',
-                '&:hover': { boxShadow: 2 },
+                '&:hover': { boxShadow: 1 },
               }}
             >
-              <Box sx={{ width: 30, height: 30, borderRadius: 1.5, bgcolor: kpi.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: kpi.color, flexShrink: 0 }}>
+              <Box sx={{ width: 24, height: 24, borderRadius: 1, bgcolor: kpi.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: kpi.color, flexShrink: 0 }}>
                 {kpi.icon}
               </Box>
               <Box sx={{ minWidth: 0 }}>
-                <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem', lineHeight: 1, display: 'block' }}>{kpi.title}</Typography>
-                <Typography sx={{ fontWeight: 800, fontSize: { xs: '0.85rem', sm: '0.95rem' }, color: kpi.color, lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.6rem', lineHeight: 1, display: 'block' }}>{kpi.title}</Typography>
+                <Typography sx={{ fontWeight: 800, fontSize: { xs: '0.75rem', sm: '0.85rem' }, color: kpi.color, lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {kpi.value}
                 </Typography>
               </Box>

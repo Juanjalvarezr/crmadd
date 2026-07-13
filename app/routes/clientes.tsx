@@ -131,10 +131,8 @@ export default function Clientes() {
       setLoading(true);
       setError(null);
       const data = await clientesService.getAll();
-      console.log('[CLIENTES DEBUG] loadClientes data:', data, 'length:', (data || []).length);
       setClientes(data || []);
     } catch (err: any) {
-      console.error('[CLIENTES DEBUG] loadClientes error:', err);
       setError("Error al cargar clientes: " + err.message);
     } finally {
       setLoading(false);
@@ -816,44 +814,36 @@ export default function Clientes() {
       )}
       </Paper>
 
-      {/* Tarjetas de Estadísticas */}
-      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 2 }}>
-        <Box sx={{ flex: { xs: "100%", sm: "48%", md: "23%" } }}>
-          <StatCard
-            title="Total Clientes"
-            value={loading ? "..." : clientes.length}
-            subtitle="En base de datos"
-            icon={<ClientesIcon />}
-            color="primary"
-          />
-        </Box>
-        <Box sx={{ flex: { xs: "100%", sm: "48%", md: "23%" } }}>
-          <StatCard
-            title="Activos"
-            value={clientesActivos}
-            subtitle="Clientes activos"
-            icon={<ClientesIcon />}
-            color="success"
-          />
-        </Box>
-        <Box sx={{ flex: { xs: "100%", sm: "48%", md: "23%" } }}>
-          <StatCard
-            title="Inactivos"
-            value={clientesInactivos}
-            subtitle="Clientes inactivos"
-            icon={<ClientesIcon />}
-            color="error"
-          />
-        </Box>
-        <Box sx={{ flex: { xs: "100%", sm: "48%", md: "23%" } }}>
-          <StatCard
-            title="Nuevos este Mes"
-            value={clientesNuevosEsteMes}
-            subtitle="Nuevos registros"
-            icon={<ClientesIcon />}
-            color="warning"
-          />
-        </Box>
+      {/* Tarjetas de Estadísticas compactas 2x2 mobile, 4 columns desktop */}
+      <Box sx={{ display: 'grid', gap: { xs: 1, sm: 1.5, md: 2 }, mb: 2, gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(4, 1fr)' }}}>
+        <StatCard
+          title="Total Clientes"
+          value={loading ? "..." : clientes.length}
+          subtitle="En base de datos"
+          icon={<ClientesIcon />}
+          color="primary"
+        />
+        <StatCard
+          title="Activos"
+          value={clientesActivos}
+          subtitle="Clientes activos"
+          icon={<ClientesIcon />}
+          color="success"
+        />
+        <StatCard
+          title="Inactivos"
+          value={clientesInactivos}
+          subtitle="Clientes inactivos"
+          icon={<ClientesIcon />}
+          color="error"
+        />
+        <StatCard
+          title="Nuevos este Mes"
+          value={clientesNuevosEsteMes}
+          subtitle="Nuevos registros"
+          icon={<ClientesIcon />}
+          color="warning"
+        />
       </Box>
 
       {/* Filtros y Búsqueda - Responsive */}
