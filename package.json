@@ -1,12 +1,6 @@
 {
   "name": "crm-agencia",
   "private": true,
-  "react-router": {
-    "routes": [
-      { "path": "/login", "file": "app/routes/login.tsx" },
-      { "path": "/*", "file": "app/root.tsx" }
-    ]
-  },
   "type": "module",
   "scripts": {
     "dev": "react-router dev",
