@@ -4,9 +4,9 @@ import {
   Box, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   Button, Chip, TextField, InputAdornment, FormControl, InputLabel, Select, MenuItem,
   Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Alert, Snackbar, CircularProgress,
-  Checkbox, FormControlLabel, Collapse, List, ListItem, ListItemText, ListItemIcon, Tooltip, Tabs, Tab, Divider, Accordion, AccordionSummary, AccordionDetails
+  Checkbox, FormControlLabel, Collapse, List, ListItem, ListItemText, ListItemIcon, Tooltip, Tabs, Tab, Divider, Accordion
 } from "@mui/material";
-import { FiPlus, FiEdit, FiTrash2, FiCheck, FiSearch, FiCalendar, FiX, FiRefreshCw, FiCheckSquare, FiTarget, FiUser, FiPlay, FiPause, FiFlag, FiPaperclip, FiMessageSquare, FiBell, FiClock, FiCpu } from "react-icons/fi";
+import { FiPlus, FiEdit, FiTrash2, FiCheck, FiSearch, FiCalendar, FiX, FiRefreshCw, FiCheckSquare, FiTarget, FiPlay, FiPause, FiFlag, FiPaperclip, FiMessageSquare, FiBell, FiCpu } from "react-icons/fi";
 import { tareasService, clientesService, equipoService, emailService } from "../services/database";
 import { useNotificationStore } from "../store/useNotificationStore";
 import { format, startOfDay, isBefore } from "date-fns";
@@ -101,7 +101,7 @@ export default function Tareas() {
   const [newComentario, setNewComentario] = useState("");
   const [newRecordatorio, setNewRecordatorio] = useState({ tipo: "email" as "email" | "whatsapp", fecha: new Date().toISOString().slice(0, 16) });
   const [newAdjunto, setNewAdjunto] = useState<File | null>(null);
-  const [adjuntosUrl, setAdjuntosUrl] = useState<string[]>([]);
+  const [_adjuntosUrl, setAdjuntosUrl] = useState<string[]>([]);
 
   const location = useLocation();
 
@@ -187,10 +187,6 @@ export default function Tareas() {
     setNewAdjunto(null);
     setAdjuntosUrl([]);
     setOpenModal(true);
-  };
-
-  const handleEdit = (tarea: Tarea) => {
-    handleOpenModal(tarea);
   };
 
   const handleSave = async () => {

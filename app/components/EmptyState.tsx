@@ -8,6 +8,7 @@ interface EmptyStateProps {
   actionLabel?: string;
   onAction?: () => void;
   icon?: React.ReactNode;
+  color?: string;
 }
 
 export const EmptyState = ({
@@ -16,9 +17,10 @@ export const EmptyState = ({
   actionLabel,
   onAction,
   icon = <FiInbox size={28} color="#9ca3af" />,
+  color,
 }: EmptyStateProps) => (
   <Box sx={{ py: { xs: 3, sm: 4 }, textAlign: "center" }}>
-    <Box sx={{ mb: 1, opacity: 0.8 }}>{icon}</Box>
+    <Box sx={{ mb: 1, opacity: 0.8, ...(color ? { color } : {}) }}>{icon}</Box>
     <Typography variant="body2" sx={{ fontWeight: 600, color: "text.primary", mb: 0.5 }}>
       {title}
     </Typography>

@@ -1,7 +1,7 @@
 // Configuración de Supabase para DESEO DIGITAL
 import { createClient } from '@supabase/supabase-js';
 import * as z from 'zod';
-import type { Cliente, Oportunidad, Proyecto, Tarea } from '../types/crm';
+import type { Cliente } from '../types/crm';
 
 // Punto 1: Esquemas de Validación en Runtime
 export const ClienteSchema = z.object({
@@ -27,7 +27,7 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
 
 // Cliente de Supabase
 export const supabase = createClient(
-  SUPABASE_URL || 'https://placeholder-project.supabase.co', 
+  SUPABASE_URL || 'https://placeholder-project.supabase.co',
   SUPABASE_ANON_KEY || 'public-anon-key-placeholder',
   {
     auth: { persistSession: true },
@@ -237,7 +237,7 @@ export const serviciosService = {
       .from('servicios')
       .select('*')
       .order('popularidad', { ascending: false });
-    
+
     if (error) throw error;
     return (data || []).map(s => ({
       ...s,
@@ -251,7 +251,7 @@ export const serviciosService = {
       .insert([servicio])
       .select()
       .single();
-    
+
     if (error) throw error;
     return data;
   },
@@ -263,7 +263,7 @@ export const serviciosService = {
       .eq('id', id)
       .select()
       .single();
-    
+
     if (error) throw error;
     return data;
   },
@@ -273,7 +273,7 @@ export const serviciosService = {
       .from('servicios')
       .delete()
       .eq('id', id);
-    
+
     if (error) throw error;
     return true;
   }
@@ -286,7 +286,7 @@ export const tareasService = {
       .from('tareas')
       .select('id, titulo, descripcion, estado, prioridad, fecha, cliente_id, proyecto_id, subtareas, comentarios, recordatorios, tiempo_inicio, tiempo_total, tiempo_pausa, tiempo_fin, timer_activo, created_at')
       .order('fecha', { ascending: true });
-    
+
     if (error) throw error;
     return data || [];
   },
@@ -297,7 +297,7 @@ export const tareasService = {
       .insert([tarea])
       .select()
       .single();
-    
+
     if (error) throw error;
     return data;
   },
@@ -309,7 +309,7 @@ export const tareasService = {
       .eq('id', id)
       .select()
       .single();
-    
+
     if (error) throw error;
     return data;
   },
@@ -319,7 +319,7 @@ export const tareasService = {
       .from('tareas')
       .delete()
       .eq('id', id);
-    
+
     if (error) throw error;
     return true;
   },
@@ -407,7 +407,7 @@ export const mapClienteToDB = (c: any) => ({
   necesidades: c.necesidades,
   intereses: c.intereses,
   estado: c.estado,
-  ultima_interaccion: c.ultima_interaccion,
+  ultima_interaccion: c.ultima_interaccion || c.ultimaInteraccion,
   favorito: c.favorito
 });
 
@@ -508,7 +508,7 @@ export const clientesService = {
       .eq('id', id)
       .select()
       .single();
-    
+
     if (error) throw error;
     return mapDBToCliente(data);
   },
@@ -727,11 +727,11 @@ export const logsService = {
     try {
       const { data, error } = await supabase
         .from('audit_logs')
-        .insert([{ 
-          ...log, 
+        .insert([{
+          ...log,
           // Punto 5: Snapshot detallado
           detalle: typeof log.detalle === 'string' ? log.detalle : JSON.stringify(log.detalle),
-          created_at: new Date().toISOString() 
+          created_at: new Date().toISOString()
         }]);
       if (error) throw error;
       return data;
@@ -797,17 +797,17 @@ export const emailService = {
       console.warn("Simulando envío de email (falta API Key de Resend)");
       return { id: 'simulated-id', message: 'Email simulado correctamente' };
     }
-    
+
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${RESEND_API_KEY}`,
       },
-      body: JSON.stringify({ 
-        from: 'DESEO DIGITAL <onboarding@resend.dev>', 
-        to, 
-        subject, 
+      body: JSON.stringify({
+        from: 'DESEO DIGITAL <onboarding@resend.dev>',
+        to,
+        subject,
         html,
         attachments
       }),
@@ -825,7 +825,7 @@ export const configuracionService = {
         .select('*')
         .limit(1)
         .maybeSingle();
-      
+
       if (error && error.code !== 'PGRST116') throw error;
       return data ? mapDBToEmpresa(data) : null;
     } catch (e) {
@@ -840,7 +840,7 @@ export const configuracionService = {
       .select('id')
       .limit(1)
       .maybeSingle();
-    
+
     let query;
     if (existing?.id) {
       query = supabase.from('configuracion_empresa')
@@ -908,7 +908,7 @@ export const reglasAIService = {
 // Punto 8: Servicio de Prompts Dinámicos
 export const promptsAIService = {
   async getBySlug(slug: string) {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from('prompts_ai')
       .select('*')
       .eq('slug', slug)
@@ -986,7 +986,7 @@ export const authService = {
 // Verificar conexión
 export async function testConnection() {
   try {
-    const { data, error } = await supabase.from('clientes').select('*', { count: 'exact', head: true });
+    const { error } = await supabase.from('clientes').select('*', { count: 'exact', head: true });
     if (error) throw error;
     return { success: true, message: 'Conexión exitosa a Supabase' };
   } catch (error: any) {

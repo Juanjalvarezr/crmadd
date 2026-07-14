@@ -35,11 +35,11 @@ function drawMeta(doc: any, x: number, y: number, fields: { label: string; value
   const muted = [parseInt(BRAND.muted.slice(1, 3), 16), parseInt(BRAND.muted.slice(3, 5), 16), parseInt(BRAND.muted.slice(5, 7), 16)];
   const text = [parseInt(BRAND.text.slice(1, 3), 16), parseInt(BRAND.text.slice(3, 5), 16), parseInt(BRAND.text.slice(5, 7), 16)];
   for (const f of fields) {
-    doc.setTextColor(...muted);
+    doc.setTextColor(muted[0], muted[1], muted[2]);
     doc.text(f.label, x, cy);
     cy += 5;
     if (f.value) {
-      doc.setTextColor(...text);
+      doc.setTextColor(text[0], text[1], text[2]);
       doc.setFont("helvetica", "bold");
       doc.text(f.value, x, cy);
       doc.setFont("helvetica", "normal");
@@ -109,7 +109,7 @@ export async function generarFacturaPDF(factura: any, cliente: any = null, items
   const finalY = (doc as any).lastAutoTable?.finalY || y + 40;
   doc.setFontSize(8);
   const muted2 = [parseInt(BRAND.muted.slice(1, 3), 16), parseInt(BRAND.muted.slice(3, 5), 16), parseInt(BRAND.muted.slice(5, 7), 16)];
-  doc.setTextColor(...muted2);
+  doc.setTextColor(muted2[0], muted2[1], muted2[2]);
   doc.text("DESEO DIGITAL - Agencia Inteligente - nit. 000.000.000", 14, finalY + 12);
   doc.text("www.deseodigital.com - hola@deseodigital.com", 14, finalY + 18);
 
@@ -175,7 +175,7 @@ export async function generarContratoPDF(contrato: any, cliente: any = null) {
 
   const finalY = (doc as any).lastAutoTable?.finalY || baseY + 80;
   doc.setFontSize(8);
-  doc.setTextColor(...[parseInt(BRAND.muted.slice(1, 3), 16), parseInt(BRAND.muted.slice(3, 5), 16), parseInt(BRAND.muted.slice(5, 7), 16)]);
+  doc.setTextColor(parseInt(BRAND.muted.slice(1, 3), 16), parseInt(BRAND.muted.slice(3, 5), 16), parseInt(BRAND.muted.slice(5, 7), 16));
   doc.text("DESEO DIGITAL - Agencia Inteligente - nit. 000.000.000", 14, finalY + 12);
   doc.text("www.deseodigital.com - hola@deseodigital.com", 14, finalY + 18);
 

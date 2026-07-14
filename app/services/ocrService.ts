@@ -24,7 +24,7 @@ function clean(arr: string[]) {
 function extractCardData(text: string): ExtractedCard {
   const phones = clean(text.match(PHONE_PATTERN) || []);
   const emails = clean(text.match(EMAIL_PATTERN) || []);
-  const webs = clean(text.match(WEB_PATTERN) || []);
+  const _webs = clean(text.match(WEB_PATTERN) || []);
   const redes = clean(text.match(SOCIAL_PATTERN) || []) || [];
 
   // Heurística simple: primera línea significativa como nombre

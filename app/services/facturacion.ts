@@ -16,7 +16,7 @@ export const facturasService = {
   update: (id: string, updates: any) => supabase.from('facturas').update(updates).eq('id', id).select().single().then(r => r.data),
   delete: (id: string) => supabase.from('facturas').delete().eq('id', id).then(r => { if (r.error) throw r.error; return true; }),
 
-  enviarEmail: (factura: any, html: string) => fetch('/api/email-send', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ to: [factura?.cliente_email || factura?.cliente?.email || ""], subject: 'Factura ' + (factura.numero || factura.id), html }) }).then(r => r.json()),
+  enviarEmail: (factura: any, html: string) => fetch('/api/email-send', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ to: [factura?.cliente_email || factura?.cliente?.email].filter(Boolean), subject: 'Factura ' + (factura.numero || factura.id), html }) }).then(r => r.json()),
   linkWhatsApp: (factura: any) => linkWhatsApp(factura.cliente?.telefono || '', 'Hola, te comparto la factura ' + (factura.numero || factura.id) + ' por un valor de ' + factura.total),
   pdf: (factura: any, cliente?: any, items?: any[]) => generarFacturaPDF(factura, cliente, items),
 
@@ -40,7 +40,7 @@ export const facturasService = {
     return `${prefix}${next}`;
   },
 
-  anular: (id: string, motivo: string) => supabase.from('facturas').update({ estado: 'anulada', motivo_anulacion: motivo, updated_at: new Date().toISOString() }).eq('id', id).select().single().then(r => r.data),
+  anular: (id: string, motivo: string) => supabase.from('facturas').update({ estado: 'anulada', motivo_anulacion: motivo, actualizado_en: new Date().toISOString() }).eq('id', id).select().single().then(r => r.data),
 };
 export const contratosService = {
   getAll: () => supabase.from('contratos').select('*').order('created_at', { ascending: false }).then(r => r.data || []),
@@ -49,7 +49,7 @@ export const contratosService = {
   update: (id: string, updates: any) => supabase.from('contratos').update(updates).eq('id', id).select().single().then(r => r.data),
   delete: (id: string) => supabase.from('contratos').delete().eq('id', id).then(r => { if (r.error) throw r.error; return true; }),
 
-  enviarEmail: (contrato: any, html: string) => fetch('/api/email-send', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ to: [contrato?.cliente_email || contrato?.cliente?.email || ""], subject: 'Contrato ' + (contrato.numero || contrato.id), html }) }).then(r => r.json()),
+  enviarEmail: (contrato: any, html: string) => fetch('/api/email-send', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ to: [contrato?.cliente_email || contrato?.cliente?.email].filter(Boolean), subject: 'Contrato ' + (contrato.numero || contrato.id), html }) }).then(r => r.json()),
   linkWhatsApp: (contrato: any) => linkWhatsApp(contrato.cliente?.telefono || '', 'Hola, te comparto el contrato ' + (contrato.numero || contrato.id)),
   pdf: (contrato: any, cliente?: any) => generarContratoPDF(contrato, cliente),
 
@@ -67,7 +67,7 @@ export const contratoVersionesService = {
 };
 
 export const contratoClausulasService = {
-  getAll: (tipo?: string) => supabase.from('contrato_clausulas').select('*').eq('activa', true).order('orden', { ascending: true }).then(r => r.data || []),
+  getAll: (_tipo?: string) => supabase.from('contrato_clausulas').select('*').eq('activa', true).order('orden', { ascending: true }).then(r => r.data || []),
   create: (item: any) => supabase.from('contrato_clausulas').insert(item).select().single().then(r => r.data),
   delete: (id: string) => supabase.from('contrato_clausulas').delete().eq('id', id).then(r => r.data),
 };

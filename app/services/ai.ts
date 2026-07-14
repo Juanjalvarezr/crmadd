@@ -1,12 +1,11 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import { 
-  supabase, 
-  serviciosService, 
-  conocimientoService, 
-  promptsAIService, 
-  logsService, 
-  emailService, 
-  interaccionesService,
+import {
+  supabase,
+  serviciosService,
+  conocimientoService,
+  promptsAIService,
+  logsService,
+  emailService,
   tareasService,
   proyectosService,
   clientesService,
@@ -40,7 +39,7 @@ const getLocalEmbeddingModel = () => {
  */
 const executeGenerateContent = async (prompt: string, modelName = "gemini-1.5-flash"): Promise<string> => {
   const useEdgeFunctions = import.meta.env.VITE_USE_EDGE_FUNCTIONS === "true";
-  
+
   if (useEdgeFunctions) {
     try {
       const { data, error } = await supabase.functions.invoke("gemini-proxy", {
@@ -65,7 +64,7 @@ const executeGenerateContent = async (prompt: string, modelName = "gemini-1.5-fl
  */
 const executeEmbedContent = async (text: string): Promise<number[]> => {
   const useEdgeFunctions = import.meta.env.VITE_USE_EDGE_FUNCTIONS === "true";
-  
+
   if (useEdgeFunctions) {
     try {
       const { data, error } = await supabase.functions.invoke("gemini-proxy", {
@@ -153,9 +152,9 @@ const parseAIResponse = (text: string): any => {
     // Intenta encontrar el primer '{' y el último '}' para extraer el JSON puro
     const start = text.indexOf('{');
     const end = text.lastIndexOf('}');
-    
+
     let jsonContent: string;
-    
+
     if (start === -1 || end === -1) {
       const arrayStart = text.indexOf('[');
       const arrayEnd = text.lastIndexOf(']');
@@ -169,7 +168,7 @@ const parseAIResponse = (text: string): any => {
     }
 
     const cleanText = jsonContent.replace(/[\u0000-\u001F\u007F-\u009F]/g, "").trim();
-    
+
     return JSON.parse(cleanText);
   } catch (error) {
     console.error("Error crítico parseando respuesta de IA:", error);
@@ -247,7 +246,7 @@ export const ejecutarAccionSincrona = async (pregunta: string, respuestaIA: stri
       });
       return infoAccion.confirmacion;
     }
-    
+
 
 
     if (infoAccion.accion === "ACTUALIZAR_CLIENTE") {
@@ -267,7 +266,7 @@ export const ejecutarAccionSincrona = async (pregunta: string, respuestaIA: stri
       const { id, ...updates } = infoAccion.datos;
       if (id && (typeof id === "string" || typeof id === "number")) {
         const idLimpio = String(id).trim();
-        if (!confirm(`¿Actualizar el proyecto ${idLimpio}?`)) return "Acción cancelada por el usuario.";
+        // La confirmación debe realizarse en la capa de UI antes de llamar a esta función.
         return await proyectosService.update(idLimpio, { ...updates, actualizadoEn: new Date().toISOString() } as any)
           .then(() => infoAccion.confirmacion)
           .catch(async (error: any) => {
@@ -276,7 +275,7 @@ export const ejecutarAccionSincrona = async (pregunta: string, respuestaIA: stri
               modulo: "Proyectos",
               detalle: `Error al intentar actualizar ID ${idLimpio}: ${error.message}`,
               usuario: "Sistema IA"
-            }).catch(() => {});
+            }).catch(() => { });
             console.error("Error en acción IA:", error);
             return `⚠️ Error técnico al actualizar: ${error.message || "Verifica los datos"}`;
           });
@@ -387,7 +386,7 @@ export const aiService = {
   async generarPropuesta(params: AIPropuestaParams, onStream?: (text: string) => void): Promise<string> {
     try {
       const model = getLocalAIModel(); // Usamos el local para streaming directo
-      
+
       const dbPrompt = await promptsAIService.getBySlug('director_estrategico_propuesta');
       let prompt = "";
 
@@ -421,7 +420,8 @@ export const aiService = {
         5. **Llamado a la Acción:** Un cierre persuasivo para que el cliente apruebe la cotización.
 
         TONO: Seguro, moderno, orientado a resultados y premium. Usa viñetas y negritas para facilitar la lectura. No inventes precios.
-      `;}
+      `;
+      }
 
       if (onStream) {
         const result = await model.generateContentStream(prompt);
@@ -476,7 +476,7 @@ export const aiService = {
   /**
    * Genera un plan de contenido (reels, stories, pauta) basado en los detalles del proyecto.
    */
-  async generarPlanContenido(proyecto: Proyecto): Promise<{reels: string[], stories: string[], pauta: string[]}> {
+  async generarPlanContenido(proyecto: Proyecto): Promise<{ reels: string[], stories: string[], pauta: string[] }> {
     try {
       const model = getAIModel();
       const dbPrompt = await promptsAIService.getBySlug('content_lead_plan_contenido');
@@ -510,7 +510,8 @@ export const aiService = {
           "stories": ["Story 1", "Story 2", "Story 3", "Story 4", "Story 5"],
           "pauta": ["Anuncio Pauta 1", "Anuncio Pauta 2"]
         }
-      `;}
+      `;
+      }
 
       const result = await model.generateContent(prompt);
       return parseAIResponse(result.response.text());
@@ -538,7 +539,7 @@ export const aiService = {
         supabase.from('reglas_negocio_ai').select('instruccion'),
         conocimientoService.buscarSemantico(embedding)
       ]);
-      
+
       const contextoReglas = reglasRes.data?.map(r => `- ${r.instruccion}`).join('\n') || "";
       const contextoConocimiento = conocimientoSemantico
         .map((c: any) => `### ${c.titulo} (${c.categoria}):\n${c.contenido}`)
@@ -590,7 +591,8 @@ export const aiService = {
         Pregunta: "${pregunta}"
         
         Responde con un tono profesional, innovador y enfocado en el ROI.
-      `;}
+      `;
+      }
 
       const result = await model.generateContent(prompt);
       const textoRespuesta = result.response.text();
@@ -624,7 +626,7 @@ export const aiService = {
         CLIENTES:
         ${clientes.map(c => `- ${c.nombre} (ID: ${c.id}): Empresa ${c.empresa}, Nicho: ${c.nicho}, Estado: ${c.estado}`).join('\n')}
       `;
-      
+
       return this.chatAsistente(pregunta, contextoCRM, roleSlug);
     } catch (error) {
       console.error("Error al obtener datos reales para el chatbot:", error);
@@ -639,7 +641,7 @@ export const aiService = {
     try {
       const proyectos = await proyectosService.getAll();
       const proyecto = proyectos.find(p => String(p.id) === String(proyectoId));
-      
+
       if (!proyecto) {
         return "No se encontró el proyecto solicitado para realizar el análisis de riesgo.";
       }
@@ -648,7 +650,7 @@ export const aiService = {
       const hoy = new Date();
       const fechaFin = new Date(proyecto.fechaFin);
       const diasRestantes = Math.ceil((fechaFin.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
-      
+
       const tareasPendientes = (proyecto.tareas || [])
         .filter((t: any) => !t.completada)
         .map((t: any) => t.nombre);
@@ -705,7 +707,7 @@ export const aiService = {
   /**
    * Genera un borrador de correo electrónico profesional.
    */
-  async redactarCorreoGmail(clienteNombre: string, asunto: string, cuerpo: string): Promise<{asunto: string, contenido: string}> {
+  async redactarCorreoGmail(clienteNombre: string, asunto: string, cuerpo: string): Promise<{ asunto: string, contenido: string }> {
     try {
       const model = getAIModel();
       const prompt = `
@@ -732,7 +734,7 @@ export const aiService = {
       ]);
 
       const model = getAIModel();
-      
+
       // Preparamos un resumen numérico para la IA
       const resumen = {
         totalPresupuestado: proyectos.reduce((acc: number, p: any) => acc + (p.presupuesto || 0), 0),
@@ -945,7 +947,7 @@ export const aiService = {
   /**
    * Genera un resumen de logros personalizado para el email de cierre.
    */
-  async generarResumenCierreProyecto(proyecto: Proyecto): Promise<{asunto: string, cuerpo: string}> {
+  async generarResumenCierreProyecto(proyecto: Proyecto): Promise<{ asunto: string, cuerpo: string }> {
     try {
       const model = getAIModel();
       const prompt = `
@@ -1049,7 +1051,7 @@ export const aiService = {
     try {
       const servicios = await serviciosService.getAll();
       const model = getAIModel();
-      
+
       const prompt = `
         Eres el Growth Strategist Senior de DESEO DIGITAL. 
         Tu misión es analizar los "Dolores" y "Necesidades" que Juan José (CEO) ha capturado de un prospecto y sugerir la solución más efectiva de nuestro catálogo.
@@ -1094,7 +1096,7 @@ export const aiService = {
     try {
       const conocimiento = await conocimientoService.getAll();
       const plantilla = conocimiento.find(c => c.categoria === 'templates' && c.titulo.toLowerCase().includes(tipo.toLowerCase()));
-      
+
       const model = getAIModel();
       const dbPrompt = await promptsAIService.getBySlug('business_architect_documento');
 
@@ -1118,7 +1120,8 @@ export const aiService = {
         3. Si detectas que falta información crítica en la identidad o estructura, agrégala como una "Observación de Estrategia".
         4. El objetivo es que el cliente sienta que DESEO DIGITAL entiende quiénes son y qué necesitan corregir internamente para crecer.
         5. Tono: Premium, analítico, directo y altamente profesional.
-      `;}
+      `;
+      }
 
       const result = await model.generateContent(prompt);
       return result.response.text();
