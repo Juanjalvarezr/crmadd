@@ -10,8 +10,8 @@ import {
 import {
   clientesService, proyectosService, facturasService, contratosService, tareasService
 } from "../services/database";
-import SafeChip from "../../components/SafeChip";
-import { formatCOP } from "../../services/pdf";
+import SafeChip from "../components/SafeChip";
+import { formatCOP } from "../services/pdf";
 
 interface ClienteDetalle {
   id: string;
