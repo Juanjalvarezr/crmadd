@@ -1,5 +1,4 @@
-import { useEffect } from "react";
-import { useNavigate, useLocation } from "react-router";
+import { useLocation } from "react-router";
 import Dashboard from "./dashboard";
 
 export function meta() {
@@ -10,14 +9,7 @@ export function meta() {
 }
 
 export default function Home() {
-  const navigate = useNavigate();
   const { pathname } = useLocation();
-
-  useEffect(() => {
-    if (pathname === "/") {
-      navigate("/dashboard", { replace: true });
-    }
-  }, [navigate, pathname]);
 
   if (pathname === "/") {
     return <Dashboard />;
