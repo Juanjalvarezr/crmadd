@@ -4,7 +4,7 @@ import {
   Box, Typography, Paper, Chip, Stack, Alert, Button, Divider, List, ListItem, ListItemText
 } from "@mui/material";
 import { FiArrowLeft, FiFileText, FiDollarSign, FiCalendar, FiUser } from "react-icons/fi";
-import { proyectosService, facturasService } from "../../services/database";
+import { proyectosService, facturasService } from "../../../../services/database";
 
 export function meta() {
   return [{ title: "Proyecto | DESEO DIGITAL" }, { name: "description", content: "Vista pública del proyecto" }];

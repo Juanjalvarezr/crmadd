@@ -75,27 +75,6 @@ export const MobileFab: React.FC = () => {
     estado: 'borrador' as const,
   });
 
-  const accionesBase: AccionRapida[] = [
-    { icon: <FiUserPlus size={20} />, name: 'Nuevo Cliente', tipo: 'cliente' },
-    { icon: <FiCalendar size={20} />, name: 'Agendar Reunión', tipo: 'reunion' },
-    { icon: <FiMessageSquare size={20} />, name: 'WhatsApp Rápido', tipo: 'whatsapp' },
-    { icon: <FiList size={20} />, name: 'Nueva Tarea', tipo: 'tarea' },
-    { icon: <FiDollarSign size={20} />, name: 'Nueva Factura', tipo: 'factura' },
-    { icon: <FiTrendingUp size={20} />, name: 'Nueva Venta', tipo: 'oportunidad' },
-  ];
-
-  const getAcciones = (): AccionRapida[] => {
-    const ruta = location.pathname;
-    if (ruta.startsWith('/clientes')) return [{ icon: <FiUserPlus size={20} />, name: 'Nuevo Cliente', tipo: 'cliente' }];
-    if (ruta.startsWith('/proyectos')) return [{ icon: <FiFolder size={20} />, name: 'Nuevo Proyecto', tipo: 'proyecto' }];
-    if (ruta.startsWith('/tareas')) return [{ icon: <FiList size={20} />, name: 'Nueva Tarea', tipo: 'tarea' }];
-    if (ruta.startsWith('/ventas')) return [{ icon: <FiTrendingUp size={20} />, name: 'Nueva Venta', tipo: 'oportunidad' }];
-    if (ruta.startsWith('/facturacion')) return [{ icon: <FiDollarSign size={20} />, name: 'Nueva Factura', tipo: 'factura' }];
-    if (ruta.startsWith('/contratos')) return [{ icon: <FiFileText size={20} />, name: 'Nuevo Contrato', tipo: 'contrato' }];
-    return accionesBase;
-  };
-
-  const acciones = getAcciones();
 
   const abrirDialogo = (tipo: AccionRapida['tipo']) => {
     setTipoAccion(tipo);
