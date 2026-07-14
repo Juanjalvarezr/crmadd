@@ -32,12 +32,23 @@ const getIcon = (estado: Estado) => {
 };
 
 export default function Kanban() {
-  const [proyectos] = useState<Proyecto[]>([
-    { id: "1", nombre: "Rediseño web", estado: "planificacion", cliente: "Cliente A" },
-    { id: "2", nombre: "Campaña Instagram", estado: "en_progreso", cliente: "Cliente B" },
-    { id: "3", nombre: "Landing page", estado: "pausado", cliente: "Cliente C" },
-    { id: "4", nombre: "SEO Local", estado: "completado", cliente: "Cliente A" },
-  ]);
+  const [proyectos, setProyectos] = useState<Proyecto[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        setLoading(true);
+        const data = await proyectosService.getAll();
+        setProyectos((data as Proyecto[]) || []);
+      } catch {
+        setProyectos([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, []);
 
   return (
     <Box sx={{ maxWidth: 1400, mx: "auto", p: { xs: 2, sm: 3 } }}>

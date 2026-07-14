@@ -290,7 +290,7 @@ export const emailMarketingService = {
     replyTo?: string;
     attachments?: Array<{ filename: string; content: string }>;
   }) => {
-    const apiKey = (globalThis as any)?.__RESEND_KEY;
+    const apiKey = (import.meta as any)?.env?.VITE_RESEND_API_KEY;
     if (!apiKey) {
       return { ok: false as const, error: 'Falta VITE_RESEND_API_KEY' };
     }

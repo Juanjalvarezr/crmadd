@@ -12,7 +12,7 @@ export default function ChatbotWhatsApp() {
     <>
       <Tooltip title="Abrir WhatsApp">
         <IconButton
-          onClick={() => window.open(link, '_blank')}
+          onClick={() => { setOpen(true); window.open(link, '_blank'); }}
           sx={{
             position: 'fixed',
             bottom: 24,

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { SpeedDial, SpeedDialAction, SpeedDialIcon, useTheme, useMediaQuery, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, MenuItem, FormControl, InputLabel, Select, Snackbar, Alert, Box, IconButton, Tooltip } from '@mui/material';
-import { FiUsers, FiTrendingUp, FiDollarSign, FiPlus, FiUserPlus, FiList, FiX, FiFolder, FiFileText, FiBriefcase, FiCamera } from 'react-icons/fi';
+import { FiUsers, FiTrendingUp, FiDollarSign, FiPlus, FiUserPlus, FiList, FiX, FiFolder, FiFileText, FiCalendar, FiMessageSquare, FiCamera } from 'react-icons/fi';
 import { clientesService, proyectosService, tareasService, transaccionesService, oportunidadesService } from '../services/database';
 import { facturasService, contratosService } from '../services/facturacion';
 import ScannerTarjetas from './ScannerTarjetas';
@@ -10,7 +10,7 @@ import { scanCardFromImage, type ExtractedCard } from '../services/ocrService';
 type AccionRapida = {
   icon: React.ReactNode;
   name: string;
-  tipo: 'cliente' | 'proyecto' | 'tarea' | 'oportunidad' | 'transaccion' | 'factura' | 'contrato' | 'scanner';
+  tipo: 'cliente' | 'proyecto' | 'tarea' | 'oportunidad' | 'transaccion' | 'factura' | 'contrato' | 'scanner' | 'reunion' | 'whatsapp';
 };
 
 export const MobileFab: React.FC = () => {
@@ -19,95 +19,35 @@ export const MobileFab: React.FC = () => {
   const navigate = useNavigate();
   const [dialogoAbierto, setDialogoAbierto] = useState(false);
   const [scannerOpen, setScannerOpen] = useState(false);
+  const [open, setOpen] = useState(false);
   const [acciones, setAcciones] = useState<AccionRapida[]>([]);
   const [accionFiltrada, setAccionFiltrada] = useState<AccionRapida | null>(null);
+  const [tipoAccion, setTipoAccion] = useState<AccionRapida['tipo']>('cliente');
+
+  const accionesBase: AccionRapida[] = [
+    { icon: <FiUserPlus size={20} />, name: 'Nuevo Cliente', tipo: 'cliente' },
+    { icon: <FiCalendar size={20} />, name: 'Agendar Reunión', tipo: 'reunion' },
+    { icon: <FiMessageSquare size={20} />, name: 'WhatsApp Rápido', tipo: 'whatsapp' },
+    { icon: <FiList size={20} />, name: 'Nueva Tarea', tipo: 'tarea' },
+    { icon: <FiDollarSign size={20} />, name: 'Nueva Factura', tipo: 'factura' },
+    { icon: <FiTrendingUp size={20} />, name: 'Nueva Venta', tipo: 'oportunidad' },
+    { icon: <FiCamera size={20} />, name: 'Escanear Tarjeta', tipo: 'scanner' },
+  ];
+
+  const getAcciones = (): AccionRapida[] => {
+    const ruta = location.pathname;
+    if (ruta.startsWith('/clientes')) return [{ icon: <FiUserPlus size={20} />, name: 'Nuevo Cliente', tipo: 'cliente' }];
+    if (ruta.startsWith('/proyectos')) return [{ icon: <FiFolder size={20} />, name: 'Nuevo Proyecto', tipo: 'proyecto' }];
+    if (ruta.startsWith('/tareas')) return [{ icon: <FiList size={20} />, name: 'Nueva Tarea', tipo: 'tarea' }];
+    if (ruta.startsWith('/ventas')) return [{ icon: <FiTrendingUp size={20} />, name: 'Nueva Venta', tipo: 'oportunidad' }];
+    if (ruta.startsWith('/facturacion')) return [{ icon: <FiDollarSign size={20} />, name: 'Nueva Factura', tipo: 'factura' }];
+    if (ruta.startsWith('/contratos')) return [{ icon: <FiFileText size={20} />, name: 'Nuevo Contrato', tipo: 'contrato' }];
+    return accionesBase;
+  };
 
   useEffect(() => {
-    const ruta = location.pathname;
-    const getAcciones = (): AccionRapida[] => {
-      if (ruta.startsWith('/clientes')) return [
-        { icon: <FiUserPlus size={20} />, name: 'Nuevo Cliente', tipo: 'cliente' },
-        { icon: <FiCamera size={20} />, name: 'Escanear Tarjeta', tipo: 'scanner' },
-      ];
-      if (ruta.startsWith('/proyectos')) return [
-        { icon: <FiFolder size={20} />, name: 'Nuevo Proyecto', tipo: 'proyecto' },
-        { icon: <FiList size={20} />, name: 'Nueva Tarea', tipo: 'tarea' },
-      ];
-      if (ruta.startsWith('/tareas')) return [{ icon: <FiList size={20} />, name: 'Nueva Tarea', tipo: 'tarea' }];
-      if (ruta.startsWith('/ventas')) return [
-        { icon: <FiTrendingUp size={20} />, name: 'Nueva Venta', tipo: 'oportunidad' },
-        { icon: <FiDollarSign size={20} />, name: 'Nueva Factura', tipo: 'factura' },
-      ];
-      if (ruta.startsWith('/facturacion')) return [{ icon: <FiDollarSign size={20} />, name: 'Nueva Factura', tipo: 'factura' }];
-      if (ruta.startsWith('/contratos')) return [{ icon: <FiFileText size={20} />, name: 'Nuevo Contrato', tipo: 'contrato' }];
-      return [
-        { icon: <FiUserPlus size={20} />, name: 'Nuevo Cliente', tipo: 'cliente' },
-        { icon: <FiFolder size={20} />, name: 'Nuevo Proyecto', tipo: 'proyecto' },
-        { icon: <FiList size={20} />, name: 'Nueva Tarea', tipo: 'tarea' },
-        { icon: <FiTrendingUp size={20} />, name: 'Nueva Venta', tipo: 'oportunidad' },
-        { icon: <FiDollarSign size={20} />, name: 'Nueva Factura', tipo: 'factura' },
-        { icon: <FiFileText size={20} />, name: 'Nuevo Contrato', tipo: 'contrato' },
-        { icon: <FiCamera size={20} />, name: 'Escanear Tarjeta', tipo: 'scanner' },
-      ];
-    };
     setAcciones(getAcciones());
   }, [location.pathname]);
-
-  const abrirAccion = (tipo: AccionRapida['tipo']) => {
-    const accion = acciones.find(a => a.tipo === tipo) || null;
-    setAccionFiltrada(accion);
-    if (tipo === 'scanner') {
-      setScannerOpen(true);
-    } else {
-      setTipoAccion(tipo);
-      setDialogoAbierto(true);
-    }
-    setOpen(false);
-  };
-  const [accionFiltrada, setAccionFiltrada] = useState<AccionRapida | null>(null);
-
-  useEffect(() => {
-    const ruta = location.pathname;
-    const getAcciones = (): AccionRapida[] => {
-      if (ruta.startsWith('/clientes')) return [
-        { icon: <FiUserPlus size={20} />, name: 'Nuevo Cliente', tipo: 'cliente' },
-        { icon: <FiCamera size={20} />, name: 'Escanear Tarjeta', tipo: 'scanner' },
-      ];
-      if (ruta.startsWith('/proyectos')) return [
-        { icon: <FiFolder size={20} />, name: 'Nuevo Proyecto', tipo: 'proyecto' },
-        { icon: <FiList size={20} />, name: 'Nueva Tarea', tipo: 'tarea' },
-      ];
-      if (ruta.startsWith('/tareas')) return [{ icon: <FiList size={20} />, name: 'Nueva Tarea', tipo: 'tarea' }];
-      if (ruta.startsWith('/ventas')) return [
-        { icon: <FiTrendingUp size={20} />, name: 'Nueva Venta', tipo: 'oportunidad' },
-        { icon: <FiDollarSign size={20} />, name: 'Nueva Factura', tipo: 'factura' },
-      ];
-      if (ruta.startsWith('/facturacion')) return [{ icon: <FiDollarSign size={20} />, name: 'Nueva Factura', tipo: 'factura' }];
-      if (ruta.startsWith('/contratos')) return [{ icon: <FiFileText size={20} />, name: 'Nuevo Contrato', tipo: 'contrato' }];
-      return [
-        { icon: <FiUserPlus size={20} />, name: 'Nuevo Cliente', tipo: 'cliente' },
-        { icon: <FiFolder size={20} />, name: 'Nuevo Proyecto', tipo: 'proyecto' },
-        { icon: <FiList size={20} />, name: 'Nueva Tarea', tipo: 'tarea' },
-        { icon: <FiTrendingUp size={20} />, name: 'Nueva Venta', tipo: 'oportunidad' },
-        { icon: <FiDollarSign size={20} />, name: 'Nueva Factura', tipo: 'factura' },
-        { icon: <FiFileText size={20} />, name: 'Nuevo Contrato', tipo: 'contrato' },
-        { icon: <FiCamera size={20} />, name: 'Escanear Tarjeta', tipo: 'scanner' },
-      ];
-    };
-    setAcciones(getAcciones());
-  }, [location.pathname]);
-
-  const abrirAccion = (tipo: AccionRapida['tipo']) => {
-    const accion = acciones.find(a => a.tipo === tipo) || null;
-    setAccionFiltrada(accion);
-    if (tipo === 'scanner') {
-      setScannerOpen(true);
-    } else {
-      setTipoAccion(tipo);
-      setDialogoAbierto(true);
-    }
-    setOpen(false);
-  };
   const [snackbar, setSnackbar] = useState<{ open: boolean; mensaje: string; severity: 'success' | 'error' }>({ open: false, mensaje: '', severity: 'success' });
   const [clientes, setClientes] = useState<any[]>([]);
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
