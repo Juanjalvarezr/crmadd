@@ -11,7 +11,7 @@ import {
   clientesService, proyectosService, tareasService
 } from "../services/database";
 import SafeChip from "../components/SafeChip";
-import { formatCOP } from "../services/pdf";
+import { formatCOP } from "../data/serviciosData";
 
 interface ClienteDetalle {
   id: string;
