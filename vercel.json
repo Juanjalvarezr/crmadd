@@ -1,13 +1,7 @@
 {
   "build": {
     "env": {
-      "FORCE_REBUILD": "cache-invalid-2026-07-13-v7-timeout-65s"
-    }
-  },
-  "functions": {
-    "app/**/*.js": {
-      "memory": 1024,
-      "maxDuration": 60
+      "FORCE_REBUILD": "cache-invalid-2026-07-13-v8-no-functions-pattern"
     }
   }
 }
