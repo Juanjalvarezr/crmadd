@@ -32,7 +32,7 @@ import {
 } from './supabase';
 
 const TIMEOUT_MS = 65000;
-const CACHE_BUST = 'v4-66s-dashboard-visible-2026-07-13';
+const CACHE_BUST = 'v7-66s-dashboard-visible-2026-07-13-rebuild-force';
 
 const withTimeout = async <T>(promise: Promise<T>, label = 'operación', ms = TIMEOUT_MS): Promise<T> => {
   const start = Date.now();
