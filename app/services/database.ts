@@ -241,6 +241,13 @@ export const conocimientoService = {
   delete: (id: number) => withTimeout(baseConocimientoService.delete(id), 'conocimientoService.delete'),
 };
 
+export const credencialesService = {
+  getAll: (proyectoId: number) => withTimeout(baseCredencialesService.getAll(proyectoId), 'credencialesService.getAll').catch(() => []),
+  create: (item: any) => withTimeout(baseCredencialesService.create(item), 'credencialesService.create'),
+  update: (id: string | number, updates: any) => withTimeout(baseCredencialesService.update(id, updates), 'credencialesService.update'),
+  delete: (id: number) => withTimeout(baseCredencialesService.delete(id), 'credencialesService.delete'),
+};
+
 export const authService = {
   signUp: (email: string, pass: string) => withTimeout(baseAuthService.signUp(email, pass), 'authService.signUp'),
   signIn: (email: string, pass: string) => withTimeout(baseAuthService.signIn(email, pass), 'authService.signIn'),
