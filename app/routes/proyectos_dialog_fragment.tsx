@@ -368,5 +368,5 @@
         ))}
       </List>
     </Box>
-  )}
+  )
 </DialogContent>
