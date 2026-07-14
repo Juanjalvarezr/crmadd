@@ -3,5 +3,11 @@
     "env": {
       "FORCE_REBUILD": "cache-invalid-2026-07-13-v8-no-functions-pattern"
     }
+  },
+  "functions": {
+    "app/api/**/*.ts": {
+      "memory": 1024,
+      "maxDuration": 60
+    }
   }
 }
