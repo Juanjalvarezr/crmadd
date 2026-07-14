@@ -172,7 +172,7 @@ export default function Ventas() {
           // 2. CREACIÓN AUTOMÁTICA DE PROYECTO CON SALVAGUARDA DE DUPLICADOS (Nivel Agencia Pro)
           const proyectosExistentes = await proyectosService.getAll();
           const proyectoDuplicado = proyectosExistentes.find(
-            p => Number(p.oportunidadId) === Number(oppObj.id)
+            p => String(p.oportunidadId) === String(oppObj.id)
           );
 
           if (proyectoDuplicado) {

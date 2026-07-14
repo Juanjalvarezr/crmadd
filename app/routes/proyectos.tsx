@@ -124,7 +124,7 @@ export default function Proyectos() {
     (async () => {
       if (!selectedProyecto) return;
       try {
-        const data = await credencialesService.getAll(Number(selectedProyecto.id));
+        const data = await credencialesService.getAll(String(selectedProyecto.id));
         setCredenciales(data);
         (selectedProyecto as any).__credentials = data;
       } catch {}
@@ -1786,7 +1786,7 @@ export default function Proyectos() {
                         const url = prompt('URL (opcional)') || '';
                         if (!canal) return;
                         try {
-                          await credencialesService.create({ proyecto_id: Number(selectedProyecto.id), tipo: 'cuenta', canal, usuario, contrasena, url });
+                          await credencialesService.create({ proyecto_id: String(selectedProyecto.id), tipo: 'cuenta', canal, usuario, contrasena, url });
                           showNotification('Credencial guardada', 'success');
                         } catch (e: any) { showNotification('Error: ' + e.message, 'error'); }
                       }}

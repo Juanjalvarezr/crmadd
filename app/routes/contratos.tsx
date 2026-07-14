@@ -137,7 +137,7 @@ export default function Contratos() {
       numero: String(fd.get('numero') || ''),
       estado: String(fd.get('estado') || 'borrador'),
       valor: Number(fd.get('valor') || 0),
-      cliente_id: fd.get('cliente_id') ? Number(fd.get('cliente_id')) : null,
+      cliente_id: fd.get('cliente_id') ? String(fd.get('cliente_id')) : null,
       proyecto_id: fd.get('proyecto_id') ? String(fd.get('proyecto_id')) : null,
       factura_id: fd.get('factura_id') ? String(fd.get('factura_id')) : null,
       fecha_renovacion: fd.get('fecha_renovacion') ? String(fd.get('fecha_renovacion')) : null,
