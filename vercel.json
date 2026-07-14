@@ -1,7 +1,7 @@
 {
   "build": {
     "env": {
-      "FORCE_REBUILD": "cache-invalid-2026-07-13-v5-dashboard-visible-v2"
+      "FORCE_REBUILD": "cache-invalid-2026-07-13-v6-force-deploy"
     }
   },
   "functions": {
