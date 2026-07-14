@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import {
-  Box, Typography, Paper, Chip, Stack, Alert, Button, Divider, Tabs, Tab, List, ListItem, ListItemText, Avatar, IconButton
+  Box, Typography, Paper, Chip, Stack, Alert, Button, Divider, Tabs, Tab
 } from "@mui/material";
 import {
   FiArrowLeft, FiUser, FiMail, FiPhone, FiMapPin, FiCalendar, FiFileText,
-  FiDollarSign, FiCheckSquare, FiFolder, FiMessageSquare, FiEye, FiKey
+  FiCheckSquare, FiFolder, FiMessageSquare, FiEye
 } from "react-icons/fi";
 import {
   clientesService, proyectosService, facturasService, contratosService, tareasService
@@ -66,24 +66,24 @@ export default function Cliente360() {
     })();
   }, [id]);
 
-  if (loading) return <Box sx={{ p: 4 }}><Typography>Cargando vista 360°…</Typography></Box>;
+  if (loading) return <Box sx={{ p: 4 }}><Typography>Cargando vista 360…</Typography></Box>;
   if (error || !cliente) return <Box sx={{ p: 4 }}><Alert severity="error">{error || "No disponible"}</Alert></Box>;
 
   const tabs = [
-    { label: 'Resumen', icon: <FiUser /> },
+    { label: "Resumen", icon: <FiUser /> },
     { label: `Proyectos (${proyectos.length})`, icon: <FiFolder /> },
     { label: `Facturas (${facturas.length})`, icon: <FiFileText /> },
     { label: `Contratos (${contratos.length})`, icon: <FiFileText /> },
     { label: `Tareas (${tareas.length})`, icon: <FiCheckSquare /> },
   ];
 
-  const wa = `https://wa.me/${(cliente.telefono || '').replace(/\D/g, '')}?text=${encodeURIComponent('Hola ' + cliente.nombre)}`;
+  const wa = `https://wa.me/${(cliente.telefono || "").replace(/\D/g, "")}?text=${encodeURIComponent("Hola " + cliente.nombre)}`;
 
   return (
     <Box sx={{ p: { xs: 1.5, sm: 2 }, maxWidth: 1200, mx: "auto" }}>
       <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
         <Button variant="text" startIcon={<FiArrowLeft />} component={Link} to="/clientes">Volver</Button>
-        <Stack direction="row" spacing={0.5} sx={{ ml: 'auto' }}>
+        <Stack direction="row" spacing={0.5} sx={{ ml: "auto" }}>
           {cliente.telefono && (
             <IconButton size="small" color="success" component="a" href={wa} target="_blank" rel="noreferrer">
               <FiMessageSquare />
@@ -97,31 +97,31 @@ export default function Cliente360() {
         </Stack>
       </Stack>
 
-      <Paper sx={{ p: { xs: 2, sm: 3 }, borderRadius: 3, border: '1px solid', borderColor: 'divider', mb: 2 }}>
+      <Paper sx={{ p: { xs: 2, sm: 3 }, borderRadius: 3, border: "1px solid", borderColor: "divider", mb: 2 }}>
         <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 2 }}>
-          <Avatar sx={{ width: 48, height: 48, bgcolor: 'primary.main' }}>
-            {(cliente.nombre || cliente.empresa || '?').slice(0, 2).toUpperCase()}
+          <Avatar sx={{ width: 48, height: 48, bgcolor: "primary.main" }}>
+            {(cliente.nombre || cliente.empresa || "?").slice(0, 2).toUpperCase()}
           </Avatar>
           <Box sx={{ minWidth: 0 }}>
             <Typography variant="h5" sx={{ fontWeight: 800 }}>{cliente.nombre}</Typography>
             <Typography variant="body2" color="text.secondary">{cliente.empresa} {cliente.nicho && <SafeChip label={cliente.nicho} size="small" sx={{ ml: 1 }} />}</Typography>
           </Box>
-          <Chip label={cliente.estado || 'Activo'} color={cliente.estado === 'Activo' ? 'success' : 'default'} size="small" sx={{ ml: 'auto' }} />
+          <Chip label={cliente.estado || "Activo"} color={cliente.estado === "Activo" ? "success" : "default"} size="small" sx={{ ml: "auto" }} />
         </Stack>
 
-        <Stack direction="row" spacing={2} sx={{ mb: 2, flexWrap: 'wrap' }}>
-          {cliente.email && <Typography variant="body2"><FiMail style={{ display: 'inline', marginRight: 6 }} />{cliente.email}</Typography>}
-          {cliente.telefono && <Typography variant="body2"><FiPhone style={{ display: 'inline', marginRight: 6 }} />{cliente.telefono}</Typography>}
-          {cliente.ciudad && <Typography variant="body2"><FiMapPin style={{ display: 'inline', marginRight: 6 }} />{cliente.ciudad}</Typography>}
+        <Stack direction="row" spacing={2} sx={{ mb: 2, flexWrap: "wrap" }}>
+          {cliente.email && <Typography variant="body2"><FiMail style={{ display: "inline", marginRight: 6 }} />{cliente.email}</Typography>}
+          {cliente.telefono && <Typography variant="body2"><FiPhone style={{ display: "inline", marginRight: 6 }} />{cliente.telefono}</Typography>}
+          {cliente.ciudad && <Typography variant="body2"><FiMapPin style={{ display: "inline", marginRight: 6 }} />{cliente.ciudad}</Typography>}
           {cliente.website && (
             <Button size="small" variant="text" href={cliente.website} target="_blank" rel="noreferrer">
               <FiEye style={{ marginRight: 4 }} />Web
             </Button>
           )}
           <Button size="small" variant="outlined" startIcon={<FiCalendar />} onClick={async () => {
-            const url = 'https://meet.google.com/new';
+            const url = "https://meet.google.com/new";
             try { await navigator.clipboard?.writeText(url); } catch {}
-            window.open(url, '_blank');
+            window.open(url, "_blank");
           }}>Agendar reunión</Button>
         </Stack>
 
@@ -133,9 +133,9 @@ export default function Cliente360() {
       </Paper>
 
       {tab === 0 && (
-        <Paper sx={{ p: { xs: 2, sm: 3 }, borderRadius: 3, border: '1px solid', borderColor: 'divider' }}>
+        <Paper sx={{ p: { xs: 2, sm: 3 }, borderRadius: 3, border: "1px solid", borderColor: "divider" }}>
           <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700 }}>Resumen financiero</Typography>
-          <Stack direction="row" spacing={2} sx={{ flexWrap: 'wrap' }}>
+          <Stack direction="row" spacing={2} sx={{ flexWrap: "wrap" }}>
             <Chip label={`${proyectos.length} proyectos`} color="primary" size="small" />
             <Chip label={`${tareas.length} tareas`} color="warning" size="small" />
             <Chip label={`${facturas.length} facturas`} color="success" size="small" />
@@ -143,28 +143,8 @@ export default function Cliente360() {
           </Stack>
           <Divider sx={{ my: 2 }} />
           <Typography variant="caption" color="text.secondary">
-            Origen: {cliente.origen || '-'} · Última interacción: {cliente.ultima_interaccion ? new Date(cliente.ultima_interaccion).toLocaleDateString('es-CO') : '-'}
+            Origen: {cliente.origen || "-"} · Última interacción: {cliente.ultima_interaccion ? new Date(cliente.ultima_interaccion).toLocaleDateString("es-CO") : "-"}
           </Typography>
-          {(selectedProyecto as any) && ((selectedProyecto as any).brief || (selectedProyecto as any).identidad_digital || (selectedProyecto as any).canales) && (
-            <>
-              <Divider sx={{ my: 2 }} />
-              <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 700 }}>Identidad Digital</Typography>
-              {(selectedProyecto as any).brief && (
-                <Alert severity="info" sx={{ mb: 1, whiteSpace: 'pre-wrap' }}>{typeof (selectedProyecto as any).brief === 'string' ? (selectedProyecto as any).brief : JSON.stringify((selectedProyecto as any).brief)}</Alert>
-              )}
-              {(selectedProyecto as any).identidad_digital && (
-                <Box sx={{ mb: 1 }}>
-                  <Typography variant="caption" color="text.secondary">Documento identidad: </Typography>
-                  <Button size="small" variant="text" href={(selectedProyecto as any).identidad_digital} target="_blank">Abrir</Button>
-                </Box>
-              )}
-              {(selectedProyecto as any).canales && Object.keys((selectedProyecto as any).canales).length > 0 && (
-                <Stack direction="row" spacing={0.5} sx={{ flexWrap: 'wrap', mt: 1 }}>
-                  {Object.entries((selectedProyecto as any).canales).map(([k, v]) => v ? <Chip key={k} label={k} size="small" variant="outlined" /> : null)}
-                </Stack>
-              )}
-            </>
-          )}
         </Paper>
       )}
 
@@ -176,7 +156,7 @@ export default function Cliente360() {
               <Stack direction="row" spacing={1} alignItems="center">
                 <FiFolder />
                 <Typography variant="body2" sx={{ fontWeight: 600 }}>{p.nombre}</Typography>
-                <Chip label={p.estado} size="small" color={p.estado === 'completado' ? 'success' : 'primary'} />
+                <Chip label={p.estado} size="small" color={p.estado === "completado" ? "success" : "primary"} />
                 <Typography variant="caption" color="text.secondary">{p.prioridad}</Typography>
               </Stack>
             </Paper>
@@ -192,7 +172,7 @@ export default function Cliente360() {
               <Stack direction="row" spacing={1} alignItems="center" justifyContent="space-between">
                 <Box>
                   <Typography variant="body2" sx={{ fontWeight: 600 }}>#{f.numero || f.id}</Typography>
-                  <Typography variant="caption" color="text.secondary">{f.estado} · {f.fecha_emision || 'sin fecha'}</Typography>
+                  <Typography variant="caption" color="text.secondary">{f.estado} · {f.fecha_emision || "sin fecha"}</Typography>
                 </Box>
                 <Typography variant="body2" sx={{ fontWeight: 700 }}>{formatCOP(f.valor || f.total || 0)}</Typography>
               </Stack>
@@ -224,11 +204,11 @@ export default function Cliente360() {
           {tareas.map((t: any) => (
             <Paper key={t.id} variant="outlined" sx={{ p: 1.5, borderRadius: 2 }}>
               <Stack direction="row" spacing={1} alignItems="center" justifyContent="space-between">
-                <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
-                  <SafeChip label={t.estado} size="small" color={t.estado === 'Completada' ? 'success' : 'default'} />
-                  <Typography variant="body2">{t.titulo}</Typography>
+                <Box>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>{t.titulo}</Typography>
+                  <Typography variant="caption" color="text.secondary">{t.estado} · {t.prioridad}</Typography>
                 </Box>
-                <Chip label={t.prioridad} size="small" variant="outlined" />
+                <Chip label={t.estado} size="small" color={t.estado === "Completada" ? "success" : "default"} />
               </Stack>
             </Paper>
           ))}
