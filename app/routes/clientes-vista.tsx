@@ -9,7 +9,7 @@ import {
 } from "react-icons/fi";
 import {
   clientesService, proyectosService, facturasService, contratosService, tareasService
-} from "../../services/database";
+} from "../services/database";
 import SafeChip from "../../components/SafeChip";
 import { formatCOP } from "../../services/pdf";
 
