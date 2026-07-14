@@ -424,13 +424,6 @@ export default function Configuracion() {
   const handleSeedRealData = async () => {
     setLoading(true);
     try {
-      // 1. Limpiar datos viejos de simulación/prueba de forma segura
-      await supabase.from('oportunidades').delete().neq('id', 0);
-      await supabase.from('proyectos').delete().neq('id', 'placeholder');
-      await supabase.from('tareas').delete().neq('id', 0);
-      await supabase.from('equipo').delete().neq('id', 0); // Limpiar equipo
-      await supabase.from('clientes').delete().neq('id', 0);
-
       // 2. Definir las 9 empresas reales con sus representantes y especificaciones para el ESQUEMA COMPLETO
       const listadoClientesCompleto = [
         {
