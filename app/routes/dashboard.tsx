@@ -72,6 +72,39 @@ export default function Dashboard() {
     fetchDashboardData();
   }, [fetchDashboardData]);
 
+  const [exportLoading, setExportLoading] = useState<string | null>(null);
+
+  const exportCSV = async (type: 'clientes' | 'proyectos' | 'tareas') => {
+    setExportLoading(type);
+    try {
+      let rows: any[] = [];
+      let filename = '';
+      if (type === 'clientes') {
+        rows = data.clientes.map((c: any) => ({ Nombre: c.nombre, Email: c.email, Teléfono: c.telefono, Empresa: c.empresa, Nicho: c.nicho, Origen: c.origen, Estado: c.estado }));
+        filename = 'clientes.csv';
+      } else if (type === 'proyectos') {
+        rows = data.proyectos.map((p: any) => ({ Nombre: p.nombre, Cliente: p.cliente_nombre, Estado: p.estado, Prioridad: p.prioridad, Progreso: `${p.progreso || 0}%`, Presupuesto: p.presupuesto, Costo: p.costo_actual }));
+        filename = 'proyectos.csv';
+      } else if (type === 'tareas') {
+        rows = data.tareas.map((t: any) => ({ Título: t.titulo, Fecha: t.fecha, Prioridad: t.prioridad, Estado: t.estado, Tipo: t.tipo }));
+        filename = 'tareas.csv';
+      }
+      const csvContent = [Object.keys(rows[0] || {}).join(','), ...rows.map(r => Object.values(r).map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(','))].join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (err: any) {
+      setError('Error al exportar CSV: ' + err.message);
+    } finally {
+      setExportLoading(null);
+    }
+  };
   const proyectosActivos = (data.proyectos || [])
     .filter((p: any) => p.estado === "en_progreso" || p.estado === "planificacion")
     .slice(0, 6);
@@ -164,8 +197,21 @@ export default function Dashboard() {
         </Alert>
       )}
 
+      {/* Acciones rápidas */}
+      <Box sx={{ mb: 1.5, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+        <Button size="small" variant="outlined" startIcon={<FiUsers size={14} />} onClick={() => exportCSV('clientes')} disabled={!!exportLoading || !data.clientes.length}>
+          {exportLoading === 'clientes' ? 'Exportando…' : 'Clientes CSV'}
+        </Button>
+        <Button size="small" variant="outlined" startIcon={<FiActivity size={14} />} onClick={() => exportCSV('proyectos')} disabled={!!exportLoading || !data.proyectos.length}>
+          {exportLoading === 'proyectos' ? 'Exportando…' : 'Proyectos CSV'}
+        </Button>
+        <Button size="small" variant="outlined" startIcon={<FiClock size={14} />} onClick={() => exportCSV('tareas')} disabled={!!exportLoading || !data.tareas.length}>
+          {exportLoading === 'tareas' ? 'Exportando…' : 'Tareas CSV'}
+        </Button>
+      </Box>
+
       {/* KPI strip compacto — 4 cols mobile, 8 desktop */}
-      <Grid container spacing={{ xs: 0.5, sm: 1 }} sx={{ mb: 1.5 }}>
+      <Grid container spacing={{ xs: 0.5, sm: 1 }} sx={{ mb: 1 }}>
         {[
           { title: "Clientes", value: clientes.length, icon: <FiUsers size={12} />, color: "#4caf50", bg: "#e8f5e9" },
           { title: "Proyectos", value: proyectos.filter((p: any) => p.estado === "en_progreso" || p.estado === "planificacion").length, icon: <FiActivity size={12} />, color: "#2196f3", bg: "#e3f2fd" },
@@ -176,26 +222,26 @@ export default function Dashboard() {
           { title: "Transacciones", value: transacciones.length, icon: <FiActivity size={12} />, color: "#607d8b", bg: "#eceff1" },
           { title: "Mov. ($)", value: formatCOP(montoTransacciones), icon: <FiDollarSign size={12} />, color: "#1976d2", bg: "#e3f2fd" },
         ].map((kpi) => (
-          <Grid item xs={6} sm={4} md={3} lg={3} key={kpi.title}>
+          <Grid item xs={3} sm={3} md={3} key={kpi.title}>
             <Paper
               variant="outlined"
               sx={{
-                p: { xs: 0.75, sm: 1 },
-                borderRadius: 1.5,
+                p: { xs: 0.5, sm: 0.75 },
+                borderRadius: 1,
                 borderColor: 'divider',
                 display: 'flex',
                 alignItems: 'center',
-                gap: 0.75,
+                gap: 0.5,
                 transition: 'box-shadow 0.15s',
                 '&:hover': { boxShadow: 1 },
               }}
             >
-              <Box sx={{ width: 24, height: 24, borderRadius: 1, bgcolor: kpi.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: kpi.color, flexShrink: 0 }}>
+              <Box sx={{ width: 20, height: 20, borderRadius: 1, bgcolor: kpi.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: kpi.color, flexShrink: 0 }}>
                 {kpi.icon}
               </Box>
               <Box sx={{ minWidth: 0 }}>
-                <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.6rem', lineHeight: 1, display: 'block' }}>{kpi.title}</Typography>
-                <Typography sx={{ fontWeight: 800, fontSize: { xs: '0.75rem', sm: '0.85rem' }, color: kpi.color, lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.55rem', lineHeight: 1, display: 'block' }}>{kpi.title}</Typography>
+                <Typography sx={{ fontWeight: 800, fontSize: { xs: '0.65rem', sm: '0.75rem' }, color: kpi.color, lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {kpi.value}
                 </Typography>
               </Box>
