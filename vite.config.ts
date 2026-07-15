@@ -6,11 +6,14 @@ import tsconfigPaths from "vite-tsconfig-paths";
 export default defineConfig({
   define: { __BUILD_TIME__: JSON.stringify(new Date().toISOString()) },
   plugins: [
-    tailwindcss(), 
+    tailwindcss(),
     reactRouter(),
     tsconfigPaths()
   ],
   server: {
     allowedHosts: [".ngrok-free.app", ".ngrok-free.dev"]
+  },
+  build: {
+    minify: false
   }
 });
