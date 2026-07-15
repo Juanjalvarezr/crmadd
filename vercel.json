@@ -1,7 +1,10 @@
 {
   "build": {
     "env": {
-      "FORCE_REBUILD": "cache-invalid-2026-07-14-entry-client-fix-vite-preset"
+      "FORCE_REBUILD": "cache-invalid-2026-07-14-spa-rewrites-fix"
     }
-  }
+  },
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
 }
