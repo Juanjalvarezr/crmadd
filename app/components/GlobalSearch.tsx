@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Dialog, DialogContent, TextField, List, ListItem, ListItemText,
+  Dialog, DialogTitle, DialogContent, TextField, List, ListItem, ListItemText,
   ListItemIcon, Typography, Box, InputAdornment, Chip, Divider, alpha
 } from '@mui/material';
 import { FiSearch, FiUser, FiFolder, FiCheckSquare, FiZap, FiPlus, FiFileText, FiMail } from 'react-icons/fi';
