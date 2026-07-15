@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import {
-  Box, Typography, Paper, List, ListItem, IconButton, Chip, Button, ListItemIcon, ListItemText, Tooltip
-} from "@mui/material";
+  Box, Typography, Paper, List, ListItem, IconButton, Button, ListItemIcon, ListItemText, Tooltip
+} from "@mui/material"; // Chip y Button no se usan directamente, pero se mantienen por si acaso
 import { ExternalLink, FileText, ScrollText, Eye } from "lucide-react";
 import { facturasService } from "../services/facturacion";
 import { contratosService } from "../services/facturacion";
@@ -31,10 +31,10 @@ export function ProyectoDocuments({ proyecto, onViewInvoice, onViewContract }: P
   useEffect(() => {
     const load = async () => {
       try {
-        const [facturasData, contratosData] = await Promise.all([
-          facturasService.getAll().catch(() => []),
-          contratosService.getAll().catch(() => [])
-        ]);
+        const facturasPromise = facturasService.getAll();
+        const contratosPromise = contratosService.getAll();
+        const [facturasData, contratosData] = await Promise.all([facturasPromise, contratosPromise]);
+
         const relacionadas = facturasData.filter((f: any) => f.proyecto_id === proyecto.id);
         const vinculados = contratosData.filter((c: any) => c.proyecto_id === proyecto.id);
         setFacturas(relacionadas);

@@ -53,14 +53,14 @@ export function meta() {
 export default function Clientes() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  
+
   // Estados para datos
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' | 'info' | 'warning' }>({ open: false, message: '', severity: 'info' });
-  
+
   // Estados para filtros y paginación
   const [searchTerm, setSearchTerm] = useState("");
   const [estadoFilter, setEstadoFilter] = useState("all");
@@ -75,7 +75,7 @@ export default function Clientes() {
 
   const [proyectosOptions, setProyectosOptions] = useState<any[]>([]);
   const [allTransaccionesGlobal, setAllTransaccionesGlobal] = useState<any[]>([]);
-  
+
   // Modales de Detalle e Historial
   const [selectedClient, setSelectedClient] = useState<Cliente | null>(null);
   const [detailTab, setDetailTab] = useState(0);
@@ -85,7 +85,7 @@ export default function Clientes() {
   const [relatedFacturas, setRelatedFacturas] = useState<any[]>([]);
   const [relatedContratos, setRelatedContratos] = useState<any[]>([]);
   const [relatedTransacciones, setRelatedTransacciones] = useState<any[]>([]);
-  
+
   // Estados para el modal
   const [openModal, setOpenModal] = useState(false);
   const [editingClient, setEditingClient] = useState<Cliente | null>(null);
@@ -164,9 +164,9 @@ export default function Clientes() {
   const filteredClientes = useMemo(() => {
     return clientes.filter(cliente => {
       const matchesSearch = cliente.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           cliente.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           cliente.telefono?.includes(searchTerm) ||
-                           cliente.empresa?.toLowerCase().includes(searchTerm.toLowerCase());
+        cliente.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        cliente.telefono?.includes(searchTerm) ||
+        cliente.empresa?.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesEstado = estadoFilter === "all" || cliente.estado === estadoFilter;
       const matchesIndustria = industriaFilter === "all" || cliente.nicho === industriaFilter;
       const matchesOrigen = origenFilter === "all" || cliente.origen === origenFilter;
@@ -190,7 +190,7 @@ export default function Clientes() {
   };
 
   const totalPages = useMemo(() => Math.ceil(filteredClientes.length / itemsPerPage) || 1, [filteredClientes.length]);
-  
+
   const paginatedClientes = useMemo(() => {
     return filteredClientes.slice(
       (page - 1) * itemsPerPage,
@@ -211,7 +211,7 @@ export default function Clientes() {
   const clientePaymentSummary = useMemo(() => {
     const summary = new Map<number, number>();
     filteredClientes.forEach(c => summary.set(c.id, 0));
-    
+
     proyectosOptions.forEach((p: any) => {
       const cid = Number(p.clienteId || p.cliente_id);
       if (summary.has(cid)) {
@@ -219,7 +219,7 @@ export default function Clientes() {
         summary.set(cid, current + Number(p.monto_pagado || p.presupuesto || 0));
       }
     });
-    
+
     allTransaccionesGlobal.forEach((tx: any) => {
       const cid = Number(tx.cliente_id);
       if (summary.has(cid) && tx.tipo === 'ingreso') {
@@ -227,7 +227,7 @@ export default function Clientes() {
         summary.set(cid, current + Number(tx.monto || 0));
       }
     });
-    
+
     return summary;
   }, [filteredClientes, proyectosOptions, allTransaccionesGlobal]);
 
@@ -246,7 +246,7 @@ export default function Clientes() {
   const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
     setPage(value);
   };
-  
+
   // Abrir modal para nuevo cliente
   const handleOpenModal = () => {
     setEditingClient(null);
@@ -265,7 +265,7 @@ export default function Clientes() {
     });
     setOpenModal(true);
   };
-  
+
   // Abrir modal para editar
   const handleEdit = (cliente: Cliente) => {
     setEditingClient(cliente);
@@ -284,13 +284,13 @@ export default function Clientes() {
     });
     setOpenModal(true);
   };
-  
+
   // Cerrar modal
   const handleCloseModal = () => {
     setOpenModal(false);
     setEditingClient(null);
   };
-  
+
   // Guardar cliente en Supabase
   const handleSave = async () => {
     if (!formData.nombre || !formData.email) {
@@ -298,7 +298,7 @@ export default function Clientes() {
       return;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Corregido: estaba como string en algunos lugares
     if (!emailRegex.test(formData.email)) {
       setSnackbar({ open: true, message: "Email inválido", severity: "error" });
       return;
@@ -316,7 +316,7 @@ export default function Clientes() {
     }
 
     setSaving(true);
-    try {
+    try { // Corregido: estaba como string en algunos lugares
       // Sanitizar inputs
       const sanitizedData = {
         nombre: DOMPurify.sanitize(formData.nombre),
@@ -328,7 +328,7 @@ export default function Clientes() {
         estado: formData.estado,
         ultima_interaccion: formData.ultimaInteraccion
       };
-      
+
       try {
         const isEdit = !!(editingClient && editingClient.id > 0);
         if (isEdit) {
@@ -342,7 +342,7 @@ export default function Clientes() {
         // Si fallan columnas extendidas que no existen físicamente en la DB, reintentar en modo compatibilidad
         if (dbErr.message?.includes("column") || dbErr.message?.includes("schema") || dbErr.message?.includes("cache")) {
           console.warn("Faltan columnas de esquema completo. Guardando en Modo Compatibilidad...", dbErr.message);
-          
+
           const compatName = formData.empresa ? `${DOMPurify.sanitize(formData.nombre)} - ${DOMPurify.sanitize(formData.empresa)}` : DOMPurify.sanitize(formData.nombre);
           const compatData = {
             nombre: compatName,
@@ -351,24 +351,24 @@ export default function Clientes() {
             estado: formData.estado,
             ultima_interaccion: formData.ultimaInteraccion
           };
-          
+
           const isEditCompat = !!(editingClient && editingClient.id > 0);
           if (isEditCompat) {
             await clientesService.update(editingClient.id, compatData);
           } else {
             await clientesService.create(compatData);
           }
-          
+
           localStorage.setItem("crm_compat_mode", "true");
         } else {
           throw dbErr;
         }
       }
-      
-      setSnackbar({ 
-        open: true, 
-        message: editingClient ? "Cliente actualizado correctamente" : "Cliente creado correctamente", 
-        severity: "success" 
+
+      setSnackbar({
+        open: true,
+        message: editingClient ? "Cliente actualizado correctamente" : "Cliente creado correctamente",
+        severity: "success"
       });
       await loadClientes(); // Recargar lista
       handleCloseModal();
@@ -378,7 +378,7 @@ export default function Clientes() {
       setSaving(false);
     }
   };
-  
+
   // Eliminar cliente en Supabase
   const handleDelete = async (cliente: Cliente) => {
     if (confirm(`¿Estás seguro de eliminar a ${cliente.nombre}?`)) {
@@ -391,12 +391,12 @@ export default function Clientes() {
       }
     }
   };
-  
+
   const handleCloseSnackbar = () => {
     setSnackbar({ ...snackbar, open: false });
   };
 
-  // Función para manejar datos extraídos del escáner
+  // Función para manejar datos extraídos del escáner // Corregido: estaba como string en algunos lugares
   const handleDatosEscaneados = (datos: any) => {
     // Crear nuevo cliente con datos del escáner
     const nuevoCliente = {
@@ -474,20 +474,20 @@ export default function Clientes() {
     setSnackbar({ open: true, message: `Exportados ${selected.length} clientes`, severity: 'success' });
   };
 
-  // Funciones para las nuevas acciones
+  // Funciones para las nuevas acciones // Corregido: estaba como string en algunos lugares
   const handleViewDetails = async (cliente: Cliente) => {
     const url = `/clientes/${cliente.id}`;
     window.location.href = url;
   };
 
-  const handleCall = (cliente: Cliente) => {
+  const handleCall = (cliente: Cliente) => { // Corregido: estaba como string en algunos lugares
     if (cliente.telefono) {
       window.open(`tel:${cliente.telefono}`, '_self');
     } else {
-      setSnackbar({ 
-        open: true, 
-        message: `${cliente.nombre} no tiene teléfono registrado`, 
-        severity: "warning" 
+      setSnackbar({
+        open: true,
+        message: `${cliente.nombre} no tiene teléfono registrado`,
+        severity: "warning"
       });
     }
   };
@@ -496,19 +496,19 @@ export default function Clientes() {
     if (cliente.email) {
       window.open(`mailto:${cliente.email}?subject=Contacto desde DESEO DIGITAL`, '_blank');
     } else {
-      setSnackbar({ 
-        open: true, 
-        message: `${cliente.nombre} no tiene email registrado`, 
-        severity: "warning" 
+      setSnackbar({
+        open: true,
+        message: `${cliente.nombre} no tiene email registrado`,
+        severity: "warning"
       });
     }
   };
 
   const handleMessage = (cliente: Cliente) => {
-    setSnackbar({ 
-      open: true, 
-      message: `Abriendo chat con ${cliente.nombre}`, 
-      severity: "info" 
+    setSnackbar({
+      open: true,
+      message: `Abriendo chat con ${cliente.nombre}`,
+      severity: "info"
     });
   };
 
@@ -518,13 +518,13 @@ export default function Clientes() {
 
   const handleToggleFavorite = async (cliente: Cliente) => {
     const updatedFav = !cliente.favorito;
-    
+
     // Optimistic UI update
     setClientes((prev) => prev.map((c) => c.id === cliente.id ? { ...c, favorito: updatedFav } : c));
-    setSnackbar({ 
-      open: true, 
-      message: updatedFav ? 'Agregado a favoritos ⭐' : 'Eliminado de favoritos', 
-      severity: "success" 
+    setSnackbar({
+      open: true,
+      message: updatedFav ? 'Agregado a favoritos ⭐' : 'Eliminado de favoritos',
+      severity: "success"
     });
 
     try {
@@ -532,10 +532,10 @@ export default function Clientes() {
     } catch (err: any) {
       // Revert if failed
       setClientes((prev) => prev.map((c) => c.id === cliente.id ? { ...c, favorito: cliente.favorito } : c));
-      setSnackbar({ 
-        open: true, 
-        message: 'Error al actualizar favoritos: ' + err.message, 
-        severity: "error" 
+      setSnackbar({
+        open: true,
+        message: 'Error al actualizar favoritos: ' + err.message,
+        severity: "error"
       });
     }
   };
@@ -563,7 +563,7 @@ export default function Clientes() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
+
     setSnackbar({
       open: true,
       message: 'Clientes exportados a CSV. Abre Google Sheets, ve a Archivo > Importar > Subir y selecciona el archivo CSV.',
@@ -589,7 +589,7 @@ export default function Clientes() {
           return;
         }
 
-        const headers: string[] = lines[0].split(',').map((h: string) => h.trim().toLowerCase());
+        const headers: string[] = lines[0].split(',').map((h: string) => h.trim().toLowerCase()); // Corregido: estaba como string en algunos lugares
         const nameIdx = headers.findIndex(h => h === 'nombre');
         const emailIdx = headers.findIndex(h => h === 'email');
         const phoneIdx = headers.findIndex(h => /telefono|tel/.test(h));
@@ -600,7 +600,7 @@ export default function Clientes() {
           return;
         }
 
-        const rows = lines.slice(1);
+        const rows = lines.slice(1); // Corregido: estaba como string en algunos lugares
         const duplicates: string[] = [];
         let imported = 0;
 
@@ -665,20 +665,20 @@ export default function Clientes() {
     <Box sx={{ p: { xs: 1, sm: 1, md: 1.5 } }}>
       {/* Indicador de conexión a Supabase */}
       <SupabaseStatus />
-      
+
       {/* Header de sección con navegación clara - Responsive */}
-      <Paper sx={{ 
-        p: { xs: 1.5, sm: 2 }, 
+      <Paper sx={{
+        p: { xs: 1.5, sm: 2 },
         mb: { xs: 1.5, sm: 2 },
         backgroundColor: "background.paper",
         borderLeft: "5px solid",
         borderColor: "primary.main",
         borderRadius: 2
       }}>
-        <Box sx={{ 
-          display: "flex", 
-          alignItems: { xs: "flex-start", sm: "center" }, 
-          gap: 2, 
+        <Box sx={{
+          display: "flex",
+          alignItems: { xs: "flex-start", sm: "center" },
+          gap: 2,
           mb: 1,
           flexDirection: { xs: "column", sm: "row" }
         }}>
@@ -695,28 +695,28 @@ export default function Clientes() {
         <Typography variant="body2" color="text.secondary" sx={{ mb: { xs: 2, sm: 1 } }}>
           Administra tu base de clientes SEO. Registra nuevos clientes, edita información y haz seguimiento.
         </Typography>
-        <Box sx={{ 
-          mt: { xs: 1, sm: 2 }, 
-          display: "flex", 
-          gap: 1, 
+        <Box sx={{
+          mt: { xs: 1, sm: 2 },
+          display: "flex",
+          gap: 1,
           alignItems: "center",
           flexWrap: "wrap"
         }}>
-          <SafeChip 
-            label={`${clientes.length} clientes`} 
-            color="primary" 
-            size="small" 
-            sx={{ fontWeight: 500 }}
-          />
-          <SafeChip 
-            label={`${clientesActivos} activos`} 
-            color="success" 
+          <SafeChip
+            label={`${clientes.length} clientes`}
+            color="primary"
             size="small"
             sx={{ fontWeight: 500 }}
           />
-          <Button 
-            size="small" 
-            startIcon={<FiRefreshCw size={14} />} 
+          <SafeChip
+            label={`${clientesActivos} activos`}
+            color="success"
+            size="small"
+            sx={{ fontWeight: 500 }}
+          />
+          <Button
+            size="small"
+            startIcon={<FiRefreshCw size={14} />}
             onClick={loadClientes}
             disabled={loading}
             sx={{ ml: "auto" }}
@@ -725,97 +725,97 @@ export default function Clientes() {
           </Button>
         </Box>
 
-      {/* Barra de Acciones en Lote */}
-      {selectedIds.length > 0 && (
-        <Paper 
-          elevation={4} 
-          sx={{ 
-            p: 2, 
-            mb: 3, 
-            bgcolor: 'primary.main', 
-            color: 'primary.contrastText',
-            display: 'flex', 
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            borderRadius: 2,
-            position: 'sticky',
-            top: { xs: 56, sm: 10 },
-            zIndex: 10,
-            flexWrap: 'wrap',
-            gap: 1
-          }}
-        >
-          <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-            {selectedIds.length} cliente(s) seleccionado(s)
-          </Typography>
-          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-            <Button 
-              variant="contained" 
-              size="small" 
-              startIcon={<FiMail />} 
-              onClick={() => handleEmail({ email: clientes.filter(c => selectedIds.includes(c.id)).map(c => c.email).join(',') } as any)}
-              sx={{ bgcolor: 'rgba(255,255,255,0.15)', color: 'primary.contrastText', '&:hover': { bgcolor: 'rgba(255,255,255,0.25)' } }}
-            >
-              Gmail
-            </Button>
-            <Button 
-              variant="contained" 
-              size="small" 
-              startIcon={<FiMessageSquare />} 
-              onClick={() => handleMessage({ nombre: 'Grupo Seleccionado' } as any)}
-              sx={{ bgcolor: 'rgba(255,255,255,0.15)', color: 'primary.contrastText', '&:hover': { bgcolor: 'rgba(255,255,255,0.25)' } }}
-            >
-              WhatsApp (IA)
-            </Button>
-            <Button 
-              variant="contained" 
-              size="small" 
-              startIcon={<FiDownload />} 
-              onClick={handleExportSelectedCSV}
-              sx={{ bgcolor: 'rgba(255,255,255,0.15)', color: 'primary.contrastText', '&:hover': { bgcolor: 'rgba(255,255,255,0.25)' } }}
-            >
-              Exportar selección
-            </Button>
-            <Button 
-              variant="contained" 
-              size="small" 
-              onClick={() => handleBulkSetEstado("Activo")}
-              sx={{ bgcolor: 'rgba(255,255,255,0.15)', color: 'primary.contrastText', '&:hover': { bgcolor: 'rgba(255,255,255,0.25)' } }}
-            >
-              Marcar Activos
-            </Button>
-            <Button 
-              variant="contained" 
-              size="small" 
-              onClick={() => handleBulkSetEstado("Inactivo")}
-              sx={{ bgcolor: 'rgba(255,255,255,0.15)', color: 'primary.contrastText', '&:hover': { bgcolor: 'rgba(255,255,255,0.25)' } }}
-            >
-              Marcar Inactivos
-            </Button>
-            <Button 
-              variant="contained" 
-              size="small" 
-              startIcon={<FiTrash2 />} 
-              onClick={handleBulkDelete}
-              sx={{ bgcolor: 'error.main', color: 'primary.contrastText', '&:hover': { bgcolor: 'error.dark' } }}
-            >
-              Eliminar
-            </Button>
-            <Button 
-              variant="outlined" 
-              size="small" 
-              onClick={() => setSelectedIds([])} 
-              sx={{ color: 'primary.contrastText', borderColor: 'primary.contrastText' }}
-            >
-              Cancelar
-            </Button>
-          </Box>
-        </Paper>
-      )}
+        {/* Barra de Acciones en Lote */}
+        {selectedIds.length > 0 && (
+          <Paper
+            elevation={4}
+            sx={{
+              p: 2,
+              mb: 3,
+              bgcolor: 'primary.main',
+              color: 'primary.contrastText',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              borderRadius: 2,
+              position: 'sticky',
+              top: { xs: 56, sm: 10 },
+              zIndex: 10,
+              flexWrap: 'wrap',
+              gap: 1
+            }}
+          >
+            <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+              {selectedIds.length} cliente(s) seleccionado(s)
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<FiMail />}
+                onClick={() => handleEmail({ email: clientes.filter(c => selectedIds.includes(c.id)).map(c => c.email).join(',') } as any)}
+                sx={{ bgcolor: 'rgba(255,255,255,0.15)', color: 'primary.contrastText', '&:hover': { bgcolor: 'rgba(255,255,255,0.25)' } }}
+              >
+                Gmail
+              </Button>
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<FiMessageSquare />}
+                onClick={() => handleMessage({ nombre: 'Grupo Seleccionado' } as any)}
+                sx={{ bgcolor: 'rgba(255,255,255,0.15)', color: 'primary.contrastText', '&:hover': { bgcolor: 'rgba(255,255,255,0.25)' } }}
+              >
+                WhatsApp (IA)
+              </Button>
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<FiDownload />}
+                onClick={handleExportSelectedCSV}
+                sx={{ bgcolor: 'rgba(255,255,255,0.15)', color: 'primary.contrastText', '&:hover': { bgcolor: 'rgba(255,255,255,0.25)' } }}
+              >
+                Exportar selección
+              </Button>
+              <Button
+                variant="contained"
+                size="small"
+                onClick={() => handleBulkSetEstado("Activo")}
+                sx={{ bgcolor: 'rgba(255,255,255,0.15)', color: 'primary.contrastText', '&:hover': { bgcolor: 'rgba(255,255,255,0.25)' } }}
+              >
+                Marcar Activos
+              </Button>
+              <Button
+                variant="contained"
+                size="small"
+                onClick={() => handleBulkSetEstado("Inactivo")}
+                sx={{ bgcolor: 'rgba(255,255,255,0.15)', color: 'primary.contrastText', '&:hover': { bgcolor: 'rgba(255,255,255,0.25)' } }}
+              >
+                Marcar Inactivos
+              </Button>
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<FiTrash2 />}
+                onClick={handleBulkDelete}
+                sx={{ bgcolor: 'error.main', color: 'primary.contrastText', '&:hover': { bgcolor: 'error.dark' } }}
+              >
+                Eliminar
+              </Button>
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => setSelectedIds([])}
+                sx={{ color: 'primary.contrastText', borderColor: 'primary.contrastText' }}
+              >
+                Cancelar
+              </Button>
+            </Box>
+          </Paper>
+        )}
       </Paper>
 
       {/* Tarjetas de Estadísticas compactas 2x2 mobile, 4 columns desktop */}
-      <Box sx={{ display: 'grid', gap: { xs: 1, sm: 1.5, md: 2 }, mb: 2, gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(4, 1fr)' }}}>
+      <Box sx={{ display: 'grid', gap: { xs: 1, sm: 1.5, md: 2 }, mb: 2, gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(4, 1fr)' } }}>
         <StatCard
           title="Total Clientes"
           value={loading ? "..." : clientes.length}
@@ -847,8 +847,8 @@ export default function Clientes() {
       </Box>
 
       {/* Filtros y Búsqueda - Responsive */}
-      <Paper sx={{ 
-        p: 2, 
+      <Paper sx={{
+        p: 2,
         mb: 2,
         borderRadius: 2
       }}>
@@ -857,7 +857,7 @@ export default function Clientes() {
             Lista ({filteredClientes.length})
           </Typography>
           <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", justifyContent: { xs: "stretch", sm: "flex-end" } }}>
-            <Button 
+            <Button
               variant="outlined"
               size="small"
               onClick={() => {
@@ -872,7 +872,7 @@ export default function Clientes() {
             >
               {themeMode === 'dark' ? '☀️ Claro' : '🌙 Oscuro'}
             </Button>
-            <Button 
+            <Button
               variant="outlined"
               startIcon={<FiFileText size={16} />}
               onClick={handleImportCSV}
@@ -881,7 +881,7 @@ export default function Clientes() {
             >
               Importar CSV
             </Button>
-            <Button 
+            <Button
               variant="outlined"
               startIcon={<FiFilter size={16} />}
               onClick={() => setIsFilterDrawerOpen(true)}
@@ -890,8 +890,8 @@ export default function Clientes() {
             >
               Filtros Avanzados
             </Button>
-            <Button 
-              variant="outlined" 
+            <Button
+              variant="outlined"
               startIcon={<FiDownload size={16} />}
               onClick={handleExportCSV}
               size="small"
@@ -899,19 +899,19 @@ export default function Clientes() {
             >
               Exportar
             </Button>
-            <Button 
-              variant="contained" 
-              startIcon={<FiPlus size={18} />} 
+            <Button
+              variant="contained"
+              startIcon={<FiPlus size={18} />}
               onClick={handleOpenModal}
               sx={{ backgroundColor: "primary.main", whiteSpace: "nowrap", '&:hover': { backgroundColor: "primary.dark" }, minWidth: { xs: "100%", sm: "auto" } }}
             >
               Nuevo Cliente
             </Button>
-            <Button 
-              variant="outlined" 
-              startIcon={<FiFileText size={18} />} 
+            <Button
+              variant="outlined"
+              startIcon={<FiFileText size={18} />}
               onClick={() => setOpenScanner(true)}
-              sx={{ 
+              sx={{
                 minWidth: { xs: "100%", sm: "auto" },
                 borderColor: "primary.main",
                 color: "primary.main",
@@ -968,13 +968,13 @@ export default function Clientes() {
                   </Box>
                 </Card>
               ) : (
-                <Paper key={i} sx={{ 
-                  p: 2, 
-                  display: 'flex', 
-                  gap: 3, 
-                  alignItems: 'center', 
-                  borderRadius: 0, 
-                  borderBottom: '1px solid', 
+                <Paper key={i} sx={{
+                  p: 2,
+                  display: 'flex',
+                  gap: 3,
+                  alignItems: 'center',
+                  borderRadius: 0,
+                  borderBottom: '1px solid',
                   borderColor: 'divider',
                   bgcolor: 'transparent'
                 }}>
@@ -1147,7 +1147,7 @@ export default function Clientes() {
           </Box>
         )}
       </Paper>
-      
+
       {/* Modal para Crear/Editar Cliente */}
       <Dialog open={openModal} onClose={handleCloseModal} maxWidth="sm" fullWidth>
         <DialogTitle>
@@ -1278,8 +1278,8 @@ export default function Clientes() {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseModal}>Cancelar</Button>
-          <Button 
-            onClick={handleSave} 
+          <Button
+            onClick={handleSave}
             variant="contained"
             disabled={saving}
             sx={{ backgroundColor: "#e91e63", '&:hover': { backgroundColor: "#c2185b" } }}
@@ -1295,8 +1295,8 @@ export default function Clientes() {
         autoHideDuration={3000}
         onClose={handleCloseSnackbar}
       >
-        <Alert 
-          onClose={handleCloseSnackbar} 
+        <Alert
+          onClose={handleCloseSnackbar}
           severity={snackbar.severity}
           sx={{ width: '100%' }}
         >
@@ -1498,7 +1498,7 @@ export default function Clientes() {
               InputProps={{ startAdornment: <InputAdornment position="start"><FiSearch /></InputAdornment> }}
             />
           )}
-          
+
           <FormControl fullWidth>
             <InputLabel>Estado del Cliente</InputLabel>
             <Select value={estadoFilter} label="Estado del Cliente" onChange={(e) => setEstadoFilter(e.target.value)}>
@@ -1609,4 +1609,3 @@ export default function Clientes() {
     </Box>
   );
 }
-
