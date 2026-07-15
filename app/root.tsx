@@ -36,6 +36,7 @@ export default function Root() {
     return "dark";
   });
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
 
   const theme = React.useMemo(() => {
     const themeRaw = createTheme({
@@ -84,10 +85,12 @@ export default function Root() {
         const { data } = await supabase.auth.getSession();
         if (!cancelled) {
           setIsAuthenticated(!!data.session);
+          setAuthChecked(true);
         }
       } catch {
         if (!cancelled) {
           setIsAuthenticated(false);
+          setAuthChecked(true);
         }
       }
     };
@@ -95,6 +98,7 @@ export default function Root() {
 
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
       setIsAuthenticated(!!session);
+      setAuthChecked(true);
     });
 
     return () => {
@@ -104,7 +108,7 @@ export default function Root() {
   }, [navigate]);
 
   useEffect(() => {
-    if (isAuthenticated === null) return;
+    if (!authChecked) return;
     const isLoginPage = location.pathname === "/login";
 
     if (!isAuthenticated && !isLoginPage) {
@@ -112,7 +116,7 @@ export default function Root() {
     } else if (isAuthenticated && isLoginPage) {
       navigate("/");
     }
-  }, [isAuthenticated, navigate, location.pathname]);
+  }, [isAuthenticated, authChecked, navigate, location.pathname]);
 
   useEffect(() => {
     const handler = (e: Event) => {
