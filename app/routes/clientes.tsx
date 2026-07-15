@@ -1002,42 +1002,42 @@ export default function Clientes() {
 
               return (
                 <Grid item xs={12} sm={6} md={4} lg={3} key={cliente.id}>
-                  <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', border: '1px solid', borderColor: 'divider', position: 'relative' }}>
-                    <CardContent sx={{ flexGrow: 1, py: 1, px: 1.5, '&:last-child': { pb: 1 } }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1, mb: 0.5, pl: 3 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
-                          <Box sx={{ width: 28, height: 28, borderRadius: '50%', bgcolor: 'primary.main', color: 'primary.contrastText', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700, flexShrink: 0 }}>
+                  <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', border: '1px solid', borderColor: 'divider' }}>
+                    <CardContent sx={{ flexGrow: 1, py: { xs: 0.5, sm: 1 }, px: { xs: 1, sm: 1.5 }, '&:last-child': { pb: 1 } }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 0.5, mb: 0.25, pl: 2.5 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 0 }}>
+                          <Box sx={{ width: 24, height: 24, borderRadius: '50%', bgcolor: 'primary.main', color: 'primary.contrastText', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 700, flexShrink: 0 }}>
                             {cliente.nombre?.charAt(0).toUpperCase()}
                           </Box>
-                          <Typography variant="subtitle2" sx={{ fontWeight: 700, fontSize: { xs: '0.85rem', sm: '0.9rem' }, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          <Typography variant="subtitle2" sx={{ fontWeight: 700, fontSize: { xs: '0.75rem', sm: '0.85rem' }, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {cliente.nombre}
                           </Typography>
                         </Box>
-                        <SafeChip label={cliente.estado} color={getEstadoColor(cliente.estado)} size="small" sx={{ fontWeight: 500, fontSize: { xs: '0.65rem', sm: '0.7rem' }, height: 20 }} />
+                        <SafeChip label={cliente.estado} color={getEstadoColor(cliente.estado)} size="small" sx={{ fontWeight: 500, fontSize: { xs: '0.6rem', sm: '0.65rem' }, height: 18 }} />
                       </Box>
 
-                      <Stack spacing={0.25} sx={{ pl: 3 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <FiMail size={12} color="text.secondary" />
-                          <Typography variant="caption" color="text.secondary" noWrap sx={{ fontSize: '0.7rem' }}>{cliente.email}</Typography>
+                      <Stack spacing={0.25} sx={{ pl: 2.5 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          <FiMail size={11} color="text.secondary" />
+                          <Typography variant="caption" color="text.secondary" noWrap sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem' } }}>{cliente.email}</Typography>
                         </Box>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <FiPhone size={12} color="text.secondary" />
-                          <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem' }}>{cliente.telefono || '—'}</Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          <FiPhone size={11} color="text.secondary" />
+                          <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem' } }}>{cliente.telefono || '—'}</Typography>
                         </Box>
                       </Stack>
 
-                      <Divider sx={{ my: 0.75, pl: 3 }} />
+                      <Divider sx={{ my: 0.5, pl: 2.5 }} />
 
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pl: 3 }}>
-                        <Typography variant="caption" sx={{ fontWeight: 600, fontSize: '0.7rem' }}>Total Pagado</Typography>
-                        <Typography variant="caption" color="success.main" sx={{ fontWeight: 700, fontSize: '0.7rem' }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pl: 2.5 }}>
+                        <Typography variant="caption" sx={{ fontWeight: 600, fontSize: { xs: '0.65rem', sm: '0.7rem' } }}>Total Pagado</Typography>
+                        <Typography variant="caption" color="success.main" sx={{ fontWeight: 700, fontSize: { xs: '0.65rem', sm: '0.7rem' } }}>
                           {new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(totalPagado)}
                         </Typography>
                       </Box>
                     </CardContent>
 
-                    <Box sx={{ p: 1, display: 'flex', flexWrap: 'wrap', gap: 0.5, justifyContent: 'center' }}>
+                    <Box sx={{ p: { xs: 0.5, sm: 1 }, display: 'flex', flexWrap: 'wrap', gap: 0.5, justifyContent: 'center' }}>
                       <Button
                         size="small"
                         variant="outlined"

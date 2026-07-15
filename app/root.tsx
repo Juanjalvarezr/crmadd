@@ -121,12 +121,20 @@ export default function Root() {
   useEffect(() => {
     const handler = (e: Event) => {
       const detail = (e as CustomEvent).detail;
-      if (detail === "light" || detail === "dark") {
+      if (detail === 'light' || detail === 'dark') {
         setThemeMode(detail);
       }
     };
-    window.addEventListener("theme-changed", handler as EventListener);
-    return () => window.removeEventListener("theme-changed", handler as EventListener);
+    window.addEventListener('theme-changed', handler as EventListener);
+    return () => window.removeEventListener('theme-changed', handler as EventListener);
+  }, []);
+
+  useEffect(() => {
+    const handler = () => {
+      setThemeMode((prev) => (prev === 'dark' ? 'light' : 'dark'));
+    };
+    window.addEventListener('toggle-theme', handler as EventListener);
+    return () => window.removeEventListener('toggle-theme', handler as EventListener);
   }, []);
 
   useEffect(() => {

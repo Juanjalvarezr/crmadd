@@ -103,6 +103,13 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick, themeMode = "dark",
           )}
         </Box>
 
+        <IconButton color="inherit" onClick={() => {
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('toggle-theme'));
+          }
+        }} sx={{ ml: 0.5 }}>
+          {themeMode === 'dark' ? <FiSun size={18} /> : <FiMoon size={18} />}
+        </IconButton>
         <IconButton color="inherit" onClick={handleOpenSearch} sx={{ display: { xs: 'none', sm: 'flex' } }}>
           <FiSearch />
         </IconButton>
