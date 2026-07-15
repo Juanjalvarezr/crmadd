@@ -1,17 +1,7 @@
 {
   "build": {
     "env": {
-      "FORCE_REBUILD": "cache-invalid-2026-07-14-final-dashboard-fix"
-    }
-  },
-  "functions": {
-    "app/api/**/*.ts": {
-      "memory": 1024,
-      "maxDuration": 60
-    },
-    "app/**/*.tsx": {
-      "memory": 1024,
-      "maxDuration": 60
+      "FORCE_REBUILD": "cache-invalid-2026-07-14-entry-client-fix-vite-preset"
     }
   }
 }
