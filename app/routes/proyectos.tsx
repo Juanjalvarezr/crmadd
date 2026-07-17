@@ -1144,49 +1144,49 @@ export default function Proyectos() {
                 footer={
                   <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
                     <Tooltip title="Compartir progreso con cliente (Magic Link)">
-                      <IconButton size="small" color="primary" onClick={() => handleGenerateMagicLink(proyecto)}>
+                      <IconButton size="small" color="primary" onClick={(e) => { e.stopPropagation(); handleGenerateMagicLink(proyecto); }}>
                         <Share2 size={18} />
                       </IconButton>
                     </Tooltip>
                     <Tooltip title="Ver detalles">
-                      <IconButton size="small" onClick={() => setSelectedProyecto(proyecto)}>
+                      <IconButton size="small" onClick={(e) => { e.stopPropagation(); navigate(`/proyecto/${proyecto.id}`); }}>
                         <Eye size={18} />
                       </IconButton>
                     </Tooltip>
                     <Tooltip title="Editar">
-                      <IconButton size="small" onClick={() => handleOpenProyectoModal(proyecto)}>
+                      <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleOpenProyectoModal(proyecto); }}>
                         <Edit2 size={18} />
                       </IconButton>
                     </Tooltip>
                     {proyecto.estado === "en_progreso" && (
                       <Tooltip title="Pausar">
-                        <IconButton size="small" onClick={() => handleCambiarEstado(proyecto, "pausado")}>
+                        <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleCambiarEstado(proyecto, "pausado"); }}>
                           <Pause size={18} />
                         </IconButton>
                       </Tooltip>
                     )}
                     {proyecto.estado === "pausado" && (
                       <Tooltip title="Reanudar">
-                        <IconButton size="small" onClick={() => handleCambiarEstado(proyecto, "en_progreso")}>
+                        <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleCambiarEstado(proyecto, "en_progreso"); }}>
                           <Play size={18} />
                         </IconButton>
                       </Tooltip>
                     )}
                     {proyecto.estado === "en_progreso" && (
                       <Tooltip title="Completar">
-                        <IconButton size="small" onClick={() => handleCambiarEstado(proyecto, "completado")}>
+                        <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleCambiarEstado(proyecto, "completado"); }}>
                           <CheckCircle size={18} />
                         </IconButton>
                       </Tooltip>
                     )}
                     <Tooltip title="Eliminar">
-                      <IconButton size="small" color="error" onClick={() => handleDeleteProyecto(proyecto)}>
+                      <IconButton size="small" color="error" onClick={(e) => { e.stopPropagation(); handleDeleteProyecto(proyecto); }}>
                         <Trash2 size={18} />
                       </IconButton>
                     </Tooltip>
                   </Box>
                 }
-                onClick={() => setSelectedProyecto(proyecto)}
+                onClick={() => navigate(`/proyecto/${proyecto.id}`)}
               >
                 <Box sx={{ mb: 1.5 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
