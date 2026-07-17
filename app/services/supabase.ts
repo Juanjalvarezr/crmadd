@@ -485,16 +485,32 @@ export const clientesService = {
     return (data || []).map(mapDBToCliente);
   },
   async create(cliente: Partial<Cliente>): Promise<Cliente | null> {
+    // Validación backend usando Zod
+    const validationResult = ClienteSchema.safeParse(cliente);
+    if (!validationResult.success) {
+      const errors = validationResult.error.issues.map((e: any) => `${e.path.join('.')}: ${e.message}`).join(', ');
+      throw new Error(`Validación fallida: ${errors}`);
+    }
+
     const { data, error } = await supabase
       .from('clientes')
-      .insert([mapClienteToDB(cliente)])
+      .insert([mapClienteToDB(validationResult.data)])
       .select()
       .single();
     if (error) throw error;
     return data ? mapDBToCliente(data) : null;
   },
   async update(id: number, updates: any) {
-    // Identidad: Si cambia el nombre, sincronizamos proyectos y oportunidades // Corregido: estaba como string en algunos lugares
+    // Validación backend usando Zod (solo si se envían campos validables)
+    if (updates.nombre || updates.email) {
+      const validationResult = ClienteSchema.partial().safeParse(updates);
+      if (!validationResult.success) {
+        const errors = validationResult.error.issues.map((e: any) => `${e.path.join('.')}: ${e.message}`).join(', ');
+        throw new Error(`Validación fallida: ${errors}`);
+      }
+    }
+
+    // Identidad: Si cambia el nombre, sincronizamos proyectos y oportunidades
     if (updates.nombre) {
       await Promise.all([
         supabase.from('proyectos').update({ cliente_nombre: updates.nombre }).eq('cliente_id', id),
@@ -972,14 +988,49 @@ export const conocimientoService = {
 
 // Helper para Auth (Siguiente paso crítico)
 export const authService = {
-  async signUp(email: string, pass: string) {
-    return await supabase.auth.signUp({ email, password: pass });
+  async signUp(email: string, pass: string, metadata?: { nombre?: string; rol?: string }) {
+    return await supabase.auth.signUp({ 
+      email, 
+      password: pass,
+      options: {
+        data: metadata
+      }
+    });
   },
   async signIn(email: string, pass: string) {
     return await supabase.auth.signInWithPassword({ email, password: pass });
   },
   async signOut() {
     return await supabase.auth.signOut();
+  },
+  async getCurrentUser() {
+    const { data: { user } } = await supabase.auth.getUser();
+    return user;
+  },
+  async getSession() {
+    const { data: { session } } = await supabase.auth.getSession();
+    return session;
+  },
+  async resetPassword(email: string) {
+    return await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+  },
+  async updatePassword(newPassword: string) {
+    return await supabase.auth.updateUser({ password: newPassword });
+  },
+  onAuthStateChange(callback: (event: string, session: any) => void) {
+    return supabase.auth.onAuthStateChange(callback);
+  },
+  isAuthenticated(): boolean {
+    // Verificar si hay sesión en localStorage
+    const session = localStorage.getItem('sb-crm-agencia-auth-token');
+    return !!session;
+  },
+  async getUserRole(): Promise<string | null> {
+    const user = await this.getCurrentUser();
+    if (!user) return null;
+    return user.user_metadata?.rol || 'user';
   }
 };
 
@@ -993,3 +1044,39 @@ export async function testConnection() {
     return { success: false, message: error.message };
   }
 }
+
+// Servicio de Documentos
+export const documentosService = {
+  async getAll() {
+    const { data, error } = await supabase
+      .from('documentos')
+      .select('*')
+      .order('creado_en', { ascending: false });
+    if (error) throw error;
+    return data || [];
+  },
+  async getByEntidad(entidadTipo: string, entidadId: string) {
+    const { data, error } = await supabase
+      .from('documentos')
+      .select('*')
+      .eq('entidad_tipo', entidadTipo)
+      .eq('entidad_id', entidadId)
+      .order('creado_en', { ascending: false });
+    if (error) throw error;
+    return data || [];
+  },
+  async create(documento: { entidad_tipo: string; entidad_id: string; titulo?: string; url: string; tipo: string; usuario?: string }) {
+    const { data, error } = await supabase
+      .from('documentos')
+      .insert([documento])
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+  async delete(id: string) {
+    const { error } = await supabase.from('documentos').delete().eq('id', id);
+    if (error) throw error;
+    return true;
+  }
+};

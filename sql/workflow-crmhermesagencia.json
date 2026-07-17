@@ -1,0 +1,217 @@
+{
+  "name": "CRMHERMESAGENCI",
+  "settings": {},
+  "nodes": [
+    {
+      "parameters": {
+        "path": "crm-hermes-agency",
+        "responseMode": "waitForResponse",
+        "options": {}
+      },
+      "id": "entrada-global",
+      "name": "Entrada Global",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-64, 32]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {},
+          "conditions": [
+            {
+              "id": "a1",
+              "leftValue": "={{ $json.body.token }}",
+              "rightValue": "CRMHERMES_SECRET",
+              "operator": {"type": "string", "operation": "equals"}
+            }
+          ],
+          "combinator": "and"
+        }
+      },
+      "id": "validacion",
+      "name": "Validación",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [240, 32]
+    },
+    {
+      "parameters": {
+        "options": {},
+        "rules": {
+          "values": [
+            {
+              "id": "r1",
+              "conditions": {
+                "options": {},
+                "conditions": [
+                  {
+                    "id": "c1",
+                    "leftValue": "={{ $json.body.event_type }}",
+                    "rightValue": "cliente_creado",
+                    "operator": {"type": "string", "operation": "equals"}
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "id": "r2",
+              "conditions": {
+                "options": {},
+                "conditions": [
+                  {
+                    "id": "c2",
+                    "leftValue": "={{ $json.body.event_type }}",
+                    "rightValue": "proyecto_creado",
+                    "operator": {"type": "string", "operation": "equals"}
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "id": "r3",
+              "conditions": {
+                "options": {},
+                "conditions": [
+                  {
+                    "id": "c3",
+                    "leftValue": "={{ $json.body.event_type }}",
+                    "rightValue": "factura_creada",
+                    "operator": {"type": "string", "operation": "equals"}
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "id": "r4",
+              "conditions": {
+                "options": {},
+                "conditions": [
+                  {
+                    "id": "c4",
+                    "leftValue": "={{ $json.body.event_type }}",
+                    "rightValue": "contrato_creado",
+                    "operator": {"type": "string", "operation": "equals"}
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        }
+      },
+      "id": "router-ia",
+      "name": "Router IA",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [544, 32]
+    },
+    {
+      "parameters": {
+        "agent": "conversationalAgent",
+        "promptType": "define",
+        "text": "={{ $json.body.data }}",
+        "options": {
+          "systemMessage": "Eres el Director de Contenido de DESEO DIGITAL. Recibes un cliente o proyecto y generas: brief ejecutivo, copy para redes, sugerencias de calendario. Responde en JSON con {brief, copy, calendario_sugerido}."
+        }
+      },
+      "id": "dept-contenido",
+      "name": "Departamento: Contenido",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [800, -96]
+    },
+    {
+      "parameters": {
+        "agent": "conversationalAgent",
+        "promptType": "define",
+        "text": "={{ $json.body.data }}",
+        "options": {
+          "systemMessage": "Eres el Jefe de Ventas. Recibes un proyecto nuevo y generas: scoring de cliente, secuencia de follow-up, propuesta económica. Responde en JSON con {scoring, follow_up, propuesta}."
+        }
+      },
+      "id": "dept-ventas",
+      "name": "Departamento: Ventas",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [800, 32]
+    },
+    {
+      "parameters": {
+        "agent": "conversationalAgent",
+        "promptType": "define",
+        "text": "={{ $json.body.data }}",
+        "options": {
+          "systemMessage": "Eres el CFO. Recibes un proyecto o factura y generas: número de factura, concepto, recordatorio de pago. Responde en JSON con {factura_numero, concepto, recordatorio}."
+        }
+      },
+      "id": "dept-facturacion",
+      "name": "Departamento: Facturación",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [800, 160]
+    },
+    {
+      "parameters": {
+        "agent": "conversationalAgent",
+        "promptType": "define",
+        "text": "={{ $json.body.data }}",
+        "options": {
+          "systemMessage": "Eres el abogado. Recibes cliente/proyecto y generas: borrador de contrato, términos, cláusulas. Responde en JSON con {contrato_texto, terminos, clausulas}."
+        }
+      },
+      "id": "dept-legal",
+      "name": "Departamento: Legal",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [800, 288]
+    },
+    {
+      "parameters": {
+        "responseBody": "={{ $json }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "salida-unificada",
+      "name": "Salida Unificada",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1344, 32]
+    }
+  ],
+  "connections": {
+    "Entrada Global": {
+      "main": [[{"node": "Validación", "type": "main", "index": 0}]]
+    },
+    "Validación": {
+      "main": [
+        [{"node": "Router IA", "type": "main", "index": 0}],
+        [{"node": "Salida Unificada", "type": "main", "index": 0}]
+      ]
+    },
+    "Router IA": {
+      "main": [
+        [{"node": "Departamento: Contenido", "type": "main", "index": 0}],
+        [{"node": "Departamento: Ventas", "type": "main", "index": 0}],
+        [{"node": "Departamento: Facturación", "type": "main", "index": 0}],
+        [{"node": "Departamento: Legal", "type": "main", "index": 0}]
+      ]
+    },
+    "Departamento: Contenido": {
+      "main": [[{"node": "Salida Unificada", "type": "main", "index": 0}]]
+    },
+    "Departamento: Ventas": {
+      "main": [[{"node": "Salida Unificada", "type": "main", "index": 0}]]
+    },
+    "Departamento: Facturación": {
+      "main": [[{"node": "Salida Unificada", "type": "main", "index": 0}]]
+    },
+    "Departamento: Legal": {
+      "main": [[{"node": "Salida Unificada", "type": "main", "index": 0}]]
+    }
+  }
+}

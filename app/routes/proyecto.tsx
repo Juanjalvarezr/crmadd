@@ -10,11 +10,14 @@ import {
   FiBriefcase, FiCheckCircle, FiClock, FiLayers, FiLink,
   FiCalendar, FiPlay, FiSmartphone, FiTrendingUp, FiActivity, FiStar,
   FiMail, FiSend, FiFileText, FiDownload, FiEdit2, FiTrash2,
-  FiPlus, FiShare2, FiEye, FiDollarSign, FiTarget, FiZap, FiUser
+  FiPlus, FiShare2, FiEye, FiDollarSign, FiTarget, FiZap, FiUser, FiCpu
 } from "react-icons/fi";
 import { proyectosService, tareasService, emailService } from "../services/database";
+import { aiService } from "../services/ai";
 import type { Proyecto } from "../types/crm";
 import SafeChip from "../components/SafeChip";
+import GenerarDocumentoButton from "../components/GenerarDocumentoButton";
+import ProjectUnifiedPanel from "../components/ProjectUnifiedPanel";
 
 const getFaseColor = (fase: string) => {
   const colors: Record<string, string> = {
@@ -45,40 +48,47 @@ const TabPanel = ({ children, value, index, ...rest }: TabPanelProps) => (
 
 export default function ProyectoInterno() {
   const { id } = useParams<{ id: string }>();
+  const idLimpio = String(id || '').trim();
   const [proyecto, setProyecto] = useState<Proyecto | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState(0);
+  const [panelAbierto, setPanelAbierto] = useState(false);
 
-  const [estrategia, setEstrategia] = useState<any>({ objetivo: "", publico_objetivo: "", diferenciador: "", cronograma: "" });
+  const [estrategia, setEstrategia] = useState<any>({ objetivo: '', publico_objetivo: '', diferenciador: '', cronograma: '' });
   const [canales, setCanales] = useState<any>({ redes: false, ads: false, email: false, seo: false });
   const [tareas, setTareas] = useState<any[]>([]);
-  const [facturacion, setFacturacion] = useState<any>({ cuotas: [], monto_total: 0, monto_pagado: 0, estado: "pendiente" });
+  const [facturacion, setFacturacion] = useState<any>({ cuotas: [], monto_total: 0, monto_pagado: 0, estado: 'pendiente' });
   const [editEstrategia, setEditEstrategia] = useState(false);
 
   const load = async () => {
-    if (!id) return;
+    if (!idLimpio) {
+      setError('Falta el identificador del proyecto.');
+      setLoading(false);
+      return;
+    }
     try {
       setLoading(true);
-      const p = await proyectosService.getById(id);
-      setProyecto(p as any);
-      setEstrategia((p as any)?.estrategia || { objetivo: "", publico_objetivo: "", diferenciador: "", cronograma: "" });
-      setCanales((p as any)?.canales || { redes: false, ads: false, email: false, seo: false });
-      setFacturacion((p as any)?.facturacion_detalle || { cuotas: [], monto_total: 0, monto_pagado: 0, estado: "pendiente" });
+      const p = await proyectosService.getById(idLimpio);
+      const proyectoAny = p as any;
+      setProyecto(proyectoAny || null);
+      setEstrategia((proyectoAny?.estrategia || { objetivo: '', publico_objetivo: '', diferenciador: '', cronograma: '' }));
+      setCanales((proyectoAny?.canales || { redes: false, ads: false, email: false, seo: false }));
+      setFacturacion((proyectoAny?.facturacion_detalle || { cuotas: [], monto_total: 0, monto_pagado: 0, estado: 'pendiente' }));
       try {
         const t = await tareasService.getAll();
-        setTareas(t.filter((t: any) => t.proyecto_id === id || t.proyectoId === id || t.proyecto === id));
+        setTareas(t.filter((t: any) => t.proyecto_id === idLimpio || t.proyectoId === idLimpio || t.proyecto === idLimpio));
       } catch {
         setTareas([]);
       }
     } catch (err: any) {
-      setError("No pudimos cargar este proyecto.");
+      setError('No pudimos cargar este proyecto.');
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { load(); }, [id]);
+  useEffect(() => { load(); }, [idLimpio]);
 
   const handleSaveEstrategia = async () => {
     if (!proyecto?.id) return;
@@ -154,9 +164,60 @@ export default function ProyectoInterno() {
                 <Typography variant="h6" sx={{ fontWeight: "bold", color: "secondary.main", minWidth: "3ch" }}>{progreso}%</Typography>
               </Box>
               <SafeChip label={getEstadoLabel(proyecto.estado)} sx={{ bgcolor: proyecto.estado === "en_progreso" ? "rgba(0,200,83,0.12)" : "rgba(255,255,255,0.05)", color: proyecto.estado === "en_progreso" ? "#00c853" : "text.primary", fontWeight: "bold" }} />
+              <Box sx={{ mt: 1.5, textAlign: { xs: 'left', md: 'right' }, display: 'flex', gap: 1, justifyContent: { xs: 'flex-start', md: 'flex-end' }, flexWrap: 'wrap' }}>
+                <GenerarDocumentoButton
+                  entidadTipo="proyecto"
+                  entidadId={String(proyecto.id)}
+                  tipo="pdf"
+                  titulo={`Proyecto - ${proyecto.nombre}`}
+                  usuario="Juan José"
+                  domElement={document.body}
+                  label="Documento"
+                  variant="outlined"
+                  size="small"
+                />
+                {(proyecto as any).contrato_url && (
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    startIcon={<FiDownload size={16} />}
+                    href={(proyecto as any).contrato_url}
+                    target="_blank"
+                  >
+                    Contrato
+                  </Button>
+                )}
+                <Button
+                  variant="contained"
+                  size="small"
+                  startIcon={<FiCpu size={16} />}
+                  sx={{ background: 'linear-gradient(135deg, #7c4dff, #2196f3)', color: '#fff', fontWeight: 'bold' }}
+                  onClick={async () => {
+                    try {
+                      const brief = await aiService.generarBriefProyecto(String(proyecto.id));
+                      window.dispatchEvent(new CustomEvent('open-ai-chat'));
+                      window.dispatchEvent(new CustomEvent('open-assistant', { detail: { brief } }));
+                    } catch (e) {
+                      console.error('Error generando brief:', e);
+                    }
+                  }}
+                >
+                  Brief IA
+                </Button>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  startIcon={<FiLayers size={16} />}
+                  onClick={() => setPanelAbierto(true)}
+                >
+                  Panel inteligente
+                </Button>
+              </Box>
             </Grid>
           </Grid>
         </Paper>
+
+        <ProjectUnifiedPanel open={panelAbierto} onClose={() => setPanelAbierto(false)} proyecto={proyecto} />
 
         {/* Dashboard compacto unificado */}
         <Grid container spacing={2} sx={{ mb: 3 }}>
@@ -168,9 +229,11 @@ export default function ProyectoInterno() {
                 <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>Cliente</Typography>
               </Stack>
               <Divider sx={{ mb: 1.5 }} />
-              <Typography variant="body2" sx={{ mb: 0.5 }}><strong>Nombre:</strong> {proyecto.clienteNombre}</Typography>
-              <Typography variant="body2" sx={{ mb: 0.5, wordBreak: "break-word" }}><strong>Correo:</strong> {(proyecto as any).clienteEmail || "No registrado"}</Typography>
-              <Typography variant="body2" sx={{ wordBreak: "break-word" }}><strong>Teléfono:</strong> {(proyecto as any).clienteTelefono || "No registrado"}</Typography>
+              <Stack spacing={1}>
+                <Typography variant="body2"><strong>Nombre:</strong> {proyecto.clienteNombre || 'Sin nombre'}</Typography>
+                <Typography variant="body2" sx={{ wordBreak: "break-word" }}><strong>Correo:</strong> {(proyecto as any).clienteEmail || 'No registrado'}</Typography>
+                <Typography variant="body2" sx={{ wordBreak: "break-word" }}><strong>Teléfono:</strong> {(proyecto as any).clienteTelefono || 'No registrado'}</Typography>
+              </Stack>
             </Paper>
           </Grid>
 
@@ -283,11 +346,15 @@ export default function ProyectoInterno() {
           <TabPanel value={tab} index={2}>
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>Calendario del Proyecto</Typography>
             <Divider sx={{ mb: 3 }} />
-            <Grid container spacing={2}>
-              <Grid item xs={12} md={4}><Paper sx={{ p: 3, textAlign: "center" }}><Typography variant="caption" color="text.secondary">Inicio</Typography><Typography variant="h5" sx={{ fontWeight: 800, color: "primary.main" }}>{proyecto.fechaInicio}</Typography></Paper></Grid>
-              <Grid item xs={12} md={4}><Paper sx={{ p: 3, textAlign: "center" }}><Typography variant="caption" color="text.secondary">Entrega</Typography><Typography variant="h5" sx={{ fontWeight: 800, color: "secondary.main" }}>{proyecto.fechaFin}</Typography></Paper></Grid>
-              <Grid item xs={12} md={4}><Paper sx={{ p: 3, textAlign: "center" }}><Typography variant="caption" color="text.secondary">Fase</Typography><SafeChip label={getFaseLabel(proyecto.faseAdministrativa)} color="primary" sx={{ mt: 1 }} /></Paper></Grid>
-            </Grid>
+            {proyecto ? (
+              <Grid container spacing={2}>
+                <Grid item xs={12} md={4}><Paper sx={{ p: 3, textAlign: "center" }}><Typography variant="caption" color="text.secondary">Inicio</Typography><Typography variant="h5" sx={{ fontWeight: 800, color: "primary.main" }}>{proyecto.fechaInicio || '—'}</Typography></Paper></Grid>
+                <Grid item xs={12} md={4}><Paper sx={{ p: 3, textAlign: "center" }}><Typography variant="caption" color="text.secondary">Entrega</Typography><Typography variant="h5" sx={{ fontWeight: 800, color: "secondary.main" }}>{proyecto.fechaFin || '—'}</Typography></Paper></Grid>
+                <Grid item xs={12} md={4}><Paper sx={{ p: 3, textAlign: "center" }}><Typography variant="caption" color="text.secondary">Fase</Typography><SafeChip label={getFaseLabel(proyecto.faseAdministrativa)} color="primary" sx={{ mt: 1 }} /></Paper></Grid>
+              </Grid>
+            ) : (
+              <Alert severity="info">Selecciona un proyecto para ver su calendario.</Alert>
+            )}
           </TabPanel>
 
           <TabPanel value={tab} index={3}>
@@ -296,17 +363,24 @@ export default function ProyectoInterno() {
             {tareas.length === 0 ? (
               <Alert severity="info">Sin tareas registradas para este proyecto.</Alert>
             ) : (
-              <List>
-                {tareas.slice(0, 12).map((tarea: any) => (
-                  <ListItem key={tarea.id} sx={{ px: 0, py: 1.5, borderBottom: "1px solid", borderColor: "divider" }}>
-                    <ListItemIcon sx={{ color: tarea.estado === "Completada" ? "success.main" : "text.secondary" }}>
-                      {tarea.estado === "Completada" ? <FiCheckCircle /> : <FiClock />}
-                    </ListItemIcon>
-                    <ListItemText primary={tarea.titulo} secondary={`Responsable: ${tarea.responsable_id || "Sin asignar"} • Vence: ${tarea.fecha}`} />
-                    <SafeChip label={tarea.estado || "Pendiente"} size="small" color={tarea.estado === "Completada" ? "success" : tarea.estado === "En progreso" ? "warning" : "default"} />
-                  </ListItem>
-                ))}
-              </List>
+              <Grid container spacing={2}>
+                {tareas.slice(0, 12).map((tarea: any) => {
+                  const estadoColor = tarea.estado === 'Completada' ? '#00c853' : tarea.estado === 'En progreso' ? '#ff9100' : 'text.secondary';
+                  const iconoEstado = tarea.estado === 'Completada' ? <FiCheckCircle /> : <FiClock />;
+                  return (
+                    <Grid item xs={12} md={4} key={tarea.id}>
+                      <Paper variant="outlined" sx={{ p: 2, borderColor: 'divider', borderRadius: 2, height: '100%' }}>
+                        <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
+                          <Box sx={{ color: estadoColor }}>{iconoEstado}</Box>
+                          <Typography variant="subtitle2" sx={{ fontWeight: 700, flexGrow: 1 }}>{tarea.titulo}</Typography>
+                        </Stack>
+                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>Vence: {tarea.fecha} • Prioridad: {tarea.prioridad || 'Media'}</Typography>
+                        <SafeChip label={tarea.estado || 'Pendiente'} size="small" color={tarea.estado === 'Completada' ? 'success' : tarea.estado === 'En progreso' ? 'warning' : 'default'} />
+                      </Paper>
+                    </Grid>
+                  );
+                })}
+              </Grid>
             )}
           </TabPanel>
 
@@ -314,15 +388,20 @@ export default function ProyectoInterno() {
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>Documentos</Typography>
             <Divider sx={{ mb: 2 }} />
             {(proyecto as any).recursos?.length > 0 ? (
-              <List>
+              <Grid container spacing={2}>
                 {(proyecto as any).recursos.map((recurso: any) => (
-                  <ListItem key={recurso.id} sx={{ px: 0, py: 1.5 }}>
-                    <ListItemIcon><FiFileText color="#E91E63" /></ListItemIcon>
-                    <ListItemText primary={recurso.nombre} secondary={recurso.url} />
-                    <Button size="small" startIcon={<FiDownload size={14} />} href={recurso.url} target="_blank">Descargar</Button>
-                  </ListItem>
+                  <Grid item xs={12} md={4} key={recurso.id}>
+                    <Paper variant="outlined" sx={{ p: 2, borderColor: "divider", borderRadius: 2 }}>
+                      <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
+                        <FiFileText color="#E91E63" size={18} />
+                        <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{recurso.nombre}</Typography>
+                      </Stack>
+                      <Typography variant="caption" color="text.secondary" sx={{ wordBreak: "break-all", display: "block", mb: 1 }}>{recurso.url}</Typography>
+                      <Button size="small" variant="contained" startIcon={<FiDownload size={14} />} href={recurso.url} target="_blank">Descargar</Button>
+                    </Paper>
+                  </Grid>
                 ))}
-              </List>
+              </Grid>
             ) : (
               <Alert severity="info">Sin documentos adjuntos.</Alert>
             )}
@@ -331,21 +410,30 @@ export default function ProyectoInterno() {
           <TabPanel value={tab} index={5}>
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>Facturación</Typography>
             <Divider sx={{ mb: 3 }} />
-            <Grid container spacing={2}>
-              <Grid item xs={6} md={3}><Paper sx={{ p: 2, textAlign: "center" }}><Typography variant="caption" color="text.secondary">Presupuesto</Typography><Typography variant="h6" sx={{ fontWeight: 800, color: "text.primary" }}>${presupuesto.toLocaleString()}</Typography></Paper></Grid>
-              <Grid item xs={6} md={3}><Paper sx={{ p: 2, textAlign: "center" }}><Typography variant="caption" color="text.secondary">Pagado</Typography><Typography variant="h6" sx={{ fontWeight: 800, color: "#00c853" }}>${pagado.toLocaleString()}</Typography></Paper></Grid>
-              <Grid item xs={6} md={3}><Paper sx={{ p: 2, textAlign: "center" }}><Typography variant="caption" color="text.secondary">Saldo</Typography><Typography variant="h6" sx={{ fontWeight: 800, color: "#ff9100" }}>${saldo.toLocaleString()}</Typography></Paper></Grid>
-              <Grid item xs={6} md={3}><Paper sx={{ p: 2, textAlign: "center" }}><Typography variant="caption" color="text.secondary">Estado</Typography><SafeChip label={facturacion.estado || "pendiente"} size="small" sx={{ mt: 1 }} /></Paper></Grid>
+            <Grid container spacing={2} sx={{ mb: 2 }}>
+              <Grid item xs={6} md={3}><Paper sx={{ p: 2, textAlign: "center", border: "1px solid", borderColor: "divider", borderRadius: 2 }}><Typography variant="caption" color="text.secondary">Presupuesto</Typography><Typography variant="h6" sx={{ fontWeight: 800, color: "text.primary" }}>${presupuesto.toLocaleString()}</Typography></Paper></Grid>
+              <Grid item xs={6} md={3}><Paper sx={{ p: 2, textAlign: "center", border: "1px solid", borderColor: "divider", borderRadius: 2 }}><Typography variant="caption" color="text.secondary">Pagado</Typography><Typography variant="h6" sx={{ fontWeight: 800, color: "#00c853" }}>${pagado.toLocaleString()}</Typography></Paper></Grid>
+              <Grid item xs={6} md={3}><Paper sx={{ p: 2, textAlign: "center", border: "1px solid", borderColor: "divider", borderRadius: 2 }}><Typography variant="caption" color="text.secondary">Saldo</Typography><Typography variant="h6" sx={{ fontWeight: 800, color: saldo > 0 ? "#ff9100" : "#00c853" }}>${saldo.toLocaleString()}</Typography></Paper></Grid>
+              <Grid item xs={6} md={3}><Paper sx={{ p: 2, textAlign: "center", border: "1px solid", borderColor: "divider", borderRadius: 2 }}><Typography variant="caption" color="text.secondary">Estado</Typography><SafeChip label={facturacion.estado || "pendiente"} size="small" sx={{ mt: 1 }} /></Paper></Grid>
             </Grid>
-            {facturacion.cuotas?.length > 0 && (
-              <List sx={{ mt: 2 }}>
+            {facturacion.cuotas?.length > 0 ? (
+              <Grid container spacing={2}>
                 {facturacion.cuotas.map((cuota: any, idx: number) => (
-                  <ListItem key={idx} sx={{ px: 0, py: 1, borderBottom: "1px solid", borderColor: "divider" }}>
-                    <ListItemText primary={`Cuota ${idx + 1} • $${Number(cuota.monto || 0).toLocaleString()}`} secondary={cuota.fecha || ""} />
-                    <SafeChip label={cuota.pagada ? "Pagada" : "Pendiente"} size="small" color={cuota.pagada ? "success" : "warning"} />
-                  </ListItem>
+                  <Grid item xs={12} md={4} key={idx}>
+                    <Paper variant="outlined" sx={{ p: 2, borderColor: 'divider', borderRadius: 2 }}>
+                      <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
+                        <FiDollarSign color={cuota.pagada ? '#00c853' : '#ff9100'} size={16} />
+                        <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>Cuota {idx + 1}</Typography>
+                      </Stack>
+                      <Typography variant="body2" sx={{ fontWeight: 800 }}>${Number(cuota.monto || 0).toLocaleString()}</Typography>
+                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>Vence: {cuota.fecha || '—'}</Typography>
+                      <SafeChip label={cuota.pagada ? 'Pagada' : 'Pendiente'} size="small" color={cuota.pagada ? 'success' : 'warning'} />
+                    </Paper>
+                  </Grid>
                 ))}
-              </List>
+              </Grid>
+            ) : (
+              <Alert severity="info">Sin cuotas diferenciadas.</Alert>
             )}
           </TabPanel>
 
@@ -353,7 +441,7 @@ export default function ProyectoInterno() {
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>Contratos</Typography>
             <Divider sx={{ mb: 3 }} />
             {(proyecto as any).contrato_url ? (
-              <Stack direction="row" spacing={2}>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} flexWrap="wrap">
                 <Button variant="contained" startIcon={<FiEye size={16} />} href={(proyecto as any).contrato_url} target="_blank">Ver Contrato</Button>
                 <Button variant="outlined" startIcon={<FiDownload size={16} />} href={(proyecto as any).contrato_url} target="_blank">Descargar</Button>
                 <Button variant="text" color="secondary" startIcon={<FiSend size={16} />} onClick={handleSendContract}>Enviar por Email</Button>

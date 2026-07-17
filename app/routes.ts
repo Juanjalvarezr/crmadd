@@ -3,6 +3,7 @@ import { type RouteConfig, index, route } from "@react-router/dev/routes";
 export default [
 	route("/", "routes/home.tsx"),
 	route("/login", "routes/login.tsx"),
+	route("/reset-password", "routes/reset-password.tsx"),
 	route("/dashboard", "routes/dashboard.tsx"),
 	route("/clientes", "routes/clientes.tsx"),
 	route("/clientes/:id", "routes/clientes-vista.tsx"),
@@ -20,6 +21,7 @@ export default [
 	route("/equipo", "routes/equipo.tsx"),
 	route("/facturacion", "routes/facturacion.tsx"),
 	route("/contratos", "routes/contratos.tsx"),
+	route("/documentos", "routes/documentos.tsx"),
 	route("/agentes", "routes/agentes.tsx"),
 	route("/whatsapp", "routes/whatsapp.tsx"),
 	route("/public/proyecto/:id", "routes/public-proyecto.tsx"),

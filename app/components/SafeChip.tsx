@@ -1,7 +1,8 @@
 import React from "react";
+import { useTheme } from "@mui/material";
 
 const SAFE_COLORS: Record<string, { bg: string; text: string; contrastText?: string }> = {
-  default: { bg: "#e0e0e0", text: "#333333", contrastText: "#333333" },
+  default: { bg: "rgba(0,0,0,0.07)", text: "text.primary", contrastText: "#333333" },
   primary: { bg: "#e91e63", text: "#ffffff", contrastText: "#ffffff" },
   secondary: { bg: "#9c27b0", text: "#ffffff", contrastText: "#ffffff" },
   success: { bg: "#4caf50", text: "#ffffff", contrastText: "#ffffff" },

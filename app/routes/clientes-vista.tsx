@@ -12,6 +12,7 @@ import {
 } from "../services/database";
 import SafeChip from "../components/SafeChip";
 import { formatCOP } from "../data/serviciosData";
+import GenerarDocumentoButton from "../components/GenerarDocumentoButton";
 
 interface ClienteDetalle {
   id: string;
@@ -94,6 +95,17 @@ export default function Cliente360() {
               <FiMail />
             </IconButton>
           )}
+          <GenerarDocumentoButton
+            entidadTipo="cliente"
+            entidadId={String(cliente.id)}
+            tipo="pdf"
+            titulo={`Vista 360 - ${cliente.nombre}`}
+            usuario="Juan José"
+            domElement={document.body}
+            label="Documento"
+            variant="outlined"
+            size="small"
+          />
         </Stack>
       </Stack>
 

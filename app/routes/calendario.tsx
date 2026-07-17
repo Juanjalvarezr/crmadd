@@ -168,7 +168,7 @@ export default function Calendario() {
   return (
     <Box sx={{ p: { xs: 1, sm: 2 }, height: "100%", display: "flex", flexDirection: "column", gap: 1.5, overflow: "hidden" }}>
       {/* Header compacto */}
-      <Paper variant="outlined" sx={{ p: { xs: 1.5, sm: 2 }, borderRadius: 2, borderLeft: "4px solid #1976d2" }}>
+      <Paper variant="outlined" sx={{ p: { xs: 1.25, sm: 2 }, borderRadius: 2, borderLeft: "4px solid #1976d2" }}>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 1 }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
             <Box sx={{ width: 36, height: 36, borderRadius: 2, bgcolor: "#E3F2FD", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -266,7 +266,7 @@ export default function Calendario() {
                 fontSize: "0.72rem",
                 fontWeight: 600,
                 bgcolor: view === v.val ? "primary.main" : "transparent",
-                color: view === v.val ? "primary.contrastText" : "text.primary",
+                color: view === v.val ? "#ffffff" : "text.primary",
                 "&:hover": { bgcolor: view === v.val ? "primary.dark" : "action.hover" },
               }}
             >
@@ -287,24 +287,25 @@ export default function Calendario() {
           flex: 1,
           borderRadius: 2,
           overflow: "hidden",
-          minHeight: { xs: 420, sm: 520 },
+          minHeight: { xs: 340, sm: 440 },
+          display: "flex",
+          flexDirection: "column",
           "& .rbc-calendar": { fontFamily: "inherit", height: "100%" },
-          "& .rbc-header": { py: 0.75, fontSize: "0.72rem", fontWeight: 700, textTransform: "uppercase", color: "text.secondary", bgcolor: "#f8f9fa", borderRight: "none" },
-          "& .rbc-today": { bgcolor: "#E3F2FD !important" },
-          "& .rbc-off-range-bg": { bgcolor: "#fafafa" },
-          "& .rbc-toolbar": { display: "none" }, // usamos nuestro propio toolbar
-          "& .rbc-month-row": { minHeight: "70px" },
-          "& .rbc-show-more": { fontSize: "0.68rem", color: "#1976d2", fontWeight: 600 },
-          "& .rbc-date-cell": { fontSize: "0.72rem", px: 0.5, py: 0.25, borderRight: "none" },
-          "& .rbc-day-bg + .rbc-day-bg": { borderLeft: "1px solid #f0f0f0" },
-          "& .rbc-event": { fontSize: "0.7rem !important" },
+          "& .rbc-header": { py: 0.75, fontSize: "0.72rem", fontWeight: 700, textTransform: "uppercase", color: "text.secondary", bgcolor: "background.default", borderRight: "none" },
+          "& .rbc-today": { bgcolor: "action.selected" },
+          "& .rbc-off-range-bg": { bgcolor: "background.default" },
+          "& .rbc-toolbar": { display: "none" },
+          "& .rbc-month-view, & .rbc-week-view, & .rbc-day-view": { flex: 1 },
+          "& .rbc-day-bg + .rbc-day-bg": { borderLeft: "1px solid divider" },
+          "& .rbc-event": { fontSize: "0.7rem !important", padding: "2px 4px", margin: "1px 0", borderRadius: 1.5 },
           "& .rbc-time-content": { borderTop: "none" },
           "& .rbc-time-header": { borderRight: "none" },
           "& .rbc-time-gutter": { borderRight: "none" },
           "& .rbc-day-slot": { borderRight: "none" },
+          "& .rbc-agenda-view, & .rbc-month-view, & .rbc-week-view": { overflowX: "hidden" }
         }}
       >
-        <Box sx={{ height: { xs: 420, sm: 520, md: "calc(100vh - 360px)", lg: "calc(100vh - 340px)" }, minHeight: 380 }}>
+        <Box sx={{ height: { xs: "100%", sm: 480, md: "calc(100vh - 380px)" }, minHeight: 320 }}>
           <Calendar
             localizer={localizer}
             events={filteredEvents}

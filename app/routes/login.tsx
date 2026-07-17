@@ -9,6 +9,10 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [resetMode, setResetMode] = useState(false);
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetSuccess, setResetSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,6 +29,24 @@ export default function Login() {
       setError("Error de conexión. Intenta de nuevo.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setResetLoading(true);
+    setError("");
+    try {
+      const { error } = await authService.resetPassword(resetEmail);
+      if (error) {
+        setError(error.message ?? "Error al enviar email de recuperación");
+      } else {
+        setResetSuccess(true);
+      }
+    } catch (err) {
+      setError("Error de conexión. Intenta de nuevo.");
+    } finally {
+      setResetLoading(false);
     }
   };
 
@@ -116,14 +138,14 @@ export default function Login() {
 
         <Box
           component="form"
-          onSubmit={handleSubmit}
+          onSubmit={resetMode ? handleResetPassword : handleSubmit}
           sx={{ display: "flex", flexDirection: "column", gap: 2 }}
         >
           <TextField
             label="Email"
             type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={resetMode ? resetEmail : email}
+            onChange={(e) => resetMode ? setResetEmail(e.target.value) : setEmail(e.target.value)}
             required
             fullWidth
             size="small"
@@ -135,31 +157,38 @@ export default function Login() {
               "& .MuiInputLabel-root": { color: "rgba(255,255,255,0.7)" },
             }}
           />
-          <TextField
-            label="Contraseña"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            fullWidth
-            size="small"
-            InputLabelProps={{ shrink: true }}
-            sx={{
-              "& .MuiInputBase-root": { color: "#fff" },
-              "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(255,255,255,0.25)" },
-              "& .MuiInputBase-input": { color: "#fff" },
-              "& .MuiInputLabel-root": { color: "rgba(255,255,255,0.7)" },
-            }}
-          />
+          {!resetMode && (
+            <TextField
+              label="Contraseña"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              fullWidth
+              size="small"
+              InputLabelProps={{ shrink: true }}
+              sx={{
+                "& .MuiInputBase-root": { color: "#fff" },
+                "& .MuiOutlinedInput-notchedOutline": { borderColor: "rgba(255,255,255,0.25)" },
+                "& .MuiInputBase-input": { color: "#fff" },
+                "& .MuiInputLabel-root": { color: "rgba(255,255,255,0.7)" },
+              }}
+            />
+          )}
           {error && (
             <Alert severity="error" sx={{ bgcolor: "rgba(211,47,47,0.15)", color: "#ff8a80" }}>
               {error}
             </Alert>
           )}
+          {resetSuccess && (
+            <Alert severity="success" sx={{ bgcolor: "rgba(76,175,80,0.15)", color: "#a5d6a7" }}>
+              Email de recuperación enviado. Revisa tu bandeja de entrada.
+            </Alert>
+          )}
           <Button
             type="submit"
             variant="contained"
-            disabled={loading}
+            disabled={loading || resetLoading}
             fullWidth
             sx={{
               bgcolor: "#e91e63",
@@ -171,8 +200,25 @@ export default function Login() {
               "&.Mui-disabled": { bgcolor: "rgba(233,30,99,0.5)" },
             }}
           >
-            {loading ? "Ingresando..." : "Ingresar"}
+            {resetLoading ? "Enviando..." : loading ? "Ingresando..." : resetMode ? "Enviar Email" : "Ingresar"}
           </Button>
+          <Box sx={{ textAlign: "center", mt: 1 }}>
+            <Typography
+              variant="body2"
+              sx={{
+                color: "rgba(255,255,255,0.6)",
+                cursor: "pointer",
+                "&:hover": { color: "#e91e63" },
+              }}
+              onClick={() => {
+                setResetMode(!resetMode);
+                setError("");
+                setResetSuccess(false);
+              }}
+            >
+              {resetMode ? "← Volver al login" : "¿Olvidaste tu contraseña?"}
+            </Typography>
+          </Box>
         </Box>
       </Paper>
     </Box>

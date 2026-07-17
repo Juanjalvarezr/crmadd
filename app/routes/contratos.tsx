@@ -4,14 +4,14 @@ import { RouteSkeleton } from '../components/RouteGuard';
 import { Box, Typography, Paper, Button, TextField, Select, MenuItem, FormControl, InputLabel, Dialog, DialogTitle, DialogContent, DialogActions, Chip, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Tooltip, Snackbar, Alert, Fade, Accordion, AccordionSummary, AccordionDetails, Divider, List, ListItem, ListItemText, Switch, FormControlLabel } from "@mui/material";
 import { FiPlus, FiEye, FiEdit, FiTrash2, FiFileText, FiMessageSquare, FiMail, FiFilter, FiShoppingCart, FiShield, FiGitBranch, FiList, FiAlertTriangle, FiCopy, FiCpu } from "react-icons/fi";
 import { contratosService, contratoVersionesService, contratoClausulasService } from "../services/facturacion";
-import { clientesService } from "../services/database";
-import { proyectosService } from "../services/database";
 import { facturasService } from "../services/facturacion";
+import { clientesService, proyectosService } from "../services/database";
 import { generarContratoPDF } from "../services/pdf";
 import { uploadPDFToStorage } from "../services/storage";
 import ScannerTarjetas from "../components/ScannerTarjetas";
 import type { Contrato, ContratoVersion, ContratoClausula } from "../types/crm";
 import SafeChip from "../components/SafeChip";
+import GenerarDocumentoButton from "../components/GenerarDocumentoButton";
 import { openAiRoute } from "../components/FloatingAIAssistant";
 
 const TIPOS_CONTRATO = [
@@ -323,6 +323,7 @@ export default function Contratos() {
           <IconButton size="small" onClick={() => openAiRoute('contratos', 'Contratos', 'Gestión de contratos')}>
             <FiCpu size={18} />
           </IconButton>
+          <GenerarDocumentoButton entidadTipo="contrato" entidadId="general" tipo="pdf" titulo="Contratos general" usuario="Juan José" domElement={document.body} label="Documento" variant="outlined" size="small" />
           <Button variant="outlined" startIcon={<FiFilter />} onClick={() => setFilterEstado('all')}>Limpiar filtros</Button>
           <Button variant="contained" startIcon={<FiPlus />} onClick={() => { setEditItem(null); setObligaciones([]); setVencimientos([]); setSelectedPlantilla(''); setOpen(true); }}>Nuevo Contrato</Button>
           <Button variant="contained" color="secondary" startIcon={<FiShoppingCart />} onClick={() => setScannerOpen(true)}>Escanear</Button>

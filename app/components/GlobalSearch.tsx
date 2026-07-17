@@ -1,18 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Dialog, DialogTitle, DialogContent, TextField, List, ListItem, ListItemText,
-  ListItemIcon, Typography, Box, InputAdornment, Chip, Divider, alpha
+  ListItemIcon, Typography, Box, InputAdornment, Chip, Divider, alpha,
+  Paper, Tabs, Tab, CircularProgress
 } from '@mui/material';
-import { FiSearch, FiUser, FiFolder, FiCheckSquare, FiZap, FiPlus, FiFileText, FiMail } from 'react-icons/fi';
+import { FiSearch, FiUser, FiFolder, FiCheckSquare, FiZap, FiPlus, FiFileText, FiMail, FiTrendingUp, FiTarget, FiCalendar, FiDollarSign } from 'react-icons/fi';
 import { useNavigate } from 'react-router';
 import { clientesService } from '../services/database';
 import { proyectosService } from '../services/database';
+import { tareasService } from '../services/database';
+import { oportunidadesService } from '../services/database';
 import { facturasService, contratosService } from '../services/facturacion';
 import SafeChip from "../components/SafeChip";
 
 export default function GlobalSearch({ open, onClose }: { open: boolean, onClose: () => void }) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<{ tipo: string, nombre: string, id: string, path: string, sub?: string }[]>([]);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,12 +26,15 @@ export default function GlobalSearch({ open, onClose }: { open: boolean, onClose
   useEffect(() => {
     const performSearch = async () => {
       if (query.length < 2) { setResults([]); return; }
+      setLoading(true);
       try {
-        const [clis, proys, facs, conts] = await Promise.all([
+        const [clis, proys, facs, conts, tareas, oportunidades] = await Promise.all([
           clientesService.getAll(),
           proyectosService.getAll(),
           facturasService.getAll(),
-          contratosService.getAll()
+          contratosService.getAll(),
+          tareasService.getAll(),
+          oportunidadesService.getAll()
         ]);
         const q = query.toLowerCase();
         const filtered = [
@@ -39,10 +46,16 @@ export default function GlobalSearch({ open, onClose }: { open: boolean, onClose
             .map((f: any) => ({ tipo: 'Factura', nombre: `#${f.numero || f.id}`, id: String(f.id), path: `/facturacion`, sub: f.estado })),
           ...conts.filter((c: any) => ((c.titulo || '') + ' ' + (c.estado || '')).toLowerCase().includes(q))
             .map((c: any) => ({ tipo: 'Contrato', nombre: c.titulo || `#${c.id}`, id: String(c.id), path: `/contratos`, sub: c.estado })),
+          ...tareas.filter((t: any) => (t.titulo || '').toLowerCase().includes(q))
+            .map((t: any) => ({ tipo: 'Tarea', nombre: t.titulo, id: String(t.id), path: `/tareas`, sub: t.estado })),
+          ...oportunidades.filter((o: any) => (o.nombre || '').toLowerCase().includes(q))
+            .map((o: any) => ({ tipo: 'Oportunidad', nombre: o.nombre, id: String(o.id), path: `/ventas`, sub: o.etapa })),
         ];
-        setResults(filtered.slice(0, 10));
+        setResults(filtered.slice(0, 15));
       } catch {
         setResults([]);
+      } finally {
+        setLoading(false);
       }
     };
     const timer = setTimeout(performSearch, 250);
@@ -74,7 +87,7 @@ export default function GlobalSearch({ open, onClose }: { open: boolean, onClose
     { nombre: 'Nuevo Cliente', path: '/clientes?action=new', icono: <FiPlus />, color: '#e91e63' },
     { nombre: 'Nueva Tarea', path: '/tareas?action=new', icono: <FiCheckSquare />, color: '#4caf50' },
     { nombre: 'Nueva Venta', path: '/ventas?action=new', icono: <FiZap />, color: '#ff9800' },
-    { nombre: 'Nuevo Contrato', path: '/contratos?action=new', icono: <FiFileText />, color: '#795548' },
+    { nombre: 'Nuevo Proyecto', path: '/proyectos?action=new', icono: <FiFolder />, color: '#2196f3' },
   ];
 
   return (
@@ -117,11 +130,20 @@ export default function GlobalSearch({ open, onClose }: { open: boolean, onClose
               RESULTADOS
             </Typography>
           )}
-          {results.length > 0 ? (
+          {loading ? (
+            <Box sx={{ p: 4, textAlign: 'center' }}>
+              <CircularProgress size={24} />
+            </Box>
+          ) : results.length > 0 ? (
             results.map((item, index) => (
               <ListItem button key={index} onClick={() => handleSelect(item)} sx={{ '&:hover': { bgcolor: 'action.hover' } }}>
                 <ListItemIcon>
-                  {item.tipo === 'Cliente' ? <FiUser /> : item.tipo === 'Proyecto' ? <FiFolder /> : item.tipo === 'Factura' ? <FiFileText /> : <FiMail />}
+                  {item.tipo === 'Cliente' ? <FiUser /> : 
+                   item.tipo === 'Proyecto' ? <FiFolder /> : 
+                   item.tipo === 'Factura' ? <FiFileText /> : 
+                   item.tipo === 'Contrato' ? <FiMail /> :
+                   item.tipo === 'Tarea' ? <FiCheckSquare /> :
+                   item.tipo === 'Oportunidad' ? <FiTarget /> : <FiSearch />}
                 </ListItemIcon>
                 <ListItemText
                   primary={item.nombre}

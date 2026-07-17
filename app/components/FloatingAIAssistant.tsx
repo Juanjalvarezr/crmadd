@@ -49,6 +49,10 @@ export const FloatingAIAssistant = () => {
       const detail = (e as CustomEvent).detail as { route?: string; entity?: string; label?: string; brief?: any; cronograma?: any; canales?: any } | undefined;
       setAiContext(detail || null);
       setIsOpen(true);
+      if (detail?.brief) {
+        const briefText = typeof detail.brief === 'string' ? detail.brief : JSON.stringify(detail.brief, null, 2);
+        setChatMessages((m) => [...m, { role: 'assistant', text: `📋 Brief generado:\n\n${briefText}` }]);
+      }
     };
     const el = document.getElementById('floating-ai-assistant');
     el?.addEventListener('open-assistant', handler as EventListener);
@@ -80,18 +84,28 @@ CONTEXTO ACTUAL:
       const textoFinal = typeof respuesta === 'string' ? respuesta : JSON.stringify(respuesta);
 
       let ejecucion = '';
+      let accionError: string | null = null;
       try {
         const res = await ejecutarAccionSincrona(text, textoFinal);
         if (typeof res === 'string') ejecucion = res;
-      } catch {}
+      } catch (e: any) {
+        accionError = e?.message || 'No se pudo ejecutar la acción';
+      }
 
-      const mensajeFinal = ejecucion ? `${textoFinal}
+      let mensajeFinal = textoFinal;
+      if (ejecucion) {
+        mensajeFinal += `\n\n---\n✅ ${ejecucion}`;
+      }
+      if (accionError) {
+        mensajeFinal += `\n\n---\n⚠️ ${accionError}`;
+        setSnackbar({ open: true, message: accionError, severity: 'error' });
+      }
 
----
-✅ ${ejecucion}` : textoFinal;
       setChatMessages((m) => [...m, { role: 'assistant', text: mensajeFinal, context: aiContext }]);
     } catch (e: any) {
-      setChatMessages((m) => [...m, { role: 'assistant', text: `Error: ${e?.message || 'No se pudo ejecutar'}`, context: aiContext }]);
+      const mensaje = `Error: ${e?.message || 'No se pudo ejecutar'}`;
+      setChatMessages((m) => [...m, { role: 'assistant', text: mensaje, context: aiContext }]);
+      setSnackbar({ open: true, message: mensaje, severity: 'error' });
     } finally {
       setIsLoading(false);
     }
@@ -352,7 +366,7 @@ CONTEXTO ACTUAL:
             )}
 
             {mode === 'chat' && (
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, height: '100%' }}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, flex: 1, minHeight: 0 }}>
                 <Box
                   sx={{
                     flex: 1,

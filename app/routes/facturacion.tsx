@@ -13,12 +13,12 @@ import {
   FiMessageSquare, FiMail, FiFilter, FiSend, FiFileText, FiShoppingCart, FiCpu
 } from "react-icons/fi";
 import { facturasService } from "../services/facturacion";
-import { clientesService } from "../services/database";
-import { proyectosService } from "../services/database";
+import { clientesService, proyectosService } from "../services/database";
 import { generarFacturaPDF } from "../services/pdf";
 import { uploadPDFToStorage } from "../services/storage";
 import ScannerTarjetas from "../components/ScannerTarjetas";
 import SafeChip from "../components/SafeChip";
+import GenerarDocumentoButton from "../components/GenerarDocumentoButton";
 import { openAiRoute } from "../components/FloatingAIAssistant";
 
 export default function Facturacion() {
@@ -318,6 +318,7 @@ export default function Facturacion() {
           <IconButton size="small" onClick={() => openAiRoute('facturacion', 'Facturas', 'Facturación')}>
             <FiCpu size={18} />
           </IconButton>
+          <GenerarDocumentoButton entidadTipo="factura" entidadId="general" tipo="pdf" titulo="Facturación general" usuario="Juan José" domElement={document.body} label="Documento" variant="outlined" size="small" />
           <Button variant="contained" color="secondary" startIcon={<FiShoppingCart />} onClick={() => setScannerOpen(true)} size="small">Escanear</Button>
           <Button variant="contained" startIcon={<FiPlus />} onClick={() => { setEditItem(null); setOpen(true); }} size="small">Nueva Factura</Button>
         </Box>

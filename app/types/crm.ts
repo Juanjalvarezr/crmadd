@@ -26,6 +26,8 @@ export interface Cliente {
   ultima_interaccion: string; // Corregido a snake_case para coincidir con DB
   createdAt: string;
   favorito?: boolean;
+  lead_score?: number; // Sistema de scoring de leads (0-100)
+  lead_score_last_updated?: string; // Fecha última actualización del score
 }
 
 export interface Oportunidad {

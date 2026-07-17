@@ -28,6 +28,12 @@ import { proyectosService, oportunidadesService, tareasService } from "../servic
 import { facturasService } from "../services/facturacion";
 import { contratosService } from "../services/facturacion";
 import { transaccionesService } from "../services/database";
+import { getLeadScoreColor, getLeadQuality, calculateLeadScore } from "../services/leadScoring";
+import { validateClienteData, sanitizeFormData } from "../services/security";
+import { inicializarWorkflowRules, verificarYejecutarWorkflows } from "../services/workflowAutomation";
+import { inicializarEmailSequences, iniciarSecuenciaParaCliente } from "../services/emailSequences";
+import { supabase } from "../services/supabase";
+import { enviarWhatsAppTemplate, inicializarWhatsAppTemplates } from "../services/whatsappBusiness";
 import { SupabaseStatus } from "../components/SupabaseTest";
 import { format } from "date-fns";
 import { EmptyState } from "../components/EmptyState";
@@ -293,75 +299,68 @@ export default function Clientes() {
 
   // Guardar cliente en Supabase
   const handleSave = async () => {
-    if (!formData.nombre || !formData.email) {
-      setSnackbar({ open: true, message: "Nombre y email son obligatorios", severity: "error" });
+    // Validar datos usando el servicio de seguridad
+    const validation = validateClienteData(formData);
+    if (!validation.valid) {
+      const errorMessage = Object.values(validation.errors).join('. ');
+      setSnackbar({ open: true, message: errorMessage, severity: "error" });
       return;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Corregido: estaba como string en algunos lugares
-    if (!emailRegex.test(formData.email)) {
-      setSnackbar({ open: true, message: "Email inválido", severity: "error" });
-      return;
-    }
+    // Sanitizar datos usando el servicio de seguridad
+    const sanitizedData = sanitizeFormData(formData);
 
-    if (formData.telefono && !/\d{7,}/.test(formData.telefono.replace(/\D/g, ''))) {
-      setSnackbar({ open: true, message: "Teléfono debe tener al menos 7 dígitos", severity: "error" });
-      return;
-    }
+    // Calcular lead score automáticamente
+    const leadScore = calculateLeadScore(sanitizedData);
+    sanitizedData.lead_score = leadScore;
+    sanitizedData.lead_score_last_updated = new Date().toISOString();
 
-    const dup = findDuplicate(formData.nombre, formData.email, formData.telefono, editingClient?.id);
+    const dup = findDuplicate(sanitizedData.nombre, sanitizedData.email, sanitizedData.telefono, editingClient?.id);
     if (dup) {
       const overwrite = confirm(`Posible duplicado: ${dup.nombre} (${dup.email}). ¿Deseas guardar de todas formas?`);
       if (!overwrite) return;
     }
 
     setSaving(true);
-    try { // Corregido: estaba como string en algunos lugares
-      // Sanitizar inputs
-      const sanitizedData = {
-        nombre: DOMPurify.sanitize(formData.nombre),
-        email: DOMPurify.sanitize(formData.email),
-        telefono: DOMPurify.sanitize(formData.telefono || ''),
-        empresa: DOMPurify.sanitize(formData.empresa || ''),
-        nicho: formData.nicho || undefined,
-        origen: formData.origen || undefined,
-        estado: formData.estado,
-        ultima_interaccion: formData.ultimaInteraccion
-      };
-
-      try {
-        const isEdit = !!(editingClient && editingClient.id > 0);
-        if (isEdit) {
-          // Actualizar cliente existente
-          await clientesService.update(editingClient.id, sanitizedData);
-        } else {
-          // Crear nuevo cliente
-          await clientesService.create(sanitizedData);
-        }
-      } catch (dbErr: any) {
-        // Si fallan columnas extendidas que no existen físicamente en la DB, reintentar en modo compatibilidad
-        if (dbErr.message?.includes("column") || dbErr.message?.includes("schema") || dbErr.message?.includes("cache")) {
-          console.warn("Faltan columnas de esquema completo. Guardando en Modo Compatibilidad...", dbErr.message);
-
-          const compatName = formData.empresa ? `${DOMPurify.sanitize(formData.nombre)} - ${DOMPurify.sanitize(formData.empresa)}` : DOMPurify.sanitize(formData.nombre);
-          const compatData = {
-            nombre: compatName,
-            email: DOMPurify.sanitize(formData.email),
-            telefono: DOMPurify.sanitize(formData.telefono || ''),
-            estado: formData.estado,
-            ultima_interaccion: formData.ultimaInteraccion
-          };
-
-          const isEditCompat = !!(editingClient && editingClient.id > 0);
-          if (isEditCompat) {
-            await clientesService.update(editingClient.id, compatData);
-          } else {
-            await clientesService.create(compatData);
+    try {
+      const isEdit = !!(editingClient && editingClient.id > 0);
+      let createdCliente = null;
+      
+      if (isEdit) {
+        // Actualizar cliente existente
+        await clientesService.update(editingClient.id, sanitizedData);
+      } else {
+        // Crear nuevo cliente
+        createdCliente = await clientesService.create(sanitizedData);
+        
+        // Ejecutar workflow automation para cliente nuevo
+        if (createdCliente) {
+          try {
+            await inicializarWorkflowRules();
+            await verificarYejecutarWorkflows('cliente_nuevo', 'cliente', String(createdCliente.id), sanitizedData);
+          } catch (workflowErr) {
+            console.warn('Error ejecutando workflow automation:', workflowErr);
+            // No bloquear el flujo si falla el workflow
           }
 
-          localStorage.setItem("crm_compat_mode", "true");
-        } else {
-          throw dbErr;
+          // Iniciar secuencia de email de bienvenida
+          try {
+            await inicializarEmailSequences();
+            // Buscar secuencia de bienvenida
+            const { data: sequences } = await supabase
+              .from('email_sequences')
+              .select('*')
+              .eq('tipo', 'bienvenida')
+              .eq('activo', true)
+              .limit(1);
+            
+            if (sequences && sequences.length > 0) {
+              await iniciarSecuenciaParaCliente(sequences[0].id, createdCliente.id);
+            }
+          } catch (emailErr) {
+            console.warn('Error iniciando secuencia de email:', emailErr);
+            // No bloquear el flujo si falla la secuencia de email
+          }
         }
       }
 
@@ -372,8 +371,39 @@ export default function Clientes() {
       });
       await loadClientes(); // Recargar lista
       handleCloseModal();
-    } catch (err: any) {
-      setSnackbar({ open: true, message: "Error al guardar: " + err.message, severity: "error" });
+    } catch (dbErr: any) {
+      // Si fallan columnas extendidas que no existen físicamente en la DB, reintentar en modo compatibilidad
+      if (dbErr.message?.includes("column") || dbErr.message?.includes("schema") || dbErr.message?.includes("cache")) {
+        console.warn("Faltan columnas de esquema completo. Guardando en Modo Compatibilidad...", dbErr.message);
+
+        const compatName = formData.empresa ? `${sanitizedData.nombre} - ${sanitizedData.empresa}` : sanitizedData.nombre;
+        const compatData = {
+          nombre: compatName,
+          email: sanitizedData.email,
+          telefono: sanitizedData.telefono,
+          estado: sanitizedData.estado,
+          ultima_interaccion: sanitizedData.ultima_interaccion
+        };
+
+        const isEditCompat = !!(editingClient && editingClient.id > 0);
+        if (isEditCompat) {
+          await clientesService.update(editingClient.id, compatData);
+        } else {
+          await clientesService.create(compatData);
+        }
+
+        localStorage.setItem("crm_compat_mode", "true");
+
+        setSnackbar({
+          open: true,
+          message: editingClient ? "Cliente actualizado correctamente" : "Cliente creado correctamente",
+          severity: "success"
+        });
+        await loadClientes(); // Recargar lista
+        handleCloseModal();
+      } else {
+        setSnackbar({ open: true, message: "Error al guardar: " + dbErr.message, severity: "error" });
+      }
     } finally {
       setSaving(false);
     }
@@ -1013,7 +1043,29 @@ export default function Clientes() {
                             {cliente.nombre}
                           </Typography>
                         </Box>
-                        <SafeChip label={cliente.estado} color={getEstadoColor(cliente.estado)} size="small" sx={{ fontWeight: 500, fontSize: { xs: '0.6rem', sm: '0.65rem' }, height: 18 }} />
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          {cliente.lead_score !== undefined && (
+                            <Tooltip title={`Lead Score: ${cliente.lead_score}/100 - ${getLeadQuality(cliente.lead_score).toUpperCase()}`}>
+                              <Box sx={{ 
+                                width: 20, 
+                                height: 20, 
+                                borderRadius: '50%', 
+                                bgcolor: getLeadScoreColor(cliente.lead_score), 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                justifyContent: 'center',
+                                fontSize: '0.6rem',
+                                fontWeight: 700,
+                                color: 'white',
+                                border: '2px solid',
+                                borderColor: getLeadScoreColor(cliente.lead_score)
+                              }}>
+                                {cliente.lead_score}
+                              </Box>
+                            </Tooltip>
+                          )}
+                          <SafeChip label={cliente.estado} color={getEstadoColor(cliente.estado)} size="small" sx={{ fontWeight: 500, fontSize: { xs: '0.6rem', sm: '0.65rem' }, height: 18 }} />
+                        </Box>
                       </Box>
 
                       <Stack spacing={0.25} sx={{ pl: 2.5 }}>

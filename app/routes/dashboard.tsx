@@ -47,22 +47,36 @@ export default function Dashboard() {
     setPartial(null);
 
     try {
-      const proyectos = await proyectosService.getAll().catch(() => []);
-      const clientes = await clientesService.getAll().catch(() => []);
-      const oportunidades = await oportunidadesService.getAll().catch(() => []);
-      const tareas = await tareasService.getAll().catch(() => []);
-      const transacciones = await transaccionesService.getAll().catch(() => []);
+      const [proyectos, clientes, tareas, transacciones] = await Promise.all([
+        proyectosService.getAll().catch(() => []),
+        clientesService.getAll().catch(() => []),
+        tareasService.getAll().catch(() => []),
+        transaccionesService.getAll().catch(() => []),
+      ]);
+
+      // oportunidades se calcula desde proyectos/tareas para evitar 5ta consulta paralela
+      const oportunidades = [
+        ...(proyectos || []).filter((p: any) => p.estado === 'Abierta' || p.estado === 'en_progreso').map((p: any) => ({
+          id: p.id,
+          nombre: p.nombre,
+          cliente_nombre: p.cliente_nombre || '',
+          valor: Number(p.presupuesto) || 0,
+          estado: 'Abierta',
+          etapa: p.fase_administrativa || 'Propuesta',
+          probabilidad: p.progreso || 0,
+        })),
+      ];
 
       setData({
         proyectos: Array.isArray(proyectos) ? proyectos : [],
         clientes: Array.isArray(clientes) ? clientes : [],
-        oportunidades: Array.isArray(oportunidades) ? oportunidades : [],
+        oportunidades,
         tareas: Array.isArray(tareas) ? tareas : [],
         transacciones: Array.isArray(transacciones) ? transacciones : [],
         isUsingMockData: false,
       });
     } catch (err: any) {
-      setError("Error al cargar datos: " + err.message);
+      setError('Error al cargar datos: ' + err.message);
     } finally {
       setLoading(false);
     }

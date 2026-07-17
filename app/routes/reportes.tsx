@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import { 
   FiDownload, FiRefreshCw, FiFilter, FiBarChart, FiTrendingUp, FiDollarSign, FiUsers, FiCalendar,
-  FiPieChart, FiActivity, FiTarget, FiFileText, FiX, FiClock, FiCheckCircle, FiAlertCircle
+  FiPieChart, FiActivity, FiTarget, FiFileText, FiX, FiClock, FiCheckCircle, FiAlertCircle, FiCpu
 } from "react-icons/fi";
 import { format, startOfMonth, endOfMonth, subMonths, startOfYear, endOfYear, getMonth, getYear } from "date-fns";
 import { es } from "date-fns/locale";
@@ -18,6 +18,7 @@ import {
   clientesService,
   oportunidadesService
 } from "../services/database";
+import { aiService } from "../services/ai";
 import {
   BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from "recharts";
@@ -55,8 +56,10 @@ export default function Reportes() {
   const [fechaFin, setFechaFin] = useState(format(endOfMonth(new Date()), "yyyy-MM-dd"));
   const [tipoReporte, setTipoReporte] = useState("general");
   const [reportesSnackbar, setReportesSnackbar] = useState<{open: boolean, message: string, severity: "info" | "warning" | "error" | "success"}>({ open: false, message: "", severity: "info" });
+  const [analisisIA, setAnalisisIA] = useState<string>("");
+  const [loadingAnalisis, setLoadingAnalisis] = useState(false);
   const handleCloseReportesSnackbar = () => setReportesSnackbar({ ...reportesSnackbar, open: false });
-  
+
   // Estados de datos
   const [metricas, setMetricas] = useState<Metrica[]>([]);
   const [reporteData, setReporteData] = useState<ReporteData[]>([]);
@@ -279,6 +282,19 @@ export default function Reportes() {
     loadReportes();
   };
 
+  const handleAnalizarCRM = async () => {
+    try {
+      setLoadingAnalisis(true);
+      setAnalisisIA("");
+      const resultado = await aiService.analizarDatosCRM();
+      setAnalisisIA(resultado);
+    } catch (e: any) {
+      setAnalisisIA("No pude generar el análisis ahora.");
+    } finally {
+      setLoadingAnalisis(false);
+    }
+  };
+
   // Renderizado de gráficos simples (sin librerías externas)
   const renderBarChart = () => {
     if (reporteData.length === 0) return <Typography align="center">No hay datos en el periodo</Typography>;
@@ -443,6 +459,14 @@ export default function Reportes() {
               </Button>
               <Button 
                 variant="outlined"
+                startIcon={<FiCpu />}
+                onClick={handleAnalizarCRM}
+                disabled={loadingAnalisis}
+              >
+                {loadingAnalisis ? "Analizando..." : "Análisis IA"}
+              </Button>
+              <Button 
+                variant="outlined"
                 startIcon={<FiFilter />}
                 onClick={() => setReportesSnackbar({ open: true, message: "Filtros avanzados en desarrollo", severity: "info" })}
               >
@@ -452,6 +476,13 @@ export default function Reportes() {
           </Grid>
         </Grid>
       </Paper>
+
+      {analisisIA && !loadingAnalisis && (
+        <Alert severity="info" sx={{ mb: 3, whiteSpace: "pre-wrap" }}>
+          <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: "bold" }}>Análisis IA</Typography>
+          {analisisIA}
+        </Alert>
+      )}
 
       {loading && (
         <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>

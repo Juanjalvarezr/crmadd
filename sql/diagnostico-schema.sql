@@ -1,0 +1,10 @@
+SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name;
+SELECT column_name, data_type FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'clientes' ORDER BY ordinal_position;
+SELECT column_name, data_type FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'proyectos' ORDER BY ordinal_position;
+SELECT column_name, data_type FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'tareas' ORDER BY ordinal_position;
+SELECT column_name, data_type FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'transacciones' ORDER BY ordinal_position;
+SELECT column_name, data_type FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'facturas' ORDER BY ordinal_position;
+SELECT column_name, data_type FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'contratos' ORDER BY ordinal_position;
+SELECT column_name, data_type FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'oportunidades' ORDER BY ordinal_position;
+SELECT column_name, data_type FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'servicios' ORDER BY ordinal_position;
+SELECT column_name, data_type FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'equipo' ORDER BY ordinal_position;

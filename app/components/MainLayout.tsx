@@ -28,7 +28,7 @@ export const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }
           sx={{
             flex: 1,
             overflow: "auto",
-            p: { xs: 2, sm: 3, md: 4 },
+            p: { xs: 2, sm: 2, md: 2, lg: 3 },
             width: '100%',
             maxWidth: '1600px',
             mx: 'auto',

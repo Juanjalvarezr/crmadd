@@ -11,9 +11,9 @@ export function meta() {
 export default function Home() {
   const { pathname } = useLocation();
 
-  if (pathname === "/") {
+  if (pathname === '/' || pathname === '/home' || pathname.startsWith('/home/')) {
     return <Dashboard />;
   }
 
-  return null;
+  return <Dashboard />;
 }

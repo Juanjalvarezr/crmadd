@@ -86,12 +86,22 @@ VALUES (
 );
 
 -- 5. Factura inicial (id bigint auto-incremental, no hay que asignarlo)
-INSERT INTO public.facturas (proyecto_id, monto, concepto, estado_pago)
+INSERT INTO public.facturas (proyecto_id, cliente_id, numero, tipo, subtotal, iva, total, moneda, estado, estado_pago, fecha_emision, fecha_vencimiento, concepto, notas)
 VALUES (
   'PROY-DESEO-001',
+  (SELECT id FROM public.clientes WHERE email = 'juan@deseodigital.com'),
+  'FAC-2026-001',
+  'servicio',
   50000000,
+  0,
+  50000000,
+  'COP',
+  'borrador',
+  'parcial',
+  '2026-07-15',
+  '2026-08-15',
   'Factura FAC-2026-001 - Anticuesto y cuotas',
-  'parcial'
+  'Pendiente de pago completo'
 );
 
 -- 5.1 Transacciones y cuotas
