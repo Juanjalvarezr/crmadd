@@ -10,7 +10,7 @@ import {
 import {
   clientesService, proyectosService, tareasService
 } from "../services/database";
-import SafeChip from "../components/SafeChip";
+import EntityDetailPanel from "../components/EntityDetailPanel";
 import { formatCOP } from "../data/serviciosData";
 import GenerarDocumentoButton from "../components/GenerarDocumentoButton";
 
