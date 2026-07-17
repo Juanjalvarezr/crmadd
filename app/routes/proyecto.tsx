@@ -128,9 +128,17 @@ export default function ProyectoInterno() {
   }
 
   const presupuesto = Number(proyecto.presupuesto || 0);
-  const pagado = Number(facturacion.monto_pagado || 0);
+  const pagado = Number((facturacion as any)?.monto_pagado || proyecto.monto_pagado || 0);
   const saldo = Math.max(presupuesto - pagado, 0);
   const progreso = Math.min(Math.max(proyecto.progreso || 0, 0), 100);
+
+  const tareasProyecto = (tareas || []).filter((t: any) => t.proyecto_id === idLimpio || t.proyectoId === idLimpio || t.proyecto === idLimpio);
+  const facturacionProyecto = (facturacion as any) || proyecto.facturacion_detalle || {};
+  const estrategiaProyecto = estrategia || proyecto.estrategia || {};
+  const canalesProyecto = canales || proyecto.canales || {};
+  const cronogramaProyecto = Array.isArray((proyecto as any).cronograma) ? (proyecto as any).cronograma : [];
+  const documentosProyecto = Array.isArray((proyecto as any).recursos) ? (proyecto as any).recursos : [];
+  const credencialesProyecto = Array.isArray((proyecto as any).credenciales) ? (proyecto as any).credenciales : [];
 
   return (
     <Box sx={{ minHeight: "100vh", pb: 6 }}>
@@ -318,23 +326,23 @@ export default function ProyectoInterno() {
             </Stack>
             <Divider sx={{ mb: 3 }} />
             <Grid container spacing={3}>
-              <Grid item xs={12}><TextField label="Objetivo principal" fullWidth multiline rows={2} size="small" disabled={!editEstrategia} value={estrategia.objetivo || ""} onChange={(e) => setEstrategia({ ...estrategia, objetivo: e.target.value })} /></Grid>
-              <Grid item xs={12} md={6}><TextField label="Público objetivo" fullWidth size="small" disabled={!editEstrategia} value={estrategia.publico_objetivo || ""} onChange={(e) => setEstrategia({ ...estrategia, publico_objetivo: e.target.value })} /></Grid>
-              <Grid item xs={12} md={6}><TextField label="Diferenciador" fullWidth size="small" disabled={!editEstrategia} value={estrategia.diferenciador || ""} onChange={(e) => setEstrategia({ ...estrategia, diferenciador: e.target.value })} /></Grid>
-              <Grid item xs={12}><TextField label="Cronograma" fullWidth multiline rows={3} size="small" disabled={!editEstrategia} value={estrategia.cronograma || ""} onChange={(e) => setEstrategia({ ...estrategia, cronograma: e.target.value })} helperText="Hitos mensuales y entregables clave" /></Grid>
+              <Grid item xs={12}><TextField label="Objetivo principal" fullWidth multiline rows={2} size="small" disabled={!editEstrategia} value={(estrategiaProyecto as any)?.objetivo || ""} onChange={(e) => setEstrategia({ ...estrategiaProyecto, objetivo: e.target.value })} /></Grid>
+              <Grid item xs={12} md={6}><TextField label="Público objetivo" fullWidth size="small" disabled={!editEstrategia} value={(estrategiaProyecto as any)?.publico_objetivo || ""} onChange={(e) => setEstrategia({ ...estrategiaProyecto, publico_objetivo: e.target.value })} /></Grid>
+              <Grid item xs={12} md={6}><TextField label="Diferenciador" fullWidth size="small" disabled={!editEstrategia} value={(estrategiaProyecto as any)?.diferenciador || ""} onChange={(e) => setEstrategia({ ...estrategiaProyecto, diferenciador: e.target.value })} /></Grid>
+              <Grid item xs={12}><TextField label="Cronograma" fullWidth multiline rows={3} size="small" disabled={!editEstrategia} value={(estrategiaProyecto as any)?.cronograma || ""} onChange={(e) => setEstrategia({ ...estrategiaProyecto, cronograma: e.target.value })} helperText="Hitos mensuales y entregables clave" /></Grid>
             </Grid>
           </TabPanel>
 
           <TabPanel value={tab} index={1}>
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>Canales Digitales</Typography>
-            <Divider sx={{ mb: 3 }} />
+            <Divider sx={{ mb: 2 }} />
             <Grid container spacing={2}>
-              {["redes", "ads", "email", "seo"].map((canal) => {
-                const activo = !!(canales as any)[canal];
+              {["redes", "ads", "email", "seo", "whatsapp"].map((canal) => {
+                const activo = !!(canalesProyecto as any)[canal];
                 return (
-                  <Grid item xs={6} md={3} key={canal}>
+                  <Grid item xs={6} md={2} key={canal}>
                     <Paper variant="outlined" sx={{ p: 2, textAlign: "center", borderColor: activo ? "primary.main" : "divider", bgcolor: activo ? "rgba(233,30,99,0.04)" : "background.paper" }}>
-                      <Typography variant="h6" sx={{ textTransform: "capitalize", fontWeight: 700 }}>{canal}</Typography>
+                      <Typography variant="subtitle2" sx={{ textTransform: "capitalize", fontWeight: 700 }}>{canal}</Typography>
                       <SafeChip label={activo ? "Activo" : "Inactivo"} size="small" color={activo ? "success" : "default"} sx={{ mt: 1 }} />
                     </Paper>
                   </Grid>
@@ -346,9 +354,9 @@ export default function ProyectoInterno() {
           <TabPanel value={tab} index={2}>
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>Cronograma</Typography>
             <Divider sx={{ mb: 2 }} />
-            {(proyecto as any).cronograma?.length > 0 ? (
+            {cronogramaProyecto.length > 0 ? (
               <Grid container spacing={2}>
-                {(proyecto as any).cronograma.map((hito: any, idx: number) => (
+                {cronogramaProyecto.map((hito: any, idx: number) => (
                   <Grid item xs={12} md={4} key={idx}>
                     <Paper variant="outlined" sx={{ p: 2, borderColor: 'divider', borderRadius: 2, height: '100%' }}>
                       <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>{hito.fecha || 'Sin fecha'}</Typography>
@@ -360,40 +368,30 @@ export default function ProyectoInterno() {
                 ))}
               </Grid>
             ) : (
-              <Stack spacing={2}>
-                <Alert severity="info">Sin cronograma definido. Generalo automáticamente con IA.</Alert>
-                <Button variant="contained" startIcon={<FiCpu size={16} />} onClick={async () => {
-                  try {
-                    const datos = await aiService.generarCronogramaProyecto(String(proyecto.id));
-                    setProyecto((prev: any) => ({ ...prev, cronograma: Array.isArray(datos) ? datos : [] }));
-                    showNotification && showNotification('Cronograma generado con IA', 'success');
-                  } catch (e) {
-                    console.error('Error generando cronograma:', e);
-                  }
-                }}>Generar cronograma con IA</Button>
-              </Stack>
+              <Alert severity="info">Sin cronograma definido. Generalo automáticamente con IA.</Alert>
             )}
           </TabPanel>
 
           <TabPanel value={tab} index={3}>
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>Tareas del Proyecto</Typography>
             <Divider sx={{ mb: 2 }} />
-            {tareas.length === 0 ? (
+            {tareasProyecto.length === 0 ? (
               <Alert severity="info">Sin tareas registradas para este proyecto.</Alert>
             ) : (
               <Grid container spacing={2}>
-                {tareas.slice(0, 12).map((tarea: any) => {
+                {tareasProyecto.slice(0,区间).map((tarea: any, i: number) => {
                   const estadoColor = tarea.estado === 'Completada' ? '#00c853' : tarea.estado === 'En progreso' ? '#ff9100' : 'text.secondary';
                   const iconoEstado = tarea.estado === 'Completada' ? <FiCheckCircle /> : <FiClock />;
                   return (
-                    <Grid item xs={12} md={4} key={tarea.id}>
-                      <Paper variant="outlined" sx={{ p: 2, borderColor: 'divider', borderRadius: 2, height: '100%' }}>
+                    <Grid item xs={12} key={tarea.id}>
+                      <Paper variant="outlined" sx={{ p: 2, borderColor: 'divider', borderRadius: 2 }}>
                         <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
                           <Box sx={{ color: estadoColor }}>{iconoEstado}</Box>
                           <Typography variant="subtitle2" sx={{ fontWeight: 700, flexGrow: 1 }}>{tarea.titulo}</Typography>
+                          <SafeChip label={tarea.estado || 'Pendiente'} size="small" color={tarea.estado === 'Completada' ? 'success' : tarea.estado === 'En progreso' ? 'warning' : 'default'} sx={{ fontWeight: 700 }} />
                         </Stack>
                         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>Vence: {tarea.fecha} • Prioridad: {tarea.prioridad || 'Media'}</Typography>
-                        <SafeChip label={tarea.estado || 'Pendiente'} size="small" color={tarea.estado === 'Completada' ? 'success' : tarea.estado === 'En progreso' ? 'warning' : 'default'} />
+                        <LinearProgress variant="determinate" value={tarea.estado === 'Completada' ? 100 : tarea.estado === 'En progreso' ? 50 : 0} sx={{ height: 6, borderRadius: 3 }} />
                       </Paper>
                     </Grid>
                   );
@@ -405,16 +403,16 @@ export default function ProyectoInterno() {
           <TabPanel value={tab} index={4}>
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>Documentos</Typography>
             <Divider sx={{ mb: 2 }} />
-            {(proyecto as any).recursos?.length > 0 ? (
+            {documentosProyecto.length > 0 ? (
               <Grid container spacing={2}>
-                {(proyecto as any).recursos.map((recurso: any) => (
-                  <Grid item xs={12} md={4} key={recurso.id}>
-                    <Paper variant="outlined" sx={{ p: 2, borderColor: "divider", borderRadius: 2 }}>
+                {documentosProyecto.map((recurso: any) => (
+                  <Grid item xs={12} key={recurso.id}>
+                    <Paper variant="outlined" sx={{ p: 2, borderColor: 'divider', borderRadius: 2 }}>
                       <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
                         <FiFileText color="#E91E63" size={18} />
                         <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{recurso.nombre}</Typography>
                       </Stack>
-                      <Typography variant="caption" color="text.secondary" sx={{ wordBreak: "break-all", display: "block", mb: 1 }}>{recurso.url}</Typography>
+                      <Typography variant="caption" color="text.secondary" sx={{ wordBreak: 'break-all', display: 'block', mb: 1 }}>{recurso.url}</Typography>
                       <Button size="small" variant="contained" startIcon={<FiDownload size={14} />} href={recurso.url} target="_blank">Descargar</Button>
                     </Paper>
                   </Grid>
@@ -427,25 +425,26 @@ export default function ProyectoInterno() {
 
           <TabPanel value={tab} index={5}>
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>Facturación</Typography>
-            <Divider sx={{ mb: 3 }} />
+            <Divider sx={{ mb: 2 }} />
             <Grid container spacing={2} sx={{ mb: 2 }}>
               <Grid item xs={6} md={3}><Paper sx={{ p: 2, textAlign: "center", border: "1px solid", borderColor: "divider", borderRadius: 2 }}><Typography variant="caption" color="text.secondary">Presupuesto</Typography><Typography variant="h6" sx={{ fontWeight: 800, color: "text.primary" }}>${presupuesto.toLocaleString()}</Typography></Paper></Grid>
               <Grid item xs={6} md={3}><Paper sx={{ p: 2, textAlign: "center", border: "1px solid", borderColor: "divider", borderRadius: 2 }}><Typography variant="caption" color="text.secondary">Pagado</Typography><Typography variant="h6" sx={{ fontWeight: 800, color: "#00c853" }}>${pagado.toLocaleString()}</Typography></Paper></Grid>
               <Grid item xs={6} md={3}><Paper sx={{ p: 2, textAlign: "center", border: "1px solid", borderColor: "divider", borderRadius: 2 }}><Typography variant="caption" color="text.secondary">Saldo</Typography><Typography variant="h6" sx={{ fontWeight: 800, color: saldo > 0 ? "#ff9100" : "#00c853" }}>${saldo.toLocaleString()}</Typography></Paper></Grid>
-              <Grid item xs={6} md={3}><Paper sx={{ p: 2, textAlign: "center", border: "1px solid", borderColor: "divider", borderRadius: 2 }}><Typography variant="caption" color="text.secondary">Estado</Typography><SafeChip label={facturacion.estado || "pendiente"} size="small" sx={{ mt: 1 }} /></Paper></Grid>
+              <Grid item xs={6} md={3}><Paper sx={{ p: 2, textAlign: "center", border: "1px solid", borderColor: "divider", borderRadius: 2 }}><Typography variant="caption" color="text.secondary">Estado</Typography><SafeChip label={(facturacionProyecto as any)?.estado || "pendiente"} size="small" sx={{ mt: 1 }} /></Paper></Grid>
             </Grid>
-            {facturacion.cuotas?.length > 0 ? (
+            {(facturacionProyecto as any)?.cuotas?.length > 0 ? (
               <Grid container spacing={2}>
-                {facturacion.cuotas.map((cuota: any, idx: number) => (
-                  <Grid item xs={12} md={4} key={idx}>
+                {(facturacionProyecto as any).cuotas.map((cuota: any, idx: number) => (
+                  <Grid item xs={12} key={idx}>
                     <Paper variant="outlined" sx={{ p: 2, borderColor: 'divider', borderRadius: 2 }}>
                       <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
                         <FiDollarSign color={cuota.pagada ? '#00c853' : '#ff9100'} size={16} />
                         <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>Cuota {idx + 1}</Typography>
+                        <SafeChip label={cuota.pagada ? 'Pagada' : 'Pendiente'} size="small" color={cuota.pagada ? 'success' : 'warning'} sx={{ fontWeight: 700 }} />
                       </Stack>
                       <Typography variant="body2" sx={{ fontWeight: 800 }}>${Number(cuota.monto || 0).toLocaleString()}</Typography>
                       <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>Vence: {cuota.fecha || '—'}</Typography>
-                      <SafeChip label={cuota.pagada ? 'Pagada' : 'Pendiente'} size="small" color={cuota.pagada ? 'success' : 'warning'} />
+                      <LinearProgress variant="determinate" value={cuota.pagada ? 100 : 0} sx={{ height: 6, borderRadius: 3 }} />
                     </Paper>
                   </Grid>
                 ))}
@@ -457,16 +456,12 @@ export default function ProyectoInterno() {
 
           <TabPanel value={tab} index={6}>
             <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>Contratos</Typography>
-            <Divider sx={{ mb: 3 }} />
-            {(proyecto as any).contrato_url ? (
-              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} flexWrap="wrap">
-                <Button variant="contained" startIcon={<FiEye size={16} />} href={(proyecto as any).contrato_url} target="_blank">Ver Contrato</Button>
-                <Button variant="outlined" startIcon={<FiDownload size={16} />} href={(proyecto as any).contrato_url} target="_blank">Descargar</Button>
-                <Button variant="text" color="secondary" startIcon={<FiSend size={16} />} onClick={handleSendContract}>Enviar por Email</Button>
-              </Stack>
-            ) : (
-              <Alert severity="warning">Sin contrato adjunto. Subilo desde documentos o generalo desde una plantilla.</Alert>
-            )}
+            <Divider sx={{ mb: 2 }} />
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} flexWrap="wrap">
+              <Button variant="contained" startIcon={<FiEye size={16} />} href={(proyecto as any).contrato_url} target="_blank">Ver Contrato</Button>
+              <Button variant="outlined" startIcon={<FiDownload size={16} />} href={(proyecto as any).contrato_url} target="_blank">Descargar</Button>
+              <Button variant="text" color="secondary" startIcon={<FiSend size={16} />} onClick={handleSendContract}>Enviar por Email</Button>
+            </Stack>
           </TabPanel>
         </Paper>
       </Container>
