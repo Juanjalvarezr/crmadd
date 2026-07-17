@@ -86,6 +86,7 @@ export function meta() {
 
 export default function Proyectos() {
   const { showNotification } = useNotificationStore();
+  const navigate = useNavigate();
   const [proyectos, setProyectos] = useState<Proyecto[]>([]);
   const [clientes, setClientes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
