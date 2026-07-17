@@ -59,6 +59,7 @@ import { ProyectoComentarios } from "../components/ProyectoComentarios";
 import { ProyectoAdjuntos } from "../components/ProyectoAdjuntos";
 import { ProyectoDocuments } from "../components/ProyectoDocuments";
 import ExpandableCard from "../components/ExpandableCard";
+import EntityDetailPanel from "../components/EntityDetailPanel";
 import type { Proyecto, TareaProyecto, RecursoProyecto, PlanItem } from "../types/crm";
 import { aiService } from "../services/ai";
 import { useNotificationStore } from "../store/useNotificationStore";
@@ -1149,10 +1150,13 @@ export default function Proyectos() {
                         <Share2 size={18} />
                       </IconButton>
                     </Tooltip>
-                    <Tooltip title="Ver detalles">
-                      <IconButton size="small" onClick={(e) => { e.stopPropagation(); navigate(`/proyecto/${proyecto.id}`); }}>
+                    <Tooltip title="Abrir proyecto">
+                      <IconButton size="small" onClick={(e) => { e.stopPropagation(); setSelectedProyecto(proyecto); }}>
                         <Eye size={18} />
                       </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Ir al proyecto">
+                      <Button size="small" variant="contained" sx={{ ml: 0.5 }} onClick={(e) => { e.stopPropagation(); navigate(`/proyecto/${proyecto.id}`); }}>Abrir</Button>
                     </Tooltip>
                     <Tooltip title="Editar">
                       <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleOpenProyectoModal(proyecto); }}>
@@ -1187,7 +1191,7 @@ export default function Proyectos() {
                     </Tooltip>
                   </Box>
                 }
-                onClick={() => navigate(`/proyecto/${proyecto.id}`)}
+                onClick={() => setSelectedProyecto(proyecto)}
               >
                 <Box sx={{ mb: 1.5 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
@@ -1252,6 +1256,29 @@ export default function Proyectos() {
           ))}
         </Grid>
       )}
+
+      {/* Panel unificado de detalle por proyecto */}
+      <EntityDetailPanel
+        open={!!selectedProyecto}
+        title={selectedProyecto?.nombre || "Proyecto"}
+        subtitle={selectedProyecto?.descripcion ? `${selectedProyecto.descripcion.slice(0, 140)}${selectedProyecto.descripcion.length > 140 ? "…" : ""}` : undefined}
+        onClose={() => setSelectedProyecto(null)}
+        fields={[
+          { label: "Cliente", value: selectedProyecto?.clienteNombre || "—" },
+          { label: "Estado", value: selectedProyecto?.estado ? getEstadoLabel(selectedProyecto.estado) : "—", accent: true },
+          { label: "Progreso", value: `${selectedProyecto?.progreso ?? 0}%` },
+          { label: "Presupuesto", value: formatCOP(selectedProyecto?.presupuesto || 0) },
+          { label: "Inicio", value: selectedProyecto?.fechaInicio ? format(new Date(selectedProyecto.fechaInicio), "dd/MM/yyyy") : "—" },
+          { label: "Fin", value: selectedProyecto?.fechaFin ? format(new Date(selectedProyecto.fechaFin), "dd/MM/yyyy") : "—" },
+        ]}
+        actions={
+          <Stack direction="row" spacing={2} flexWrap="wrap">
+            <Button variant="contained" onClick={() => selectedProyecto && navigate(`/proyecto/${selectedProyecto.id}`)}>Abrir proyecto</Button>
+            <Button variant="outlined" onClick={() => selectedProyecto && handleGenerateMagicLink(selectedProyecto)}>Magic link</Button>
+            <Button variant="text" color="secondary" onClick={() => { setSelectedProyecto(null); handleCloseProyectoModal(); }}>Cerrar</Button>
+          </Stack>
+        }
+      />
 
       {/* Modal para crear/editar proyecto */}
       <Dialog open={openProyectoModal} onClose={handleCloseProyectoModal} maxWidth="md" fullWidth>
