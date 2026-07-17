@@ -121,12 +121,12 @@ export default function Dashboard() {
   };
   const proyectosActivos = (data.proyectos || [])
     .filter((p: any) => p.estado === "en_progreso" || p.estado === "planificacion")
-    .slice(0, 6);
+    .slice(0, 8);
 
   const proximasTareas = (data.tareas || [])
     .filter((t: any) => t.estado !== "Completada" && t.estado !== "Cancelada")
     .sort((a: any, b: any) => (a.fecha || "").localeCompare(b.fecha || ""))
-    .slice(0, 5);
+    .slice(0, 8);
 
   const formatCOP = (value: number) =>
     new Intl.NumberFormat("es-CO", {
