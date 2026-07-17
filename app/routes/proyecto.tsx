@@ -344,16 +344,34 @@ export default function ProyectoInterno() {
           </TabPanel>
 
           <TabPanel value={tab} index={2}>
-            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>Calendario del Proyecto</Typography>
-            <Divider sx={{ mb: 3 }} />
-            {proyecto ? (
+            <Typography variant="h6" sx={{ fontWeight: 700, mb: 2 }}>Cronograma</Typography>
+            <Divider sx={{ mb: 2 }} />
+            {(proyecto as any).cronograma?.length > 0 ? (
               <Grid container spacing={2}>
-                <Grid item xs={12} md={4}><Paper sx={{ p: 3, textAlign: "center" }}><Typography variant="caption" color="text.secondary">Inicio</Typography><Typography variant="h5" sx={{ fontWeight: 800, color: "primary.main" }}>{proyecto.fechaInicio || '—'}</Typography></Paper></Grid>
-                <Grid item xs={12} md={4}><Paper sx={{ p: 3, textAlign: "center" }}><Typography variant="caption" color="text.secondary">Entrega</Typography><Typography variant="h5" sx={{ fontWeight: 800, color: "secondary.main" }}>{proyecto.fechaFin || '—'}</Typography></Paper></Grid>
-                <Grid item xs={12} md={4}><Paper sx={{ p: 3, textAlign: "center" }}><Typography variant="caption" color="text.secondary">Fase</Typography><SafeChip label={getFaseLabel(proyecto.faseAdministrativa)} color="primary" sx={{ mt: 1 }} /></Paper></Grid>
+                {(proyecto as any).cronograma.map((hito: any, idx: number) => (
+                  <Grid item xs={12} md={4} key={idx}>
+                    <Paper variant="outlined" sx={{ p: 2, borderColor: 'divider', borderRadius: 2, height: '100%' }}>
+                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>{hito.fecha || 'Sin fecha'}</Typography>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{hito.titulo || `Hito ${idx + 1}`}</Typography>
+                      <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>{hito.descripcion || ''}</Typography>
+                      <SafeChip label={hito.estado || 'Pendiente'} size="small" color={hito.estado === 'Completado' ? 'success' : hito.estado === 'En progreso' ? 'warning' : 'default'} sx={{ mt: 1 }} />
+                    </Paper>
+                  </Grid>
+                ))}
               </Grid>
             ) : (
-              <Alert severity="info">Selecciona un proyecto para ver su calendario.</Alert>
+              <Stack spacing={2}>
+                <Alert severity="info">Sin cronograma definido. Generalo automáticamente con IA.</Alert>
+                <Button variant="contained" startIcon={<FiCpu size={16} />} onClick={async () => {
+                  try {
+                    const datos = await aiService.generarCronogramaProyecto(String(proyecto.id));
+                    setProyecto((prev: any) => ({ ...prev, cronograma: Array.isArray(datos) ? datos : [] }));
+                    showNotification && showNotification('Cronograma generado con IA', 'success');
+                  } catch (e) {
+                    console.error('Error generando cronograma:', e);
+                  }
+                }}>Generar cronograma con IA</Button>
+              </Stack>
             )}
           </TabPanel>
 
