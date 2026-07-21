@@ -9,7 +9,7 @@ import {
 import {
   FiBriefcase, FiCheckCircle, FiClock, FiLayers,
   FiCalendar, FiMail, FiSend, FiFileText, FiDownload, FiEdit2,
-  FiShare2, FiEye, FiDollarSign, FiZap, FiUser, FiCpu, FiActivity, FiShield, FiPlay
+  FiShare2, FiEye, FiDollarSign, FiFileText, FiZap, FiUser, FiCpu, FiActivity, FiShield, FiPlay
 } from "react-icons/fi";
 import { proyectosService, tareasService, emailService } from "../services/database";
 import { facturasService, contratosService } from "../services/facturacion";
@@ -162,6 +162,19 @@ export default function ProyectoInterno() {
         <Alert severity="warning" sx={{ p: 3, maxWidth: 'sm', width: '100%' }}>
           <Typography variant="h6" sx={{ mb: 1, fontWeight: "bold" }}>Proyecto vacío</Typography>
           <Typography variant="body2" color="text.secondary">Se cargó la ruta, pero el proyecto viene sin datos completos.</Typography>
+          <Typography variant="caption" sx={{ mt: 1, display: 'block', wordBreak: 'break-all' }}>id: {idLimpio}</Typography>
+        </Alert>
+      </Box>
+    );
+  }
+
+  // Fallback final: si llegamos aquí, el proyecto debería existir
+  if (!proyecto?.nombre) {
+    return (
+      <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", minHeight: "60vh", p: 3 }}>
+        <Alert severity="info" sx={{ p: 3, maxWidth: 'sm', width: '100%' }}>
+          <Typography variant="h6" sx={{ mb: 1, fontWeight: "bold" }}>Proyecto incompleto</Typography>
+          <Typography variant="body2" color="text.secondary">El proyecto cargó pero falta el nombre. Revisa los datos en Supabase.</Typography>
           <Typography variant="caption" sx={{ mt: 1, display: 'block', wordBreak: 'break-all' }}>id: {idLimpio}</Typography>
         </Alert>
       </Box>
