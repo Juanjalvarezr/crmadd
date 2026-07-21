@@ -31,8 +31,8 @@ import {
   credencialesService as baseCredencialesService,
 } from './supabase';
 
-const TIMEOUT_MS = 65000;
-const CACHE_BUST = 'v7-66s-dashboard-visible-2026-07-13-rebuild-force';
+const TIMEOUT_MS = 120000;
+const CACHE_BUST = 'v7-66s-dashboard-visible-2026-07-21-rebuild-force';
 
 const withTimeout = async <T>(promise: Promise<T>, label = 'operación', ms = TIMEOUT_MS): Promise<T> => {
   const start = Date.now();
@@ -161,12 +161,12 @@ export const equipoService = {
   delete: (id: number) => withTimeout(baseSubagentesService.delete(id), 'equipoService.delete'),
 };
 
-// DEPRECATED: sin uso en rutas actuales. Eliminar o integrar en UI.
+// Registro de interacciones con clientes — disponible para historial de cliente
 export const interaccionesService = {
   create: (interaccion: any) => withTimeout(baseInteraccionesService.create(interaccion), 'interaccionesService.create'),
 };
 
-// DEPRECATED: sin uso en rutas actuales. Eliminar o integrar en UI.
+// Logs de actividad del sistema — disponible para auditoría
 export const logsService = {
   create: (log: any) => {
     baseLogsService.create(log).catch(() => {});
@@ -254,10 +254,10 @@ export const authService = {
   signOut: () => withTimeout(baseAuthService.signOut(), 'authService.signOut'),
 };
 
-// DEPRECATED: sin uso en rutas actuales. Eliminar o integrar en UI.
+// Transacciones financieras — consumido por routes/finanzas.tsx
 export const transaccionesService = {
   getAll: () => withTimeout((async () => {
-    const { data, error } = await supabase.from('transacciones').select('id, monto, tipo, categoria, fecha, proyecto_id, factura_id, created_at').order('created_at', { ascending: false });
+    const { data, error } = await supabase.from('transacciones').select('id, monto, tipo, categoria, fecha, descripcion, created_at').order('created_at', { ascending: false });
     if (error) throw new Error(error.message);
     return data || [];
   })(), 'transaccionesService.getAll').catch(() => []),
@@ -329,7 +329,7 @@ export const emailMarketingService = {
   },
 };
 
-// DEPRECATED: sin uso en rutas actuales. Eliminar o integrar en UI.
+// Notificaciones del sistema — se conectará al Header para mostrar badge con count real
 export const notificacionesService = {
   getAll: () => withTimeout((async () => {
     const { data, error } = await supabase.from('notificaciones').select('id, leida, tipo, titulo, mensaje, created_at').order('created_at', { ascending: false });

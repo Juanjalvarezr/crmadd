@@ -7,7 +7,7 @@ import {
   Checkbox, FormControlLabel, Collapse, List, ListItem, ListItemText, ListItemIcon, Tooltip, Tabs, Tab, Divider, Accordion
 } from "@mui/material";
 import { FiPlus, FiEdit, FiTrash2, FiCheck, FiSearch, FiCalendar, FiX, FiRefreshCw, FiCheckSquare, FiTarget, FiPlay, FiPause, FiFlag, FiPaperclip, FiMessageSquare, FiBell, FiCpu } from "react-icons/fi";
-import { tareasService, clientesService, equipoService, emailService } from "../services/database";
+import { tareasService, clientesService, equipoService, proyectosService } from "../services/database";
 import { useNotificationStore } from "../store/useNotificationStore";
 import { format, startOfDay, isBefore } from "date-fns";
 import { EmptyState } from "../components/EmptyState";
@@ -79,6 +79,8 @@ export default function Tareas() {
   const [responsableFilter, setResponsableFilter] = useState("all");
   const [clienteFilter, setClienteFilter] = useState("all");
   const [soloVencidas, setSoloVencidas] = useState(false);
+  const [proyectoFilter, setProyectoFilter] = useState("all");
+  const [proyectos, setProyectos] = useState<any[]>([]);
 
   const [openModal, setOpenModal] = useState(false);
   const [editingTarea, setEditingTarea] = useState<Tarea | null>(null);
@@ -116,14 +118,16 @@ export default function Tareas() {
     try {
       setLoading(true);
       setError(null);
-      const [data, cliData, eqData] = await Promise.all([
+      const [data, cliData, eqData, proyData] = await Promise.all([
         tareasService.getAll(),
         clientesService.getAll(),
-        equipoService.getAll()
+        equipoService.getAll(),
+        proyectosService.getAll()
       ]);
       setTareas(data as Tarea[]);
       setClientes(cliData);
       setEquipo(eqData);
+      setProyectos(proyData);
     } catch (err: any) {
       setError("Error al cargar tareas: " + err.message);
     } finally {
@@ -140,8 +144,9 @@ export default function Tareas() {
     const matchEstado = estadoFilter === "all" || t.estado === estadoFilter;
     const matchResponsable = responsableFilter === "all" || t.responsable_id === Number(responsableFilter);
     const matchCliente = clienteFilter === "all" || t.cliente_id === Number(clienteFilter);
+    const matchProyecto = proyectoFilter === "all" || String(t.proyecto_id) === String(proyectoFilter);
     const matchVencida = !soloVencidas || isBefore(new Date(t.fecha), today);
-    return matchSearch && matchPrioridad && matchEstado && matchResponsable && matchCliente && matchVencida;
+    return matchSearch && matchPrioridad && matchEstado && matchResponsable && matchCliente && matchProyecto && matchVencida;
   });
 
   const today = startOfDay(new Date());

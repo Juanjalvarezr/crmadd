@@ -1,18 +1,23 @@
 import { Outlet, useNavigate, useLocation } from "react-router";
 import { useState, useEffect } from 'react';
 import { RouteSkeleton } from '../components/RouteGuard';
-import { Box, Typography, Paper, Button, TextField, Select, MenuItem, FormControl, InputLabel, Dialog, DialogTitle, DialogContent, DialogActions, Chip, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Tooltip, Snackbar, Alert, Fade, Accordion, AccordionSummary, AccordionDetails, Divider, List, ListItem, ListItemText, Switch, FormControlLabel } from "@mui/material";
+import { Box, Typography, Paper, Button, TextField, Select, MenuItem, FormControl, InputLabel, Dialog, DialogTitle, DialogContent, DialogActions, Chip, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, IconButton, Tooltip, Snackbar, Alert, Fade, Accordion, AccordionSummary, AccordionDetails, Divider, List, ListItem, ListItemText, Switch, FormControlLabel, CircularProgress } from "@mui/material";
 import { FiPlus, FiEye, FiEdit, FiTrash2, FiFileText, FiMessageSquare, FiMail, FiFilter, FiShoppingCart, FiShield, FiGitBranch, FiList, FiAlertTriangle, FiCopy, FiCpu } from "react-icons/fi";
 import { contratosService, contratoVersionesService, contratoClausulasService } from "../services/facturacion";
 import { facturasService } from "../services/facturacion";
 import { clientesService, proyectosService } from "../services/database";
+import { authService } from "../services/supabase";
 import { generarContratoPDF } from "../services/pdf";
 import { uploadPDFToStorage } from "../services/storage";
 import ScannerTarjetas from "../components/ScannerTarjetas";
 import type { Contrato, ContratoVersion, ContratoClausula } from "../types/crm";
+import { useNotificationStore } from "../store/useNotificationStore";
 import SafeChip from "../components/SafeChip";
 import GenerarDocumentoButton from "../components/GenerarDocumentoButton";
 import { openAiRoute } from "../components/FloatingAIAssistant";
+import { webhookService } from "../services/webhook";
+
+const { showNotification } = useNotificationStore();
 
 const TIPOS_CONTRATO = [
   { value: "prestacion_servicios", label: "Prestación de servicios" },
@@ -30,6 +35,37 @@ const ESTADOS_CONTRATO = [
 ];
 
 export default function Contratos() {
+  const [authorized, setAuthorized] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const role = await authService.getUserRole().catch(() => null);
+        if (!cancelled) setAuthorized(!!role && ["Admin", "Owner"].includes(role));
+      } catch {
+        if (!cancelled) setAuthorized(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  if (authorized === null) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (!authorized) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh", p: 3 }}>
+        <Alert severity="warning">No tienes permisos para acceder a Contratos.</Alert>
+      </Box>
+    );
+  }
+
   const [items, setItems] = useState<Contrato[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
@@ -62,10 +98,10 @@ export default function Contratos() {
     setLoading(true);
     try {
       const [data, clientesData, proyectosData, facturasData, clausulas] = await Promise.all([
-        contratosService.getAll(),
-        clientesService.getAll(),
-        proyectosService.getAll(),
-        facturasService.getAll(),
+        getCachedContracts(),
+        getCachedClients(),
+        getCachedProjects(),
+        getCachedInvoices(),
         contratoClausulasService.getAll(),
       ]);
       setItems(data);
@@ -161,6 +197,7 @@ export default function Contratos() {
         data.version = (editItem.version || 1) + 1;
         guardado = await contratosService.update(editItem.id, data);
         setSuccess('Contrato actualizado y versión registrada');
+        webhookService.registrarEvento({ direccion: 'salida', fuente: 'crm', tipo_evento: 'contrato_actualizado', datos: { id: guardado.id, proyecto_id: guardado.proyecto_id, estado: guardado.estado }, estado: 'ok', proyecto_id: guardado.proyecto_id }).catch(() => {});
       } else {
         data.version = 1;
         guardado = await contratosService.create(data);
@@ -179,6 +216,7 @@ export default function Contratos() {
           await contratosService.update(guardado.id, { numero: num });
         }
         setSuccess('Contrato creado');
+        webhookService.registrarEvento({ direccion: 'salida', fuente: 'crm', tipo_evento: 'contrato_creado', datos: { id: guardado.id, proyecto_id: guardado.proyecto_id, estado: guardado.estado }, estado: 'ok', proyecto_id: guardado.proyecto_id }).catch(() => {});
       }
       setOpen(false);
       setEditItem(null);

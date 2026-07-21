@@ -1,55 +1,21 @@
-import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router";
 import { 
   Box, Typography, Container, Paper, Grid, LinearProgress, 
-  Chip, Card, CardContent, CircularProgress, Alert, Stack, 
+  Card, CardContent, CircularProgress, Stack, 
   Divider, Button, List, ListItem, ListItemIcon, ListItemText,
   ThemeProvider, createTheme, CssBaseline
 } from "@mui/material";
 import { 
   FiBriefcase, FiCheckCircle, FiClock, FiLayers, FiLink, 
-  FiCalendar, FiPlay, FiSmartphone, FiTrendingUp, FiActivity, FiStar 
+  FiSmartphone, FiActivity 
 } from "react-icons/fi";
 import { proyectosService } from "../services/database";
 import type { Proyecto } from "../types/crm";
 import SafeChip from "../components/SafeChip";
+import { getFaseColor, getFaseLabel, getEstadoLabel } from "../utils/proyectoHelpers";
 
-// Colores de fase administrativa
-const getFaseColor = (fase: string) => {
-  const colors: Record<string, string> = {
-    propuesta: "#00b0ff",
-    contrato: "#9c27b0",
-    onboarding: "#ff9100",
-    operacion: "#00c853",
-    capacitacion: "#00e5ff",
-    renovacion: "#e91e63",
-  };
-  return colors[fase] || "#9e9e9e";
-};
 
-// Traducciones legibles
-const getFaseLabel = (fase: string) => {
-  const labels: Record<string, string> = {
-    propuesta: "Propuesta Comercial",
-    contrato: "Contrato Firmado",
-    onboarding: "Onboarding y Setup",
-    operacion: "Operación Activa",
-    capacitacion: "Capacitación",
-    renovacion: "Renovación Mensual",
-  };
-  return labels[fase] || fase;
-};
-
-const getEstadoLabel = (estado: string) => {
-  const labels: Record<string, string> = {
-    planificacion: "En Planificación",
-    en_progreso: "En Progreso Activo",
-    pausado: "En Pausa Temporal",
-    completado: "Completado Exitosamente",
-    cancelado: "Cancelado",
-  };
-  return labels[estado] || estado;
-};
 
 export default function PublicProyecto() {
   const { id } = useParams<{ id: string }>();
@@ -98,11 +64,18 @@ export default function PublicProyecto() {
       try {
         setLoading(true);
         setError(null);
-        const data = await proyectosService.getById(id);
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get('token') || '';
+        const data = await proyectosService.validatePublicAccess(id, token);
+        if (!data) {
+          setError('Enlace inválido o expirado. Confirma el acceso con tu asesor estratégico.');
+          setProyecto(null);
+          return;
+        }
         setProyecto(data as any);
       } catch (err: any) {
-        console.error("Error al cargar proyecto público:", err);
-        setError("No pudimos validar el Magic Link de este proyecto. Confirma el enlace con tu asesor estratégico.");
+        console.error('Error al cargar proyecto público:', err);
+        setError('No pudimos validar el Magic Link de este proyecto. Confirma el enlace con tu asesor estratégico.');
       } finally {
         setLoading(false);
       }

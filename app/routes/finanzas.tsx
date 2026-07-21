@@ -14,6 +14,7 @@ import {
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { transaccionesService } from "../services/database";
+import { authService } from "../services/supabase";
 import type { Transaccion } from "../types/crm";
 import SafeChip from "../components/SafeChip";
 
@@ -36,6 +37,37 @@ type TipoFiltro = "todos" | "ingreso" | "egreso";
 type CategoriaFiltro = "todas" | "nomina" | "suscripcion" | "servicio" | "otro";
 
 export default function Finanzas() {
+  const [authorized, setAuthorized] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const role = await authService.getUserRole().catch(() => null);
+        if (!cancelled) setAuthorized(!!role && ['Admin', 'Owner'].includes(role));
+      } catch {
+        if (!cancelled) setAuthorized(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  if (authorized === null) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (!authorized) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh', p: 3 }}>
+        <Alert severity="warning">No tienes permisos para acceder a Finanzas.</Alert>
+      </Box>
+    );
+  }
+
   const theme = useTheme();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -59,7 +91,7 @@ export default function Finanzas() {
     try {
       setLoading(true);
       setError(null);
-      const data = await transaccionesService.getAll();
+      const data = await getCachedTransactions();
       setTransacciones(data || []);
     } catch (err: any) {
       setError(err?.message || "Error cargando finanzas");

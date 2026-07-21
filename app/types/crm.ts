@@ -116,6 +116,9 @@ export interface Proyecto {
   descripcion: string;
   clienteId: number;
   clienteNombre: string;
+  clienteEmail?: string;      // campo mapeado desde DB (cliente_email)
+  clienteTelefono?: string;   // campo mapeado desde DB (cliente_telefono)
+  codigo?: string;            // código interno del proyecto
   servicios: string[];
   oportunidadId?: number;
   estado: "planificacion" | "en_progreso" | "pausado" | "completado" | "cancelado";

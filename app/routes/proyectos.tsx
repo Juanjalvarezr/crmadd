@@ -64,6 +64,7 @@ import type { Proyecto, TareaProyecto, RecursoProyecto, PlanItem } from "../type
 import { aiService } from "../services/ai";
 import { useNotificationStore } from "../store/useNotificationStore";
 import SafeChip from "../components/SafeChip";
+import { getEstadoLabel as getSharedEstadoLabel } from "../utils/proyectoHelpers";
 
 // Esquema de validación con Zod
 const proyectoSchema = z.object({
@@ -158,7 +159,7 @@ export default function Proyectos() {
         // Cargar clientes y proyectos reales
         const [clientesData, proyectosData] = await Promise.all([
           clientesService.getAll(),
-          proyectosService.getAll()
+          proyectosService.getAll(),
         ]);
         
         setClientes(clientesData);
@@ -182,17 +183,24 @@ export default function Proyectos() {
   }, []);
 
   // Sistema de Magic Links: Genera una URL pública temporal para el cliente
-  const handleGenerateMagicLink = (proyecto: Proyecto) => {
-    const baseUrl = window.location.origin;
-    // Sugerencia: Asegúrate de crear la ruta /public/proyecto/$id para que el cliente acceda
-    const magicUrl = `${baseUrl}/public/proyecto/${proyecto.id}`;
-    
-    navigator.clipboard.writeText(magicUrl);
-    
-    showNotification(
-      "¡Magic Link copiado! El cliente ahora puede ver su avance sin loguearse. 🚀", 
-      "success"
-    );
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+const handleGenerateMagicLink = async (proyecto: Proyecto) => {
+    try {
+      let token = (proyecto as any).access_token as string | undefined;
+      if (!token) {
+        const generated = await proyectosService.generatePublicAccess?.(proyecto.id);
+        token = generated?.access_token || undefined;
+        if (!token) {
+          showNotification('No se pudo generar el acceso público para este proyecto.', 'error');
+          return;
+        }
+      }
+      const magicUrl = `${baseUrl}/public/proyecto/${proyecto.id}?token=${token}`;
+      await navigator.clipboard.writeText(magicUrl);
+      showNotification('¡Magic Link copiado! El cliente ahora puede ver su avance sin loguearse. 🚀', 'success');
+    } catch (err) {
+      showNotification('No se pudo copiar el enlace. Intenta nuevamente.', 'error');
+    }
   };
 
   // Generar vista previa del email de cierre
@@ -821,11 +829,11 @@ export default function Proyectos() {
     
     switch (activeTab) {
       case "activos":
-        return filtrados.filter(p => p.estado === "planificacion" || p.estado === "en_progreso");
+        return filtrados.filter(p => p.estado === "propuesta" || p.estado === "planificacion" || p.estado === "en_progreso");
       case "completados":
         return filtrados.filter(p => p.estado === "completado");
       case "pausados":
-        return filtrados.filter(p => p.estado === "pausado");
+        return filtrados.filter(p => p.estado === "pausado" || p.estado === "cancelado");
       case "todos":
       default:
         return filtrados;
@@ -869,6 +877,12 @@ export default function Proyectos() {
       renovacion: "#e91e63"
     };
     return colors[estado] || "#666";
+  };
+
+  const getEstadoLabel = (estado?: Proyecto["estado"] | string) => {
+    if (!estado) return "—";
+    if (estado === "renovacion") return "Renovación";
+    return getSharedEstadoLabel(estado);
   };
 
   const getPrioridadColor = (prioridad: Proyecto["prioridad"]) => {
@@ -1108,7 +1122,7 @@ export default function Proyectos() {
                     size="small"
                     color={dias <= 0 ? "error" : "warning"}
                     sx={{ cursor: "pointer" }}
-                    onClick={() => setSelectedProyecto(p)}
+                    onClick={() => navigate(`/proyecto/${p.id}`)}
                   />
                 );
               })}
@@ -1151,7 +1165,7 @@ export default function Proyectos() {
                       </IconButton>
                     </Tooltip>
                     <Tooltip title="Abrir proyecto">
-                      <IconButton size="small" onClick={(e) => { e.stopPropagation(); setSelectedProyecto(proyecto); }}>
+                      <IconButton size="small" onClick={(e) => { e.stopPropagation(); navigate(`/proyecto/${proyecto.id}`); }}>
                         <Eye size={18} />
                       </IconButton>
                     </Tooltip>
@@ -1191,7 +1205,7 @@ export default function Proyectos() {
                     </Tooltip>
                   </Box>
                 }
-                onClick={() => setSelectedProyecto(proyecto)}
+                onClick={() => navigate(`/proyecto/${proyecto.id}`)}
               >
                 <Box sx={{ mb: 1.5 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>

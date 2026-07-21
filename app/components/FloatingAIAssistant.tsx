@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Box, IconButton, Paper, Typography, TextField, Button, Fade, Tooltip, Snackbar, Alert } from '@mui/material';
+import { Box, IconButton, Paper, Typography, TextField, Button, Fade, Tooltip, Snackbar, Alert, CircularProgress } from '@mui/material';
 import { FiX, FiCpu } from 'react-icons/fi';
 import confetti from 'canvas-confetti';
-// Inyectamos la lógica a través de un servicio desacoplado
-import { aiService, ejecutarAccionSincrona } from '../services/ai'; 
+import { aiService, ejecutarAccionSincrona } from '../services/ai';
 import { useChatStore, ProposalSchema } from '../store/useChatStore';
 
 export const openAiRoute = (route: string, entity?: string, label?: string) => {
@@ -15,6 +14,20 @@ export const openAiRoute = (route: string, entity?: string, label?: string) => {
   );
 };
 
+export const openAiProjectContext = (project: any) => {
+  window.dispatchEvent(
+    new CustomEvent('open-assistant', {
+      detail: {
+        route: '/proyecto',
+        entity: 'proyecto',
+        label: project?.nombre || 'Proyecto',
+        proyectoId: project?.id || project?.proyecto_id || null,
+        proyectoNombre: project?.nombre || null,
+      },
+    })
+  );
+};
+
 export const FloatingAIAssistant = () => {
   const {
     isAssistantOpen: isOpen,
@@ -22,9 +35,7 @@ export const FloatingAIAssistant = () => {
     proposalInput,
     setProposalInput,
     proposalResult: resultText,
-    setProposalResult: setResultText,
-    saveProposalAsProject,
-    addTokens
+    setProposalResult: setResultText
   } = useChatStore();
 
   const [mode, setMode] = useState<'chat' | 'proposal'>('chat');
@@ -32,12 +43,18 @@ export const FloatingAIAssistant = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' as 'success' | 'error' });
-  const [aiContext, setAiContext] = useState<{ route?: string; entity?: string; label?: string; brief?: any; cronograma?: any; canales?: any } | null>(null);
+  const [aiContext, setAiContext] = useState<{
+    route?: string;
+    entity?: string;
+    label?: string;
+    proyectoId?: string | null;
+    proyectoNombre?: string | null;
+  } | null>(null);
 
   const [chatMessages, setChatMessages] = useState<{ role: 'user' | 'assistant'; text: string }[]>([
     {
       role: 'assistant',
-      text: 'Hola, soy tu copiloto comercial. Escribí una orden, por ejemplo: “Crear factura para Juan por 100000” o “Crear tarea de seguimiento”.',
+      text: 'Hola, soy el copiloto del CRM. Estoy conectado al proyecto activo. Escribí una orden, por ejemplo: “Generar brief del proyecto”, “Actualizar seguimiento” o “Analizar facturación”.',
     },
   ]);
   const [chatInput, setChatInput] = useState('');
@@ -45,18 +62,23 @@ export const FloatingAIAssistant = () => {
   useEffect(() => { setIsClient(true); }, []);
 
   useEffect(() => {
-    const handler = (e: Event) => {
-      const detail = (e as CustomEvent).detail as { route?: string; entity?: string; label?: string; brief?: any; cronograma?: any; canales?: any } | undefined;
-      setAiContext(detail || null);
+    const handler = (e: any) => {
+      const detail = e?.detail || {};
+      setAiContext({
+        route: detail.route,
+        entity: detail.entity,
+        label: detail.label,
+        proyectoId: detail.proyectoId ?? detail.proyecto?.id ?? null,
+        proyectoNombre: detail.proyectoNombre ?? detail.proyecto?.nombre ?? null,
+      });
       setIsOpen(true);
-      if (detail?.brief) {
-        const briefText = typeof detail.brief === 'string' ? detail.brief : JSON.stringify(detail.brief, null, 2);
-        setChatMessages((m) => [...m, { role: 'assistant', text: `📋 Brief generado:\n\n${briefText}` }]);
-      }
     };
-    const el = document.getElementById('floating-ai-assistant');
-    el?.addEventListener('open-assistant', handler as EventListener);
-    return () => el?.removeEventListener('open-assistant', handler as EventListener);
+    window.addEventListener('open-assistant', handler as any);
+    window.addEventListener('open-ai-chat', handler as any);
+    return () => {
+      window.removeEventListener('open-assistant', handler as any);
+      window.removeEventListener('open-ai-chat', handler as any);
+    };
   }, []);
 
   if (!isClient) return null;
@@ -65,15 +87,9 @@ export const FloatingAIAssistant = () => {
     const text = chatInput.trim();
     if (!text || isLoading) return;
 
-    const contexto = aiContext ? `
-
-CONTEXTO ACTUAL:
-- Ruta: ${aiContext.route || ''}
-- Entidad: ${aiContext.entity || ''}
-- Nombre/Referencia: ${aiContext.label || ''}
-- Brief: ${typeof aiContext.brief === 'string' ? aiContext.brief.slice(0, 800) : !!aiContext.brief ? '(definido)' : '(pendiente)'}
-- Cronograma: ${Array.isArray(aiContext.cronograma) ? `${aiContext.cronograma.length} hitos` : '(pendiente)'}
-- Canales: ${typeof aiContext.canales === 'object' ? Object.keys(aiContext.canales || {}).filter(Boolean).join(', ') || 'sin cargar' : '(pendiente)'}` : '';
+    const contexto = aiContext
+      ? `\nCONTEXTO ACTUAL:\n- Ruta: ${aiContext.route || ''}\n- Entidad: ${aiContext.entity || ''}\n- Nombre/Referencia: ${aiContext.label || ''}\n- Proyecto: ${aiContext.proyectoNombre || aiContext.proyectoId || ''}`
+      : '';
 
     setChatMessages((m) => [...m, { role: 'user', text }]);
     setChatInput('');
@@ -101,16 +117,15 @@ CONTEXTO ACTUAL:
         setSnackbar({ open: true, message: accionError, severity: 'error' });
       }
 
-      setChatMessages((m) => [...m, { role: 'assistant', text: mensajeFinal, context: aiContext }]);
+      setChatMessages((m) => [...m, { role: 'assistant', text: mensajeFinal }]);
     } catch (e: any) {
       const mensaje = `Error: ${e?.message || 'No se pudo ejecutar'}`;
-      setChatMessages((m) => [...m, { role: 'assistant', text: mensaje, context: aiContext }]);
+      setChatMessages((m) => [...m, { role: 'assistant', text: mensaje }]);
       setSnackbar({ open: true, message: mensaje, severity: 'error' });
     } finally {
       setIsLoading(false);
     }
   };
-;
 
   const executeGenerateProposal = async () => {
     const validation = ProposalSchema.safeParse(proposalInput);
@@ -120,329 +135,95 @@ CONTEXTO ACTUAL:
     }
 
     setIsLoading(true);
-    setResultText('');
-
     try {
-      let currentText = '';
-      await aiService.generarPropuesta(proposalInput, (chunk) => {
-        currentText = chunk;
-        setResultText(chunk);
-      });
-
-      const tokens = await aiService.contarTokens(currentText);
-      addTokens(tokens);
-      await saveProposalAsProject();
-
-      confetti({
-        particleCount: 150,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ['#e91e63', '#9c27b0', '#2196f3'],
-      });
-
-      setSnackbar({ open: true, message: '¡Estrategia generada y guardada como proyecto con éxito! 🎉', severity: 'success' });
-    } catch (error: any) {
-      setResultText(`**Error:** ${error.message || 'No se pudo conectar con la IA. Verifica tu API Key en el archivo .env'}`);
-      setSnackbar({ open: true, message: 'Error al procesar la propuesta', severity: 'error' });
+      const resultado = await aiService.generarPropuesta(proposalInput);
+      setResultText(resultado);
+      setSnackbar({ open: true, message: 'Propuesta generada correctamente', severity: 'success' });
+    } catch (e: any) {
+      setSnackbar({ open: true, message: e?.message || 'Error al generar', severity: 'error' });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleCopy = () => {
-    if (typeof resultText !== 'string') return;
-    navigator.clipboard.writeText(resultText);
+  const handleCopy = async (text?: string) => {
+    const copyText = text || resultText || '';
+    if (!copyText) return;
+    await navigator.clipboard.writeText(copyText);
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setTimeout(() => setCopied(false), 1500);
   };
 
   return (
-    <>
-      <Box id="floating-ai-assistant" sx={{ position: 'fixed', bottom: 24, left: 24, zIndex: 9999 }}>
-        <Tooltip title="Asistente IA (Copiloto)" placement="left">
-          <IconButton
-            onClick={() => setIsOpen(true)}
-            sx={{
-              width: 64,
-              height: 64,
-              background: 'linear-gradient(135deg, #e91e63 0%, #9c27b0 100%)',
-              boxShadow: '0 8px 24px rgba(233,30,99,0.45)',
-              color: 'white',
-              '&:hover': {
-                transform: 'scale(1.08)',
-                boxShadow: '0 12px 32px rgba(233,30,99,0.55)',
-                background: 'linear-gradient(135deg, #d81b60 0%, #8e24aa 100%)',
-              },
-              transition: 'all 0.25s cubic-bezier(0.4,0,0.2,1)',
-              backdropFilter: 'blur(8px)',
-            }}
-          >
-            <FiCpu size={26} />
-          </IconButton>
-        </Tooltip>
-      </Box>
-
-      <Fade in={isOpen}>
-        <Paper
-          elevation={24}
-          sx={{
-            position: 'fixed',
-            top: { xs: 0, md: 20 },
-            right: { xs: 0, md: 20 },
-            bottom: { xs: 0, md: 20 },
-            width: { xs: '100%', md: 450 },
-            zIndex: 10000,
-            borderRadius: { xs: 0, md: 3 },
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'hidden',
-            border: '1px solid rgba(233, 30, 99, 0.2)',
-          }}
-        >
-          <Box
-            sx={{
-              p: 2,
-              background: (theme) => theme.palette.mode === 'dark'
-                ? 'linear-gradient(135deg, #ad1457 0%, #7b1fa2 100%)'
-                : 'linear-gradient(135deg, #e91e63, #9c27b0)',
-              color: 'white',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-            }}
-          >
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <FiCpu size={24} />
-              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                Copiloto IA
-              </Typography>
-            </Box>
-            <IconButton onClick={() => setIsOpen(false)} sx={{ color: 'white' }}>
-              <FiX />
-            </IconButton>
-          </Box>
-
-          <Box sx={{ display: 'flex', borderBottom: '1px solid #eee' }}>
-            <Button
-              fullWidth
-              onClick={() => setMode('proposal')}
-              sx={{
-                borderRadius: 0,
-                py: 1.5,
-                borderBottom: mode === 'proposal' ? '3px solid #e91e63' : '3px solid transparent',
-                color: mode === 'proposal' ? '#e91e63' : 'text.secondary',
-                fontWeight: mode === 'proposal' ? 'bold' : 'normal',
-              }}
-            >
-              Generar Propuesta
-            </Button>
-            <Button
-              fullWidth
-              onClick={() => setMode('chat')}
-              sx={{
-                borderRadius: 0,
-                py: 1.5,
-                borderBottom: mode === 'chat' ? '3px solid #e91e63' : '3px solid transparent',
-                color: mode === 'chat' ? '#e91e63' : 'text.secondary',
-                fontWeight: mode === 'chat' ? 'bold' : 'normal',
-              }}
-            >
-              Chat Ejecutable
-            </Button>
-          </Box>
-
-          <Box sx={{ p: 3, flex: 1, overflowY: 'auto', bgcolor: 'background.paper' }}>
-            {mode === 'proposal' && (
-              <>
-                {!resultText && !isLoading ? (
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
-                    <Typography variant="body2" color="text.secondary">
-                      Completá el brief y genero una estrategia comercial estructurada para el cliente.
-                    </Typography>
-                    <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
-                      <TextField
-                        label="Nombre del contacto"
-                        variant="outlined"
-                        size="small"
-                        sx={{ flex: '1 1 45%' }}
-                        value={proposalInput.clienteNombre}
-                        onChange={(e) => setProposalInput({ clienteNombre: e.target.value })}
-                      />
-                      <TextField
-                        label="Empresa"
-                        variant="outlined"
-                        size="small"
-                        sx={{ flex: '1 1 45%' }}
-                        value={proposalInput.clienteEmpresa}
-                        onChange={(e) => setProposalInput({ clienteEmpresa: e.target.value })}
-                      />
-                    </Box>
-                    <TextField
-                      label="Dolor / necesidad principal"
-                      variant="outlined"
-                      size="small"
-                      fullWidth
-                      value={proposalInput.dolorNecesidad}
-                      onChange={(e) => setProposalInput({ dolorNecesidad: e.target.value })}
-                    />
-                    <TextField
-                      label="Presencia digital actual"
-                      variant="outlined"
-                      size="small"
-                      fullWidth
-                      value={proposalInput.presenciaRedes}
-                      onChange={(e) => setProposalInput({ presenciaRedes: e.target.value })}
-                    />
-                    <TextField
-                      label="Objetivos principales"
-                      variant="outlined"
-                      size="small"
-                      fullWidth
-                      value={proposalInput.objetivos}
-                      onChange={(e) => setProposalInput({ objetivos: e.target.value })}
-                    />
-                    <TextField
-                      label="Presupuesto estimado (COP)"
-                      variant="outlined"
-                      size="small"
-                      fullWidth
-                      type="number"
-                      value={proposalInput.presupuestoEstimado ?? ''}
-                      onChange={(e) => setProposalInput({ presupuestoEstimado: e.target.value ? Number(e.target.value) : undefined })}
-                      inputProps={{ inputMode: 'numeric' }}
-                    />
-                    <Button
-                      variant="contained"
-                      fullWidth
-                      size="large"
-                      onClick={executeGenerateProposal}
-                      disabled={!proposalInput.clienteNombre || !proposalInput.clienteEmpresa || !proposalInput.dolorNecesidad || !proposalInput.presenciaRedes || !proposalInput.objetivos}
-                      sx={{
-                        mt: 2,
-                        background: 'linear-gradient(135deg, #2196f3, #00bcd4)',
-                        fontWeight: 'bold',
-                        py: 1.5,
-                      }}
-                      startIcon={<FiCpu />}
-                    >
-                      Generar estrategia
-                    </Button>
-                  </Box>
-                ) : isLoading ? (
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                    <Typography variant="body2">Generando propuesta…</Typography>
-                  </Box>
-                ) : (
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#e91e63' }}>
-                        Propuesta lista
-                      </Typography>
-                      <Box sx={{ display: 'flex', gap: 1 }}>
-                        <Button size="small" variant="outlined" onClick={handleCopy}>
-                          {copied ? 'Copiado' : 'Copiar'}
-                        </Button>
-                        <Button size="small" onClick={() => setResultText('')}>
-                          Nueva
-                        </Button>
-                      </Box>
-                    </Box>
-                    <Paper
-                      elevation={0}
-                      sx={{
-                        p: 2,
-                        bgcolor: 'white',
-                        border: '1px solid #e0e0e0',
-                        borderRadius: 2,
-                        whiteSpace: 'pre-wrap',
-                        fontFamily: 'system-ui, sans-serif',
-                      }}
-                    >
-                      {typeof resultText === 'string' ? resultText : JSON.stringify(resultText, null, 2)}
-                    </Paper>
-                  </Box>
-                )}
-              </>
-            )}
-
-            {mode === 'chat' && (
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, flex: 1, minHeight: 0 }}>
-                <Box
-                  sx={{
-                    flex: 1,
-                    overflowY: 'auto',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 1,
-                  }}
-                >
-                  {chatMessages.length === 0 && (
-                    <Typography variant="body2" color="text.secondary">
-                      Escribí una orden, por ejemplo:
-                      <br />• “Crear factura para Juan por 100000”
-                      <br />• “Enviar WhatsApp al cliente”
-                      <br />• “Crear tarea de seguimiento”
-                    </Typography>
-                  )}
-                  {chatMessages.map((msg, i) => (
-                    <Box
-                      key={i}
-                      sx={{
-                        alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
-                        bgcolor: msg.role === 'user' ? '#e91e63' : 'background.paper',
-                        color: msg.role === 'user' ? '#fff' : 'text.primary',
-                        px: 2,
-                        py: 1,
-                        borderRadius: 2,
-                        border: msg.role === 'assistant' ? '1px solid' : 'none',
-                        borderColor: msg.role === 'assistant' ? 'divider' : 'transparent',
-                        maxWidth: '85%',
-                        whiteSpace: 'pre-wrap',
-                      }}
-                    >
-                      <Typography variant="body2">{msg.text}</Typography>
-                    </Box>
-                  ))}
-                  {isLoading && (
-                    <Box sx={{ alignSelf: 'flex-start', bgcolor: 'background.paper', px: 2, py: 1, borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
-                      <Typography variant="body2">Pensando…</Typography>
-                    </Box>
-                  )}
-                </Box>
-                <Box sx={{ display: 'flex', gap: 1, pt: 1 }}>
-                  <TextField
-                    size="small"
-                    fullWidth
-                    value={chatInput}
-                    onChange={(e) => setChatInput(e.target.value)}
-                    placeholder="Escribí una orden para el CRM..."
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        sendChat();
-                      }
-                    }}
-                  />
-                  <Button variant="contained" onClick={sendChat} disabled={isLoading || !chatInput.trim()}>
-                    Enviar
-                  </Button>
-                </Box>
-              </Box>
-            )}
-          </Box>
-        </Paper>
-      </Fade>
-
-      <Snackbar
-        open={snackbar.open}
-        autoHideDuration={6000}
-        onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+    <Fade in={isOpen}>
+      <Paper
+        id="floating-ai-assistant"
+        sx={{
+          position: 'fixed',
+          bottom: 16,
+          right: 16,
+          width: { xs: '92vw', sm: 420 },
+          maxHeight: '80vh',
+          zIndex: 1600,
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+          border: '1px solid',
+          borderColor: 'divider',
+          bgcolor: 'background.paper',
+        }}
+        elevation={8}
       >
-        <Alert severity={snackbar.severity} variant="filled" sx={{ width: '100%' }}>
-          {snackbar.message}
-        </Alert>
-      </Snackbar>
-    </>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 1.5, borderBottom: '1px solid', borderColor: 'divider' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <FiCpu />
+            <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>Copiloto CRM</Typography>
+            {aiContext?.proyectoNombre && (
+              <Typography variant="caption" color="text.secondary">{aiContext.proyectoNombre}</Typography>
+            )}
+          </Box>
+          <IconButton size="small" onClick={() => setIsOpen(false)}><FiX /></IconButton>
+        </Box>
+
+        <Box sx={{ p: 1.5, overflowY: 'auto', flex: 1 }}>
+          {chatMessages.slice(-12).map((m, idx) => (
+            <Box key={idx} sx={{ mb: 1, textAlign: m.role === 'user' ? 'right' : 'left' }}>
+              <Paper sx={{ p: 1, bgcolor: m.role === 'user' ? 'primary.main' : 'action.hover', color: m.role === 'user' ? 'primary.contrastText' : 'text.primary', display: 'inline-block', maxWidth: '100%', whiteSpace: 'pre-wrap', fontSize: '0.85rem' }}>
+                {m.text}
+              </Paper>
+            </Box>
+          ))}
+          {isLoading && (
+            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+              <CircularProgress size={14} />
+              <Typography variant="caption">Pensando...</Typography>
+            </Box>
+          )}
+        </Box>
+
+        <Box sx={{ p: 1, borderTop: '1px solid', borderColor: 'divider' }}>
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <TextField
+              size="small"
+              fullWidth
+              value={chatInput}
+              onChange={(e) => setChatInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && sendChat()}
+              placeholder="Escribí una orden..."
+            />
+            <Button variant="contained" onClick={sendChat} disabled={isLoading}>Enviar</Button>
+          </Box>
+          <Box sx={{ display: 'flex', gap: 1, mt: 1, flexWrap: 'wrap' }}>
+            <Button size="small" variant="outlined" onClick={() => sendChat()}>Generar brief</Button>
+            <Button size="small" variant="outlined" onClick={() => setMode(mode === 'chat' ? 'proposal' : 'chat')}>Modo propuesta</Button>
+            <Button size="small" variant="text" onClick={() => handleCopy(resultText)}>{copied ? 'Copiado' : 'Copiar'}</Button>
+          </Box>
+        </Box>
+
+        <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={() => setSnackbar({ ...snackbar, open: false })} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
+          <Alert severity={snackbar.severity} onClose={() => setSnackbar({ ...snackbar, open: false })}>{snackbar.message}</Alert>
+        </Snackbar>
+      </Paper>
+    </Fade>
   );
 };

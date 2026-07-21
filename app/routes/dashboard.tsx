@@ -22,6 +22,7 @@ import {
   FiClock,
 } from "react-icons/fi";
 import { proyectosService, clientesService, oportunidadesService, tareasService, transaccionesService } from "../services/database";
+import { getCachedProjects, getCachedClients, getCachedTasks, getCachedTransactions } from "../utils/routeCache";
 import { StatCard } from "../components/StatCard";
 import SafeChip from "../components/SafeChip";
 
@@ -48,10 +49,10 @@ export default function Dashboard() {
 
     try {
       const [proyectos, clientes, tareas, transacciones] = await Promise.all([
-        proyectosService.getAll().catch(() => []),
-        clientesService.getAll().catch(() => []),
-        tareasService.getAll().catch(() => []),
-        transaccionesService.getAll().catch(() => []),
+        getCachedProjects(),
+        getCachedClients(),
+        getCachedTasks(),
+        getCachedTransactions(),
       ]);
 
       // oportunidades se calcula desde proyectos/tareas para evitar 5ta consulta paralela
@@ -157,6 +158,8 @@ export default function Dashboard() {
   const oportunidades = data.oportunidades || [];
   const tareas = data.tareas || [];
   const transacciones = data.transacciones || [];
+
+  const hayDatos = proyectos.length || clientes.length || tareas.length || transacciones.length;
 
   const totalPresupuestado = proyectos.reduce(
     (acc: number, current: any) => acc + (Number(current.presupuesto) || 0),

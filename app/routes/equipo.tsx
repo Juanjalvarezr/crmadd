@@ -4,7 +4,7 @@ import {
   Box, Typography, Paper, Grid, Card, CardContent,
   Avatar, Chip, Button, IconButton, Dialog, DialogTitle,
   DialogContent, DialogActions, TextField, Select, MenuItem,
-  InputLabel, FormControl, Divider
+  InputLabel, FormControl, Divider, Snackbar, Alert
 } from "@mui/material";
 import { FiUserPlus, FiMail, FiEdit2, FiTrash2 } from "react-icons/fi";
 import { equipoService } from '../services/database';
@@ -22,6 +22,7 @@ export default function Equipo() {
     especialidad: "",
     estado: "Activo"
   });
+  const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({ open: false, message: '', severity: 'success' });
 
   const loadEquipo = async () => {
     setLoading(true);
@@ -58,14 +59,16 @@ export default function Equipo() {
     try {
       if (editingId) {
         await equipoService.update(editingId, formData as any);
+        setSnackbar({ open: true, message: "Miembro del equipo actualizado con éxito", severity: "success" });
       } else {
         await equipoService.create(formData as any);
+        setSnackbar({ open: true, message: "Nuevo miembro añadido con éxito", severity: "success" });
       }
       setOpenModal(false);
       loadEquipo();
     } catch (err) {
       console.error("[EQUIPO] guardar:", err);
-      alert("Error guardando miembro");
+      setSnackbar({ open: true, message: "Error guardando miembro del equipo", severity: "error" });
     }
   };
 
@@ -74,9 +77,10 @@ export default function Equipo() {
     try {
       await equipoService.delete(id);
       setMiembros((prev) => prev.filter((m) => m.id !== id));
+      setSnackbar({ open: true, message: "Miembro del equipo eliminado", severity: "success" });
     } catch (err) {
       console.error("[EQUIPO] eliminar:", err);
-      alert("Error eliminando miembro");
+      setSnackbar({ open: true, message: "Error al eliminar miembro", severity: "error" });
     }
   };
 
@@ -202,6 +206,16 @@ export default function Equipo() {
           <Button variant="contained" onClick={handleSave}>Guardar</Button>
         </DialogActions>
       </Dialog>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3500}
+        onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert severity={snackbar.severity} onClose={() => setSnackbar((prev) => ({ ...prev, open: false }))} sx={{ fontWeight: 700 }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

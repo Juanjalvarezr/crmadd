@@ -414,10 +414,13 @@ export const mapClienteToDB = (c: any) => ({
 // Mapeos para Proyectos (Sincronizados con database_fix.sql)
 export const mapDBToProyecto = (p: any) => ({
   id: p.id,
+  codigo: p.codigo || p.id,
   nombre: p.nombre,
   descripcion: p.descripcion,
   clienteId: p.cliente_id,
   clienteNombre: p.cliente_nombre,
+  clienteEmail: p.cliente_email,
+  clienteTelefono: p.cliente_telefono,
   servicios: p.servicios || [],
   oportunidadId: p.oportunidad_id,
   estado: p.estado,
@@ -442,7 +445,11 @@ export const mapDBToProyecto = (p: any) => ({
     items: [],
   },
   creadoEn: p.creado_en,
-  actualizadoEn: p.actualizado_en
+  actualizadoEn: p.actualizado_en,
+  contrato_url: p.contrato_url,
+  facturacion_detalle: p.facturacion_detalle,
+  canales: p.canales,
+  estrategia: p.estrategia,
 });
 
 export const mapProyectoToDB = (p: any) => ({
@@ -610,6 +617,28 @@ export const proyectosService = {
   async updateCronograma(id: string, cronograma: any[]) {
     const { data, error } = await supabase.from('proyectos').update({ cronograma }).eq('id', id).select().single();
     if (error) throw error;
+    return mapDBToProyecto(data);
+  },
+  async generatePublicAccessToken(id: string) {
+    const token = Array.from(crypto.getRandomValues(new Uint8Array(32))).map(b => b.toString(16).padStart(2, '0')).join('');
+    const { data, error } = await supabase
+      .from('proyectos')
+      .update({ access_token: token, access_token_expires_at: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString() })
+      .eq('id', id)
+      .select('access_token, access_token_expires_at')
+      .single();
+    if (error) throw error;
+    return data;
+  },
+  async validatePublicAccess(id: string, token: string) {
+    const { data, error } = await supabase
+      .from('proyectos')
+      .select('*')
+      .eq('id', id)
+      .eq('access_token', token)
+      .gt('access_token_expires_at', new Date().toISOString())
+      .single();
+    if (error || !data) return null;
     return mapDBToProyecto(data);
   }
 };

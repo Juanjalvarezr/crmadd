@@ -3,16 +3,11 @@ import { Box, Typography, Paper, Button, Stack } from "@mui/material";
 import { FiFolder, FiPlus, FiPlay, FiPause, FiCheckCircle, FiX } from "react-icons/fi";
 import SafeChip from "../components/SafeChip";
 import { proyectosService } from "../services/database";
+import type { Proyecto } from "../types/crm";
 
 
-type Estado = "planificacion" | "en_progreso" | "pausado" | "completado" | "cancelado";
+type Estado = Proyecto["estado"];
 
-interface Proyecto {
-  id: string;
-  nombre: string;
-  estado: Estado;
-  cliente?: string;
-}
 
 const columnas: { key: Estado; label: string; color: string }[] = [
   { key: "planificacion", label: "Por hacer", color: "#9e9e9e" },

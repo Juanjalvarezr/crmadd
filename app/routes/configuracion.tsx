@@ -14,6 +14,7 @@ import {
   FiPackage, FiPlus, FiList
 } from "react-icons/fi";
 import { configuracionService, reglasAIService, conocimientoService, promptsAIService, supabase, testConnection } from "../services/database";
+import { authService } from "../services/supabase";
 import { useNotificationStore } from "../store/useNotificationStore";
 import { EmpresaTab } from "../services/EmpresaTab";
 import { CerebroAITab } from "../services/CerebroAITab";
@@ -61,6 +62,37 @@ export function meta() {
 }
 
 export default function Configuracion() {
+  const [authorized, setAuthorized] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const role = await authService.getUserRole().catch(() => null);
+        if (!cancelled) setAuthorized(!!role && ['Admin', 'Owner'].includes(role));
+      } catch {
+        if (!cancelled) setAuthorized(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  if (authorized === null) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (!authorized) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh', p: 3 }}>
+        <Alert severity="warning">No tienes permisos para acceder a Configuración.</Alert>
+      </Box>
+    );
+  }
+
   // Estados principales
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("empresa"); // Mantener activeTab local
@@ -343,10 +375,10 @@ export default function Configuracion() {
     setLoading(true);
     try {
       const [clientes, proyectos, facturas, contratos] = await Promise.all([
-        clientesService.getAll(),
-        proyectosService.getAll(),
-        facturasService.getAll(),
-        (await import('../services/database')).contratosService.getAll(),
+        getCachedClients(),
+        getCachedProjects(),
+        getCachedInvoices(),
+        (await import('../services/facturacion')).contratosService.getAll(),
       ]);
 
       const backupData = {

@@ -25,6 +25,7 @@ const menuItems = [
   { label: "Calendario", icon: FiCalendar, path: "/calendario", notifications: 0, color: "#ff9800" },
   { label: "WhatsApp", icon: FiMessageSquare, path: "/whatsapp", notifications: 0, color: "#25D366" },
   { label: "Reportes", icon: FiBarChart, path: "/reportes", notifications: 0, color: "#607d8b" },
+  { label: "Finanzas", icon: FiDollarSign, path: "/finanzas", notifications: 0, color: "#43a047" },
   { label: "Facturación", icon: FiFileText, path: "/facturacion", notifications: 0, color: "#ff5722" },
   { label: "Contratos", icon: FiFileText, path: "/contratos", notifications: 0, color: "#795548" },
   { label: "Configuración", icon: FiSettings, path: "/configuracion", notifications: 0, color: "#9e9e9e" },
@@ -83,22 +84,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const handleQuickAction = (action: string) => {
     switch (action) {
       case 'export':
-        alert('Exportando datos a CSV...');
+        // TODO: implementar exportación CSV real
+        console.info('[CRM] Exportación CSV — funcionalidad pendiente de implementar');
         break;
       case 'import':
-        alert('Importando datos desde CSV...');
+        // TODO: implementar importación CSV real
+        console.info('[CRM] Importación CSV — funcionalidad pendiente de implementar');
         break;
       case 'calendar':
-        alert('Abriendo calendario...');
+        navigate('/calendario');
         break;
       case 'reports':
-        alert('Generando reportes...');
+        navigate('/reportes');
         break;
       case 'sales':
-        alert('Viendo panel de ventas...');
+        navigate('/ventas');
         break;
       case 'goals':
-        alert('Configurando metas...');
+        navigate('/configuracion');
         break;
       default:
         console.log('Acción no reconocida:', action);

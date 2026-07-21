@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import {
-  Box, Typography, Paper, Chip, Stack, Alert, Button, Divider, Tabs, Tab
+  Box, Typography, Paper, Chip, Stack, Alert, Button, Divider, Tabs, Tab,
+  Avatar
 } from "@mui/material";
 import {
   FiArrowLeft, FiUser, FiMail, FiPhone, FiMapPin, FiCalendar, FiFileText,
@@ -10,9 +11,11 @@ import {
 import {
   clientesService, proyectosService, tareasService
 } from "../services/database";
+import { facturasService, contratosService } from "../services/facturacion";
 import EntityDetailPanel from "../components/EntityDetailPanel";
 import { formatCOP } from "../data/serviciosData";
 import GenerarDocumentoButton from "../components/GenerarDocumentoButton";
+import SafeChip from "../components/SafeChip";
 
 interface ClienteDetalle {
   id: string;
@@ -46,8 +49,10 @@ export default function Cliente360() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    let cancelled = false;
     (async () => {
       try {
+        setLoading(true);
         const [cls, proys, facs, conts, tasks] = await Promise.all([
           clientesService.getAll(),
           proyectosService.getAll(),
@@ -63,8 +68,9 @@ export default function Cliente360() {
         setContratos((conts as any[]).filter((c: any) => String(c.cliente_id) === String(id)));
         setTareas((tasks as any[]).filter((t: any) => String(t.cliente_id) === String(id)));
       } catch (e: any) { setError(e?.message || "Error"); }
-      finally { setLoading(false); }
+      finally { if (!cancelled) setLoading(false); }
     })();
+    return () => { cancelled = true; };
   }, [id]);
 
   if (loading) return <Box sx={{ p: 4 }}><Typography>Cargando vista 360…</Typography></Box>;

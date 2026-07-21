@@ -1,5 +1,6 @@
 import { Outlet, useNavigate, useLocation } from "react-router";
 import React, { useState, useEffect } from "react";
+import { useTheme } from "@mui/material/styles";
 import type { Route } from "./+types/reportes";
 import Grid from "@mui/material/Grid";
 import { 
@@ -49,6 +50,7 @@ export function meta() { // Corregido: estaba como string en algunos lugares
 
 export default function Reportes() {
   // Estados principales
+  const theme = useTheme();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [periodo, setPeriodo] = useState("mes");

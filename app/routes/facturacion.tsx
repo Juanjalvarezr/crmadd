@@ -1,6 +1,7 @@
+import { RouteSkeleton } from '../components/RouteGuard';
 import { Outlet, useNavigate, useLocation } from "react-router";
 import { useState, useEffect, useMemo } from 'react';
-import { RouteSkeleton, RouteErrorBoundary } from '../components/RouteGuard';
+import { default as ProtectedRoute } from '../components/ProtectedRoute';
 import {
   Box, Typography, Paper, Button, TextField, Select, MenuItem,
   FormControl, InputLabel, Dialog, DialogTitle, DialogContent,
@@ -20,6 +21,7 @@ import ScannerTarjetas from "../components/ScannerTarjetas";
 import SafeChip from "../components/SafeChip";
 import GenerarDocumentoButton from "../components/GenerarDocumentoButton";
 import { openAiRoute } from "../components/FloatingAIAssistant";
+import { webhookService } from "../services/webhook";
 
 export default function Facturacion() {
   const [items, setItems] = useState<any[]>([]);
@@ -172,9 +174,11 @@ export default function Facturacion() {
       if (editItem?.id) {
         await facturasService.update(editItem.id, data);
         setSuccess('Factura actualizada');
+        webhookService.registrarEvento({ direccion: 'salida', fuente: 'crm', tipo_evento: 'factura_actualizada', datos: { id: editItem.id, proyecto_id: data.proyecto_id, estado: data.estado }, estado: 'ok', proyecto_id: data.proyecto_id || null }).catch(() => {});
       } else {
-        await facturasService.create(data);
+        const creada = await facturasService.create(data);
         setSuccess('Factura creada');
+        webhookService.registrarEvento({ direccion: 'salida', fuente: 'crm', tipo_evento: 'factura_creada', datos: { id: creada.id, proyecto_id: creada.proyecto_id, estado: creada.estado }, estado: 'ok', proyecto_id: data.proyecto_id || null }).catch(() => {});
       }
       setOpen(false);
       setEditItem(null);

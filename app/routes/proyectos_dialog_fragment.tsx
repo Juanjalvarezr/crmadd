@@ -9,6 +9,7 @@ import {
 import {
   clientesService, proyectosService, facturasService, contratosService, tareasService
 } from "../services/database";
+import { generarContratoPDF, generarFacturaPDF } from "../services/pdf";
 import SafeChip from "../components/SafeChip";
 import { formatCOP } from "../data/serviciosData";
 
@@ -18,7 +19,7 @@ export default function ProyectosDialogFragment({ selectedProyecto, activeProjec
 
   useEffect(() => {
     if (!selectedProyecto?.id) return;
-    credencialesService.getAll(Number(selectedProyecto.id)).then(setCredenciales).catch(() => {});
+    credencialesService.getAll(String(selectedProyecto.id)).then(setCredenciales).catch(() => {});
   }, [selectedProyecto?.id]);
 
   if (!selectedProyecto) return null;
@@ -197,13 +198,13 @@ export default function ProyectosDialogFragment({ selectedProyecto, activeProjec
           <Stack spacing={1}>
             <Button variant="outlined" size="small" startIcon={<FiFileText />} onClick={async () => {
               try {
-                const pdfUrl = await contratosService.generarContratoPDF(selectedProyecto);
+                const pdfUrl = await generarContratoPDF(selectedProyecto);
                 showNotification('Contrato generado: descargalo desde /contratos', 'success');
               } catch (e: any) { showNotification('Error: ' + e.message, 'error'); }
             }}>Generar contrato</Button>
             <Button variant="outlined" size="small" startIcon={<FiFileText />} onClick={async () => {
               try {
-                const pdfUrl = await facturasService.generarFacturaPDF(selectedProyecto);
+                const pdfUrl = await generarFacturaPDF(selectedProyecto);
                 showNotification('Factura generada', 'success');
               } catch (e: any) { showNotification('Error: ' + e.message, 'error'); }
             }}>Generar factura</Button>
@@ -230,7 +231,7 @@ export default function ProyectosDialogFragment({ selectedProyecto, activeProjec
               try {
                 await credencialesService.create({ proyecto_id: String(selectedProyecto.id), tipo: 'cuenta', canal, usuario, contrasena, url });
                 showNotification('Credencial guardada', 'success');
-                const updated = await credencialesService.getAll(Number(selectedProyecto.id));
+                const updated = await credencialesService.getAll(String(selectedProyecto.id));
                 setCredenciales(updated);
               } catch (e: any) { showNotification('Error: ' + e.message, 'error'); }
             }}

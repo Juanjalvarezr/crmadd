@@ -351,7 +351,7 @@ export default function Ventas() {
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 0.5, flexWrap: "wrap" }}>
           <FiTrendingUp size={28} color="#E91E63" />
           <Typography variant="h5" sx={{ color: "#C2185B", flex: 1 }}>
-            Pipeline de Oportunidades
+            Pipeline de Ventas
           </Typography>
           <IconButton size="small" onClick={() => openAiRoute('ventas', 'Oportunidades', 'Pipeline de ventas')}>
             <SafeChip label="CPU" size="small" />

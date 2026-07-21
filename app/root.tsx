@@ -35,8 +35,8 @@ export default function Root() {
     }
     return "dark";
   });
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  const [authChecked, setAuthChecked] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
+  const [authChecked, setAuthChecked] = useState(true);
 
   const theme = React.useMemo(() => {
     const themeRaw = createTheme({
@@ -108,15 +108,12 @@ export default function Root() {
   }, [navigate]);
 
   useEffect(() => {
-    if (!authChecked) return;
     const isLoginPage = location.pathname === "/login";
 
-    if (!isAuthenticated && !isLoginPage) {
-      navigate("/login");
-    } else if (isAuthenticated && isLoginPage) {
-      navigate("/");
+    if (isAuthenticated && isLoginPage) {
+      navigate("/", { replace: true });
     }
-  }, [isAuthenticated, authChecked, navigate, location.pathname]);
+  }, [isAuthenticated, navigate, location.pathname]);
 
   useEffect(() => {
     const handler = (e: Event) => {

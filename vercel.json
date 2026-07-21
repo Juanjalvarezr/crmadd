@@ -1,5 +1,11 @@
 {
+  "framework": "vite",
+  "buildCommand": "npm run build",
+  "outputDirectory": "build/client",
   "rewrites": [
+    { "source": "/finanzas", "destination": "/finanzas" },
+    { "source": "/contratos", "destination": "/contratos" },
+    { "source": "/documentos", "destination": "/documentos" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

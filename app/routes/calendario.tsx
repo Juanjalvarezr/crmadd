@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import {
-  Box, Typography, Paper, Button, IconButton, Tooltip, CircularProgress,
+  Box, Typography, Paper, Button, IconButton, Tooltip, CircularProgress, Select, MenuItem,
   Dialog, DialogTitle, DialogContent, DialogActions, Chip, Stack, Grid
 } from "@mui/material";
 import { FiCalendar, FiInfo, FiRefreshCw, FiChevronLeft, FiChevronRight } from "react-icons/fi";
@@ -11,7 +11,8 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import {
   tareasService,
   clientesService,
-  oportunidadesService
+  oportunidadesService,
+  proyectosService
 } from "../services/database";
 import { useNotificationStore } from "../store/useNotificationStore";
 import SafeChip from "../components/SafeChip";
@@ -57,30 +58,41 @@ export default function Calendario() {
   const [view, setView] = useState<any>(Views.MONTH);
   const [date, setDate] = useState(new Date());
   const [filter, setFilter] = useState<"all" | "tarea" | "venta">("all");
+  const [proyectos, setProyectos] = useState<any[]>([]);
+  const [filterProyecto, setFilterProyecto] = useState(() => {
+    try { return localStorage.getItem('filtros-calendario-proyecto') || 'all'; } catch { return 'all'; }
+  });
 
   const { showNotification } = useNotificationStore();
 
-  useEffect(() => { loadEvents(); }, []);
+  useEffect(() => { loadEvents(); }, [filterProyecto]);
 
   const loadEvents = async () => {
     try {
       setLoading(true);
-      const [tareas, ventas, clientes] = await Promise.all([
+      const [tareas, ventas, clientes, proyectos] = await Promise.all([
         tareasService.getAll(),
         oportunidadesService.getAll(),
-        clientesService.getAll()
+        clientesService.getAll(),
+        proyectosService.getAll()
       ]);
+
+      const proyectosMap = new Map((proyectos || []).map((p: any) => [String(p.id), p]));
 
       const calendarEvents: CalEvent[] = [];
 
       tareas.forEach((t: any) => {
+        const matchProyecto = filterProyecto === 'all' || String(t.proyecto_id || t.proyecto || '') === String(filterProyecto);
+        if (!matchProyecto) return;
         if (t.fecha) {
           const date = new Date(t.fecha);
           const cliente = t.cliente_id ? clientes.find((c: any) => c.id === t.cliente_id) : null;
+          const proyecto = t.proyecto_id || t.proyecto ? proyectosMap.get(String(t.proyecto_id || t.proyecto)) : null;
           const clienteInfo = cliente ? ` • ${cliente.nombre}` : '';
+          const proyectoInfo = proyecto?.nombre ? ` • ${proyecto.nombre}` : '';
           calendarEvents.push({
             id: `tarea-${t.id}`,
-            title: `${t.titulo}${clienteInfo}`,
+            title: `${t.titulo}${clienteInfo}${proyectoInfo}`,
             start: date,
             end: date,
             allDay: true,
@@ -92,11 +104,15 @@ export default function Calendario() {
       });
 
       ventas.forEach((v: any) => {
+        const matchProyecto = filterProyecto === 'all' || String(v.proyecto_id || v.proyecto || '') === String(filterProyecto);
+        if (!matchProyecto) return;
         const date = new Date(v.created_at);
         date.setDate(date.getDate() + 15);
+        const proyecto = v.proyecto_id || v.proyecto ? proyectosMap.get(String(v.proyecto_id || v.proyecto)) : null;
+        const proyectoInfo = proyecto?.nombre ? ` • ${proyecto.nombre}` : '';
         calendarEvents.push({
           id: `venta-${v.id}`,
-          title: `[Cierre] ${v.nombre}`,
+          title: `[Cierre] ${v.nombre}${proyectoInfo}`,
           start: date,
           end: date,
           allDay: true,
@@ -182,6 +198,20 @@ export default function Calendario() {
             </Box>
           </Box>
           <Stack direction="row" spacing={0.75} alignItems="center" flexWrap="wrap">
+            {/* Filtro por proyecto */}
+            <Select
+              size="small"
+              value={filterProyecto}
+              onChange={(e) => setFilterProyecto(String(e.target.value))}
+              sx={{ minWidth: 170, fontSize: '0.7rem' }}
+            >
+              <MenuItem value="all">Todos los proyectos</MenuItem>
+              <MenuItem value="">Sin proyecto</MenuItem>
+              {(proyectos || []).map((p: any) => (
+                <MenuItem key={p.id} value={String(p.id)}>{p.nombre}</MenuItem>
+              ))}
+            </Select>
+
             {/* Filtros por tipo */}
             {(["all", "tarea", "venta"] as const).map((f) => (
               <Chip
@@ -287,7 +317,8 @@ export default function Calendario() {
           flex: 1,
           borderRadius: 2,
           overflow: "hidden",
-          minHeight: { xs: 340, sm: 440 },
+          height: { xs: 380, md: "calc(100vh - 300px)" },
+          minHeight: 340,
           display: "flex",
           flexDirection: "column",
           "& .rbc-calendar": { fontFamily: "inherit", height: "100%" },
@@ -305,7 +336,7 @@ export default function Calendario() {
           "& .rbc-agenda-view, & .rbc-month-view, & .rbc-week-view": { overflowX: "hidden" }
         }}
       >
-        <Box sx={{ height: { xs: "100%", sm: 480, md: "calc(100vh - 380px)" }, minHeight: 320 }}>
+        <Box sx={{ height: "100%", minHeight: 320 }}>
           <Calendar
             localizer={localizer}
             events={filteredEvents}

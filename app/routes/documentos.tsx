@@ -5,19 +5,28 @@ import {
 } from '@mui/material';
 import { FiDownload, FiTrash2, FiPlus, FiFileText } from 'react-icons/fi';
 import { documentosService } from '../services/supabase';
+import { proyectosService } from '../services/database';
 
 export default function Documentos() {
   const [documentos, setDocumentos] = useState<any[]>([]);
+  const [proyectos, setProyectos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [openNuevo, setOpenNuevo] = useState(false);
+  const [filterProyecto, setFilterProyecto] = useState(() => {
+    try { return localStorage.getItem('filtros-documentos-proyecto') || 'all'; } catch { return 'all'; }
+  });
 
   const cargar = async () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await documentosService.getAll();
+      const [data, proyectosData] = await Promise.all([
+        documentosService.getAll(),
+        proyectosService.getAll()
+      ]);
       setDocumentos(data);
+      setProyectos(proyectosData);
     } catch (e: any) {
       setError(e?.message || 'Error al cargar documentos');
     } finally {
@@ -27,23 +36,38 @@ export default function Documentos() {
 
   useEffect(() => { cargar(); }, []);
 
+  useEffect(() => {
+    try { localStorage.setItem('filtros-documentos-proyecto', filterProyecto); } catch {}
+  }, [filterProyecto]);
+
   const handleDelete = async (id: string) => {
     if (!confirm('¿Eliminar este documento?')) return;
     try {
       await documentosService.delete(id);
       setDocumentos((prev) => prev.filter((d) => d.id !== id));
     } catch (e: any) {
-      alert(e?.message || 'No se pudo eliminar');
+      setError(e?.message || 'No se pudo eliminar');
     }
   };
 
+  const documentosFiltrados = documentos.filter((doc: any) => {
+    const matchProyecto = filterProyecto === 'all' || String(doc.proyecto_id || doc.entidad_id || '') === String(filterProyecto);
+    return matchProyecto;
+  });
+
   return (
     <Box sx={{ p: { xs: 1, sm: 2 }, maxWidth: 1200, mx: 'auto' }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 1 }}>
         <Typography variant="h4">Documentos</Typography>
-        <Button variant="contained" startIcon={<FiPlus />} onClick={() => setOpenNuevo(true)}>
-          Nuevo documento
-        </Button>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
+          <Select size="small" value={filterProyecto} onChange={(e) => setFilterProyecto(String(e.target.value))} sx={{ minWidth: 180 }}>
+            <MenuItem value="all">Todos los proyectos</MenuItem>
+            {proyectos.map((p: any) => <MenuItem key={p.id} value={p.id}>{p.nombre}</MenuItem>)}
+          </Select>
+          <Button variant="contained" startIcon={<FiPlus />} onClick={() => setOpenNuevo(true)}>
+            Nuevo documento
+          </Button>
+        </Box>
       </Box>
 
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
