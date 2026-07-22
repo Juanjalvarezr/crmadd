@@ -24,40 +24,29 @@ export default function GlobalSearch({ open, onClose }: { open: boolean, onClose
   }, [open]);
 
   useEffect(() => {
+    if (!open) { setQuery(''); setResults([]); return; }
+
     const performSearch = async () => {
-      if (query.length < 2) { setResults([]); return; }
+      if (query.trim().length < 2) { setResults([]); setLoading(false); return; }
       setLoading(true);
       try {
-        const [clis, proys, facs, conts, tareas, oportunidades] = await Promise.all([
+        const [clis, proys, tareas, oportunidades] = await Promise.all([
           clientesService.getAll(),
           proyectosService.getAll(),
-          facturasService.getAll(),
-          contratosService.getAll(),
           tareasService.getAll(),
           oportunidadesService.getAll()
         ]);
-        const q = query.toLowerCase();
+        const q = query.trim().toLowerCase();
         const filtered = [
-          ...clis.filter((c: any) => (c.nombre || '').toLowerCase().includes(q) || (c.empresa || '').toLowerCase().includes(q))
-            .map((c: any) => ({ tipo: 'Cliente', nombre: c.nombre || c.empresa, id: String(c.id), path: `/clientes/${c.id}`, sub: c.nicho })),
-          ...proys.filter((p: any) => (p.nombre || '').toLowerCase().includes(q))
-            .map((p: any) => ({ tipo: 'Proyecto', nombre: p.nombre, id: String(p.id), path: `/proyectos/${p.id}`, sub: p.estado })),
-          ...facs.filter((f: any) => ((f.numero || String(f.id)) + ' ' + (f.estado || '')).toLowerCase().includes(q))
-            .map((f: any) => ({ tipo: 'Factura', nombre: `#${f.numero || f.id}`, id: String(f.id), path: `/facturacion`, sub: f.estado })),
-          ...conts.filter((c: any) => ((c.titulo || '') + ' ' + (c.estado || '')).toLowerCase().includes(q))
-            .map((c: any) => ({ tipo: 'Contrato', nombre: c.titulo || `#${c.id}`, id: String(c.id), path: `/contratos`, sub: c.estado })),
-          ...tareas.filter((t: any) => (t.titulo || '').toLowerCase().includes(q))
-            .map((t: any) => ({ tipo: 'Tarea', nombre: t.titulo, id: String(t.id), path: `/tareas`, sub: t.estado })),
-          ...oportunidades.filter((o: any) => (o.nombre || '').toLowerCase().includes(q))
-            .map((o: any) => ({ tipo: 'Oportunidad', nombre: o.nombre, id: String(o.id), path: `/ventas`, sub: o.etapa })),
+          ...clis.filter((c: any) => (c.nombre || '').toLowerCase().includes(q) || (c.empresa || '').toLowerCase().includes(q)).map((c: any) => ({ tipo: 'Cliente', nombre: c.nombre || c.empresa, id: String(c.id), path: '/clientes' })),
+          ...proys.filter((p: any) => (p.nombre || '').toLowerCase().includes(q)).map((p: any) => ({ tipo: 'Proyecto', nombre: p.nombre, id: String(p.id), path: '/proyectos' })),
+          ...tareas.filter((t: any) => (t.titulo || '').toLowerCase().includes(q)).map((t: any) => ({ tipo: 'Tarea', nombre: t.titulo, id: String(t.id), path: '/tareas' })),
+          ...oportunidades.filter((o: any) => (o.nombre || '').toLowerCase().includes(q)).map((o: any) => ({ tipo: 'Oportunidad', nombre: o.nombre, id: String(o.id), path: '/ventas' }))
         ];
         setResults(filtered.slice(0, 15));
-      } catch {
-        setResults([]);
-      } finally {
-        setLoading(false);
-      }
+      } catch { setResults([]); } finally { setLoading(false); }
     };
+
     const timer = setTimeout(performSearch, 250);
     return () => clearTimeout(timer);
   }, [query]);
