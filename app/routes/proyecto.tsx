@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router";
 import {
   Box, Typography, Container, Paper, Grid, LinearProgress,
-  CircularProgress, Alert, Stack,
+  Alert, Stack,
   Divider, Button, List, ListItem, ListItemIcon, ListItemText,
   Tabs, Tab, TextField, Snackbar
 } from "@mui/material";
@@ -136,7 +136,7 @@ export default function ProyectoInterno() {
   if (loading) {
     return (
       <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
-        <CircularProgress color="primary" sx={{ mb: 2 }} />
+        <Box sx={{ width: 40, height: 40, borderRadius: "50%", border: "3px solid", borderColor: "primary.main", borderTopColor: "transparent", animation: "spin 1s linear infinite", mb: 2 }} />
         <Typography variant="body1" color="text.secondary">Cargando proyecto...</Typography>
       </Box>
     );
