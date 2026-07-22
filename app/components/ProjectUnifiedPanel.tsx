@@ -58,7 +58,7 @@ export default function ProjectUnifiedPanel({ open, onClose, proyecto }: Project
       facturasService.getAll().catch(() => []),
       contratosService.getAll().catch(() => []),
       documentosService.getAll().catch(() => []),
-      aiService.generarBriefProyecto(String(proyecto.id)).catch(() => null),
+      Promise.resolve(null),
     ])
       .then(([tareas, facturas, contratos, documentos, brief]) => {
         const tareasProyecto = (tareas || []).filter((t: any) =>
@@ -291,7 +291,7 @@ export default function ProjectUnifiedPanel({ open, onClose, proyecto }: Project
           <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
             <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
               <Box sx={{ width: 28, height: 28, borderRadius: 1, display: "flex", alignItems: "center", justifyContent: "center", bgcolor: "rgba(233,30,99,0.08)" }}>
-                <FiDollarSign size={16} color="#E91E63" />
+                <span style={{fontWeight: 900, color: "#E91E63"}}>$</span>
               </Box>
               <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>Facturas ({resumen?.facturasProyecto?.length || 0})</Typography>
             </Stack>
@@ -320,7 +320,7 @@ export default function ProjectUnifiedPanel({ open, onClose, proyecto }: Project
               <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>{typeof resumen.brief === "string" ? resumen.brief : JSON.stringify(resumen.brief, null, 2)}</Typography>
             ) : (
               <Button size="small" variant="text" startIcon={<FiCpu size={14} />} onClick={async () => {
-                const brief = await aiService.generarBriefProyecto(String(proyecto.id));
+                const brief = null;
                 openAiRoute("proyecto", String(proyecto.id), proyecto.nombre);
                 setAssistantOpen(false);
               }}>Generar brief con IA</Button>

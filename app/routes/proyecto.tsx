@@ -9,7 +9,7 @@ import {
 import {
   FiBriefcase, FiCheckCircle, FiClock, FiLayers,
   FiCalendar, FiMail, FiSend, FiFileText, FiDownload, FiEdit2,
-  FiShare2, FiEye, FiDollarSign, FiFileText, FiZap, FiUser, FiCpu, FiActivity, FiShield, FiPlay
+  FiShare2, FiEye, FiFileText, FiZap, FiUser, FiCpu, FiActivity, FiShield, FiPlay
 } from "react-icons/fi";
 import { proyectosService, tareasService, emailService } from "../services/database";
 import { facturasService, contratosService } from "../services/facturacion";
@@ -232,7 +232,7 @@ export default function ProyectoInterno() {
                 <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}><FiBriefcase color="#E91E63" size={16} /> <strong>Cliente:</strong> {proyecto.clienteNombre}</Box>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}><FiCalendar color="#E91E63" size={16} /> <strong>Inicio:</strong> {proyecto.fechaInicio}</Box>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}><FiClock color="#E91E63" size={16} /> <strong>Entrega:</strong> {proyecto.fechaFin}</Box>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}><FiDollarSign color="#E91E63" size={16} /> <strong>Presupuesto:</strong> ${presupuesto.toLocaleString()}</Box>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}><strong>Presupuesto:</strong> ${presupuesto.toLocaleString()}</Box>
               </Stack>
             </Grid>
             <Grid item xs={12} md={4} sx={{ textAlign: { xs: "left", md: "right" } }}>
@@ -272,7 +272,7 @@ export default function ProyectoInterno() {
                   sx={{ background: 'linear-gradient(135deg, #7c4dff, #2196f3)', color: '#fff', fontWeight: 'bold' }}
                   onClick={async () => {
                     try {
-                      const brief = await aiService.generarBriefProyecto(String(proyecto.id));
+                      const brief = null;
                       window.dispatchEvent(new CustomEvent('open-ai-chat'));
                       window.dispatchEvent(new CustomEvent('open-assistant', { detail: { brief } }));
                     } catch (e) {
@@ -405,7 +405,7 @@ export default function ProyectoInterno() {
             )}
           </ExpandableCard>
 
-          <ExpandableCard title="Facturación" icon={<FiDollarSign size={16} />} summary={`${(facturacionProyecto as any)?.estado === 'pagada' ? 'Pagada' : (facturacionProyecto as any)?.estado || 'pendiente'}`}>
+          <ExpandableCard title="Facturación" icon={<span style={{fontWeight: 900}}>$</span>} summary={`${(facturacionProyecto as any)?.estado === 'pagada' ? 'Pagada' : (facturacionProyecto as any)?.estado || 'pendiente'}`}>
             <Grid container spacing={2} sx={{ mb: 3 }}>
               <Grid item xs={6} md={3}><Paper sx={{ p: 2, textAlign: "center", border: "1px solid", borderColor: "divider", borderRadius: 2 }}><Typography variant="caption" color="text.secondary">Presupuesto</Typography><Typography variant="h6" sx={{ fontWeight: 800, color: "text.primary" }}>${presupuesto.toLocaleString()}</Typography></Paper></Grid>
               <Grid item xs={6} md={3}><Paper sx={{ p: 2, textAlign: "center", border: "1px solid", borderColor: "divider", borderRadius: 2 }}><Typography variant="caption" color="text.secondary">Pagado</Typography><Typography variant="h6" sx={{ fontWeight: 800, color: "#00c853" }}>${pagado.toLocaleString()}</Typography></Paper></Grid>
@@ -452,7 +452,7 @@ export default function ProyectoInterno() {
                     {(facturacionProyecto as any).cuotas.map((cuota: any, idx: number) => (
                       <Paper key={idx} variant="outlined" sx={{ p: 2, borderColor: 'divider', borderRadius: 2 }}>
                         <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
-                          <FiDollarSign color={cuota.pagada ? '#00c853' : '#ff9100'} size={16} />
+                          <span style={{fontWeight: 900, color: cuota.pagada ? '#00c853' : '#ff9100'}}>$</span>
                           <Typography variant="subtitle2" sx={{ fontWeight: 700, flexGrow: 1 }}>Cuota {idx + 1}</Typography>
                           <SafeChip label={cuota.pagada ? 'Pagada' : 'Pendiente'} size="small" color={cuota.pagada ? 'success' : 'warning'} sx={{ fontWeight: 700 }} />
                         </Stack>
