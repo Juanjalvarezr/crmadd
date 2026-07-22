@@ -10,7 +10,8 @@ import { Link, useLocation, useNavigate } from "react-router";
 import SafeChip from "../components/SafeChip";
 import { supabase } from "../services/supabase";
 
-const DRAWER_WIDTH = 260;
+const DRAWER_WIDTH = 220;
+const COLLAPSED_WIDTH = 64;
 
 const menuItems = [
   { label: "Inicio", icon: FiHome, path: "/", notifications: 0, color: "#1976d2" },
@@ -488,7 +489,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     <Box
       component="nav"
       sx={{ 
-        width: { sm: isCollapsed ? 70 : 200, md: isCollapsed ? 70 : DRAWER_WIDTH }, 
+        width: { sm: isCollapsed ? COLLAPSED_WIDTH : DRAWER_WIDTH, md: isCollapsed ? COLLAPSED_WIDTH : DRAWER_WIDTH },
         flexShrink: { sm: 0 },
         transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
       }}
@@ -521,7 +522,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           display: { xs: 'none', sm: 'block' },
           '& .MuiDrawer-paper': { 
             boxSizing: 'border-box', 
-            width: isCollapsed ? 70 : { sm: 200, md: DRAWER_WIDTH },
+            width: isCollapsed ? COLLAPSED_WIDTH : DRAWER_WIDTH,
             backgroundColor: "#0d0e15",
             borderRight: "1px solid rgba(255, 255, 255, 0.05)",
             transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
