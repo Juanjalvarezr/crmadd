@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLoaderData } from 'react-router';
 import {
-  Box, Paper, Typography, Button, IconButton, Tooltip, Chip, CircularProgress, Alert, Dialog, DialogTitle, DialogContent, DialogActions
+  Box, Paper, Typography, Button, IconButton, Tooltip, Chip, Alert, Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputLabel, Select, MenuItem
 } from '@mui/material';
 import { FiDownload, FiTrash2, FiPlus, FiFileText } from 'react-icons/fi';
 import { documentosService } from '../services/supabase';
