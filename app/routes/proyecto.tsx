@@ -380,6 +380,8 @@ export default function ProyectoInterno() {
                       </Box>
                       <Typography variant="subtitle2" sx={{ fontWeight: 700, flexGrow: 1 }}>{tarea.titulo}</Typography>
                       <SafeChip label={tarea.estado || 'Pendiente'} size="small" color={tarea.estado === 'Completada' ? 'success' : tarea.estado === 'En progreso' ? 'warning' : 'default'} sx={{ fontWeight: 700 }} />
+                      <Button size="small" onClick={() => window.prompt('Nuevo título:', tarea.titulo || '') && tareasService.update(tarea.id, { titulo: window.prompt('Nuevo título:', tarea.titulo || '') || tarea.titulo })}>Editar</Button>
+                      <Button size="small" color="error" onClick={async () => { if (window.confirm('¿Eliminar tarea?')) { await tareasService.delete(tarea.id); load(); } }}>Eliminar</Button>
                     </Stack>
                     <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>Vence: {tarea.fecha} • Prioridad: {tarea.prioridad || 'Media'}</Typography>
                     <LinearProgress variant="determinate" value={tarea.estado === 'Completada' ? 100 : tarea.estado === 'En progreso' ? 50 : 0} sx={{ height: 6, borderRadius: 3 }} />
