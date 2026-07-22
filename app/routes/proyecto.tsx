@@ -396,9 +396,15 @@ export default function ProyectoInterno() {
               <Stack spacing={1.5}>
                 {documentosProyecto.map((doc: any) => (
                   <Paper key={doc.id} variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{doc.nombre || doc.titulo || 'Documento'}</Typography>
-                    <Typography variant="caption" color="text.secondary" sx={{ wordBreak: 'break-all', display: 'block', mb: 1 }}>{doc.url}</Typography>
-                    {doc.url && <Button size="small" variant="contained" startIcon={<FiDownload size={14} />} href={doc.url} target="_blank">Descargar</Button>}
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                      <Box sx={{ flexGrow: 1 }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{doc.nombre || doc.titulo || 'Documento'}</Typography>
+                        <Typography variant="caption" color="text.secondary" sx={{ wordBreak: 'break-all', display: 'block', mb: 1 }}>{doc.url}</Typography>
+                      </Box>
+                      <Button size="small" onClick={() => window.prompt('Nuevo nombre:', doc.nombre || doc.titulo || '') && documentosService.update(doc.id, { nombre: window.prompt('Nuevo nombre:', doc.nombre || doc.titulo || '') || doc.nombre })}>Editar</Button>
+                      <Button size="small" color="error" onClick={async () => { if (window.confirm('¿Eliminar documento?')) { await documentosService.delete(doc.id); load(); } }}>Eliminar</Button>
+                      {doc.url && <Button size="small" variant="contained" startIcon={<FiDownload size={14} />} href={doc.url} target="_blank">Descargar</Button>}
+                    </Stack>
                   </Paper>
                 ))}
               </Stack>
@@ -437,11 +443,11 @@ export default function ProyectoInterno() {
                             <SafeChip label={factura.estado} size="small" color={factura.estado === 'pagada' ? 'success' : factura.estado === 'borrador' ? 'default' : 'warning'} />
                           </Box>
                         </Stack>
-                        {factura.pdf_url && (
-                          <Box sx={{ mt: 1.5, display: 'flex', gap: 1 }}>
-                            <Button size="small" variant="contained" href={factura.pdf_url} target="_blank">Ver PDF</Button>
-                          </Box>
-                        )}
+                        <Box sx={{ mt: 1, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                          <Button size="small" onClick={() => window.prompt('Nuevo número/fecha:', JSON.stringify({ numero: factura.numero, fecha_emision: factura.fecha_emision })) && facturasService.update(factura.id, { numero: window.prompt('Nuevo número:', factura.numero || '') || factura.numero, fecha_emision: window.prompt('Nueva fecha:', factura.fecha_emision || '') || factura.fecha_emision })}>Editar</Button>
+                          <Button size="small" color="error" onClick={async () => { if (window.confirm('¿Eliminar factura?')) { await facturasService.delete(factura.id); load(); } }}>Eliminar</Button>
+                          {factura.pdf_url && <Button size="small" variant="contained" href={factura.pdf_url} target="_blank">Ver PDF</Button>}
+                        </Box>
                       </Paper>
                     ))}
                   </Stack>
@@ -479,6 +485,10 @@ export default function ProyectoInterno() {
                   <Paper key={c.id} variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
                     <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{c.titulo || c.nombre || 'Contrato'}</Typography>
                     <Typography variant="caption" color="text.secondary">Estado: {c.estado || 'Sin estado'} {c.fecha_inicio ? `• ${c.fecha_inicio}` : ''}</Typography>
+                    <Box sx={{ mt: 1, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                      <Button size="small" onClick={() => window.prompt('Nuevo título:', c.titulo || c.nombre || '') && contratosService.update(c.id, { titulo: window.prompt('Nuevo título:', c.titulo || c.nombre || '') || c.titulo })}>Editar</Button>
+                      <Button size="small" color="error" onClick={async () => { if (window.confirm('¿Eliminar contrato?')) { await contratosService.delete(c.id); load(); } }}>Eliminar</Button>
+                    </Box>
                   </Paper>
                 ))}
               </Stack>

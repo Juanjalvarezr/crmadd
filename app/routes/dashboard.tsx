@@ -204,6 +204,25 @@ export default function Dashboard() {
           <FiRefreshCw size={16} />
         </IconButton>
       </Box>
+      {/* FAB expandible + IA */}
+      <Box sx={{ position: 'fixed', bottom: 20, right: 20, zIndex: 1300, display: 'flex', flexDirection: 'column-reverse', alignItems: 'center', gap: 1 }}>
+        <Box sx={{ display: 'flex', gap: 1, mb: 0.5, flexWrap: 'wrap', justifyContent: 'center' }}>
+          <Button size="small" variant="contained" onClick={() => navigate('/documentos?new=1')}>Documento</Button>
+          <Button size="small" variant="contained" onClick={() => navigate('/facturacion?new=1')}>Factura</Button>
+          <Button size="small" variant="contained" onClick={() => navigate('/tareas?new=1')}>Tarea</Button>
+          <Button size="small" variant="contained" onClick={() => navigate('/clientes?new=1')}>Cliente</Button>
+          <Button size="small" variant="contained" onClick={() => navigate('/proyectos?new=1')}>Proyecto</Button>
+        </Box>
+        <IconButton onClick={() => setFabOpen(v => !v)} sx={{ bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', boxShadow: 3, width: 48, height: 48, '&:hover': { bgcolor: 'action.hover' } }}>
+          <FiTarget size={22} />
+        </IconButton>
+      </Box>
+
+      {/* Botón IA visible */}
+      <Box sx={{ position: 'fixed', bottom: 20, left: { xs: 70, sm: 20 }, zIndex: 1300 }}>
+        <Button variant="contained" startIcon={<FiCpu size={16} />} onClick={() => { window.dispatchEvent(new CustomEvent('open-ai-chat')); window.dispatchEvent(new CustomEvent('open-assistant')); }} sx={{ bgcolor: '#1a1a2e', color: '#fff', boxShadow: 3, '&:hover': { bgcolor: '#16213e' } }}>IA</Button>
+      </Box>
+
       {error && <Alert severity="error" sx={{ mb: 1.5, borderRadius: 2 }}>{error}</Alert>}
       {loading && (
         <Alert severity="info" sx={{ mb: 1.5, borderRadius: 2 }}>
