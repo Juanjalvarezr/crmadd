@@ -182,7 +182,7 @@ export default function ResetPassword() {
                 "&.Mui-disabled": { bgcolor: "rgba(233,30,99,0.5)" },
               }}
             >
-              {loading ? <CircularProgress size={24} color="inherit" /> : "Actualizar Contraseña"}
+              {loading ? <Box sx={{ width: 28, height: 28, borderRadius: "50%", border: "3px solid", borderColor: "primary.main", borderTopColor: "transparent", animation: "spin 1s linear infinite" }} /> : "Actualizar Contraseña"}
             </Button>
           </Box>
         )}

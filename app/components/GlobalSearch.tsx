@@ -132,7 +132,7 @@ export default function GlobalSearch({ open, onClose }: { open: boolean, onClose
           )}
           {loading ? (
             <Box sx={{ p: 4, textAlign: 'center' }}>
-              <CircularProgress size={24} />
+              <Box sx={{ width: 28, height: 28, borderRadius: "50%", border: "3px solid", borderColor: "primary.main", borderTopColor: "transparent", animation: "spin 1s linear infinite" }} />
             </Box>
           ) : results.length > 0 ? (
             results.map((item, index) => (

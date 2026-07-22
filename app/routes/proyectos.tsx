@@ -1133,7 +1133,7 @@ const handleGenerateMagicLink = async (proyecto: Proyecto) => {
 
       {loading && (
         <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-          <CircularProgress />
+          <Box sx={{ width: 28, height: 28, borderRadius: "50%", border: "3px solid", borderColor: "primary.main", borderTopColor: "transparent", animation: "spin 1s linear infinite" }} />
         </Box>
       )}
 
@@ -1629,7 +1629,7 @@ const handleGenerateMagicLink = async (proyecto: Proyecto) => {
                     <Button 
                       variant="outlined" 
                       size="small" 
-                      startIcon={generatingPlan ? <CircularProgress size={14} /> : <Zap size={14} />}
+                      startIcon={generatingPlan ? <Box sx={{ width: 28, height: 28, borderRadius: "50%", border: "3px solid", borderColor: "primary.main", borderTopColor: "transparent", animation: "spin 1s linear infinite" }} /> : <Zap size={14} />}
                       onClick={handleGenerarPlanIA}
                       disabled={generatingPlan}
                       sx={{ color: '#e91e63', borderColor: '#e91e63' }}
@@ -1896,7 +1896,7 @@ const handleGenerateMagicLink = async (proyecto: Proyecto) => {
             </Box>
           ) : (
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 4 }}>
-              <CircularProgress size={30} sx={{ mb: 2 }} />
+              <Box sx={{ width: 28, height: 28, borderRadius: "50%", border: "3px solid", borderColor: "primary.main", borderTopColor: "transparent", animation: "spin 1s linear infinite" }} />
               <Typography>Redactando email de cierre con IA...</Typography>
             </Box>
           )}
@@ -1907,7 +1907,7 @@ const handleGenerateMagicLink = async (proyecto: Proyecto) => {
             variant="contained" 
             onClick={handleEnviarEmailCierre}
             disabled={sendingEmail || !previewEmailContent}
-            startIcon={sendingEmail ? <CircularProgress size={16} color="inherit" /> : <Send />}
+            startIcon={sendingEmail ? <Box sx={{ width: 28, height: 28, borderRadius: "50%", border: "3px solid", borderColor: "primary.main", borderTopColor: "transparent", animation: "spin 1s linear infinite" }} /> : <Send />}
           >
             Enviar Email al Cliente
           </Button>

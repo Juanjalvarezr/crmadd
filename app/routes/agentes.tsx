@@ -130,7 +130,7 @@ export default function Agentes() {
 
       <Paper sx={{ p: 2 }}>
         {loading ? (
-          <Box sx={{ display: "grid", placeItems: "center", py: 8 }}><CircularProgress /></Box>
+          <Box sx={{ display: "grid", placeItems: "center", py: 8 }}><Box sx={{ width: 28, height: 28, borderRadius: "50%", border: "3px solid", borderColor: "primary.main", borderTopColor: "transparent", animation: "spin 1s linear infinite" }} /></Box>
         ) : (
           <TableContainer>
             <Table size="small">

@@ -195,7 +195,7 @@ export const FloatingAIAssistant = () => {
           ))}
           {isLoading && (
             <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-              <CircularProgress size={14} />
+              <Box sx={{ width: 28, height: 28, borderRadius: "50%", border: "3px solid", borderColor: "primary.main", borderTopColor: "transparent", animation: "spin 1s linear infinite" }} />
               <Typography variant="caption">Pensando...</Typography>
             </Box>
           )}

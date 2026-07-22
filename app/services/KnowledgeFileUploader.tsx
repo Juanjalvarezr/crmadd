@@ -129,7 +129,7 @@ export default function KnowledgeFileUploader({ onSuccess }: KnowledgeFileUpload
           variant="contained" 
           component="span" 
           disabled={loading}
-          startIcon={loading ? <CircularProgress size={20} /> : <FiCamera />}
+          startIcon={loading ? <Box sx={{ width: 28, height: 28, borderRadius: "50%", border: "3px solid", borderColor: "primary.main", borderTopColor: "transparent", animation: "spin 1s linear infinite" }} /> : <FiCamera />}
           sx={{ bgcolor: '#e91e63', '&:hover': { bgcolor: '#c2185b' } }}
         >
           {loading ? 'Procesando archivo...' : 'Seleccionar PDF o Imagen'}

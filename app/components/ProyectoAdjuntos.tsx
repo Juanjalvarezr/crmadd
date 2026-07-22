@@ -128,7 +128,7 @@ export function ProyectoAdjuntos({ proyecto }: ProyectoAdjuntosProps) {
             <Button
               variant="outlined"
               size="small"
-              startIcon={uploading ? <CircularProgress size={14} /> : <Upload size={16} />}
+              startIcon={uploading ? <Box sx={{ width: 28, height: 28, borderRadius: "50%", border: "3px solid", borderColor: "primary.main", borderTopColor: "transparent", animation: "spin 1s linear infinite" }} /> : <Upload size={16} />}
               onClick={() => fileRef.current?.click()}
             >
               {uploading ? "Subiendo..." : "Subir archivo"}

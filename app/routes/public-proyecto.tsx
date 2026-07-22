@@ -89,7 +89,7 @@ export default function PublicProyecto() {
       <ThemeProvider theme={clientTheme}>
         <CssBaseline />
         <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", minHeight: "100vh", bgcolor: "background.default" }}>
-          <CircularProgress color="primary" sx={{ mb: 2 }} />
+          <Box sx={{ width: 28, height: 28, borderRadius: "50%", border: "3px solid", borderColor: "primary.main", borderTopColor: "transparent", animation: "spin 1s linear infinite" }} />
           <Typography variant="body1" color="text.secondary">Accediendo a tu Portal de Cliente...</Typography>
         </Box>
       </ThemeProvider>

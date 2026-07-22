@@ -162,7 +162,7 @@ export default function Root() {
   if (isAuthenticated === null) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", bgcolor: "background.default" }}>
-        <CircularProgress />
+        <Box sx={{ width: 28, height: 28, borderRadius: "50%", border: "3px solid", borderColor: "primary.main", borderTopColor: "transparent", animation: "spin 1s linear infinite" }} />
       </Box>
     );
   }
@@ -222,7 +222,7 @@ export default function Root() {
             <Suspense
               fallback={
                 <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-                  <CircularProgress />
+                  <Box sx={{ width: 28, height: 28, borderRadius: "50%", border: "3px solid", borderColor: "primary.main", borderTopColor: "transparent", animation: "spin 1s linear infinite" }} />
                 </Box>
               }
             >

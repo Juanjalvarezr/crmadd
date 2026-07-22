@@ -630,7 +630,7 @@ export default function Ventas() {
         <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setOpenModal(false)} variant="outlined" disabled={saving}>Cancelar</Button>
           <Button onClick={handleSave} variant="contained" disabled={saving}
-            startIcon={saving ? <CircularProgress size={16} color="inherit" /> : <FiPlus />}>
+            startIcon={saving ? <Box sx={{ width: 28, height: 28, borderRadius: "50%", border: "3px solid", borderColor: "primary.main", borderTopColor: "transparent", animation: "spin 1s linear infinite" }} /> : <FiPlus />}>
             {saving ? "Guardando..." : (editingOpp ? "Guardar Cambios" : "Crear Oportunidad")}
           </Button>
         </DialogActions>
@@ -648,7 +648,7 @@ export default function Ventas() {
         <DialogContent dividers>
           {loadingPropuesta ? (
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', py: 8, gap: 2 }}>
-              <CircularProgress color="secondary" />
+              <Box sx={{ width: 28, height: 28, borderRadius: "50%", border: "3px solid", borderColor: "primary.main", borderTopColor: "transparent", animation: "spin 1s linear infinite" }} />
               <Typography variant="body1">La IA está diseñando la estrategia de cierre...</Typography>
             </Box>
           ) : (

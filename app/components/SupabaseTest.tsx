@@ -33,7 +33,7 @@ export function SupabaseStatus() {
   if (status === 'checking') {
     return (
       <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-        <CircularProgress size={16} />
+        <Box sx={{ width: 28, height: 28, borderRadius: "50%", border: "3px solid", borderColor: "primary.main", borderTopColor: "transparent", animation: "spin 1s linear infinite" }} />
         <SafeChip 
           label="Conectando a Supabase..." 
           size="small" 

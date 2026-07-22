@@ -175,7 +175,7 @@ export default function Calendario() {
   if (loading) {
     return (
       <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", height: "60vh", gap: 2 }}>
-        <CircularProgress size={44} sx={{ color: '#1976d2' }} />
+        <Box sx={{ width: 28, height: 28, borderRadius: "50%", border: "3px solid", borderColor: "primary.main", borderTopColor: "transparent", animation: "spin 1s linear infinite" }} />
         <Typography color="text.secondary" variant="body2">Cargando eventos...</Typography>
       </Box>
     );

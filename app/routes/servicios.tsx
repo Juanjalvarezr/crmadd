@@ -232,7 +232,7 @@ export default function Servicios() {
       </Paper>
 
       {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', p: 5 }}><CircularProgress /></Box>
+        <Box sx={{ display: 'flex', justifyContent: 'center', p: 5 }}><Box sx={{ width: 28, height: 28, borderRadius: "50%", border: "3px solid", borderColor: "primary.main", borderTopColor: "transparent", animation: "spin 1s linear infinite" }} /></Box>
       ) : error ? (
         <Alert severity="error">{error}</Alert>
       ) : (

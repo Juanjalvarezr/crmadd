@@ -482,7 +482,7 @@ export default function Tareas() {
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
         {loading ? (
-          <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}><CircularProgress color="primary" /></Box>
+          <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}><Box sx={{ width: 28, height: 28, borderRadius: "50%", border: "3px solid", borderColor: "primary.main", borderTopColor: "transparent", animation: "spin 1s linear infinite" }} /></Box>
         ) : (
           <TableContainer>
             <Table>
@@ -816,7 +816,7 @@ export default function Tareas() {
         <DialogActions sx={{ p: 3 }}>
           <Button onClick={() => setOpenModal(false)} variant="outlined" disabled={saving}>Cancelar</Button>
           <Button onClick={handleSave} variant="contained" disabled={saving}
-            startIcon={saving ? <CircularProgress size={16} color="inherit" /> : <FiPlus />}>
+            startIcon={saving ? <Box sx={{ width: 28, height: 28, borderRadius: "50%", border: "3px solid", borderColor: "primary.main", borderTopColor: "transparent", animation: "spin 1s linear infinite" }} /> : <FiPlus />}>
             {saving ? "Guardando..." : (editingTarea ? "Guardar Cambios" : "Crear Tarea")}
           </Button>
         </DialogActions>

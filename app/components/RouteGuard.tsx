@@ -4,7 +4,7 @@ import { Box, CircularProgress, Typography, Button, Paper } from "@mui/material"
 export function RouteSkeleton() {
   return (
     <Box sx={{ display: "grid", placeItems: "center", py: 10 }}>
-      <CircularProgress />
+      <Box sx={{ width: 28, height: 28, borderRadius: "50%", border: "3px solid", borderColor: "primary.main", borderTopColor: "transparent", animation: "spin 1s linear infinite" }} />
     </Box>
   );
 }

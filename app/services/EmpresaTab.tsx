@@ -97,7 +97,7 @@ export const EmpresaTab: React.FC<EmpresaTabProps> = ({ config, onChange, onSave
       <Box sx={{ mt: 3 }}>
         <Button 
           variant="contained"
-          startIcon={loading ? <CircularProgress size={20} /> : <FiSave />}
+          startIcon={loading ? <Box sx={{ width: 28, height: 28, borderRadius: "50%", border: "3px solid", borderColor: "primary.main", borderTopColor: "transparent", animation: "spin 1s linear infinite" }} /> : <FiSave />}
           onClick={onSave}
           disabled={loading}
           sx={{ backgroundColor: "#e91e63", '&:hover': { backgroundColor: "#c2185b" } }}

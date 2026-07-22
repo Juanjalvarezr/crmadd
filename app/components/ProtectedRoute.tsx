@@ -63,7 +63,7 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
           color: '#ffffff',
         }}
       >
-        <CircularProgress sx={{ color: '#e91e63', mb: 2 }} />
+        <Box sx={{ width: 28, height: 28, borderRadius: "50%", border: "3px solid", borderColor: "primary.main", borderTopColor: "transparent", animation: "spin 1s linear infinite" }} />
         <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)' }}>
           Verificando acceso...
         </Typography>

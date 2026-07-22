@@ -98,7 +98,7 @@ export default function ProjectUnifiedPanel({ open, onClose, proyecto }: Project
 
         {cargando && (
           <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", py: 4 }}>
-            <CircularProgress size={28} />
+            <Box sx={{ width: 28, height: 28, borderRadius: "50%", border: "3px solid", borderColor: "primary.main", borderTopColor: "transparent", animation: "spin 1s linear infinite" }} />
           </Box>
         )}
 
