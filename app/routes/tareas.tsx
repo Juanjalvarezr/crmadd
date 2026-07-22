@@ -502,102 +502,84 @@ export default function Tareas() {
                   const subtareasTotal = (tarea.subtareas || []).length;
                   return (
                   <TableRow key={tarea.id} hover sx={{ backgroundColor: isVencida(tarea) ? (theme => theme.palette.mode === 'dark' ? 'rgba(255,87,34,0.15)' : "#fff3e0") : "inherit", '&:last-child td, &:last-child th': { border: 0 } }}>
-                    <TableCell sx={{ py: { xs: 1, sm: 1.5 } }}>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                        <Checkbox size="small" checked={tarea.estado === "Completada"} onChange={() => handleComplete(tarea)} />
-                            <Box sx={{ minWidth: 0 }}>
-                              <Typography variant="body2" sx={{ fontWeight: 500, lineHeight: 1.3 }}>{tarea.titulo}</Typography>
-                              <Typography variant="caption" color="text.secondary">ID: {tarea.id}</Typography>
+                      <TableCell sx={{ py: { xs: 0.75, sm: 1 }, fontSize: { xs: '0.75rem', sm: '0.82rem' } }}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                          <Checkbox size="small" checked={tarea.estado === "Completada"} onChange={() => handleComplete(tarea)} />
+                              <Box sx={{ minWidth: 0 }}>
+                                <Typography variant="body2" sx={{ fontWeight: 500, lineHeight: 1.2, fontSize: { xs: '0.78rem', sm: '0.85rem' } }}>{tarea.titulo}</Typography>
+                                <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.65rem', sm: '0.72rem' } }}>ID: {tarea.id}</Typography>
+                              </Box>
+                              {isVencida(tarea) && <SafeChip label="⚠️ Vencida" size="small" color="error" variant="outlined" sx={{ height: 18, fontSize: '0.6rem' }} />}
                             </Box>
-                            {isVencida(tarea) && <SafeChip label="⚠️ Vencida" size="small" color="error" variant="outlined" sx={{ height: 20, fontSize: '0.65rem' }} />}
-                          </Box>
-                      {subtareasTotal > 0 && (
-                        <Typography variant="caption" color="text.secondary">
-                          Subtareas: {subtareasCompletadas}/{subtareasTotal}
-                        </Typography>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {tarea.cliente_id ? (
-                        <Box>
-                          <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                            {clientes.find(c => c.id === tarea.cliente_id)?.nombre || 'Cargando...'}
+                        {subtareasTotal > 0 && (
+                          <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.65rem', sm: '0.72rem' } }}>
+                            Subtareas: {subtareasCompletadas}/{subtareasTotal}
                           </Typography>
-                          {clientes.find(c => c.id === tarea.cliente_id)?.nicho && (
-                            <SafeChip
-                              label={clientes.find(c => c.id === tarea.cliente_id)?.nicho}
-                              size="small"
-                              variant="outlined"
-                              sx={{ height: 18, fontSize: '0.65rem', mt: 0.5 }}
-                            />
-                          )}
-                        </Box>
-                      ) : (
-                        <Typography variant="caption" color="text.disabled">Interno</Typography>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
-                        <SafeChip label={tarea.prioridad} color={getPrioridadColor(tarea.prioridad)} size="small" />
-                        <SafeChip label={tarea.estado} color={getEstadoColor(tarea.estado)} size="small" variant="outlined" />
-                        {tarea.dependencias && tarea.dependencias.length > 0 && (
-                          <Typography variant="caption" color="text.secondary">Depende de {tarea.dependencias.length}</Typography>
                         )}
-                      </Box>
-                    </TableCell>
-                    <TableCell>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                        <FiCalendar size={14} />
-                        <Typography variant="body2">{format(new Date(tarea.fecha), "dd/MM/yyyy")}</Typography>
-                      </Box>
-                      {tarea.recordatorios && tarea.recordatorios.length > 0 && (
-                        <Box sx={{ display: "flex", gap: 0.5, mt: 0.5 }}>
-                          {(tarea.recordatorios as any[]).map((r: any) => (
-                            <SafeChip key={r.id} icon={r.tipo === 'whatsapp' ? <FiMessageSquare size={12} /> : <FiBell size={12} />} label={r.tipo} size="small" variant="outlined" sx={{ height: 18, fontSize: '0.6rem' }} />
-                          ))}
-                        </Box>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {tarea.timer_activo ? (
-                        <Button size="small" color="error" startIcon={<FiPause />} onClick={() => handlePauseTimer(tarea)}>Pausar</Button>
-                      ) : tarea.estado !== "Completada" ? (
+                      </TableCell>
+                      <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }, py: { xs: 0.75, sm: 1 } }}>
+                        {tarea.cliente_id ? (
+                          <Box>
+                            <Typography variant="body2" sx={{ fontWeight: 600, fontSize: { xs: '0.78rem', sm: '0.85rem' } }}>
+                              {clientes.find(c => c.id === tarea.cliente_id)?.nombre || 'Cargando...'}
+                            </Typography>
+                            {clientes.find(c => c.id === tarea.cliente_id)?.nicho && (
+                              <SafeChip
+                                label={clientes.find(c => c.id === tarea.cliente_id)?.nicho}
+                                size="small"
+                                variant="outlined"
+                                sx={{ height: 18, fontSize: '0.6rem', mt: 0.5 }}
+                              />
+                            )}
+                          </Box>
+                        ) : (
+                          <Typography variant="caption" color="text.disabled" sx={{ fontSize: { xs: '0.65rem', sm: '0.72rem' } }}>Interno</Typography>
+                        )}
+                      </TableCell>
+                      <TableCell sx={{ py: { xs: 0.75, sm: 1 } }}>
                         <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5 }}>
-                          {tarea.tiempo_total ? (
-                            <Typography variant="caption" color="text.secondary">{formatSegundos(tarea.tiempo_total)}</Typography>
-                          ) : (
-                            <Button size="small" color="primary" variant="outlined" startIcon={<FiPlay />} onClick={() => handleStartTimer(tarea)}>Iniciar</Button>
-                          )}
-                          {tarea.tiempo_total && (
-                            <Button size="small" color="success" variant="contained" startIcon={<FiCheck />} onClick={() => handleFinishTimer(tarea)}>Fin</Button>
+                          <SafeChip label={tarea.prioridad} color={getPrioridadColor(tarea.prioridad)} size="small" sx={{ height: 20, fontSize: '0.6rem' }} />
+                          <SafeChip label={tarea.estado} color={getEstadoColor(tarea.estado)} size="small" variant="outlined" sx={{ height: 20, fontSize: '0.6rem' }} />
+                          {tarea.dependencias && tarea.dependencias.length > 0 && (
+                            <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.65rem', sm: '0.72rem' } }}>Depende de {tarea.dependencias.length}</Typography>
                           )}
                         </Box>
-                      ) : (
-                        <Typography variant="caption">{formatSegundos(tarea.tiempo_total)}</Typography>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Box sx={{ display: "flex", gap: 0.5, flexWrap: "wrap" }}>
-                        <IconButton size="small" onClick={() => handleOpenModal(tarea)} title="Editar / Detalles">
-                          <FiEdit />
-                        </IconButton>
-                        {tarea.estado !== "Completada" && (
-                          <IconButton size="small" color="success" onClick={() => handleComplete(tarea)} title="Completar">
-                            <FiCheck />
-                          </IconButton>
+                      </TableCell>
+                      <TableCell sx={{ display: { xs: 'none', md: 'table-cell' }, py: { xs: 0.75, sm: 1 } }}>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                          <FiCalendar size={14} />
+                          <Typography variant="body2" sx={{ fontSize: { xs: '0.78rem', sm: '0.85rem' } }}>{format(new Date(tarea.fecha), "dd/MM/yyyy")}</Typography>
+                        </Box>
+                        {tarea.recordatorios && tarea.recordatorios.length > 0 && (
+                          <Box sx={{ display: "flex", gap: 0.5, mt: 0.5 }}>
+                            {(tarea.recordatorios as any[]).map((r: any) => (
+                              <SafeChip key={r.id} icon={r.tipo === 'whatsapp' ? <FiMessageSquare size={12} /> : <FiBell size={12} />} label={r.tipo} size="small" variant="outlined" sx={{ height: 18, fontSize: '0.6rem' }} />
+                            ))}
+                          </Box>
                         )}
-                        <IconButton size="small" color="error" onClick={() => handleDelete(tarea)} title="Eliminar">
-                          <FiTrash2 />
-                        </IconButton>
-                        <IconButton size="small" onClick={() => {
-                          handleOpenModal(tarea);
-                          setModalTab("subtareas");
-                        }} title="Subtareas">
-                          <FiTarget />
-                        </IconButton>
-                      </Box>
-                    </TableCell>
-                  </TableRow>
+                      </TableCell>
+                      <TableCell sx={{ py: { xs: 0.75, sm: 1 } }}>
+                        <Box sx={{ display: "flex", gap: 0.5, flexWrap: "wrap" }}>
+                          <IconButton size="small" onClick={() => handleOpenModal(tarea)} title="Editar / Detalles" sx={{ p: 0.5 }}>
+                            <FiEdit size={16} />
+                          </IconButton>
+                          {tarea.estado !== "Completada" && (
+                            <IconButton size="small" color="success" onClick={() => handleComplete(tarea)} title="Completar" sx={{ p: 0.5 }}>
+                              <FiCheck size={16} />
+                            </IconButton>
+                          )}
+                          <IconButton size="small" color="error" onClick={() => handleDelete(tarea)} title="Eliminar" sx={{ p: 0.5 }}>
+                            <FiTrash2 size={16} />
+                          </IconButton>
+                          <IconButton size="small" onClick={() => {
+                            handleOpenModal(tarea);
+                            setModalTab("subtareas");
+                          }} title="Subtareas" sx={{ p: 0.5 }}>
+                            <FiTarget size={16} />
+                          </IconButton>
+                        </Box>
+                      </TableCell>
+                    </TableRow>
                   );
                 })}
               </TableBody>
