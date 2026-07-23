@@ -5,6 +5,60 @@
  * public-proyecto.tsx y proyectos.tsx.
  */
 
+import crypto from 'node:crypto';
+
+/**
+ * Genera token firmado para acceso público a un proyecto
+ */
+export function generatePublicAccessToken(proyectoId: string | number, expiresInDays = 30): string {
+  const secret = import.meta.env.VITE_PUBLIC_LINK_SECRET || 'deseo-digital-public-link-secret';
+  const payload = `${proyectoId}:${Date.now() + expiresInDays * 24 * 60 * 60 * 1000}`;
+  const signature = crypto.createHmac('sha256', secret).update(payload).digest('hex');
+  return `${payload}:${signature}`;
+}
+
+/**
+ * Valida token y retorna proyectoId si es válido
+ */
+export function validatePublicAccessToken(token: string): string | null {
+  try {
+    const [proyectoId, expires, signature] = token.split(':');
+    const secret = import.meta.env.VITE_PUBLIC_LINK_SECRET || 'deseo-digital-public-link-secret';
+    const expected = crypto.createHmac('sha256', secret).update(`${proyectoId}:${expires}`).digest('hex');
+    if (signature !== expected) return null;
+    if (Number(expires) < Date.now()) return null;
+    return proyectoId;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Genera URL completa del portal público
+ */
+export function getPublicProyectoUrl(proyectoId: string | number): string {
+  const token = generatePublicAccessToken(proyectoId);
+  return `${window.location.origin}/public-proyecto/${proyectoId}?token=${token}`;
+}
+
+/**
+ * Copia texto al portapapeles
+ */
+export async function copyToClipboard(text: string): Promise<boolean> {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    const el = document.createElement("textarea");
+    el.value = text;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand("copy");
+    document.body.removeChild(el);
+    return true;
+  }
+}
+
 export const getFaseColor = (fase: string): string => {
   const colors: Record<string, string> = {
     propuesta: "#00b0ff",
@@ -51,24 +105,3 @@ export const getEstadoColor = (estado: string): string => {
   return colors[estado] || "#9e9e9e";
 };
 
-/** Genera la URL pública del portal del cliente para un proyecto dado */
-export const getPublicProyectoUrl = (proyectoId: string | number): string => {
-  return `${window.location.origin}/public/proyecto/${proyectoId}`;
-};
-
-/** Copia texto al portapapeles, retorna true si tiene éxito */
-export const copyToClipboard = async (text: string): Promise<boolean> => {
-  try {
-    await navigator.clipboard.writeText(text);
-    return true;
-  } catch {
-    // Fallback para contextos sin API de clipboard
-    const el = document.createElement("textarea");
-    el.value = text;
-    document.body.appendChild(el);
-    el.select();
-    document.execCommand("copy");
-    document.body.removeChild(el);
-    return true;
-  }
-};

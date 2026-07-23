@@ -152,6 +152,17 @@ export const proyectosService = {
   create: (proyecto: any) => withTimeout(baseProyectosService.create(proyecto), 'proyectosService.create'),
   update: (id: string, updates: any) => withTimeout(baseProyectosService.update(id, updates), 'proyectosService.update'),
   delete: (id: string) => withTimeout(baseProyectosService.delete(id), 'proyectosService.delete'),
+  validatePublicAccess: (id: string, token: string) =>
+    withTimeout(
+      (async () => {
+        const proyectoId = validatePublicAccessToken(token);
+        if (!proyectoId || String(proyectoId) !== String(id)) return null;
+        const { data, error } = await supabase.from('proyectos').select('*').eq('id', id).maybeSingle();
+        if (error || !data) return null;
+        return data;
+      })(),
+      'proyectosService.validatePublicAccess'
+    ).catch(() => null),
 };
 
 export const equipoService = {

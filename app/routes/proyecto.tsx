@@ -309,6 +309,49 @@ export default function ProyectoInterno() {
           </Button>
         </Box>
 
+        {/* Tabs sticky optimizados */}
+        <Box sx={{ position: 'sticky', top: 0, zIndex: 10, bgcolor: 'background.default', pt: 2, pb: 1, borderBottom: '1px solid', borderColor: 'divider' }}>
+          <Tabs
+            value={tab}
+            onChange={(_, v) => setTab(v)}
+            variant="scrollable"
+            scrollButtons="auto"
+            sx={{
+              '& .MuiTab-root': {
+                minHeight: 40,
+                py: 0.5,
+                px: 1.5,
+                fontSize: { xs: '0.8rem', sm: '0.9rem' },
+                transition: 'background-color 0.2s ease',
+                '&:hover': { bgcolor: 'action.hover' }
+              }
+            }}
+          >
+            <Tab label="Detalle" icon={<FiBriefcase size={14} />} iconPosition="start" />
+            <Tab label="Tareas" icon={<FiCheckCircle size={14} />} iconPosition="start" />
+            <Tab label="Documentos" icon={<FiFileText size={14} />} iconPosition="start" />
+            <Tab label="Facturas" icon={<FiMail size={14} />} iconPosition="start" />
+            <Tab label="Contratos" icon={<FiSend size={14} />} iconPosition="start" />
+            <Tab label="Cronograma" icon={<FiCalendar size={14} />} iconPosition="start" />
+          </Tabs>
+        </Box>
+        <Box sx={{
+          px: { xs: 2, md: 4 },
+          py: 3,
+          animation: 'fadeIn 0.2s ease-in',
+          '@keyframes fadeIn': {
+            '0%': { opacity: 0, transform: 'translateY(4px)' },
+            '100%': { opacity: 1, transform: 'translateY(0)' }
+          }
+        }}>
+          {tab === 0 && <Box>...</Box>}
+          {tab === 1 && <Box>...</Box>}
+          {tab === 2 && <Box>...</Box>}
+          {tab === 3 && <Box>...</Box>}
+          {tab === 4 && <Box>...</Box>}
+          {tab === 5 && <Box>...</Box>}
+        </Box>
+
         {/* Secciones compactas expandibles */}
         <Stack spacing={2} sx={{ mt: 3 }}>
           <ExpandableCard title="Estrategia" icon={<FiActivity size={16} />} summary={estrategiaProyecto?.objetivo || 'Sin objetivo definido'}>
