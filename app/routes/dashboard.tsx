@@ -257,6 +257,49 @@ export default function Dashboard() {
         </Alert>
       )}
 
+      {/* Recordatorios mínimos */}
+      <Box sx={{ mb: 1.5 }}>
+        <Alert severity="info" sx={{ borderRadius: 2, '& .MuiAlert-message': { fontSize: '0.85rem' } }}>
+          <Typography variant="caption" sx={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5 }}>Recordatorios</Typography>
+          <Box sx={{ mt: 0.5, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+            {(() => {
+              const hoy = new Date().toISOString().split('T')[0];
+              const pendientes = data.tareas.filter((t: any) => {
+                const estado = (t.estado || '').toLowerCase();
+                return estado !== 'completada' && estado !== 'cancelada' && t.fecha && t.fecha >= hoy;
+              }).sort((a: any, b: any) => (a.fecha || '').localeCompare(b.fecha || '')).slice(0, 5);
+              const proyectosVencidos = data.proyectos.filter((p: any) => {
+                if (!p.fecha_limite) return false;
+                return p.fecha_limite < hoy && p.estado !== 'entregado' && p.estado !== 'cancelado';
+              }).slice(0, 3);
+              if (!pendientes.length && !proyectosVencidos.length) {
+                return <Typography variant="caption" color="text.secondary">Sin recordatorios pendientes. Todo al día.</Typography>;
+              }
+              return (
+                <>
+                  {pendientes.map((t: any) => (
+                    <Chip
+                      key={`t-${t.id}`}
+                      label={`📋 ${t.titulo || 'Tarea'} • ${t.fecha || 'Sin fecha'}`}
+                      size="small"
+                      sx={{ fontSize: '0.7rem', bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider' }}
+                    />
+                  ))}
+                  {proyectosVencidos.map((p: any) => (
+                    <Chip
+                      key={`p-${p.id}`}
+                      label={`⚠️ ${p.nombre || 'Proyecto'} • Vencido`}
+                      size="small"
+                      sx={{ fontSize: '0.7rem', bgcolor: '#ffebee', border: '1px solid', borderColor: 'error.main', color: 'error.main' }}
+                    />
+                  ))}
+                </>
+              );
+            })()}
+          </Box>
+        </Alert>
+      </Box>
+
       {/* Acciones rápidas */}
       <Box sx={{ mb: 1.5, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
         <Button size="small" variant="outlined" startIcon={<FiUsers size={14} />} onClick={() => exportCSV('clientes')} disabled={!!exportLoading || !data.clientes.length}>
