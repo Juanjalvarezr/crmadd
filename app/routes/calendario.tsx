@@ -321,7 +321,7 @@ export default function Calendario() {
           minHeight: 340,
           display: "flex",
           flexDirection: "column",
-          "& .rbc-toolbar": { mb: 1, display: 'flex', flexWrap: 'wrap', gap: 1, justifyContent: 'space-between', alignItems: 'center' },
+          "& .rbc-toolbar": { display: { xs: 'none', sm: 'flex' }, flexWrap: 'wrap', gap: 1, justifyContent: 'space-between', alignItems: 'center' },
           "& .rbc-header": { py: 0.75, fontSize: { xs: '0.65rem', sm: '0.72rem' }, fontWeight: 700, textTransform: 'uppercase', color: 'text.secondary', bgcolor: 'background.default', borderRight: 'none' },
           "& .rbc-today": { bgcolor: 'action.selected' },
           "& .rbc-off-range-bg": { bgcolor: 'background.default' },
@@ -341,7 +341,7 @@ export default function Calendario() {
             events={filteredEvents}
             startAccessor="start"
             endAccessor="end"
-            style={{ height: "100%" }}
+            style={{ height: "100%", width: "100%" }}
             culture="es"
             onSelectEvent={handleSelectEvent}
             eventPropGetter={eventPropGetter}
