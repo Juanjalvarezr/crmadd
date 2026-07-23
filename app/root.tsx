@@ -48,8 +48,8 @@ export default function Root() {
         warning: { main: '#ff9800', light: '#ffb74d', dark: '#f57c00', contrastText: '#ffffff' },
         info: { main: '#2196f3', light: '#64b5f6', dark: '#1976d2', contrastText: '#ffffff' },
         error: { main: '#f44336', light: '#e57373', dark: '#d32f2f', contrastText: '#ffffff' },
-        background: { default: themeMode === 'dark' ? '#0d0e15' : '#f6f7fb', paper: themeMode === 'dark' ? '#12131a' : '#ffffff' },
-        text: { primary: themeMode === 'dark' ? '#e2e8f0' : '#1f232e', secondary: themeMode === 'dark' ? '#a0aec0' : '#617182' },
+        background: { default: themeMode === 'dark' ? '#12131a' : '#f6f7fb', paper: themeMode === 'dark' ? '#1a1c24' : '#ffffff' },
+        text: { primary: themeMode === 'dark' ? '#f1f5f9' : '#1f232e', secondary: themeMode === 'dark' ? '#cbd5e1' : '#617182' },
       },
 
       shape: { borderRadius: 12 },

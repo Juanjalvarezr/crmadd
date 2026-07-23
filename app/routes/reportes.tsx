@@ -390,7 +390,7 @@ export default function Reportes() {
 
       {/* Controles de filtro */}
       <Paper sx={{ p: 1.5, mb: 1.5, borderRadius: 2 }}>
-        <Grid container spacing={2} alignItems="center">
+        <Grid container spacing={{ xs: 0.75, sm: 1.5 }} alignItems="center">
           <Grid item xs={12} md={3}>
             <FormControl fullWidth>
               <InputLabel>Período</InputLabel>
