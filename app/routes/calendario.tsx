@@ -321,19 +321,18 @@ export default function Calendario() {
           minHeight: 340,
           display: "flex",
           flexDirection: "column",
-          "& .rbc-calendar": { fontFamily: "inherit", height: "100%", display: "flex", flexDirection: "column" },
-          "& .rbc-header": { py: 0.75, fontSize: "0.72rem", fontWeight: 700, textTransform: "uppercase", color: "text.secondary", bgcolor: "background.default", borderRight: "none" },
-          "& .rbc-today": { bgcolor: "action.selected" },
-          "& .rbc-off-range-bg": { bgcolor: "background.default" },
-          "& .rbc-toolbar": { display: "none" },
-          "& .rbc-month-view, & .rbc-week-view, & .rbc-day-view": { flex: 1, display: "flex", flexDirection: "column" },
-          "& .rbc-day-bg + .rbc-day-bg": { borderLeft: "1px solid divider" },
-          "& .rbc-event": { fontSize: "0.7rem !important", padding: "2px 4px", margin: "1px 0", borderRadius: 1.5 },
-          "& .rbc-time-content": { borderTop: "none" },
-          "& .rbc-time-header": { borderRight: "none" },
-          "& .rbc-time-gutter": { borderRight: "none" },
-          "& .rbc-day-slot": { borderRight: "none" },
-          "& .rbc-agenda-view, & .rbc-month-view, & .rbc-week-view": { overflowX: "hidden" }
+          "& .rbc-toolbar": { mb: 1, display: 'flex', flexWrap: 'wrap', gap: 1, justifyContent: 'space-between', alignItems: 'center' },
+          "& .rbc-header": { py: 0.75, fontSize: { xs: '0.65rem', sm: '0.72rem' }, fontWeight: 700, textTransform: 'uppercase', color: 'text.secondary', bgcolor: 'background.default', borderRight: 'none' },
+          "& .rbc-today": { bgcolor: 'action.selected' },
+          "& .rbc-off-range-bg": { bgcolor: 'background.default' },
+          "& .rbc-month-view, & .rbc-week-view, & .rbc-day-view": { flex: 1, display: 'flex', flexDirection: 'column' },
+          "& .rbc-day-bg + .rbc-day-bg": { borderLeft: '1px solid divider' },
+          "& .rbc-event": { fontSize: { xs: '0.65rem', sm: '0.7rem' }, padding: '2px 4px', margin: '1px 0', borderRadius: 1.5 },
+          "& .rbc-time-content": { borderTop: 'none' },
+          "& .rbc-time-header": { borderRight: 'none' },
+          "& .rbc-time-gutter": { borderRight: 'none' },
+          "& .rbc-day-slot": { borderRight: 'none' },
+          "& .rbc-agenda-view, & .rbc-month-view, & .rbc-week-view": { overflowX: 'hidden' }
         }}
       >
         <Box sx={{ height: "100%", minHeight: 320, display: "flex", flexDirection: "column" }}>
