@@ -452,18 +452,18 @@ export default function Ventas() {
           </Box>
         ) : filtered.length > 0 ? (
           <DragDropContext onDragEnd={onDragEnd}>
-            <Box sx={{ display: 'flex', gap: 1.5, overflowX: 'auto', pb: 1, minHeight: 340 }}>
+            <Box sx={{ display: 'flex', gap: 1, overflowX: 'auto', pb: 1, minHeight: 340 }}>
               {["Prospección", "Propuesta", "Negociación", "Cierre"].map(col => {
                 const oppsCol = filtered.filter(o => o.etapa === col);
                 const sumValor = oppsCol.reduce((a, b) => a + b.valor, 0);
                 
                 return (
-                  <Paper key={col} sx={{ minWidth: 260, flex: 1, p: 1, bgcolor: '#f8f9fa', borderTop: `3px solid ${getEtapaColor(col) === 'primary' ? '#2196f3' : getEtapaColor(col) === 'success' ? '#4caf50' : getEtapaColor(col) === 'warning' ? '#ff9800' : '#e91e63'}` }}>
+                  <Paper key={col} sx={{ minWidth: 240, flex: 1, p: 1, bgcolor: 'action.hover', borderTop: `3px solid ${getEtapaColor(col) === 'primary' ? '#2196f3' : getEtapaColor(col) === 'success' ? '#4caf50' : getEtapaColor(col) === 'warning' ? '#ff9800' : '#e91e63'}` }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.25 }}>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 800, color: "text.primary", letterSpacing: '-0.01em', fontSize: '0.8rem' }}>{col}</Typography>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 800, letterSpacing: '-0.01em', fontSize: '0.8rem' }}>{col}</Typography>
                       <SafeChip label={String(oppsCol.length)} size="small" sx={{ height: 18, fontSize: '0.65rem', fontWeight: 600 }} />
                     </Box>
-                    <Typography variant="caption" color="text.secondary" sx={{ mb: 1, fontWeight: 700, fontSize: '0.75rem' }}>
+                    <Typography variant="caption" color="text.secondary" sx={{ mb: 0.75, fontWeight: 700, fontSize: '0.75rem' }}>
                       {formatValue(sumValor)}
                     </Typography>
                     
@@ -473,9 +473,9 @@ export default function Ventas() {
                           ref={provided.innerRef} 
                           {...provided.droppableProps}
                           sx={{ 
-                            minHeight: 160, 
+                            minHeight: 140, 
                             bgcolor: snapshot.isDraggingOver ? 'rgba(0,0,0,0.06)' : 'transparent', 
-                            transition: 'background-color 0.15s', 
+                            transition: 'background-color 0.15s',
                             borderRadius: 1 
                           }}
                         >
@@ -485,7 +485,8 @@ export default function Ventas() {
                                 <Box
                                    ref={provided.innerRef}
                                    {...provided.draggableProps}
-                                   sx={{ mb: 1 }}
+                                   {...provided.dragHandleProps}
+                                   sx={{ mb: 0.75 }}
                                 >
                                   <Paper
                                     elevation={snapshot.isDragging ? 3 : 0}

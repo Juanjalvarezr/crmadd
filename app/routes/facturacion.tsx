@@ -64,6 +64,7 @@ export default function Facturacion() {
   const [anulacionOpen, setAnulacionOpen] = useState(false);
   const [anulacionItem, setAnulacionItem] = useState<any>(null);
   const [anulacionMotivo, setAnulacionMotivo] = useState("");
+  const [expandFilters, setExpandFilters] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -347,83 +348,82 @@ export default function Facturacion() {
         ))}
       </Box>
 
-      {/* Filtros avanzados */}
-      <Paper sx={{ p: 1, mb: 2, borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
-        <Grid container spacing={1.5} alignItems="center">
-          <Grid item xs={12} md={3}>
-            <TextField
-              size="small"
-              placeholder="Buscar factura o cliente..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              InputProps={{ startAdornment: <InputAdornment position="start"><FiSearch /></InputAdornment> }}
-              fullWidth
-            />
+      {/* Filtros */}
+      <Paper sx={{ p: { xs: 1, sm: 1.5 }, mb: 2, borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
+        <Box sx={{ px: 1, py: 0.75, display: 'flex', alignItems: 'center', gap: 1, cursor: 'pointer' }} onClick={() => setExpandFilters(v => !v)}>
+          <Typography variant="subtitle2" sx={{ fontWeight: 700, flex: 1 }}>Filtros</Typography>
+          <Box sx={{ color: 'text.secondary' }}>{expandFilters ? <FiChevronUp size={14} /> : <FiChevronDown size={14} />}</Box>
+        </Box>
+        <Collapse in={expandFilters} timeout="auto" unmountOnExit>
+          <Grid container spacing={1.5} sx={{ mt: 0.5 }}>
+            <Grid item xs={12} md={3}>
+              <TextField size="small" placeholder="Buscar factura o cliente..." value={search} onChange={(e) => setSearch(e.target.value)} InputProps={{ startAdornment: <InputAdornment position="start"><FiSearch /></InputAdornment> }} fullWidth />
+            </Grid>
+            <Grid item xs={6} md={2}>
+              <FormControl size="small" fullWidth>
+                <InputLabel>Estado</InputLabel>
+                <Select value={filterEstado} label="Estado" onChange={(e) => setFilterEstado(String(e.target.value))}>
+                  <MenuItem value="all">Todos</MenuItem>
+                  <MenuItem value="borrador">Borrador</MenuItem>
+                  <MenuItem value="enviada">Enviada</MenuItem>
+                  <MenuItem value="pagada">Pagada</MenuItem>
+                  <MenuItem value="anulada">Anulada</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={6} md={2}>
+              <FormControl size="small" fullWidth>
+                <InputLabel>Tipo</InputLabel>
+                <Select value={filterTipo} label="Tipo" onChange={(e) => setFilterTipo(String(e.target.value))}>
+                  <MenuItem value="all">Todos</MenuItem>
+                  <MenuItem value="servicio">Servicio</MenuItem>
+                  <MenuItem value="producto">Producto</MenuItem>
+                  <MenuItem value="mixto">Mixto</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={6} md={2}>
+              <FormControl size="small" fullWidth>
+                <InputLabel>Estado pago</InputLabel>
+                <Select value={filterEstadoPago} label="Estado pago" onChange={(e) => setFilterEstadoPago(String(e.target.value))}>
+                  <MenuItem value="all">Todos</MenuItem>
+                  <MenuItem value="anticipo">Anticipo</MenuItem>
+                  <MenuItem value="parcial">Parcial</MenuItem>
+                  <MenuItem value="pago_final">Pago final</MenuItem>
+                  <MenuItem value="pendiente">Pendiente</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={6} md={3} sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+              <Button variant="outlined" startIcon={<FiFilter />} onClick={limpiarFiltros} size="small">Limpiar</Button>
+              <Button variant="outlined" startIcon={<FiDownload />} onClick={exportCSV} size="small">Exportar CSV</Button>
+            </Grid>
+            <Grid item xs={6} md={2}>
+              <FormControl size="small" fullWidth>
+                <InputLabel>Cliente</InputLabel>
+                <Select value={filterCliente} label="Cliente" onChange={(e) => setFilterCliente(String(e.target.value))}>
+                  <MenuItem value="">Todos</MenuItem>
+                  {clientes.map((c: any) => <MenuItem key={c.id} value={c.id}>{c.nombre || c.empresa}</MenuItem>)}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={6} md={2}>
+              <FormControl size="small" fullWidth>
+                <InputLabel>Proyecto</InputLabel>
+                <Select value={filterProyecto} label="Proyecto" onChange={(e) => setFilterProyecto(String(e.target.value))}>
+                  <MenuItem value="">Todos</MenuItem>
+                  {proyectos.map((p: any) => <MenuItem key={p.id} value={p.id}>{p.nombre}</MenuItem>)}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={6} md={2}>
+              <TextField size="small" label="Desde" type="date" value={filterFechaDesde} onChange={(e) => setFilterFechaDesde(e.target.value)} InputLabelProps={{ shrink: true }} fullWidth />
+            </Grid>
+            <Grid item xs={6} md={2}>
+              <TextField size="small" label="Hasta" type="date" value={filterFechaHasta} onChange={(e) => setFilterFechaHasta(e.target.value)} InputLabelProps={{ shrink: true }} fullWidth />
+            </Grid>
           </Grid>
-          <Grid item xs={6} md={2}>
-            <FormControl size="small" fullWidth>
-              <InputLabel>Estado</InputLabel>
-              <Select value={filterEstado} label="Estado" onChange={(e) => setFilterEstado(String(e.target.value))}>
-                <MenuItem value="all">Todos</MenuItem>
-                <MenuItem value="borrador">Borrador</MenuItem>
-                <MenuItem value="enviada">Enviada</MenuItem>
-                <MenuItem value="pagada">Pagada</MenuItem>
-                <MenuItem value="anulada">Anulada</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={6} md={2}>
-            <FormControl size="small" fullWidth>
-              <InputLabel>Tipo</InputLabel>
-              <Select value={filterTipo} label="Tipo" onChange={(e) => setFilterTipo(String(e.target.value))}>
-                <MenuItem value="all">Todos</MenuItem>
-                <MenuItem value="servicio">Servicio</MenuItem>
-                <MenuItem value="producto">Producto</MenuItem>
-                <MenuItem value="mixto">Mixto</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={6} md={2}>
-            <FormControl size="small" fullWidth>
-              <InputLabel>Estado pago</InputLabel>
-              <Select value={filterEstadoPago} label="Estado pago" onChange={(e) => setFilterEstadoPago(String(e.target.value))}>
-                <MenuItem value="all">Todos</MenuItem>
-                <MenuItem value="anticipo">Anticipo</MenuItem>
-                <MenuItem value="parcial">Parcial</MenuItem>
-                <MenuItem value="pago_final">Pago final</MenuItem>
-                <MenuItem value="pendiente">Pendiente</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={6} md={3} sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-            <Button variant="outlined" startIcon={<FiFilter />} onClick={limpiarFiltros} size="small">Limpiar</Button>
-            <Button variant="outlined" startIcon={<FiDownload />} onClick={exportCSV} size="small">Exportar CSV</Button>
-          </Grid>
-          <Grid item xs={6} md={2}>
-            <FormControl size="small" fullWidth>
-              <InputLabel>Cliente</InputLabel>
-              <Select value={filterCliente} label="Cliente" onChange={(e) => setFilterCliente(String(e.target.value))}>
-                <MenuItem value="">Todos</MenuItem>
-                {clientes.map((c: any) => <MenuItem key={c.id} value={c.id}>{c.nombre || c.empresa}</MenuItem>)}
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={6} md={2}>
-            <FormControl size="small" fullWidth>
-              <InputLabel>Proyecto</InputLabel>
-              <Select value={filterProyecto} label="Proyecto" onChange={(e) => setFilterProyecto(String(e.target.value))}>
-                <MenuItem value="">Todos</MenuItem>
-                {proyectos.map((p: any) => <MenuItem key={p.id} value={p.id}>{p.nombre}</MenuItem>)}
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={6} md={2}>
-            <TextField size="small" label="Desde" type="date" value={filterFechaDesde} onChange={(e) => setFilterFechaDesde(e.target.value)} InputLabelProps={{ shrink: true }} fullWidth />
-          </Grid>
-          <Grid item xs={6} md={2}>
-            <TextField size="small" label="Hasta" type="date" value={filterFechaHasta} onChange={(e) => setFilterFechaHasta(e.target.value)} InputLabelProps={{ shrink: true }} fullWidth />
-          </Grid>
-        </Grid>
+        </Collapse>
       </Paper>
 
       {/* Tabla */}

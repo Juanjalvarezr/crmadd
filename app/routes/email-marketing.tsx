@@ -3,7 +3,7 @@ import {
   Box, Typography, Paper, Button, TextField, Select, MenuItem,
   FormControl, InputLabel, Alert, Snackbar, Stack,
   Grid, Card, CardContent, Divider, LinearProgress,
-  Chip, IconButton, Tooltip, Badge, Avatar
+  Chip, IconButton, Tooltip, Badge, Avatar, InputAdornment
 } from "@mui/material";
 import {
   FiSend, FiSave, FiMail, FiBarChart2, FiUsers, FiEye,
@@ -53,6 +53,9 @@ const STAT_ITEMS = [
   { label: "Sin abrir", value: "31%", delta: "-8%", color: "#ff9800", icon: <FiAlertCircle size={18} /> },
 ];
 
+const EDITOR_MODES = ["Visual", "HTML"] as const;
+type EditorMode = typeof EDITOR_MODES[number];
+
 export function meta() {
   return [
     { title: "Email Marketing | DESEO DIGITAL" },
@@ -69,6 +72,7 @@ export default function EmailMarketing() {
   const [template, setTemplate] = useState<TemplateKey>("bienvenida");
   const [campanas, setCampanas] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<"compose" | "stats">("compose");
+  const [editorMode, setEditorMode] = useState<EditorMode>("Visual");
 
   useEffect(() => {
     const t = TEMPLATES[template];
@@ -210,9 +214,24 @@ export default function EmailMarketing() {
 
             {/* Formulario de envío */}
             <Paper variant="outlined" sx={{ p: 1.5, borderRadius: 2 }}>
-              <Typography variant="caption" sx={{ fontWeight: 700, color: "text.secondary", textTransform: "uppercase", letterSpacing: 0.5 }}>
-                Configurar envío
-              </Typography>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                <Typography variant="caption" sx={{ fontWeight: 700, color: "text.secondary", textTransform: "uppercase", letterSpacing: 0.5 }}>
+                  Configurar envío
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 0.5, bgcolor: 'background.default', borderRadius: 1, p: 0.25, border: '1px solid', borderColor: 'divider' }}>
+                  {EDITOR_MODES.map(mode => (
+                    <Button
+                      key={mode}
+                      size="small"
+                      variant={editorMode === mode ? "contained" : "text"}
+                      sx={{ borderRadius: 1, minWidth: 64, fontSize: '0.7rem', py: 0.25 }}
+                      onClick={() => setEditorMode(mode)}
+                    >
+                      {mode}
+                    </Button>
+                  ))}
+                </Box>
+              </Box>
               <Stack spacing={1.5} sx={{ mt: 1.2 }}>
                 <TextField
                   label="Destinatarios"
@@ -224,7 +243,7 @@ export default function EmailMarketing() {
                   minRows={2}
                   size="small"
                   helperText={to ? `${to.split(',').filter(s => s.trim()).length} destinatario(s)` : "Separa con comas"}
-                  InputProps={{ startAdornment: <FiUsers size={14} style={{ marginRight: 6, color: "#888", flexShrink: 0 }} /> }}
+                  InputProps={{ startAdornment: <InputAdornment position="start"><FiUsers size={14} /></InputAdornment> }}
                 />
                 <TextField
                   label="Asunto"
@@ -232,18 +251,28 @@ export default function EmailMarketing() {
                   onChange={(e) => setSubject(e.target.value)}
                   fullWidth
                   size="small"
-                  InputProps={{ startAdornment: <FiMail size={14} style={{ marginRight: 6, color: "#888", flexShrink: 0 }} /> }}
+                  InputProps={{ startAdornment: <InputAdornment position="start"><FiMail size={14} /></InputAdornment> }}
                 />
-                <TextField
-                  label="Contenido HTML"
-                  value={html}
-                  onChange={(e) => setHtml(e.target.value)}
-                  fullWidth
-                  multiline
-                  minRows={5}
-                  size="small"
-                  sx={{ fontFamily: "monospace" }}
-                />
+                {editorMode === "Visual" ? (
+                  <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, overflow: 'hidden', minHeight: 200, bgcolor: '#fff', color: '#222' }} className="email-visual-preview">
+                    <Box sx={{ px: 1, py: 0.5, bgcolor: 'action.hover', borderBottom: '1px solid', borderColor: 'divider', display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700 }}>Vista previa</Typography>
+                      <Typography variant="caption" color="text.secondary">({subject || 'Sin asunto'})</Typography>
+                    </Box>
+                    <Box sx={{ p: 1.5 }} dangerouslySetInnerHTML={{ __html: html || '<p style="color:#888">Sin contenido</p>' }} />
+                  </Box>
+                ) : (
+                  <TextField
+                    label="Contenido HTML"
+                    value={html}
+                    onChange={(e) => setHtml(e.target.value)}
+                    fullWidth
+                    multiline
+                    minRows={5}
+                    size="small"
+                    sx={{ fontFamily: "monospace" }}
+                  />
+                )}
                 <Stack direction="row" spacing={1}>
                   <Button
                     variant="outlined"

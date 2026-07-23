@@ -1370,7 +1370,7 @@ export default function Clientes() {
           </Box>
           {selectedClient && (
             <Box sx={{ mt: 1 }}>
-              <Tabs value={detailTab} onChange={(_, v) => setDetailTab(v)} variant="fullWidth">
+              <Tabs value={detailTab} onChange={(_, v) => setDetailTab(v)} variant="fullWidth" size="small" sx={{ minHeight: 36, '& .MuiTab-root': { minHeight: 36, py: 0.5, fontSize: { xs: '0.7rem', sm: '0.8rem' } } }}>
                 <Tab label="Datos" />
                 <Tab label={`Historial (${relatedProyectos.length + relatedOportunidades.length + relatedTareas.length})`} />
                 <Tab label="Proyectos" />

@@ -93,75 +93,48 @@ export default function Equipo() {
   }
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Paper sx={{ p: 3, mb: 3, backgroundColor: "#f0f7ff", borderLeft: "5px solid #2196f3" }}>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+    <Box sx={{ p: { xs: 1, sm: 2 } }}>
+      <Paper variant="outlined" sx={{ p: { xs: 1.5, sm: 2 }, mb: 2, borderRadius: 2, borderLeft: '4px solid #2196f3' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
           <Box>
-            <Typography variant="h5" sx={{ fontWeight: "bold", color: "#1976d2" }}>Equipo Técnico y Subagentes</Typography>
-            <Typography variant="body2" color="text.secondary">Gestiona los especialistas de DESEO DIGITAL</Typography>
+            <Typography variant="subtitle1" sx={{ fontWeight: 800, letterSpacing: '-0.01em', lineHeight: 1.2 }}>Equipo Técnico y Subagentes</Typography>
+            <Typography variant="caption" color="text.secondary">Gestiona los especialistas de DESEO DIGITAL</Typography>
           </Box>
-          <Button variant="contained" startIcon={<FiUserPlus />} onClick={() => handleOpenModal()}>
+          <Button size="small" variant="contained" startIcon={<FiUserPlus />} onClick={() => handleOpenModal()}>
             Añadir Miembro
           </Button>
         </Box>
       </Paper>
 
-      <Grid container spacing={3}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
         {miembros.map((miembro) => (
-          <Grid item xs={12} sm={6} md={4} key={miembro.id}>
-            <Card sx={{
-              borderRadius: 3,
-              transition: "0.3s",
-              "&:hover": { boxShadow: 6, transform: "translateY(-5px)" }
-            }}>
-              <CardContent>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
-                  <Avatar sx={{ bgcolor: miembro.rol === 'Admin' ? '#e91e63' : '#2196f3', width: 56, height: 56 }}>
-                    {(miembro.nombre || "??").substring(0,2).toUpperCase()}
-                  </Avatar>
-                  <Box>
-                    <Typography variant="h6" sx={{ fontWeight: "bold" }}>{miembro.nombre}</Typography>
-                    <Typography variant="caption" color="text.secondary">{miembro.email}</Typography>
-                  </Box>
-                </Box>
-
-                <Box sx={{ display: "flex", gap: 1, mb: 2, flexWrap: "wrap" }}>
-                  <SafeChip label={miembro.rol} size="small" color="primary" variant="outlined" />
-                  <SafeChip label={miembro.especialidad || "General"} size="small" color="secondary" />
-                  <SafeChip
-                    label={miembro.estado || "Activo"}
-                    size="small"
-                    color={(miembro.estado || "Activo") === 'Activo' ? 'success' : 'default'}
-                  />
-                </Box>
-
-                <Divider sx={{ mb: 2 }} />
-
-                <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                  <Button size="small" startIcon={<FiMail />} href={`mailto:${miembro.email}`}>
-                    Contactar
-                  </Button>
-                  <Box>
-                    <IconButton size="small" onClick={() => handleOpenModal(miembro)} color="warning">
-                      <FiEdit2 />
-                    </IconButton>
-                    <IconButton size="small" color="error" onClick={() => handleDelete(miembro.id)}>
-                      <FiTrash2 />
-                    </IconButton>
-                  </Box>
-                </Box>
-              </CardContent>
-            </Card>
-          </Grid>
+          <Paper key={miembro.id} variant="outlined" sx={{ p: { xs: 1, sm: 1.25 }, borderRadius: 2, border: '1px solid', borderColor: 'divider', bgcolor: 'background.paper' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, flexWrap: 'wrap' }}>
+              <Avatar sx={{ bgcolor: miembro.rol === 'Admin' ? '#e91e63' : '#2196f3', width: 36, height: 36, fontSize: '0.75rem' }}>
+                {(miembro.nombre || '??').substring(0,2).toUpperCase()}
+              </Avatar>
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Typography variant="body2" sx={{ fontWeight: 700, lineHeight: 1.2, fontSize: { xs: '0.78rem', sm: '0.85rem' } }} noWrap>{miembro.nombre}</Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.65rem', sm: '0.72rem' } }}>{miembro.email}</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', alignItems: 'center' }}>
+                <SafeChip label={miembro.rol} size="small" color="primary" variant="outlined" sx={{ height: 20, fontSize: '0.6rem' }} />
+                <SafeChip label={miembro.especialidad || 'General'} size="small" color="secondary" sx={{ height: 20, fontSize: '0.6rem' }} />
+                <SafeChip label={miembro.estado || 'Activo'} size="small" color={(miembro.estado || 'Activo') === 'Activo' ? 'success' : 'default'} sx={{ height: 20, fontSize: '0.6rem' }} />
+                <IconButton size="small" onClick={() => handleOpenModal(miembro)} color="warning" sx={{ p: 0.5 }}>
+                  <FiEdit2 size={16} />
+                </IconButton>
+                <IconButton size="small" color="error" onClick={() => handleDelete(miembro.id)} sx={{ p: 0.5 }}>
+                  <FiTrash2 size={16} />
+                </IconButton>
+              </Box>
+            </Box>
+          </Paper>
         ))}
         {miembros.length === 0 && (
-          <Grid item xs={12}>
-            <Typography sx={{ textAlign: "center", color: "text.secondary", py: 4 }}>
-              No hay miembros cargados. Agregá el primero.
-            </Typography>
-          </Grid>
+          <Typography sx={{ textAlign: 'center', color: 'text.secondary', py: 3 }}>No hay miembros cargados. Agregá el primero.</Typography>
         )}
-      </Grid>
+      </Box>
 
       <Dialog open={openModal} onClose={() => setOpenModal(false)} fullWidth maxWidth="xs">
         <DialogTitle>{editingId ? "Editar Miembro" : "Nuevo Miembro del Equipo"}</DialogTitle>

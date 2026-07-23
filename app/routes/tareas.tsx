@@ -422,6 +422,40 @@ export default function Tareas() {
         ))}
       </Box>
 
+      {/* Avance por proyecto */}
+      <Paper sx={{ p: { xs: 1, sm: 1.5 }, mb: 1.5, borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
+        <Box sx={{ px: 1, py: 0.75, display: 'flex', alignItems: 'center', gap: 1, cursor: 'pointer' }} onClick={() => setExpandProyectos(v => !v)}>
+          <Typography variant="subtitle2" sx={{ fontWeight: 700, flex: 1 }}>Avance por proyecto</Typography>
+          <SafeChip label={proyectos.length} size="small" sx={{ height: 18, fontSize: '0.65rem' }} />
+          <Box sx={{ color: 'text.secondary' }}>{expandProyectos ? <FiChevronUp size={14} /> : <FiChevronDown size={14} />}</Box>
+        </Box>
+        <Collapse in={expandProyectos} timeout="auto" unmountOnExit>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75, mt: 0.5 }}>
+            {proyectos.map((proyecto: any) => {
+              const tareasProyecto = filtered.filter((t: any) => String(t.proyecto_id) === String(proyecto.id));
+              const total = tareasProyecto.length;
+              const hechas = tareasProyecto.filter((t: any) => t.estado === 'Completada').length;
+              const pct = total ? Math.round((hechas / total) * 100) : 0;
+              return (
+                <Box key={proyecto.id} sx={{ px: 1, py: 0.75, borderBottom: '1px solid', borderColor: 'divider', '&:last-child': { borderBottom: 'none' } }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                    <Typography variant="body2" sx={{ fontWeight: 600, fontSize: { xs: '0.78rem', sm: '0.85rem' }, flex: 1, minWidth: 0 }} noWrap>{proyecto.nombre}</Typography>
+                    <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.65rem', sm: '0.72rem' } }}>{hechas}/{total}</Typography>
+                    <Box sx={{ flex: 1, minWidth: 80, height: 6, borderRadius: 1, bgcolor: '#e0e0e0', overflow: 'hidden' }}>
+                      <Box sx={{ height: '100%', width: `${pct}%`, bgcolor: pct >= 80 ? '#4caf50' : pct >= 40 ? '#2196f3' : '#ff9800', borderRadius: 1, transition: 'width 0.4s' }} />
+                    </Box>
+                    <Typography variant="caption" sx={{ fontWeight: 700, fontSize: '0.65rem', minWidth: 28 }}>{pct}%</Typography>
+                  </Box>
+                </Box>
+              );
+            })}
+            {proyectos.length === 0 && (
+              <Typography variant="caption" color="text.secondary">Sin proyectos asignados</Typography>
+            )}
+          </Box>
+        </Collapse>
+      </Paper>
+
       {/* Tabla */}
       <Paper sx={{ p: 2 }}>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, flexWrap: "wrap", gap: 1 }}>
