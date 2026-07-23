@@ -24,6 +24,8 @@ import {
   FiCpu,
   FiEye,
   FiEyeOff,
+  FiChevronUp,
+  FiChevronDown,
 } from "react-icons/fi";
 import { proyectosService, clientesService, oportunidadesService, tareasService, transaccionesService } from "../services/database";
 import { getCachedProjects, getCachedClients, getCachedTasks, getCachedTransactions } from "../utils/routeCache";
