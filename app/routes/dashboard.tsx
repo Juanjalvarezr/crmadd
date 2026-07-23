@@ -11,6 +11,7 @@ import {
   useTheme,
   IconButton,
   Tooltip,
+  Collapse,
 } from "@mui/material";
 import {
   FiRefreshCw,
