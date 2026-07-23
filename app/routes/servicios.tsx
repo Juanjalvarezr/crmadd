@@ -29,22 +29,19 @@ export default function Servicios() {
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" as "success" | "error" });
 
   const [formData, setFormData] = useState({
-    nombre: "",
-    categoria: "SEO",
-    descripcion: "",
-    precio_base: 0,
-    duracion: "",
+    nombre: '',
+    categoria: 'SEO',
+    descripcion: '',
+    precio_base: 350000,
+    duracion: '1 mes',
     incluye: [] as string[],
-    estado: "Activo" as "Activo" | "Inactivo",
     popularidad: 3,
-    tipo: "individual" as "paquete" | "individual",
+    tipo: 'individual' as 'paquete' | 'individual',
     paquete_dias: 5 as 3 | 5 | 7,
     objetivo: [] as string[],
     incluye_paquete: [] as string[],
-    precio_paquete: 0,
+    precio_paquete: 950000,
   });
-
-  const [nuevoItemIncluye, setNuevoItemIncluye] = useState("");
   const [nuevoObjetivo, setNuevoObjetivo] = useState("");
   const [nuevoItemPaquete, setNuevoItemPaquete] = useState("");
 
