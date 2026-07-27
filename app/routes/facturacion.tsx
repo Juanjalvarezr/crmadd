@@ -7,11 +7,12 @@ import {
   FormControl, InputLabel, Dialog, DialogTitle, DialogContent,
   DialogActions, Chip, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, IconButton, Tooltip, Snackbar, Alert,
-  Fade, Grid, Card, CardContent, InputAdornment
+  Fade, Grid, Card, CardContent, InputAdornment, Collapse
 } from "@mui/material";
 import {
   FiPlus, FiDownload, FiEye, FiEdit, FiTrash2, FiX, FiSearch,
-  FiMessageSquare, FiMail, FiFilter, FiSend, FiFileText, FiShoppingCart, FiCpu
+  FiMessageSquare, FiMail, FiFilter, FiSend, FiFileText, FiShoppingCart, FiCpu,
+  FiChevronUp, FiChevronDown
 } from "react-icons/fi";
 import { facturasService } from "../services/facturacion";
 import { clientesService, proyectosService } from "../services/database";

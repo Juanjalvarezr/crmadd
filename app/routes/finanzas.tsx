@@ -37,7 +37,7 @@ type TipoFiltro = "todos" | "ingreso" | "egreso";
 type CategoriaFiltro = "todas" | "nomina" | "suscripcion" | "servicio" | "otro";
 
 export default function Finanzas() {
-  const [authorized, setAuthorized] = useState<boolean | null>(null);
+  const [authorized, setAuthorized] = useState<boolean | null>(true);
 
   useEffect(() => {
     let cancelled = false;

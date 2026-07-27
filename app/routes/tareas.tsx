@@ -6,7 +6,7 @@ import {
   Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Alert, Snackbar, CircularProgress,
   Checkbox, FormControlLabel, Collapse, List, ListItem, ListItemText, ListItemIcon, Tooltip, Tabs, Tab, Divider, Accordion
 } from "@mui/material";
-import { FiPlus, FiEdit, FiTrash2, FiCheck, FiSearch, FiCalendar, FiX, FiRefreshCw, FiCheckSquare, FiTarget, FiPlay, FiPause, FiFlag, FiPaperclip, FiMessageSquare, FiBell, FiCpu } from "react-icons/fi";
+import { FiPlus, FiEdit, FiTrash2, FiCheck, FiSearch, FiCalendar, FiX, FiRefreshCw, FiCheckSquare, FiTarget, FiPlay, FiPause, FiFlag, FiPaperclip, FiMessageSquare, FiBell, FiCpu, FiChevronUp, FiChevronDown } from "react-icons/fi";
 import { tareasService, clientesService, equipoService, proyectosService } from "../services/database";
 import { useNotificationStore } from "../store/useNotificationStore";
 import { format, startOfDay, isBefore } from "date-fns";
@@ -17,7 +17,7 @@ import { openAiRoute } from "../components/FloatingAIAssistant";
 
 export function meta() {
   return [
-    { title: "Tareas | DESEO DIGITAL" },
+    { title: "Tareas | DESEO DIGITAL — FIX 2026-07-26" },
     { name: "description", content: "Gestión de tareas y actividades" },
   ];
 }
@@ -81,6 +81,9 @@ export default function Tareas() {
   const [soloVencidas, setSoloVencidas] = useState(false);
   const [proyectoFilter, setProyectoFilter] = useState("all");
   const [proyectos, setProyectos] = useState<any[]>([]);
+  const [expandProyectos, setExpandProyectos] = useState(true);
+  const [expandTareas, setExpandTareas] = useState(true);
+  const [expandFilters, setExpandFilters] = useState(false);
 
   const [openModal, setOpenModal] = useState(false);
   const [editingTarea, setEditingTarea] = useState<Tarea | null>(null);
@@ -109,7 +112,11 @@ export default function Tareas() {
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    if (params.get('action') === 'new') {
+    if (params.get('action') === 'new' || params.get('new') === '1') {
+      const ctx = params.get('rol_contexto');
+      if (ctx) {
+        setFormData(f => ({ ...f, titulo: decodeURIComponent(ctx), descripcion: 'Sugerido por Cerebro CRM' }));
+      }
       handleOpenModal();
     }
   }, [location]);
@@ -463,54 +470,33 @@ export default function Tareas() {
           <Button variant="contained" size="small" startIcon={<FiPlus />} onClick={() => handleOpenModal()}>Nueva Tarea</Button>
         </Box>
 
-        <Box sx={{ display: "flex", gap: 1.5, mb: 2, flexDirection: { xs: "column", md: "row" } }}>
+        <Box sx={{ display: "flex", gap: 0.75, mb: 1.5, flexDirection: { xs: "column", md: "row" } }}>
           <TextField
+            size="small"
             fullWidth placeholder="Buscar tareas..."
             value={searchTerm} onChange={(e: any) => setSearchTerm(e.target.value)}
-            InputProps={{ startAdornment: <InputAdornment position="start"><FiSearch /></InputAdornment> }}
+            InputProps={{ startAdornment: <InputAdornment position="start"><FiSearch size={14} /></InputAdornment> }}
           />
-          <FormControl sx={{ minWidth: 150 }}>
-            <InputLabel>Prioridad</InputLabel>
-            <Select value={prioridadFilter} label="Prioridad" onChange={(e: any) => setPrioridadFilter(e.target.value)}>
-              <MenuItem value="all">Todas</MenuItem>
-              <MenuItem value="Alta">Alta</MenuItem>
-              <MenuItem value="Media">Media</MenuItem>
-              <MenuItem value="Baja">Baja</MenuItem>
-            </Select>
-          </FormControl>
-          <FormControl sx={{ minWidth: 160 }}>
-            <InputLabel>Estado</InputLabel>
-            <Select value={estadoFilter} label="Estado" onChange={(e: any) => setEstadoFilter(e.target.value)}>
-              <MenuItem value="all">Todos</MenuItem>
-              <MenuItem value="Pendiente">Pendiente</MenuItem>
-              <MenuItem value="En progreso">En progreso</MenuItem>
-              <MenuItem value="Completada">Completada</MenuItem>
-            </Select>
-          </FormControl>
-          <FormControl sx={{ minWidth: 170 }}>
-            <InputLabel>Responsable</InputLabel>
-            <Select value={responsableFilter} label="Responsable" onChange={(e: any) => setResponsableFilter(e.target.value)}>
-              <MenuItem value="all">Todos</MenuItem>
-              {equipo.map(m => (
-                <MenuItem key={m.id} value={m.id}>{m.nombre}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <FormControl sx={{ minWidth: 170 }}>
-            <InputLabel>Cliente</InputLabel>
-            <Select value={clienteFilter} label="Cliente" onChange={(e: any) => setClienteFilter(e.target.value)}>
-              <MenuItem value="all">Todos</MenuItem>
-              {clientes.map(c => (
-                <MenuItem key={c.id} value={c.id}>{c.nombre}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <FormControl sx={{ minWidth: 160, display: 'flex', alignItems: 'center' }}>
-            <FormControlLabel
-              control={<Checkbox checked={soloVencidas} onChange={(e: any) => setSoloVencidas(e.target.checked)} />}
-              label="Solo vencidas"
-            />
-          </FormControl>
+          <Select size="small" value={prioridadFilter} label="Prioridad" onChange={(e: any) => setPrioridadFilter(e.target.value)} sx={{ minWidth: 130 }}>
+            <MenuItem value="all">Todas</MenuItem>
+            <MenuItem value="Alta">Alta</MenuItem>
+            <MenuItem value="Media">Media</MenuItem>
+            <MenuItem value="Baja">Baja</MenuItem>
+          </Select>
+          <Select size="small" value={estadoFilter} label="Estado" onChange={(e: any) => setEstadoFilter(e.target.value)} sx={{ minWidth: 145 }}>
+            <MenuItem value="all">Todos</MenuItem>
+            <MenuItem value="Pendiente">Pendiente</MenuItem>
+            <MenuItem value="En progreso">En progreso</MenuItem>
+            <MenuItem value="Completada">Completada</MenuItem>
+          </Select>
+          <Select size="small" value={responsableFilter} label="Responsable" onChange={(e: any) => setResponsableFilter(e.target.value)} sx={{ minWidth: 140, display: { xs: 'none', sm: 'inline-flex' } }}>
+            <MenuItem value="all">Todos</MenuItem>
+            {equipo.map(m => (<MenuItem key={m.id} value={m.id}>{m.nombre}</MenuItem>))}
+          </Select>
+          <Select size="small" value={proyectoFilter} label="Proyecto" onChange={(e: any) => setProyectoFilter(e.target.value)} sx={{ minWidth: 150, display: { xs: 'none', md: 'inline-flex' } }}>
+            <MenuItem value="all">Todos</MenuItem>
+            {proyectos.map(p => (<MenuItem key={p.id} value={p.id}>{p.nombre}</MenuItem>))}
+          </Select>
         </Box>
 
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
