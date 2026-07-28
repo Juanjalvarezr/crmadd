@@ -219,15 +219,7 @@ export default function Root() {
               minHeight: "calc(100vh - 96px)",
             }}
           >
-            <Suspense
-              fallback={
-                <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-                  <Box sx={{ width: 28, height: 28, borderRadius: "50%", border: "3px solid", borderColor: "primary.main", borderTopColor: "transparent", animation: "spin 1s linear infinite" }} />
-                </Box>
-              }
-            >
               <Outlet />
-            </Suspense>
           </Box>
           <MobileFab />
           <FloatingAIAssistant />
