@@ -37,6 +37,7 @@ const ESTADOS_CONTRATO = [
 export default function Contratos() {
   // Auth guard disabled for direct testing; restore when needed
   const [authorized, setAuthorized] = useState<boolean | null>(true);
+  const DEBUG_FIX = "CONTRATOS-FIX-2026-07-26";
 
   if (authorized === null) {
     return (
@@ -86,10 +87,10 @@ export default function Contratos() {
     setLoading(true);
     try {
       const [data, clientesData, proyectosData, facturasData, clausulas] = await Promise.all([
-        getCachedContracts(),
-        getCachedClients(),
-        getCachedProjects(),
-        getCachedInvoices(),
+        contratosService.getAll(),
+        clientesService.getAll(),
+        proyectosService.getAll(),
+        facturasService.getAll(),
         contratoClausulasService.getAll(),
       ]);
       setItems(data);

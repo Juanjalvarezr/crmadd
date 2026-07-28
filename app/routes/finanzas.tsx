@@ -28,7 +28,7 @@ const hoy = () => format(new Date(), "yyyy-MM-dd");
 
 export function meta() {
   return [
-    { title: "Finanzas | DESEO DIGITAL" },
+    { title: "Finanzas | DESEO DIGITAL — FIX 2026-07-26" },
     { name: "description", content: "Control de ingresos y egresos del CRM" },
   ];
 }
@@ -91,7 +91,7 @@ export default function Finanzas() {
     try {
       setLoading(true);
       setError(null);
-      const data = await getCachedTransactions();
+      const data = await transaccionesService.getAll();
       setTransacciones(data || []);
     } catch (err: any) {
       setError(err?.message || "Error cargando finanzas");
