@@ -1144,12 +1144,12 @@ const handleGenerateMagicLink = async (proyecto: Proyecto) => {
       )}
 
       {!loading && !error && (
-        <Grid container spacing={1.25} sx={{ overflowX: "hidden" }}>
+        <Grid container spacing={1} sx={{ overflowX: "hidden" }}>
           {proyectosFiltrados.map((proyecto) => (
             <Grid item xs={12} key={proyecto.id}>
               <ExpandableCard
                 title={proyecto.nombre}
-                subtitle={proyecto.descripcion ? `${proyecto.descripcion.slice(0, 100)}${proyecto.descripcion.length > 100 ? "…" : ""}` : "Sin descripción"}
+                subtitle={proyecto.descripcion ? `${proyecto.descripcion.slice(0, 90)}${proyecto.descripcion.length > 90 ? "…" : ""}` : "Sin descripción"}
                 status={{ label: proyecto.estado.replace("_", " "), color: getEstadoColor(proyecto.estado) }}
                 priority={{ label: proyecto.prioridad, color: getPrioridadColor(proyecto.prioridad) }}
                 date={`📅 ${format(new Date(proyecto.fechaInicio), "dd/MM/yyyy")} · ${format(new Date(proyecto.fechaFin), "dd/MM/yyyy")}`}
@@ -1157,111 +1157,98 @@ const handleGenerateMagicLink = async (proyecto: Proyecto) => {
                 compact
                 defaultExpanded={false}
                 titleColor={getEstadoColor(proyecto.estado)}
+                sx={{ transition: 'box-shadow 0.18s ease, transform 0.18s ease', '&:hover': { boxShadow: '0 8px 18px rgba(0,0,0,0.08)' } }}
                 footer={
-                  <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+                  <Box sx={{ display: "flex", gap: 0.6, flexWrap: "wrap", alignItems: "center" }}>
                     <Tooltip title="Compartir progreso con cliente (Magic Link)">
-                      <IconButton size="small" color="primary" onClick={(e) => { e.stopPropagation(); handleGenerateMagicLink(proyecto); }}>
-                        <Share2 size={18} />
+                      <IconButton size="small" color="primary" onClick={(e) => { e.stopPropagation(); handleGenerateMagicLink(proyecto); }} sx={{ p: 0.6 }}>
+                        <Share2 size={16} />
                       </IconButton>
                     </Tooltip>
                     <Tooltip title="Abrir proyecto">
-                      <IconButton size="small" onClick={(e) => { e.stopPropagation(); navigate(`/proyecto/${proyecto.id}`); }}>
-                        <Eye size={18} />
+                      <IconButton size="small" onClick={(e) => { e.stopPropagation(); navigate(`/proyecto/${proyecto.id}`); }} sx={{ p: 0.6 }}>
+                        <Eye size={16} />
                       </IconButton>
                     </Tooltip>
-                    <Tooltip title="Ir al proyecto">
-                      <Button size="small" variant="contained" sx={{ ml: 0.5 }} onClick={(e) => { e.stopPropagation(); navigate(`/proyecto/${proyecto.id}`); }}>Abrir</Button>
-                    </Tooltip>
+                    <Button size="small" variant="contained" sx={{ minHeight: 28, fontSize: '0.7rem', px: 1 }} onClick={(e) => { e.stopPropagation(); navigate(`/proyecto/${proyecto.id}`); }}>Abrir</Button>
                     <Tooltip title="Editar">
-                      <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleOpenProyectoModal(proyecto); }}>
-                        <Edit2 size={18} />
+                      <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleOpenProyectoModal(proyecto); }} sx={{ p: 0.6 }}>
+                        <Edit2 size={16} />
                       </IconButton>
                     </Tooltip>
                     {proyecto.estado === "en_progreso" && (
                       <Tooltip title="Pausar">
-                        <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleCambiarEstado(proyecto, "pausado"); }}>
-                          <Pause size={18} />
+                        <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleCambiarEstado(proyecto, "pausado"); }} sx={{ p: 0.6 }}>
+                          <Pause size={16} />
                         </IconButton>
                       </Tooltip>
                     )}
                     {proyecto.estado === "pausado" && (
                       <Tooltip title="Reanudar">
-                        <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleCambiarEstado(proyecto, "en_progreso"); }}>
-                          <Play size={18} />
+                        <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleCambiarEstado(proyecto, "en_progreso"); }} sx={{ p: 0.6 }}>
+                          <Play size={16} />
                         </IconButton>
                       </Tooltip>
                     )}
                     {proyecto.estado === "en_progreso" && (
                       <Tooltip title="Completar">
-                        <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleCambiarEstado(proyecto, "completado"); }}>
-                          <CheckCircle size={18} />
+                        <IconButton size="small" onClick={(e) => { e.stopPropagation(); handleCambiarEstado(proyecto, "completado"); }} sx={{ p: 0.6 }}>
+                          <CheckCircle size={16} />
                         </IconButton>
                       </Tooltip>
                     )}
                     <Tooltip title="Eliminar">
-                      <IconButton size="small" color="error" onClick={(e) => { e.stopPropagation(); handleDeleteProyecto(proyecto); }}>
-                        <Trash2 size={18} />
+                      <IconButton size="small" color="error" onClick={(e) => { e.stopPropagation(); handleDeleteProyecto(proyecto); }} sx={{ p: 0.6 }}>
+                        <Trash2 size={16} />
                       </IconButton>
                     </Tooltip>
                   </Box>
                 }
                 onClick={() => navigate(`/proyecto/${proyecto.id}`)}
               >
-                <Box sx={{ mb: 1.5 }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                    <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                <Box sx={{ mb: 1.25 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.6 }}>
+                    <Typography variant="body2" sx={{ fontWeight: 700, fontSize: { xs: '0.72rem', sm: '0.78rem' }, lineHeight: 1.2 }}>
                       Cliente: {proyecto.clienteNombre}
                     </Typography>
                     <SafeChip
                       label={proyecto.faseAdministrativa || "operacion"}
                       size="small"
                       variant="outlined"
-                      sx={{
-                        fontSize: '0.65rem',
-                        height: 20,
-                        borderColor: 'primary.main',
-                        color: 'primary.main',
-                        textTransform: 'uppercase'
-                      }}
+                      sx={{ fontSize: '0.55rem', height: 18, px: 0.6, borderColor: 'primary.main', color: 'primary.main', textTransform: 'uppercase' }}
                     />
                   </Box>
-                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.4 }}>
                     {(proyecto.servicios || []).map((servicio, index) => (
                       <SafeChip
                         key={index}
                         label={servicio}
                         size="small"
                         variant="outlined"
-                        sx={{ fontSize: "0.65rem", height: 22 }}
+                        sx={{ fontSize: '0.55rem', height: 18, px: 0.6 }}
                       />
                     ))}
                   </Box>
                 </Box>
 
-                <Box sx={{ mb: 2 }}>
-                  <Typography variant="body2" sx={{ fontWeight: "bold", mb: 1 }}>
-                    Progreso: {proyecto.progreso}%
-                  </Typography>
+                <Box sx={{ mb: 1.25 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.4 }}>
+                    <Typography variant="caption" sx={{ fontWeight: 700, fontSize: { xs: '0.6rem', sm: '0.65rem' }, lineHeight: 1.1 }}>
+                      Progreso: {proyecto.progreso}%
+                    </Typography>
+                  </Box>
                   <LinearProgress
                     variant="determinate"
                     value={proyecto.progreso}
-                    sx={{
-                      height: 8,
-                      borderRadius: 4,
-                      backgroundColor: "#e0e0e0",
-                      "& .MuiLinearProgress-bar": {
-                        borderRadius: 4,
-                        backgroundColor: getEstadoColor(proyecto.estado)
-                      }
-                    }}
+                    sx={{ height: 6, borderRadius: 3, backgroundColor: "#e0e0e0", "& .MuiLinearProgress-bar": { borderRadius: 3, backgroundColor: getEstadoColor(proyecto.estado) } }}
                   />
                 </Box>
 
-                <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1, flexWrap: "wrap", gap: 1 }}>
-                  <Typography variant="caption" color="text.secondary">
+                <Box sx={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 0.5 }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem' }, lineHeight: 1.1 }}>
                     Actualizado: {formatDistanceToNow(new Date(proyecto.actualizadoEn), { addSuffix: true, locale: es })}
                   </Typography>
-                  <Typography variant="caption" color="text.secondary">
+                  <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem' }, lineHeight: 1.1 }}>
                     Costo: {formatCOP(proyecto.costoActual)}
                   </Typography>
                 </Box>
