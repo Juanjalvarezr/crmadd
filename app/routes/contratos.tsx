@@ -65,18 +65,8 @@ export default function Contratos() {
   const load = async () => {
     setLoading(true);
     try {
-      const [data, clientesData, proyectosData, facturasData, clausulas] = await Promise.all([
-        contratosService.getAll(),
-        clientesService.getAll(),
-        proyectosService.getAll(),
-        facturasService.getAll(),
-        contratoClausulasService.getAll(),
-      ]);
+      const data = await contratosService.getAll().catch(() => []);
       setItems(data);
-      setClientes(clientesData);
-      setProyectos(proyectosData);
-      setFacturas(facturasData);
-      setClausulasDisponibles(clausulas);
       setError(null);
     } catch (e) {
       setError('Error cargando contratos');
@@ -85,7 +75,23 @@ export default function Contratos() {
     }
   };
 
+  const loadAux = async () => {
+    try {
+      const [clientesData, proyectosData, facturasData, clausulas] = await Promise.all([
+        clientesService.getAll().catch(() => []),
+        proyectosService.getAll().catch(() => []),
+        facturasService.getAll().catch(() => []),
+        contratoClausulasService.getAll().catch(() => []),
+      ]);
+      setClientes(clientesData);
+      setProyectos(proyectosData);
+      setFacturas(facturasData);
+      setClausulasDisponibles(clausulas);
+    } catch {}
+  };
+
   useEffect(() => { load(); }, []);
+  useEffect(() => { loadAux(); }, []);
 
   const getClienteNombre = (id: any) => {
     const c = clientes.find((x: any) => String(x.id) === String(id));
@@ -359,6 +365,11 @@ export default function Contratos() {
 
       {loading ? (
         <RouteSkeleton />
+      ) : error ? (
+        <Paper sx={{ p: 3, textAlign: 'center', border: '1px solid', borderColor: 'error.main', borderRadius: 2, bgcolor: 'error.light' }}>
+          <Typography variant="body2" sx={{ mb: 1, color: 'error.dark' }}>{error}</Typography>
+          <Button variant="contained" size="small" onClick={load}>Reintentar</Button>
+        </Paper>
       ) : (
         <Fade in>
           <TableContainer component={Paper} sx={{ borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
