@@ -37,37 +37,6 @@ type TipoFiltro = "todos" | "ingreso" | "egreso";
 type CategoriaFiltro = "todas" | "nomina" | "suscripcion" | "servicio" | "otro";
 
 export default function Finanzas() {
-  const [authorized, setAuthorized] = useState<boolean | null>(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const role = await authService.getUserRole().catch(() => null);
-        if (!cancelled) setAuthorized(!!role && ['Admin', 'Owner'].includes(role));
-      } catch {
-        if (!cancelled) setAuthorized(false);
-      }
-    })();
-    return () => { cancelled = true; };
-  }, []);
-
-  if (authorized === null) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
-        <Box sx={{ width: 28, height: 28, borderRadius: "50%", border: "3px solid", borderColor: "primary.main", borderTopColor: "transparent", animation: "spin 1s linear infinite" }} />
-      </Box>
-    );
-  }
-
-  if (!authorized) {
-    return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh', p: 3 }}>
-        <Alert severity="warning">No tienes permisos para acceder a Finanzas.</Alert>
-      </Box>
-    );
-  }
-
   const theme = useTheme();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

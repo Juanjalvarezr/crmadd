@@ -35,27 +35,6 @@ const ESTADOS_CONTRATO = [
 ];
 
 export default function Contratos() {
-  // Auth guard disabled for direct testing; restore when needed
-  const [authorized, setAuthorized] = useState<boolean | null>(true);
-  const DEBUG_FIX = "CONTRATOS-FIX-2026-07-26";
-
-  if (authorized === null) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
-        <Box sx={{ width: 28, height: 28, borderRadius: "50%", border: "3px solid", borderColor: "primary.main", borderTopColor: "transparent", animation: "spin 1s linear infinite" }} />
-      </Box>
-    );
-  }
-
-  if (!authorized) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh", p: 3 }}>
-        <Alert severity="warning">No tienes permisos para acceder a Contratos.</Alert>
-      </Box>
-    );
-  }
-
-  const [items, setItems] = useState<Contrato[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [editItem, setEditItem] = useState<Contrato | null>(null);

@@ -186,38 +186,69 @@ export const FloatingAIAssistant = () => {
         </Box>
 
         <Box sx={{ p: 1.5, overflowY: 'auto', flex: 1 }}>
+          {chatMessages.length === 0 && (
+            <Alert severity="info" sx={{ mb: 1.5, fontSize: '0.85rem' }}>
+              Soy el copiloto del CRM. Podés pedirme briefs, seguimientos, análisis o acciones por proyecto.
+            </Alert>
+          )}
           {chatMessages.slice(-12).map((m, idx) => (
             <Box key={idx} sx={{ mb: 1, textAlign: m.role === 'user' ? 'right' : 'left' }}>
-              <Paper sx={{ p: 1, bgcolor: m.role === 'user' ? 'primary.main' : 'action.hover', color: m.role === 'user' ? 'primary.contrastText' : 'text.primary', display: 'inline-block', maxWidth: '100%', whiteSpace: 'pre-wrap', fontSize: '0.85rem' }}>
+              <Paper sx={{
+                p: 1,
+                bgcolor: m.role === 'user' ? 'primary.main' : 'grey.100',
+                color: m.role === 'user' ? 'primary.contrastText' : 'text.primary',
+                display: 'inline-block',
+                maxWidth: '100%',
+                whiteSpace: 'pre-wrap',
+                fontSize: '0.85rem',
+                border: m.role === 'assistant' ? '1px solid' : 'none',
+                borderColor: 'divider'
+              }}>
                 {m.text}
               </Paper>
             </Box>
           ))}
           {isLoading && (
-            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-              <Box sx={{ width: 28, height: 28, borderRadius: "50%", border: "3px solid", borderColor: "primary.main", borderTopColor: "transparent", animation: "spin 1s linear infinite" }} />
-              <Typography variant="caption">Pensando...</Typography>
+            <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mt: 1 }}>
+              <Box sx={{ width: 22, height: 22, borderRadius: "50%", border: "3px solid", borderColor: "primary.main", borderTopColor: "transparent", animation: "spin 1s linear infinite" }} />
+              <Typography variant="caption" color="text.secondary">Pensando...</Typography>
             </Box>
           )}
         </Box>
 
         <Box sx={{ p: 1, borderTop: '1px solid', borderColor: 'divider' }}>
-          <Box sx={{ display: 'flex', gap: 1 }}>
-            <TextField
-              size="small"
-              fullWidth
-              value={chatInput}
-              onChange={(e) => setChatInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && sendChat()}
-              placeholder="Escribí una orden..."
-            />
-            <Button variant="contained" onClick={sendChat} disabled={isLoading}>Enviar</Button>
+          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+            <Box sx={{ display: 'flex', gap: 1, flex: 1, minWidth: 0 }}>
+              <TextField
+                size="small"
+                fullWidth
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendChat();
+                  }
+                }}
+                placeholder="Escribí una orden..."
+                disabled={isLoading}
+                error={!!snackbar.message && snackbar.severity === 'error'}
+              />
+              <Button size="small" variant="contained" onClick={sendChat} disabled={isLoading || !chatInput.trim()}>
+                Enviar
+              </Button>
+            </Box>
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Button size="small" variant="outlined" onClick={() => sendChat()}>Generar brief</Button>
+              <Button size="small" variant="outlined" onClick={() => setMode(mode === 'chat' ? 'proposal' : 'chat')}>Modo propuesta</Button>
+              <Button size="small" variant="text" onClick={() => handleCopy(resultText)}>{copied ? 'Copiado' : 'Copiar'}</Button>
+            </Box>
           </Box>
-          <Box sx={{ display: 'flex', gap: 1, mt: 1, flexWrap: 'wrap' }}>
-            <Button size="small" variant="outlined" onClick={() => sendChat()}>Generar brief</Button>
-            <Button size="small" variant="outlined" onClick={() => setMode(mode === 'chat' ? 'proposal' : 'chat')}>Modo propuesta</Button>
-            <Button size="small" variant="text" onClick={() => handleCopy(resultText)}>{copied ? 'Copiado' : 'Copiar'}</Button>
-          </Box>
+          {snackbar.open && (
+            <Alert severity={snackbar.severity} sx={{ mt: 1, fontSize: '0.8rem' }}>
+              {snackbar.message}
+            </Alert>
+          )}
         </Box>
 
         <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={() => setSnackbar({ ...snackbar, open: false })} anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}>
