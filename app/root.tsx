@@ -83,12 +83,10 @@ export default function Root() {
         const { data } = await supabase.auth.getSession();
         if (!cancelled) {
           setIsAuthenticated(!!data.session);
-          setAuthChecked(true);
         }
       } catch {
         if (!cancelled) {
           setIsAuthenticated(false);
-          setAuthChecked(true);
         }
       }
     };
@@ -96,14 +94,13 @@ export default function Root() {
 
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
       setIsAuthenticated(!!session);
-      setAuthChecked(true);
     });
 
     return () => {
       cancelled = true;
       authListener.subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, []);
 
   useEffect(() => {
     const isLoginPage = location.pathname === "/login";
