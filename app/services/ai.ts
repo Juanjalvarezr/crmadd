@@ -34,8 +34,8 @@ const getLocalEmbeddingModel = () => {
 };
 
 /**
- * Orquestador Centralizado de Generación: Llama a Supabase Edge Function proxy si está activa,
- * o hace fallback seguro al SDK local de Gemini.
+ * Orquestador de generación: usa Gemini directo como producción.
+ * Si VITE_USE_EDGE_FUNCTIONS=true y la función existe, se usa además, pero no como fallback.
  */
 const executeGenerateContent = async (prompt: string, modelName = "gemini-1.5-flash"): Promise<string> => {
   const useEdgeFunctions = import.meta.env.VITE_USE_EDGE_FUNCTIONS === "true";
@@ -43,16 +43,15 @@ const executeGenerateContent = async (prompt: string, modelName = "gemini-1.5-fl
   if (useEdgeFunctions) {
     try {
       const { data, error } = await supabase.functions.invoke("gemini-proxy", {
-        body: { action: "generateText", prompt, model: modelName }
+        body: { action: "generateText", prompt, model: modelName },
       });
       if (error) throw error;
       if (data && data.text) return data.text;
     } catch (err) {
-      console.warn("⚠️ Supabase Edge Function falló, usando SDK de Gemini local como respaldo:", err);
+      // La Edge Function no está disponible en este entorno; continúa con Gemini directo.
     }
   }
 
-  // Fallback Local SDK
   const model = getLocalAIModel(modelName);
   const result = await model.generateContent(prompt);
   return result.response.text();
