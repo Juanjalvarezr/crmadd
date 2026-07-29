@@ -69,9 +69,13 @@ export default function Dashboard() {
         getCachedTransactions(),
       ]);
 
-      // oportunidades se calcula desde proyectos/tareas para evitar 5ta consulta paralela
+      const proyectosSeguros = Array.isArray(proyectos) ? proyectos : [];
+      const clientesSeguros = Array.isArray(clientes) ? clientes : [];
+      const tareasSeguras = Array.isArray(tareas) ? tareas : [];
+      const transaccionesSeguras = Array.isArray(transacciones) ? transacciones : [];
+
       const oportunidades = [
-        ...(proyectos || []).filter((p: any) => p.estado === 'Abierta' || p.estado === 'en_progreso').map((p: any) => ({
+        ...proyectosSeguros.filter((p: any) => p.estado === 'Abierta' || p.estado === 'en_progreso').map((p: any) => ({
           id: p.id,
           nombre: p.nombre,
           cliente_nombre: p.cliente_nombre || '',
@@ -83,14 +87,15 @@ export default function Dashboard() {
       ];
 
       setData({
-        proyectos: Array.isArray(proyectos) ? proyectos : [],
-        clientes: Array.isArray(clientes) ? clientes : [],
+        proyectos: proyectosSeguros,
+        clientes: clientesSeguros,
         oportunidades,
-        tareas: Array.isArray(tareas) ? tareas : [],
-        transacciones: Array.isArray(transacciones) ? transacciones : [],
+        tareas: tareasSeguras,
+        transacciones: transaccionesSeguras,
         isUsingMockData: false,
       });
     } catch (err: any) {
+      setPartial(prev => prev || { proyectos: [], clientes: [], oportunidades: [], tareas: [], transacciones: [] });
       setError('Error al cargar datos: ' + err.message);
     } finally {
       setLoading(false);

@@ -32,6 +32,8 @@ const getLocalEmbeddingModel = () => {
   return genAI.getGenerativeModel({ model: "text-embedding-004" });
 };
 
+const FALLBACK_MODELS = ["gemini-1.5-flash-latest", "gemini-1.5-pro", "gemini-pro"];
+
 const executeGenerateContent = async (prompt: string, modelName = "gemini-1.5-flash"): Promise<string> => {
   const useEdgeFunctions = import.meta.env.VITE_USE_EDGE_FUNCTIONS === "true";
 
@@ -43,13 +45,32 @@ const executeGenerateContent = async (prompt: string, modelName = "gemini-1.5-fl
       if (error) throw error;
       if (data && data.text) return data.text;
     } catch (err) {
-      // La Edge Function no está disponible en este entorno; continúa con Gemini directo.
+      // Edge Function no disponible; continúa con Gemini directo.
     }
   }
 
-  const model = getLocalAIModel(modelName);
-  const result = await model.generateContent(prompt);
-  return result.response.text();
+  const tryModel = async (name: string) => {
+    const model = getLocalAIModel(name);
+    const result = await model.generateContent(prompt);
+    return result.response.text();
+  };
+
+  try {
+    return await tryModel(modelName);
+  } catch (err: any) {
+    const status = err?.status || err?.code;
+    const isNotFound = status === 404 || String(err?.message || "").includes("404") || String(err?.message || "").includes("is not found");
+    if (!isNotFound) throw err;
+
+    for (const fallback of FALLBACK_MODELS) {
+      try {
+        return await tryModel(fallback);
+      } catch (_err) {
+        // sigue al siguiente fallback
+      }
+    }
+    throw err;
+  }
 };
 
 const executeEmbedContent = async (text: string): Promise<number[]> => {
