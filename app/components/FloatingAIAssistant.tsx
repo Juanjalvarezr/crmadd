@@ -217,7 +217,7 @@ export const FloatingAIAssistant = () => {
         </Box>
 
         <Box sx={{ p: 1, borderTop: '1px solid', borderColor: 'divider' }}>
-          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+          <Box sx={{ display: 'flex', gap: 1 }}>
             <Box sx={{ display: 'flex', gap: 1, flex: 1, minWidth: 0 }}>
               <TextField
                 size="small"
@@ -230,18 +230,13 @@ export const FloatingAIAssistant = () => {
                     sendChat();
                   }
                 }}
-                placeholder="Escribí una orden..."
+                placeholder="Escribí una orden para el CRM..."
                 disabled={isLoading}
                 error={!!snackbar.message && snackbar.severity === 'error'}
               />
               <Button size="small" variant="contained" onClick={sendChat} disabled={isLoading || !chatInput.trim()}>
                 Enviar
               </Button>
-            </Box>
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              <Button size="small" variant="outlined" onClick={() => sendChat()}>Generar brief</Button>
-              <Button size="small" variant="outlined" onClick={() => setMode(mode === 'chat' ? 'proposal' : 'chat')}>Modo propuesta</Button>
-              <Button size="small" variant="text" onClick={() => handleCopy(resultText)}>{copied ? 'Copiado' : 'Copiar'}</Button>
             </Box>
           </Box>
           {snackbar.open && (

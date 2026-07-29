@@ -30,7 +30,7 @@ const getLocalEmbeddingModel = () => {
     throw new Error("Falta la API Key de Gemini. Debes configurar VITE_GEMINI_API_KEY en tu archivo .env");
   }
   const genAI = new GoogleGenerativeAI(apiKey);
-  return genAI.getGenerativeModel({ model: "embedding-001" });
+  return genAI.getGenerativeModel({ model: "text-embedding-004" });
 };
 
 /**
@@ -180,7 +180,7 @@ const parseAIResponse = (text: string): any => {
  */
 export const ejecutarAccionSincrona = async (pregunta: string, respuestaIA: string) => {
   try {
-    const model = getLocalAIModel(); // Usamos el modelo directo para análisis de fondo rápido
+    const model = getLocalAIModel();
     const prompt = `
       SISTEMA OPERATIVO DESEO DIGITAL:
       TAREA: Determinar si el usuario dio una ORDEN técnica.
@@ -188,172 +188,112 @@ export const ejecutarAccionSincrona = async (pregunta: string, respuestaIA: stri
       USER_MESSAGE: "${pregunta}"
       AI_RESPONSE_CONTEXT: "${respuestaIA}"
 
-      IMPORTANTE: No inventes IDs. Si necesitas un ID de proyecto o cliente, búscalo en el CONTEXTO CRM proporcionado.
-
       REGLAS DE ORO DE LA AGENCIA:
       1. Finanzas: El anticipo del 50% es obligatorio para pasar a fase "Operación".
       2. Estrategia: Debe existir un "Brief de Identidad" procesado antes de grabar Reels.
       3. Operaciones: Se deben documentar todos los nuevos procesos en el Manual (SOP).
 
-      CATÁLOGO DE ACCIONES DISPONIBLES:
+      CATÁLOGO PERMITIDO:
       - GUARDAR_PROCESO: { titulo: string, contenido: string }
       - ACTUALIZAR_CLIENTE: { id: number, cambios: object }
-      - CREAR_TAREA: { titulo: string, descripcion: string, prioridad: string, responsable_id?: number, cliente_id?: number }
-      - AGENDAR_CITA: { cliente_id: number, titulo: string, fecha: string, link?: string }
-      - ENVIAR_CORREO: { email: string, asunto: string, cuerpo: string, cliente_id: number }
-      - CREAR_FACTURA: { cliente_id: number, proyecto_id?: string, numero: string, tipo: string, subtotal: number, iva?: number, total: number, moneda?: string, estado?: string, notas?: string }
-      - CREAR_CONTRATO: { cliente_id: number, proyecto_id?: string, tipo: string, titulo: string, contenido: string, numero?: string, estado?: string, valor?: number }
-      - GENERAR_PDF_FACTURA: { factura_id: string }
-      - GENERAR_PDF_CONTRATO: { contrato_id: string }
-      - ENVIAR_WHATSAPP: { telefono: string, mensaje: string }
-      - ENVIAR_CORREO_CON_PDF: { email: string, asunto: string, cuerpo: string, pdf_url?: string }
-      - ACTUALIZAR_PROYECTO: { id: string, estado?: string, progreso?: number, fase?: string }
-      - ANALIZAR_ESTRATEGIA: { proyecto_id: string } -> Para cuando Juan pide consejos tácticos.
-      - BLOQUEO_OPERATIVO: { motivo: string } -> Si se viola una Regla de Oro.
+      - CREAR_TAREA: { titulo: string, descripcion: string, prioridad: string, cliente_id?: number, proyecto_id?: string }
+      - ACTUALIZAR_PROYECTO: { id: string, estado?: string, progreso?: number }
+      - ANALIZAR_ESTRATEGIA: { proyecto_id: string } -> Solo devuelve texto de análisis.
+      - BLOQUEO_OPERATIVO: { motivo: string }
 
-      REGLA DE RETROALIMENTACIÓN:
-      Si Juan da una instrucción imprecisa, responde con NINGUNA pero sugiere la acción en el campo "confirmacion".
-
-      Responde ÚNICAMENTE en JSON con este formato:
+      Responde ÚNICAMENTE en JSON:
       {
-        "accion": "GUARDAR_PROCESO" | "ACTUALIZAR_CLIENTE" | "CREAR_TAREA" | "AGENDAR_CITA" | "ENVIAR_CORREO" | "ACTUALIZAR_PROYECTO" | "BLOQUEO_OPERATIVO" | "NINGUNA",
-        "datos": { ... los datos necesarios para la acción ... },
-        "confirmacion": "Un mensaje corto de lo que vas a ejecutar o por qué bloqueas la acción"
+        "accion": "GUARDAR_PROCESO" | "ACTUALIZAR_CLIENTE" | "CREAR_TAREA" | "ACTUALIZAR_PROYECTO" | "ANALIZAR_ESTRATEGIA" | "BLOQUEO_OPERATIVO" | "NINGUNA",
+        "datos": { ... },
+        "confirmacion": "Mensaje corto"
       }
 
-      Si la acción es "ACTUALIZAR_PROYECTO" y Juan dice "completar" o "terminado", pon:
-      { "estado": "completado", "progreso": 100 }
+      Si la acción es "ACTUALIZAR_PROYECTO" y el mensaje indica "completar" o "terminado", devuelve:
+      { "accion": "ACTUALIZAR_PROYECTO", "datos": { "id": "<id>", "estado": "completado", "progreso": 100 }, "confirmacion": "Proyecto marcado como completado." }
     `;
 
     const result = await model.generateContent(prompt);
     const responseText = result.response.text();
     const infoAccion = parseAIResponse(responseText);
     if (infoAccion.error || !infoAccion.accion || infoAccion.accion === "NINGUNA") {
-      console.log("🤖 IA no detectó acciones técnicas para ejecutar.");
       return null;
     }
 
     const datos = infoAccion.datos || {};
 
     if (infoAccion.accion === "GUARDAR_PROCESO" && datos.contenido) {
-      const embedding = await executeEmbedContent(infoAccion.datos.contenido);
+      const embedding = await executeEmbedContent(String(datos.contenido));
       await conocimientoService.create({
-        titulo: infoAccion.datos.titulo || "Nuevo Proceso Operativo",
-        contenido: String(infoAccion.datos.contenido),
+        titulo: String(datos.titulo || "Nuevo Proceso Operativo"),
+        contenido: String(datos.contenido),
         categoria: "operaciones",
         embedding
       });
       return infoAccion.confirmacion;
     }
 
-
-
     if (infoAccion.accion === "ACTUALIZAR_CLIENTE") {
-      const { id, cambios } = infoAccion.datos;
+      const { id, cambios } = infoAccion.datos || {};
       if (id && !isNaN(Number(id))) {
-        const actualizado = await clientesService.update(Number(id), cambios);
-        return infoAccion.confirmacion + (actualizado ? ` (ID ${id})` : '');
+        const actualizado = await clientesService.update(Number(id), cambios || {});
+        return infoAccion.confirmacion + (actualizado ? ` (ID ${id})` : "");
       }
     }
 
     if (infoAccion.accion === "BLOQUEO_OPERATIVO") {
-      console.warn("🛑 Bloqueo por Regla de Oro:", infoAccion.datos.motivo);
-      return `🛑 Acción Bloqueada: ${infoAccion.datos.motivo}`;
+      return `🛑 Acción Bloqueada: ${datos.motivo || "Violación de regla operativa."}`;
     }
 
     if (infoAccion.accion === "ACTUALIZAR_PROYECTO") {
-      const { id, ...updates } = infoAccion.datos;
-      if (id && (typeof id === "string" || typeof id === "number")) {
+      const { id, ...updates } = datos || {};
+      if (id) {
         const idLimpio = String(id).trim();
-        // La confirmación debe realizarse en la capa de UI antes de llamar a esta función.
-        return await proyectosService.update(idLimpio, { ...updates, actualizadoEn: new Date().toISOString() } as any)
-          .then(() => infoAccion.confirmacion)
-          .catch(async (error: any) => {
-            await logsService.create?.({
-              accion: "Error Actualización IA",
-              modulo: "Proyectos",
-              detalle: `Error al intentar actualizar ID ${idLimpio}: ${error.message}`,
-              usuario: "Sistema IA"
-            }).catch(() => { });
-            console.error("Error en acción IA:", error);
-            return `⚠️ Error técnico al actualizar: ${error.message || "Verifica los datos"}`;
-          });
+        const resultado = await proyectosService.update(idLimpio, { ...updates, actualizado_en: new Date().toISOString() } as any);
+        return infoAccion.confirmacion || `Proyecto ${idLimpio} actualizado.`;
       }
     }
 
     if (infoAccion.accion === "CREAR_TAREA") {
+      const titulo = String(datos.titulo || "Nueva Tarea IA");
+      const descripcion = String(datos.descripcion || "");
+      const prioridad = datos.prioridad || "Media";
+      const cliente_id = datos.cliente_id && !isNaN(Number(datos.cliente_id)) ? Number(datos.cliente_id) : null;
+      const proyecto_id = datos.proyecto_id || null;
+      const estado = datos.estado || "Pendiente";
+      const fecha = datos.fecha || new Date().toISOString().split("T")[0];
+
       return await safeCreate(() => tareasService.create({
-        titulo: String(infoAccion.datos.titulo || "Nueva Tarea IA"),
-        descripcion: String(infoAccion.datos.descripcion || ""),
-        prioridad: infoAccion.datos.prioridad || "Media",
-        estado: "Pendiente",
+        titulo,
+        descripcion,
+        prioridad,
+        estado,
         tipo: "Tarea",
-        cliente_id: infoAccion.datos.cliente_id && !isNaN(Number(infoAccion.datos.cliente_id)) ? Number(infoAccion.datos.cliente_id) : null,
-        proyecto_id: infoAccion.datos.proyecto_id || null,
-        fecha: new Date().toISOString().split("T")[0]
+        cliente_id,
+        proyecto_id,
+        fecha
       }), infoAccion.confirmacion, "tarea");
     }
 
-
-
-    if (infoAccion.accion === "CREAR_FACTURA") {
-      const datos = infoAccion.datos || {};
-      return await safeCreate(() => facturasService.create?.({
-        cliente_id: Number(datos.cliente_id),
-        proyecto_id: datos.proyecto_id || null,
-        numero: datos.numero || `FAC-${Date.now()}`,
-        tipo: datos.tipo || "electronica",
-        subtotal: Number(datos.subtotal || 0),
-        iva: Number(datos.iva || 0),
-        total: Number(datos.total || 0),
-        moneda: datos.moneda || "COP",
-        estado: datos.estado || "pendiente",
-        notas: datos.notas || ""
-      }), infoAccion.confirmacion, "factura");
+    if (infoAccion.accion === "ANALIZAR_ESTRATEGIA") {
+      const pid = datos.proyecto_id ? String(datos.proyecto_id) : "";
+      if (!pid) return "Falta el identificador del proyecto para analizar la estrategia.";
+      const proyecto = await proyectosService.getById(pid).catch(() => null);
+      if (!proyecto) return `No se encontró el proyecto ${pid}.`;
+      const resumen = [
+        `Proyecto: ${proyecto.nombre || pid}`,
+        `Estado actual: ${proyecto.estado || "sin estado"}`,
+        `Progreso: ${proyecto.progreso ?? 0}%`,
+        `Fase: ${proyecto.fase_administrativa || proyecto.fase || "no definida"}`,
+        `Presupuesto: ${proyecto.presupuesto ? `$${Number(proyecto.presupuesto).toLocaleString("es-CO")}` : "no definido"}`,
+        `Costo actual: ${proyecto.costo_actual ? `$${Number(proyecto.costo_actual).toLocaleString("es-CO")}` : "no definido"}`
+      ].join("\n");
+      return `📊 Análisis estratégico:\n${resumen}`;
     }
 
-    if (infoAccion.accion === "GENERAR_PDF_FACTURA" && infoAccion.datos?.factura_id) {
-      return `📄 Se generaría el PDF de la factura ${infoAccion.datos.factura_id}. Requiere endpoint de PDF.`;
-    }
-
-    if (infoAccion.accion === "CREAR_CONTRATO") {
-      const datos = infoAccion.datos || {};
-      return await safeCreate(() => contratosService.create?.({
-        cliente_id: Number(datos.cliente_id),
-        proyecto_id: datos.proyecto_id || null,
-        tipo: datos.tipo || "servicios",
-        titulo: datos.titulo || "Contrato",
-        contenido: datos.contenido || "",
-        numero: datos.numero || `CTR-${Date.now()}`,
-        estado: datos.estado || "borrador",
-        valor: Number(datos.valor || 0)
-      }), infoAccion.confirmacion, "contrato");
-    }
-
-    if (infoAccion.accion === "GENERAR_PDF_CONTRATO" && infoAccion.datos?.contrato_id) {
-      return `📄 Se generaría el PDF del contrato ${infoAccion.datos.contrato_id}. Requiere endpoint de PDF.`;
-    }
-
-    if (infoAccion.accion === "ENVIAR_WHATSAPP") {
-      const { telefono, mensaje } = infoAccion.datos || {};
-      if (!telefono || !mensaje) return "Faltan datos para enviar WhatsApp.";
-      return `📱 Se enviaría WhatsApp a ${telefono}: "${mensaje}" (requiere integración).`;
-    }
-
-    if (infoAccion.accion === "ENVIAR_CORREO_CON_PDF") {
-      const { email, asunto, cuerpo, pdf_url } = infoAccion.datos || {};
-      if (!email || !asunto) return "Faltan datos para enviar el correo.";
-      const cuerpoFinal = `${cuerpo || ""}
-
-Documento: ${pdf_url || "(sin PDF)"}`;
-      await emailService.sendRealEmail([email], asunto, cuerpoFinal);
-      return infoAccion.confirmacion;
-    }
-
-    return infoAccion.confirmacion;
+    return infoAccion.confirmacion || "Acción reconocida, pero sin ejecución definida.";
   } catch (e) {
     console.error("Falla en Orquestador:", e);
-    throw new Error("No se pudo ejecutar la acción automática.");
+    return `⚠️ Error técnico en la acción automática: ${(e as any)?.message || "Verifica los datos"}`;
   }
 };
 
