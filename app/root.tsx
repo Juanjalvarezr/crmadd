@@ -1,7 +1,6 @@
-import React, { useEffect, useState, Suspense } from "react";
+import React, { useEffect, useState } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router";
-import { hydrateRoot } from "react-dom/client";
-import { Box, Snackbar, Alert, CircularProgress, ThemeProvider, CssBaseline, createTheme } from "@mui/material";
+import { Box, Snackbar, Alert, ThemeProvider, CssBaseline, createTheme } from "@mui/material";
 import { useNotificationStore } from "./store/useNotificationStore";
 import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
@@ -11,8 +10,6 @@ import GlobalSearch from "./components/GlobalSearch";
 import { OnboardingTour } from "./components/OnboardingTour";
 import { supabase } from "./services/supabase";
 
-// __INVALIDATE_BUILD_CACHE__ 2026-07-10T00:00:00.000Z
-// __BUILD_CACHE_BUSTER__=9999999999999
 const DRAWER_WIDTH = 260;
 
 export default function Root() {
@@ -71,7 +68,6 @@ export default function Root() {
       }
     });
 
-    // Force contrastText after createTheme to avoid Chip/Button crashes in production
     themeRaw.palette.primary.contrastText = '#ffffff';
     themeRaw.palette.secondary.contrastText = '#ffffff';
     themeRaw.palette.success.contrastText = '#ffffff';
@@ -222,7 +218,7 @@ export default function Root() {
               minHeight: "calc(100vh - 96px)",
             }}
           >
-              <Outlet />
+            <Outlet />
           </Box>
           <MobileFab />
           <FloatingAIAssistant />
