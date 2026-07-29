@@ -29,6 +29,7 @@ const SafeChip: React.FC<SafeChipProps> = ({
   variant = "filled",
   sx = {},
   icon,
+  hover = false,
   ...rest
 }) => {
   const safe = SAFE_COLORS[color] || SAFE_COLORS.default;
@@ -55,10 +56,9 @@ const SafeChip: React.FC<SafeChipProps> = ({
     backgroundColor: variant === "outlined" ? "transparent" : variant === "tonal" ? tonalBg : safe.bg,
     border: variant === "outlined" ? `1px solid ${safe.bg}` : variant === "tonal" ? tonalBorder : "none",
     boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
-    ...(hover ? { cursor: "pointer", "&:hover": { transform: "translateY(-1px)", boxShadow: "0 4px 10px rgba(0,0,0,0.08)" } } : {}),
+    ...(hover && { cursor: "pointer", "&:hover": { transform: "translateY(-1px)", boxShadow: "0 4px 10px rgba(0,0,0,0.08)" } }),
     ...sx,
   };
-
   return (
     <span style={base} {...rest}>
       {icon && <span style={{ display: 'inline-flex', marginRight: '0.25rem', alignItems: 'center' }}>{icon}</span>}
