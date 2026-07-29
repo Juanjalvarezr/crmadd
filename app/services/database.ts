@@ -31,7 +31,7 @@ import {
   credencialesService as baseCredencialesService,
 } from './supabase';
 
-const TIMEOUT_MS = 120000;
+const TIMEOUT_MS = 20000;
 const CACHE_BUST = 'v7-66s-dashboard-visible-2026-07-21-rebuild-force';
 
 const withTimeout = async <T>(promise: Promise<T>, label = 'operación', ms = TIMEOUT_MS): Promise<T> => {
