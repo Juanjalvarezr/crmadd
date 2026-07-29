@@ -65,6 +65,7 @@ export default function Root() {
     return "dark";
   });
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
+  const [authChecked, setAuthChecked] = useState(false);
 
   const theme = React.useMemo(() => {
     const themeRaw = createTheme({
@@ -115,21 +116,30 @@ export default function Root() {
         const { data } = await supabase.auth.getSession();
         if (!cancelled) {
           setIsAuthenticated(!!data.session);
+          setAuthChecked(true);
         }
       } catch {
         if (!cancelled) {
           setIsAuthenticated(false);
+          setAuthChecked(true);
         }
       }
     };
     checkAuth();
 
+    // Fallback para no bloquear la UI si Supabase tarda
+    const fallback = setTimeout(() => {
+      if (!cancelled) setAuthChecked(true);
+    }, 3000);
+
     const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
       setIsAuthenticated(!!session);
+      setAuthChecked(true);
     });
 
     return () => {
       cancelled = true;
+      clearTimeout(fallback);
       authListener.subscription.unsubscribe();
     };
   }, []);
