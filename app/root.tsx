@@ -81,9 +81,15 @@ export default function Root() {
     let cancelled = false;
     const checkAuth = async () => {
       try {
-        const { data } = await supabase.auth.getSession();
+        const timeoutPromise = new Promise<any>((_, reject) =>
+          setTimeout(() => reject(new Error('Timeout en checkAuth')), 8000)
+        );
+        const { data } = await Promise.race([
+          supabase.auth.getSession(),
+          timeoutPromise,
+        ]);
         if (!cancelled) {
-          setIsAuthenticated(!!data.session);
+          setIsAuthenticated(!!data?.session);
           setAuthChecked(true);
         }
       } catch {
@@ -158,33 +164,7 @@ export default function Root() {
     return <Outlet />;
   }
 
-  if (isAuthenticated === null) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", bgcolor: "background.default" }}>
-        <Box sx={{ width: 28, height: 28, borderRadius: "50%", border: "3px solid", borderColor: "primary.main", borderTopColor: "transparent", animation: "spin 1s linear infinite" }} />
-      </Box>
-    );
-  }
-
-  const handleDrawerToggle = () => setMobileOpen((prev) => !prev);
-  const handleToggleCollapse = () => {
-    const nextState = !isCollapsed;
-    setIsCollapsed(nextState);
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem("sidebar_collapsed", String(nextState));
-    }
-  };
-
-  const handleToggleTheme = () => {
-    const nextMode = themeMode === "dark" ? "light" : "dark";
-    setThemeMode(nextMode);
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem("theme_mode", nextMode);
-      window.dispatchEvent(new CustomEvent("theme-changed", { detail: nextMode }));
-    }
-  };
-
-  return (
+  const renderLayout = () => (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Box sx={{ display: "flex", minHeight: "100vh", overflowX: "hidden" }}>
@@ -238,4 +218,36 @@ export default function Root() {
       </Snackbar>
     </ThemeProvider>
   );
+
+  if (isAuthenticated === null) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", bgcolor: "background.default" }}>
+        <Box sx={{ width: 28, height: 28, borderRadius: "50%", border: "3px solid", borderColor: "primary.main", borderTopColor: "transparent", animation: "spin 1s linear infinite" }} />
+      </Box>
+    );
+  }
+
+  if (location.pathname === "/" || location.pathname === "/clientes") {
+    return renderLayout();
+  }
+
+  const handleDrawerToggle = () => setMobileOpen((prev) => !prev);
+  const handleToggleCollapse = () => {
+    const nextState = !isCollapsed;
+    setIsCollapsed(nextState);
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("sidebar_collapsed", String(nextState));
+    }
+  };
+
+  const handleToggleTheme = () => {
+    const nextMode = themeMode === "dark" ? "light" : "dark";
+    setThemeMode(nextMode);
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("theme_mode", nextMode);
+      window.dispatchEvent(new CustomEvent("theme-changed", { detail: nextMode }));
+    }
+  };
+
+  return renderLayout();
 }
