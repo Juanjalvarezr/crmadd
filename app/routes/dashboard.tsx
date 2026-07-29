@@ -1,4 +1,4 @@
-import { Outlet, useNavigate, useLocation } from "react-router";
+import { useNavigate } from "react-router";
 import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
@@ -27,11 +27,13 @@ import {
   FiEyeOff,
   FiChevronUp,
   FiChevronDown,
+  FiPlus,
 } from "react-icons/fi";
 import { proyectosService, clientesService, oportunidadesService, tareasService, transaccionesService } from "../services/database";
 import { getCachedProjects, getCachedClients, getCachedTasks, getCachedTransactions } from "../utils/routeCache";
 import { StatCard } from "../components/StatCard";
 import SafeChip from "../components/SafeChip";
+import ScannerTarjetas from "../components/ScannerTarjetas";
 
 const initialState = {
   proyectos: [],
@@ -52,6 +54,7 @@ export default function Dashboard() {
   const [hideSensitive, setHideSensitive] = useState(false);
   const [expandProyectos, setExpandProyectos] = useState(true);
   const [expandTareas, setExpandTareas] = useState(true);
+  const [expandFilters, setExpandFilters] = useState(false);
 
   const fetchDashboardData = useCallback(async (forceRefresh = false) => {
     setLoading(true);
@@ -199,12 +202,12 @@ export default function Dashboard() {
       {/* Header tipo Notion */}
       <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1 }}>
         <Box>
-          <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
-            Dashboard
-          </Typography>
-          <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500, textTransform: 'capitalize' }}>
-            {todayLabel}
-          </Typography>
+          <Typography variant="h6" sx={{ fontWeight: 800, letterSpacing: '-0.02em', lineHeight: 1.2, fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>
+                      Dashboard
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 500, textTransform: 'capitalize', fontSize: { xs: '0.65rem', sm: '0.75rem' } }}>
+                      {todayLabel}
+                    </Typography>
         </Box>
         <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
           <Tooltip title={hideSensitive ? 'Mostrar datos' : 'Ocultar datos sensibles'}>
@@ -228,17 +231,17 @@ export default function Dashboard() {
           </Tooltip>
         </Box>
       </Box>
-      {/* FAB expandible + IA */}
-      <Box sx={{ position: 'fixed', bottom: 20, right: 20, zIndex: 1300, display: 'flex', flexDirection: 'column-reverse', alignItems: 'center', gap: 1 }}>
-        <Box sx={{ display: 'flex', gap: 1, mb: 0.5, flexWrap: 'wrap', justifyContent: 'center' }}>
-          <Button size="small" variant="contained" onClick={() => navigate('/documentos?new=1')}>Documento</Button>
+      {/* FAB único compacto */}
+      <Box sx={{ position: 'fixed', bottom: 20, right: 20, zIndex: 1300, display: 'flex', flexDirection: 'column-reverse', alignItems: 'center', gap: 0.75 }}>
+        <Box sx={{ display: 'flex', gap: 0.5, mb: 0.5, flexWrap: 'wrap', justifyContent: 'center' }}>
+          <Button size="small" variant="contained" onClick={() => navigate('/documentos?new=1')}>Doc</Button>
           <Button size="small" variant="contained" onClick={() => navigate('/facturacion?new=1')}>Factura</Button>
           <Button size="small" variant="contained" onClick={() => navigate('/tareas?new=1')}>Tarea</Button>
           <Button size="small" variant="contained" onClick={() => navigate('/clientes?new=1')}>Cliente</Button>
           <Button size="small" variant="contained" onClick={() => navigate('/proyectos?new=1')}>Proyecto</Button>
         </Box>
-        <IconButton onClick={() => setFabOpen(v => !v)} sx={{ bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', boxShadow: 3, width: 48, height: 48, '&:hover': { bgcolor: 'action.hover' } }}>
-          <FiTarget size={22} />
+        <IconButton onClick={() => setFabOpen(v => !v)} sx={{ bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', boxShadow: 3, width: 44, height: 44, '&:hover': { bgcolor: 'action.hover' } }}>
+          <FiTarget size={20} />
         </IconButton>
       </Box>
 
@@ -257,11 +260,11 @@ export default function Dashboard() {
         </Alert>
       )}
 
-      {/* Recordatorios mínimos */}
-      <Box sx={{ mb: 1.5 }}>
-        <Alert severity="info" sx={{ borderRadius: 2, '& .MuiAlert-message': { fontSize: '0.85rem' } }}>
-          <Typography variant="caption" sx={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5 }}>Recordatorios</Typography>
-          <Box sx={{ mt: 0.5, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+      {/* Recordatorios mínimos compactos */}
+      <Box sx={{ mb: 1 }}>
+        <Alert severity="info" sx={{ borderRadius: 1.5, py: 0.5, px: 1, '& .MuiAlert-message': { fontSize: '0.72rem', lineHeight: 1.2 } }}>
+          <Typography variant="caption" sx={{ fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.4, fontSize: '0.6rem', cursor: 'pointer' }} onClick={() => navigate('/tareas')}>Recordatorios</Typography>
+          <Box sx={{ mt: 0.4, display: 'flex', gap: 0.6, flexWrap: 'wrap' }}>
             {(() => {
               const hoy = new Date().toISOString().split('T')[0];
               const pendientes = data.tareas.filter((t: any) => {
@@ -273,25 +276,15 @@ export default function Dashboard() {
                 return p.fecha_limite < hoy && p.estado !== 'entregado' && p.estado !== 'cancelado';
               }).slice(0, 3);
               if (!pendientes.length && !proyectosVencidos.length) {
-                return <Typography variant="caption" color="text.secondary">Sin recordatorios pendientes. Todo al día.</Typography>;
+                return <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>Sin recordatorios pendientes. Todo al día.</Typography>;
               }
               return (
                 <>
                   {pendientes.map((t: any) => (
-                    <Chip
-                      key={`t-${t.id}`}
-                      label={`📋 ${t.titulo || 'Tarea'} • ${t.fecha || 'Sin fecha'}`}
-                      size="small"
-                      sx={{ fontSize: '0.7rem', bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider' }}
-                    />
+                    <Chip key={`t-${t.id}`} label={`📋 ${t.titulo || 'Tarea'} • ${t.fecha || 'Sin fecha'}`} size="small" sx={{ fontSize: '0.62rem', bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', height: 22, cursor: 'pointer' }} onClick={() => navigate('/tareas')} />
                   ))}
                   {proyectosVencidos.map((p: any) => (
-                    <Chip
-                      key={`p-${p.id}`}
-                      label={`⚠️ ${p.nombre || 'Proyecto'} • Vencido`}
-                      size="small"
-                      sx={{ fontSize: '0.7rem', bgcolor: '#ffebee', border: '1px solid', borderColor: 'error.main', color: 'error.main' }}
-                    />
+                    <Chip key={`p-${p.id}`} label={`⚠️ ${p.nombre || 'Proyecto'} • Vencido`} size="small" sx={{ fontSize: '0.62rem', bgcolor: '#ffebee', border: '1px solid', borderColor: 'error.main', color: 'error.main', height: 22 }} />
                   ))}
                 </>
               );
@@ -300,17 +293,11 @@ export default function Dashboard() {
         </Alert>
       </Box>
 
-      {/* Acciones rápidas */}
-      <Box sx={{ mb: 1.5, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-        <Button size="small" variant="outlined" startIcon={<FiUsers size={14} />} onClick={() => exportCSV('clientes')} disabled={!!exportLoading || !data.clientes.length}>
-          {exportLoading === 'clientes' ? 'Exportando…' : 'Clientes CSV'}
-        </Button>
-        <Button size="small" variant="outlined" startIcon={<FiActivity size={14} />} onClick={() => exportCSV('proyectos')} disabled={!!exportLoading || !data.proyectos.length}>
-          {exportLoading === 'proyectos' ? 'Exportando…' : 'Proyectos CSV'}
-        </Button>
-        <Button size="small" variant="outlined" startIcon={<FiClock size={14} />} onClick={() => exportCSV('tareas')} disabled={!!exportLoading || !data.tareas.length}>
-          {exportLoading === 'tareas' ? 'Exportando…' : 'Tareas CSV'}
-        </Button>
+      <Box sx={{ mb: 1, display: 'flex', gap: 0.5, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center' }}>
+        <Button size="small" variant="contained" startIcon={<FiPlus size={14} />} onClick={() => navigate('/clientes?new=1')}>Nuevo</Button>
+        <Button size="small" variant="outlined" onClick={() => exportCSV('clientes')} disabled={!!exportLoading || !data.clientes.length} sx={{ fontSize: '0.65rem', minHeight: 26, px: 1 }}>CSV</Button>
+        <Button size="small" variant="outlined" onClick={() => setExpandFilters(!expandFilters)} sx={{ fontSize: '0.65rem', minHeight: 26, px: 1 }}>{expandFilters ? 'Ocultar filtros' : 'Filtros'}</Button>
+        <ScannerTarjetas />
       </Box>
 
       {/* KPI strip compacto — 4 cols mobile, 8 desktop */}
@@ -354,7 +341,7 @@ export default function Dashboard() {
       </Grid>
 
       {/* Contenido principal: 2 columnas */}
-      <Grid container spacing={1.5}>
+      <Grid container spacing={1}>
         {/* Proyectos activos */}
         <Grid item xs={12} lg={7}>
           <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
