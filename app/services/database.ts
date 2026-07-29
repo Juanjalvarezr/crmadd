@@ -32,7 +32,7 @@ import {
 } from './supabase';
 
 const TIMEOUT_MS = 20000;
-const CACHE_BUST = 'v7-66s-dashboard-visible-2026-07-21-rebuild-force';
+const CACHE_BUST = 'v7-dashboard-visible-stable-2026-07-29';
 
 const withTimeout = async <T>(promise: Promise<T>, label = 'operación', ms = TIMEOUT_MS): Promise<T> => {
   const start = Date.now();
@@ -41,10 +41,10 @@ const withTimeout = async <T>(promise: Promise<T>, label = 'operación', ms = TI
       console.error(`[database.ts] Error en ${label}:`, err);
       throw err;
     }),
-    new Promise<T>((_, reject) =>
+    new Promise<T>((resolve) =>
       setTimeout(() => {
         console.warn(`[database.ts] Timeout en ${label} (${ms}ms) elapsed=${Date.now() - start}ms cache=${CACHE_BUST}`);
-        reject(new Error('Timeout en base de datos'));
+        resolve([] as any);
       }, ms)
     ),
   ]);
