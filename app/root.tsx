@@ -1,6 +1,38 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Component } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router";
-import { Box, Snackbar, Alert, ThemeProvider, CssBaseline, createTheme } from "@mui/material";
+import { Box, Snackbar, Alert, ThemeProvider, CssBaseline, createTheme, Button, Typography } from "@mui/material";
+
+class ErrorBoundary extends Component<{ children: React.ReactNode }> {
+  state = { error: null as Error | null };
+
+  static getDerivedStateFromError(error: Error) {
+    return { error };
+  }
+
+  componentDidCatch(error: Error, info: any) {
+    // eslint-disable-next-line no-console
+    console.error("[CRM ErrorBoundary]", error, info);
+  }
+
+  render() {
+    if (this.state.error) {
+      return (
+        <Box sx={{ p: 3 }}>
+          <Alert severity="error" sx={{ mb: 2 }}>
+            Error en la aplicación: {this.state.error.message}
+          </Alert>
+          <Button variant="contained" onClick={() => window.location.reload()}>
+            Recargar
+          </Button>
+          <Typography variant="caption" display="block" sx={{ mt: 1, opacity: 0.7 }}>
+            {this.state.error.stack}
+          </Typography>
+        </Box>
+      );
+    }
+    return this.props.children;
+  }
+}
 import { useNotificationStore } from "./store/useNotificationStore";
 import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
@@ -175,57 +207,59 @@ export default function Root() {
   }
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Box sx={{ display: "flex", minHeight: "100vh", overflowX: "hidden" }}>
-        <Sidebar
-          open={mobileOpen}
-          onClose={handleDrawerToggle}
-          isCollapsed={isCollapsed}
-          onToggleCollapse={handleToggleCollapse}
-        />
-        <Box
-          sx={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            width: {
-              xs: "100%",
-              sm: isCollapsed ? "calc(100% - 72px)" : "calc(100% - 220px)",
-              md: isCollapsed ? "calc(100% - 72px)" : `calc(100% - ${DRAWER_WIDTH}px)`,
-            },
-            transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-            overflowX: "hidden",
-          }}
-        >
-          <Header onMenuClick={handleDrawerToggle} themeMode={themeMode} onToggleTheme={handleToggleTheme} />
+    <ErrorBoundary>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Box sx={{ display: "flex", minHeight: "100vh", overflowX: "hidden" }}>
+          <Sidebar
+            open={mobileOpen}
+            onClose={handleDrawerToggle}
+            isCollapsed={isCollapsed}
+            onToggleCollapse={handleToggleCollapse}
+          />
           <Box
-            component="main"
             sx={{
-              flexGrow: 1,
-              p: { xs: 1, sm: 2, md: 3 },
-              backgroundColor: "background.default",
-              minHeight: "calc(100vh - 96px)",
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              width: {
+                xs: "100%",
+                sm: isCollapsed ? "calc(100% - 72px)" : "calc(100% - 220px)",
+                md: isCollapsed ? "calc(100% - 72px)" : `calc(100% - ${DRAWER_WIDTH}px)`,
+              },
+              transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+              overflowX: "hidden",
             }}
           >
-            <Outlet />
+            <Header onMenuClick={handleDrawerToggle} themeMode={themeMode} onToggleTheme={handleToggleTheme} />
+            <Box
+              component="main"
+              sx={{
+                flexGrow: 1,
+                p: { xs: 1, sm: 2, md: 3 },
+                backgroundColor: "background.default",
+                minHeight: "calc(100vh - 96px)",
+              }}
+            >
+              <Outlet />
+            </Box>
+            <MobileFab />
+            <FloatingAIAssistant />
+            <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
+            {showOnboarding && <OnboardingTour open={showOnboarding} onClose={() => setShowOnboarding(false)} />}
           </Box>
-          <MobileFab />
-          <FloatingAIAssistant />
-          <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
-          {showOnboarding && <OnboardingTour open={showOnboarding} onClose={() => setShowOnboarding(false)} />}
         </Box>
-      </Box>
-      <Snackbar
-        open={open}
-        autoHideDuration={5000}
-        onClose={hideNotification}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-      >
-        <Alert onClose={hideNotification} severity={severity} sx={{ width: "100%" }}>
-          {message}
-        </Alert>
-      </Snackbar>
-    </ThemeProvider>
+        <Snackbar
+          open={open}
+          autoHideDuration={5000}
+          onClose={hideNotification}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        >
+          <Alert onClose={hideNotification} severity={severity} sx={{ width: "100%" }}>
+            {message}
+          </Alert>
+        </Snackbar>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 }
