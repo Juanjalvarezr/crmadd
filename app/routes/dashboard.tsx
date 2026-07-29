@@ -233,13 +233,6 @@ export default function Dashboard() {
       </Box>
       {/* FAB único compacto */}
       <Box sx={{ position: 'fixed', bottom: 20, right: 20, zIndex: 1300, display: 'flex', flexDirection: 'column-reverse', alignItems: 'center', gap: 0.75 }}>
-        <Box sx={{ display: 'flex', gap: 0.5, mb: 0.5, flexWrap: 'wrap', justifyContent: 'center' }}>
-          <Button size="small" variant="contained" onClick={() => navigate('/documentos?new=1')}>Doc</Button>
-          <Button size="small" variant="contained" onClick={() => navigate('/facturacion?new=1')}>Factura</Button>
-          <Button size="small" variant="contained" onClick={() => navigate('/tareas?new=1')}>Tarea</Button>
-          <Button size="small" variant="contained" onClick={() => navigate('/clientes?new=1')}>Cliente</Button>
-          <Button size="small" variant="contained" onClick={() => navigate('/proyectos?new=1')}>Proyecto</Button>
-        </Box>
         <IconButton onClick={() => setFabOpen(v => !v)} sx={{ bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider', boxShadow: 3, width: 44, height: 44, '&:hover': { bgcolor: 'action.hover' } }}>
           <FiTarget size={20} />
         </IconButton>
