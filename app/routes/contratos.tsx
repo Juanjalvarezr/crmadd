@@ -474,8 +474,8 @@ export default function Contratos() {
                     onClick={async () => {
                       const plantilla = clausulasDisponibles.find((c) => c.tipo === selectedPlantilla);
                       if (plantilla) {
-                        const cliente = clientes.find((c: any) => c.id === Number(editItem?.cliente_id));
-                        const proyecto = proyectos.find((p: any) => p.id === Number(editItem?.proyecto_id));
+                        const cliente = clientes.find((c: any) => String(c.id) === String(editItem?.cliente_id));
+                        const proyecto = proyectos.find((p: any) => String(p.id) === String(editItem?.proyecto_id));
                         const contenido = `# ${plantilla.titulo}\n\nCliente: ${cliente?.nombre || '-----------'}\nEmpresa: ${cliente?.empresa || '-----------'}\nProyecto: ${proyecto?.nombre || '-----------'}\nValor: $${editItem?.valor || '0'}\n\nTipo de servicio: ${selectedPlantilla}\n\n${plantilla.contenido}`;
                         setEditItem({ ...editItem, contenido });
                         showNotification('Plantilla aplicada ✓', 'success');
