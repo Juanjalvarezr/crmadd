@@ -14,6 +14,7 @@ import type { Contrato, ContratoVersion, ContratoClausula } from "../types/crm";
 import { useNotificationStore } from "../store/useNotificationStore";
 import SafeChip from "../components/SafeChip";
 import GenerarDocumentoButton from "../components/GenerarDocumentoButton";
+import ContratoActionsMenu from "../components/ContratoActionsMenu";
 import { openAiRoute } from "../components/FloatingAIAssistant";
 import { webhookService } from "../services/webhook";
 
@@ -373,19 +374,19 @@ export default function Contratos() {
       ) : (
         <Fade in>
           <TableContainer component={Paper} sx={{ borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
-            <Table size="small" sx={{ '& .MuiTableCell-root': { py: 0.75, fontSize: '0.85rem' } }}>
+            <Table size="small" sx={{ '& .MuiTableCell-root': { py: 0.5, px: 1, fontSize: '0.8rem' } }}>
               <TableHead>
                 <TableRow>
-                  <TableCell>Número</TableCell>
-                  <TableCell>Título</TableCell>
-                  <TableCell>Cliente</TableCell>
-                  <TableCell>Proyecto</TableCell>
-                  <TableCell>Tipo</TableCell>
-                  <TableCell>Estado</TableCell>
-                  <TableCell>Version</TableCell>
-                  <TableCell>Factura</TableCell>
-                  <TableCell>Renovación</TableCell>
-                  <TableCell align="right">Acciones</TableCell>
+                  <TableCell sx={{ fontWeight: 700 }}>Número</TableCell>
+                  <TableCell sx={{ fontWeight: 700 }}>Título</TableCell>
+                  <TableCell sx={{ fontWeight: 700, display: { xs: 'none', md: 'table-cell' } }}>Cliente</TableCell>
+                  <TableCell sx={{ fontWeight: 700, display: { xs: 'none', lg: 'table-cell' } }}>Proyecto</TableCell>
+                  <TableCell sx={{ fontWeight: 700, display: { xs: 'none', sm: 'table-cell' } }}>Tipo</TableCell>
+                  <TableCell sx={{ fontWeight: 700 }}>Estado</TableCell>
+                  <TableCell sx={{ fontWeight: 700, display: { xs: 'none', md: 'table-cell' } }}>Versión</TableCell>
+                  <TableCell sx={{ fontWeight: 700, display: { xs: 'none', lg: 'table-cell' } }}>Factura</TableCell>
+                  <TableCell sx={{ fontWeight: 700, display: { xs: 'none', md: 'table-cell' } }}>Renovación</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 700 }}>Acciones</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -397,12 +398,12 @@ export default function Contratos() {
                   const bloqueado = !!item.bloqueado_post_firma;
                   const renovacionCercana = item.fecha_renovacion && new Date(item.fecha_renovacion) >= new Date() && new Date(item.fecha_renovacion) <= new Date(Date.now() + (item.alerta_renovacion_dias || 30) * 86400000);
                   return (
-                    <TableRow key={item.id} hover>
+                    <TableRow key={item.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                       <TableCell sx={{ fontWeight: 600 }}>{item.numero || '—'}</TableCell>
-                      <TableCell>{item.titulo}</TableCell>
-                      <TableCell>{cliente?.nombre || '-'}</TableCell>
-                      <TableCell>{proyecto?.nombre || '-'}</TableCell>
-                      <TableCell><SafeChip label={item.tipo} size="small" /></TableCell>
+                      <TableCell sx={{ maxWidth: 220 }}>{item.titulo}</TableCell>
+                      <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>{cliente?.nombre || '-'}</TableCell>
+                      <TableCell sx={{ display: { xs: 'none', lg: 'table-cell' } }}>{proyecto?.nombre || '-'}</TableCell>
+                      <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}><SafeChip label={item.tipo} size="small" /></TableCell>
                       <TableCell>
                         <SafeChip
                           label={item.estado}
@@ -414,25 +415,30 @@ export default function Contratos() {
                           }}
                         />
                       </TableCell>
-                      <TableCell>{item.version || '-'}</TableCell>
-                      <TableCell>{getFacturaNumero(item.factura_id)}</TableCell>
-                      <TableCell>
+                      <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>{item.version || '-'}</TableCell>
+                      <TableCell sx={{ display: { xs: 'none', lg: 'table-cell' } }}>{getFacturaNumero(item.factura_id)}</TableCell>
+                      <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>
                         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.2 }}>
                           {item.fecha_renovacion && <Typography variant="caption">{item.fecha_renovacion}</Typography>}
                           {renovacionCercana && <SafeChip size="small" color="warning" label={`En ${Math.ceil((new Date(item.fecha_renovacion!).getTime() - Date.now()) / 86400000)} días`} />}
                         </Box>
                       </TableCell>
                       <TableCell align="right">
-                        <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
-                          <Tooltip title="Ver"><IconButton size="small" onClick={() => { setItemDetalle(item); setDetallesAbierto(true); }}><FiEye /></IconButton></Tooltip>
-                          <Tooltip title="Editar"><IconButton size="small" onClick={() => handleEdit(item)} disabled={bloqueado}><FiEdit /></IconButton></Tooltip>
-                          <Tooltip title="Historial"><IconButton size="small" onClick={() => handleShowVersiones(item)}><FiGitBranch /></IconButton></Tooltip>
-                          <Tooltip title={bloqueado ? "Bloqueado post-firma" : "Firmar"}><IconButton size="small" disabled={bloqueado || item.estado === 'cancelado'} onClick={() => { setEditItem(item); setFirmaAbierto(true); }}><FiShield /></IconButton></Tooltip>
-                          <Tooltip title="WhatsApp"><IconButton size="small" onClick={() => handleWhatsApp(item)} disabled={!telefono || sendingWhatsApp === item.id}><FiMessageSquare /></IconButton></Tooltip>
-                          <Tooltip title="Email"><IconButton size="small" onClick={() => handleEmail(item)} disabled={!email}><FiMail /></IconButton></Tooltip>
-                          <Tooltip title="PDF"><IconButton size="small" onClick={() => handlePDF(item)}><FiFileText /></IconButton></Tooltip>
-                          <Tooltip title="Eliminar"><IconButton size="small" onClick={() => handleDelete(item.id)} disabled={bloqueado}><FiTrash2 /></IconButton></Tooltip>
-                        </Box>
+                        <ContratoActionsMenu
+                          item={item}
+                          bloqueado={bloqueado}
+                          telefono={telefono}
+                          email={email}
+                          sendingWhatsApp={sendingWhatsApp}
+                          onVer={() => { setItemDetalle(item); setDetallesAbierto(true); }}
+                          onEditar={() => handleEdit(item)}
+                          onHistorial={() => handleShowVersiones(item)}
+                          onFirmar={() => { setEditItem(item); setFirmaAbierto(true); }}
+                          onWhatsApp={() => handleWhatsApp(item)}
+                          onEmail={() => handleEmail(item)}
+                          onPDF={() => handlePDF(item)}
+                          onEliminar={() => handleDelete(item.id)}
+                        />
                       </TableCell>
                     </TableRow>
                   );
