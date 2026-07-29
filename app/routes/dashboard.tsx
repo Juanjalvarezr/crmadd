@@ -354,10 +354,6 @@ export default function Dashboard() {
 
       <Box sx={{ display: 'flex', gap: 0.5, flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', mb: 1 }}>
         <Button size="small" variant="contained" startIcon={<FiPlus size={14} />} onClick={() => navigate('/clientes?new=1')}>Nuevo</Button>
-        <Button size="small" variant="outlined" startIcon={<FiGrid size={14} />} onClick={() => setViewMode('cards')} color={viewMode === 'cards' ? 'primary' : 'inherit'}>Tarjetas</Button>
-        <Button size="small" variant="outlined" startIcon={<FiList size={14} />} onClick={() => setViewMode('list')} color={viewMode === 'list' ? 'primary' : 'inherit'}>Lista</Button>
-        <Button size="small" variant="outlined" onClick={() => exportCSV('clientes')} disabled={!!exportLoading || !data.clientes.length}>CSV</Button>
-        <Button size="small" variant="outlined" onClick={() => setExpandFilters(!expandFilters)}>{expandFilters ? 'Ocultar filtros' : 'Filtros'}</Button>
         <ScannerTarjetas />
       </Box>
 

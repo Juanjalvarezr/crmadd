@@ -28,8 +28,6 @@ export const MobileFab: React.FC = () => {
     { icon: <FiUserPlus size={20} />, name: 'Nuevo Cliente', tipo: 'cliente' },
     { icon: <FiList size={20} />, name: 'Nueva Tarea', tipo: 'tarea' },
     { icon: <FiDollarSign size={20} />, name: 'Nueva Factura', tipo: 'factura' },
-    { icon: <FiTrendingUp size={20} />, name: 'Nueva Venta', tipo: 'oportunidad' },
-    { icon: <FiCamera size={20} />, name: 'Escanear Tarjeta', tipo: 'scanner' },
   ];
 
   const getAcciones = (): AccionRapida[] => {
