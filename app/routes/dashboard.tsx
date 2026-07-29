@@ -47,6 +47,8 @@ import {
   PointElement,
   LineElement,
   BarElement,
+  BarController,
+  Filler,
   Tooltip as ChartTooltip,
   Legend,
 } from "chart.js";
@@ -56,7 +58,7 @@ import { StatCard } from "../components/StatCard";
 import SafeChip from "../components/SafeChip";
 import ScannerTarjetas from "../components/ScannerTarjetas";
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ChartTooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, BarController, Filler, ChartTooltip, Legend);
 
 const initialState = {
   proyectos: [] as any[],
