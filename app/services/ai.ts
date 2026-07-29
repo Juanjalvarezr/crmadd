@@ -14,7 +14,6 @@ import {
 import type { Proyecto } from "../types/crm";
 import { facturasService, contratosService } from "./facturacion";
 
-// Inicializamos el SDK de Gemini. 
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
 const getLocalAIModel = (modelName = "gemini-1.5-flash") => {
@@ -33,10 +32,6 @@ const getLocalEmbeddingModel = () => {
   return genAI.getGenerativeModel({ model: "text-embedding-004" });
 };
 
-/**
- * Orquestador de generación: usa Gemini directo como producción.
- * Si VITE_USE_EDGE_FUNCTIONS=true y la función existe, se usa además, pero no como fallback.
- */
 const executeGenerateContent = async (prompt: string, modelName = "gemini-1.5-flash"): Promise<string> => {
   const useEdgeFunctions = import.meta.env.VITE_USE_EDGE_FUNCTIONS === "true";
 
@@ -57,10 +52,6 @@ const executeGenerateContent = async (prompt: string, modelName = "gemini-1.5-fl
   return result.response.text();
 };
 
-/**
- * Orquestador Centralizado de Embeddings: Llama a Supabase Edge Function proxy si está activa,
- * o hace fallback seguro al SDK local de Gemini.
- */
 const executeEmbedContent = async (text: string): Promise<number[]> => {
   const useEdgeFunctions = import.meta.env.VITE_USE_EDGE_FUNCTIONS === "true";
 
@@ -76,25 +67,18 @@ const executeEmbedContent = async (text: string): Promise<number[]> => {
     }
   }
 
-  // Fallback Local SDK
   const embeddingModel = getLocalEmbeddingModel();
   const result = await embeddingModel.embedContent(text);
   return result.embedding.values;
 };
 
-/**
- * Define la interfaz para los resultados de la auditoría para evitar errores de tipado.
- */
 export interface HallazgoAuditoria {
   hallazgo: string;
   solucion: string;
   impacto: string;
-  prioridad: 'alta' | 'media' | 'baja';
+  prioridad: "alta" | "media" | "baja";
 }
 
-/**
- * Proxy de getAIModel: Intercepta llamadas y las orquesta centralizadamente.
- */
 const getAIModel = (modelName = "gemini-1.5-flash") => {
   return {
     async countTokens(text: string) {
@@ -112,9 +96,6 @@ const getAIModel = (modelName = "gemini-1.5-flash") => {
   };
 };
 
-/**
- * Proxy de getEmbeddingModel: Intercepta llamadas y las orquesta centralizadamente.
- */
 const getEmbeddingModel = () => {
   return {
     async embedContent(text: string) {
@@ -128,9 +109,6 @@ const getEmbeddingModel = () => {
   };
 };
 
-/**
- * Helper para reemplazar variables en formato {{variable}} o {{objeto.propiedad}}
- */
 const fillTemplate = (template: string, data: Record<string, any>) => {
   return template.replace(/{{([\w\.]+)}}/g, (match, key) => {
     const keys = key.split('.');
@@ -138,17 +116,12 @@ const fillTemplate = (template: string, data: Record<string, any>) => {
     for (const k of keys) {
       value = value?.[k];
     }
-    // Si es un objeto, lo convertimos a JSON legible, si no a string
     return value !== undefined ? (typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value)) : match;
   });
 };
 
-/**
- * Sanitizador Global: Limpia y parsea de forma segura las respuestas JSON de la IA.
- */
 const parseAIResponse = (text: string): any => {
   try {
-    // Intenta encontrar el primer '{' y el último '}' para extraer el JSON puro
     const start = text.indexOf('{');
     const end = text.lastIndexOf('}');
 
@@ -167,7 +140,6 @@ const parseAIResponse = (text: string): any => {
     }
 
     const cleanText = jsonContent.replace(/[\u0000-\u001F\u007F-\u009F]/g, "").trim();
-
     return JSON.parse(cleanText);
   } catch (error) {
     console.error("Error crítico parseando respuesta de IA:", error);
@@ -175,9 +147,6 @@ const parseAIResponse = (text: string): any => {
   }
 };
 
-/**
- * Punto 10 y 11: Orquestador de Acciones.
- */
 export const ejecutarAccionSincrona = async (pregunta: string, respuestaIA: string) => {
   try {
     const model = getLocalAIModel();
@@ -319,14 +288,10 @@ export interface AIPropuestaParams {
 }
 
 export const aiService = {
-  /**
-   * Genera una propuesta comercial y un cronograma base a partir de los datos ingresados.
-   */
   async generarPropuesta(params: AIPropuestaParams, onStream?: (text: string) => void): Promise<string> {
     try {
-      const model = getLocalAIModel(); // Usamos el local para streaming directo
-
-      const dbPrompt = await promptsAIService.getBySlug('director_estrategico_propuesta');
+      const model = getLocalAIModel();
+      const dbPrompt = await promptsAIService.getBySlug("director_estrategico_propuesta");
       let prompt = "";
 
       if (dbPrompt) {
@@ -335,7 +300,6 @@ export const aiService = {
           servicios: params.servicios.join(", ")
         });
       } else {
-        // Fallback en caso de que no exista en la DB
         prompt = `
         Eres el Director Estratégico Senior de DESEO DIGITAL, una agencia de marketing de élite.
         Tu objetivo es redactar una Propuesta Comercial persuasiva, profesional y accionable para un cliente.
@@ -375,17 +339,12 @@ export const aiService = {
         const result = await model.generateContent(prompt);
         return result.response.text();
       }
-
     } catch (error: any) {
       console.error("Error al generar propuesta con IA:", error);
-      throw error; // Lanzamos el error para que la UI lo maneje (Ej. mostrando un Snackbar de error)
+      throw error;
     }
   },
 
-  /**
-   * Cuenta los tokens reales de un texto usando el modelo de Gemini.
-   * Reemplaza la estimación manual para mayor precisión.
-   */
   async contarTokens(texto: string): Promise<number> {
     try {
       const model = getLocalAIModel();
@@ -397,10 +356,6 @@ export const aiService = {
     }
   },
 
-  /**
-   * Genera un embedding para un texto usando el modelo de Gemini.
-   * Punto 6: Soporte para búsqueda semántica en la base de conocimiento.
-   */
   async generarEmbedding(texto: string): Promise<number[]> {
     try {
       const embeddingModel = getEmbeddingModel();
@@ -412,13 +367,10 @@ export const aiService = {
     }
   },
 
-  /**
-   * Genera un plan de contenido (reels, stories, pauta) basado en los detalles del proyecto.
-   */
   async generarPlanContenido(proyecto: Proyecto): Promise<{ reels: string[], stories: string[], pauta: string[] }> {
     try {
       const model = getAIModel();
-      const dbPrompt = await promptsAIService.getBySlug('content_lead_plan_contenido');
+      const dbPrompt = await promptsAIService.getBySlug("content_lead_plan_contenido");
 
       let prompt = "";
       if (dbPrompt) {
@@ -460,75 +412,47 @@ export const aiService = {
     }
   },
 
-  /**
-   * Función general para que el asistente responda a cualquier pregunta de marketing o del CRM.
-   */
   async chatAsistente(pregunta: string, contextoCRM: string = "", roleSlug: string = "business_architect_cfo_chat"): Promise<string> {
     try {
       const model = getAIModel();
-      const embeddingModel = getEmbeddingModel();
-
-      // Punto 6: Búsqueda Semántica
-      // 1. Generamos el embedding de la pregunta del usuario
-      const embeddingResult = await embeddingModel.embedContent(pregunta);
-      const embedding = embeddingResult.embedding.values;
-
-      // 2. Buscamos en la base de datos por similitud de significado
-      const [reglasRes, conocimientoSemantico] = await Promise.all([
-        supabase.from('reglas_negocio_ai').select('instruccion'),
-        conocimientoService.buscarSemantico(embedding)
-      ]);
-
-      const contextoReglas = reglasRes.data?.map(r => `- ${r.instruccion}`).join('\n') || "";
-      const contextoConocimiento = conocimientoSemantico
-        .map((c: any) => `### ${c.titulo} (${c.categoria}):\n${c.contenido}`)
-        .join('\n\n') || "No hay manuales específicos para esta consulta.";
 
       const dbPrompt = await promptsAIService.getBySlug(roleSlug);
 
       let prompt = "";
       if (dbPrompt) {
         prompt = fillTemplate(dbPrompt.user_prompt_template, {
-          contextoReglas,
-          contextoConocimiento,
           contextoCRM,
           pregunta
         });
       } else {
         prompt = `
         Eres el Business Architect y CFO de DESEO DIGITAL. Ayuda a Juan (CEO) con el Sistema Operativo de Negocio.
-        
+
         CONTEXTO OPERATIVO:
         - Pack Elite: $2M COP. 4 Reels/mes, 5 Historias/día.
         - Gestión de Pagos: Nequi, Daviplata, Transferencia.
         - Flujo: Propuesta -> Contrato -> Onboarding -> Operación -> Capacitación -> Renovación.
-        
+
         TU MISIÓN PROACTIVA:
         1. **PM Administrativo**: Revisa si hay proyectos estancados en fase "Onboarding" o "Contrato".
         2. **Estratega de Contenido**: Sugiere ideas creativas para Reels y Stories basadas en el nicho del cliente.
         3. **Analista de Dolores**: Si Juan captura un "Dolor" (ej. bajas ventas), tu respuesta debe enfocarse 100% en cómo el Pack Elite soluciona ese dolor específico.
-        3. **Alertas de Renovación**: Avisa 30 días antes de que un proyecto pase a fase de "Renovación".
-        4. **Gestor de Cobros**: Identifica proyectos con pago "Pendiente" o "Vencido" y ofrece redactar un mensaje de recordatorio amable.
-        
-        Tienes acceso a la información en tiempo real del CRM.
-        
-        TUS REGLAS DE ORO (MEMORIA DE NEGOCIO):
-        ${contextoReglas}
+        4. **Alertas de Renovación**: Avisa 30 días antes de que un proyecto pase a fase de "Renovación".
+        5. **Gestor de Cobros**: Identifica proyectos con pago "Pendiente" o "Vencido" y ofrece redactar un mensaje de recordatorio amable.
 
-        MANUALES Y PLANTILLAS DE DESEO DIGITAL (CONOCIMIENTO):
-        ${contextoConocimiento}
+        Tienes acceso a la información en tiempo real del CRM.
 
         REGLAS DE CUMPLIMIENTO LEGAL Y ÉTICA GENERALES DE DESEO DIGITAL:
-        - Para el nicho "Salud": Priorizar autoridad y confianza profesional. Evitar promesas agresivas de resultados médicos. Las estrategias de Social Media y Ads deben cumplir con las directrices de ética médica y publicidad de salud (ej. Supersalud en Colombia).
-        - Para el nicho "E-commerce": Enfocarse en la seguridad transaccional, transparencia en políticas de devoluciones y cumplimiento de la Ley del Consumidor y Habeas Data (protección de datos). Los servicios de diseño web deben incluir pasarelas seguras.
+        - Para el nicho "Salud": Priorizar autoridad y confianza profesional. Evitar promesas agresivas de resultados médicos. Las estrategias de Social Media y Ads deben cumplir con las directrices de ética médica y publicidad de salud.
+        - Para el nicho "E-commerce": Enfocarse en la seguridad transaccional, transparencia en políticas de devoluciones y cumplimiento de la Ley del Consumidor y Habeas Data.
         - Para otros nichos: Mantener un enfoque orientado a resultados comerciales y crecimiento digital premium.
 
         DATOS ACTUALES DEL CRM:
         ${contextoCRM || "Sin datos de contexto específicos cargados."}
-        
-        Tu misión es asesorar al equipo sobre cómo mejorar estos proyectos o gestionar nuevos leads. 
+
+        Tu misión es asesorar al equipo sobre cómo mejorar estos proyectos o gestionar nuevos leads.
         Pregunta: "${pregunta}"
-        
+
         Responde con un tono profesional, innovador y enfocado en el ROI.
       `;
       }
@@ -536,7 +460,6 @@ export const aiService = {
       const result = await model.generateContent(prompt);
       const textoRespuesta = result.response.text();
 
-      // Punto 10: Intentar ejecutar acciones de fondo
       void ejecutarAccionSincrona(pregunta, textoRespuesta);
 
       return textoRespuesta;
@@ -546,9 +469,6 @@ export const aiService = {
     }
   },
 
-  /**
-   * Consulta el estado real de los proyectos en Supabase y genera una respuesta contextualizada.
-   */
   async chatConDatosReales(pregunta: string, roleSlug: string = "business_architect_cfo_chat"): Promise<string> {
     try {
       const [proyectos, clientes] = await Promise.all([
@@ -558,10 +478,10 @@ export const aiService = {
 
       const contextoCRM = `
         DATOS ACTUALES DEL CRM PARA TU ANÁLISIS:
-        
+
         PROYECTOS:
         ${proyectos.map(p => `- ${p.nombre} (ID: ${p.id}): Estado ${p.estado}, Progreso ${p.progreso}%, Fase: ${p.faseAdministrativa}`).join('\n')}
-        
+
         CLIENTES:
         ${clientes.map(c => `- ${c.nombre} (ID: ${c.id}): Empresa ${c.empresa}, Nicho: ${c.nicho}, Estado: ${c.estado}`).join('\n')}
       `;
@@ -573,9 +493,6 @@ export const aiService = {
     }
   },
 
-  /**
-   * Analiza si un proyecto específico está en riesgo basándose en su fecha de fin y tareas pendientes.
-   */
   async analizarRiesgoProyecto(proyectoId: string): Promise<string> {
     try {
       const proyectos = await proyectosService.getAll();
@@ -587,19 +504,19 @@ export const aiService = {
 
       const model = getAIModel();
       const hoy = new Date();
-      const fechaFin = new Date(proyecto.fechaFin);
+      const fechaFin = new Date(proyecto.fecha_fin || proyecto.fechaFin || hoy);
       const diasRestantes = Math.ceil((fechaFin.getTime() - hoy.getTime()) / (1000 * 60 * 60 * 24));
 
       const tareasPendientes = (proyecto.tareas || [])
         .filter((t: any) => !t.completada)
-        .map((t: any) => t.nombre);
+        .map((t: any) => t.nombre || t.titulo);
 
       const prompt = `
         Eres el Director de Operaciones de DESEO DIGITAL. Analiza el riesgo de cumplimiento del siguiente proyecto:
 
         PROYECTO: ${proyecto.nombre}
         PROGRESO: ${proyecto.progreso}%
-        FECHA ENTREGA: ${proyecto.fechaFin} (${diasRestantes > 0 ? diasRestantes : 'Plazo vencido'} días restantes)
+        FECHA ENTREGA: ${proyecto.fecha_fin || proyecto.fechaFin || "Sin fecha"} (${diasRestantes > 0 ? diasRestantes : 'Plazo vencido'} días restantes)
         TAREAS PENDIENTES: ${tareasPendientes.length > 0 ? tareasPendientes.join(", ") : "Sin tareas pendientes registradas."}
         DESCRIPCIÓN: ${proyecto.descripcion}
 
@@ -619,17 +536,14 @@ export const aiService = {
     }
   },
 
-  /**
-   * Genera un borrador de mensaje para WhatsApp adaptado al perfil del cliente.
-   */
   async redactarMensajeWhatsApp(clienteNombre: string, contexto: string): Promise<string> {
     try {
       const model = getAIModel();
       const prompt = `
-        Eres el Director de Cuentas de DESEO DIGITAL. 
+        Eres el Director de Cuentas de DESEO DIGITAL.
         Redacta un mensaje de WhatsApp para el cliente ${clienteNombre}.
         Contexto del mensaje: ${contexto}
-        
+
         REGLAS:
         - Usa un tono profesional pero cercano (estilo WhatsApp).
         - Incluye emojis de forma elegante.
@@ -643,9 +557,6 @@ export const aiService = {
     }
   },
 
-  /**
-   * Genera un borrador de correo electrónico profesional.
-   */
   async redactarCorreoGmail(clienteNombre: string, asunto: string, cuerpo: string): Promise<{ asunto: string, contenido: string }> {
     try {
       const model = getAIModel();
@@ -662,28 +573,23 @@ export const aiService = {
     }
   },
 
-  /**
-   * Analiza la rentabilidad financiera de la agencia.
-   */
   async analizarSaludFinanciera(): Promise<string> {
     try {
-      const [proyectos, oportunidades] = await Promise.all([ // Usar los servicios importados
+      const [proyectos, oportunidades] = await Promise.all([
         proyectosService.getAll(),
         oportunidadesService.getAll()
       ]);
 
       const model = getAIModel();
-
-      // Preparamos un resumen numérico para la IA
       const resumen = {
         totalPresupuestado: proyectos.reduce((acc: number, p: any) => acc + (p.presupuesto || 0), 0),
-        totalGastado: proyectos.reduce((acc: number, p: any) => acc + (p.costoActual || 0), 0),
-        proyectosEnRiesgo: proyectos.filter((p: any) => (p.costoActual || 0) > (p.presupuesto || 0) * 0.8).length,
+        totalGastado: proyectos.reduce((acc: number, p: any) => acc + (p.costo_actual || p.costoActual || 0), 0),
+        proyectosEnRiesgo: proyectos.filter((p: any) => (p.costo_actual || p.costoActual || 0) > (p.presupuesto || 0) * 0.8).length,
         pipelineVentas: oportunidades.reduce((acc: number, o: any) => acc + (o.valor || 0), 0)
       };
 
       const prompt = `
-        Eres el CFO (Director Financiero) de DESEO DIGITAL. 
+        Eres el CFO (Director Financiero) de DESEO DIGITAL.
         Analiza estos números y dime la verdad cruda sobre la salud de la agencia:
         - Presupuesto total en curso: ${resumen.totalPresupuestado}
         - Costo operativo acumulado: ${resumen.totalGastado}
@@ -694,7 +600,7 @@ export const aiService = {
         1. ¿Estamos ganando dinero?
         2. ¿Qué proyecto debemos vigilar hoy mismo?
         3. Una estrategia para mejorar el flujo de caja.
-        
+
         Formato: Markdown profesional y directo.
       `;
 
@@ -706,13 +612,9 @@ export const aiService = {
     }
   },
 
-  /**
-   * Agente Proactivo: Escanea el CRM buscando problemas, oportunidades de venta
-   * y mejoras operativas sin intervención del usuario.
-   */
   async realizarAuditoriaProactiva(): Promise<HallazgoAuditoria[]> {
     try {
-      const [proyectos, clientes, oportunidades] = await Promise.all([ // Usar los servicios importados
+      const [proyectos, clientes, oportunidades] = await Promise.all([
         proyectosService.getAll(),
         clientesService.getAll(),
         oportunidadesService.getAll()
@@ -723,7 +625,7 @@ export const aiService = {
         Eres el Agente Proactivo de DESEO DIGITAL. Tu misión es analizar los datos y encontrar qué estamos haciendo mal o qué oportunidad estamos perdiendo.
 
         DATOS:
-        - Proyectos: ${JSON.stringify(proyectos.map((p: any) => ({ n: p.nombre, e: p.estado, pr: p.progreso, f: p.fechaFin })))}
+        - Proyectos: ${JSON.stringify(proyectos.map((p: any) => ({ n: p.nombre, e: p.estado, pr: p.progreso, f: p.fecha_fin || p.fechaFin })))}
         - Clientes: ${JSON.stringify(clientes.map((c: any) => ({ n: c.nombre, i: c.ultima_interaccion })))}
         - Oportunidades: ${JSON.stringify(oportunidades.map((o: any) => ({ n: o.nombre, et: o.etapa, v: o.valor })))}
 
@@ -746,12 +648,9 @@ export const aiService = {
     }
   },
 
-  /**
-   * Genera un resumen ejecutivo para el Dashboard basado en el estado global del CRM.
-   */
   async generarResumenDiario(): Promise<string> {
     try {
-      const [proyectos, clientes, oportunidades] = await Promise.all([ // Usar los servicios importados
+      const [proyectos, clientes, oportunidades] = await Promise.all([
         proyectosService.getAll(),
         clientesService.getAll(),
         oportunidadesService.getAll()
@@ -769,7 +668,7 @@ export const aiService = {
         1. Saluda al equipo de DESEO DIGITAL.
         2. Identifica la prioridad #1 del día.
         3. Da un mensaje motivador corto.
-        
+
         Formato: Markdown directo, sin introducciones.
       `;
 
@@ -781,9 +680,6 @@ export const aiService = {
     }
   },
 
-  /**
-   * Genera un resumen ejecutivo para el CEO basado en métricas y riesgos de hoy.
-   */
   async generarResumenCEO(params: { ingresosHoy: number; tareasJessica: any[]; riesgos: any[] }): Promise<string> {
     try {
       const model = getAIModel();
@@ -799,10 +695,11 @@ export const aiService = {
         INSTRUCCIONES:
         1. Escribe un análisis ultra-conciso del estado del día (máximo 120 palabras).
         2. Tono: Premium, directo, motivador y orientado a números (en pesos COP).
-        3. Identifica una acción crítica para Juan José hoy mismo (ej. cobrar anticipos, revisar edición con Jessica, o mitigar el proyecto en riesgo).
+        3. Identifica una acción crítica para Juan José hoy mismo.
 
         Formato: Markdown directo con emojis de forma elegante.
       `;
+
       const result = await model.generateContent(prompt);
       return result.response.text();
     } catch (error) {
@@ -811,25 +708,17 @@ export const aiService = {
     }
   },
 
-  /**
-   * Formatea un texto para ser enviado vía URL de WhatsApp.
-   */
   prepararEnlaceWhatsApp(telefono: string, mensaje: string): string {
     const numeroLimpio = telefono.replace(/[^\d]/g, "");
     const mensajeCodificado = encodeURIComponent(mensaje);
     return `https://wa.me/${numeroLimpio}?text=${mensajeCodificado}`;
   },
 
-  /**
-   * Genera una estrategia "Rompehielo" para WhatsApp basada en los dolores 
-   * y necesidades capturados del cliente en campo.
-   */
   async generarEstrategiaRompehielo(cliente: { nombre: string; empresa?: string; dolores?: string; necesidades?: string }): Promise<string> {
     try {
       const model = getAIModel();
       const prompt = `
-        Eres el Senior Sales Strategist de DESEO DIGITAL. Juan (el CEO) acaba de recoger datos de campo de un prospecto.
-        Tu misión es redactar un mensaje "Rompehielo" para WhatsApp que sea empático, profesional y genere una conexión inmediata.
+        Eres el Senior Sales Strategist de DESEO DIGITAL. Juan (el CEO) acaba de registrar un lead y necesita el primer contacto de seguimiento.
 
         DATOS DEL CLIENTE:
         - Nombre: ${cliente.nombre}
@@ -838,12 +727,12 @@ export const aiService = {
         - Necesidad: ${cliente.necesidades || "No especificada"}
 
         INSTRUCCIONES PARA EL MENSAJE:
-        1. Saludo personalizado con tono Colombiano Premium (amable, cercano pero respetuoso).
-        2. Referencia directa al "Dolor" que el cliente mencionó. Ejemplo: "Me quedé pensando en lo que me comentaste sobre [Dolor]...".
-        3. Mostrar autoridad de DESEO DIGITAL: demostrar de forma sutil que sabemos cómo resolver ese problema específico.
-        4. Llamado a la acción (CTA) suave: Una pregunta abierta que invite a la conversación, no a la venta inmediata.
-        5. Brevedad: El mensaje debe ser fácil de leer en un celular (máximo 3-4 párrafos cortos).
-        6. Emojis: Usar 2 o 3 de forma profesional para dar calidez.
+        1. Saludo personalizado con tono Colombiano Premium.
+        2. Referencia directa al "Dolor" que el cliente mencionó.
+        3. Mostrar autoridad de DESEO DIGITAL de forma sutil.
+        4. Llamado a la acción suave: una pregunta abierta.
+        5. Brevedad: máximo 3-4 párrafos cortos.
+        6. Emojis: 2 o 3 de forma profesional.
 
         Responde ÚNICAMENTE con el texto del mensaje para copiar y pegar.
       `;
@@ -854,64 +743,55 @@ export const aiService = {
       console.error("Error al generar rompehielo:", error);
       return `Hola ${cliente.nombre}, un gusto saludarte de nuevo. Me quedé pensando en los retos de ${cliente.empresa || 'tu marca'} que mencionamos hoy. ¿Te gustaría que habláramos unos minutos sobre cómo podemos darles solución?`;
     }
-  }
-  ,
+  },
 
-  /**
-   * Toma una propuesta en Markdown y la convierte en un resumen de texto plano amigable para WhatsApp.
-   */
   async prepararPropuestaWhatsApp(propuestaMarkdown: string): Promise<string> {
     try {
       const model = getAIModel();
       const prompt = `
-        Eres el Senior Account Manager de DESEO DIGITAL. 
+        Eres el Senior Account Manager de DESEO DIGITAL.
         Toma la siguiente propuesta comercial en Markdown y conviértela en un mensaje de WhatsApp persuasivo y fácil de leer en móvil.
-        
+
         REGLAS:
         1. Usa negritas con asteriscos (*texto*).
         2. Resume los puntos clave (Estrategia, Semanas de trabajo, Pago 50/50).
         3. Mantén el tono premium y amable de DESEO DIGITAL.
-        4. Incluye un llamado a la acción claro para que el cliente confirme la cita o el inicio.
+        4. Incluye un llamado a la acción claro.
 
         PROPUESTA:
         ${propuestaMarkdown}
       `;
+
       const result = await model.generateContent(prompt);
       return result.response.text();
     } catch (error) {
-      return propuestaMarkdown; // Fallback al original si falla
+      return propuestaMarkdown;
     }
   },
 
-  /**
-   * Genera un resumen de logros personalizado para el email de cierre.
-   */
   async generarResumenCierreProyecto(proyecto: Proyecto): Promise<{ asunto: string, cuerpo: string }> {
     try {
       const model = getAIModel();
       const prompt = `
-        Eres el Customer Success Manager de DESEO DIGITAL. 
+        Eres el Customer Success Manager de DESEO DIGITAL.
         Un proyecto ha finalizado al 100%. Redacta un email de cierre profesional y persuasivo.
 
         PROYECTO: ${proyecto.nombre}
         CLIENTE: ${proyecto.clienteNombre}
         SERVICIOS: ${proyecto.servicios?.join(", ")}
         DESCRIPCIÓN: ${proyecto.descripcion}
-        TAREAS REALIZADAS: ${proyecto.tareas?.filter((t: any) => t.completada).map((t: any) => t.nombre).join(", ")}
+        TAREAS REALIZADAS: ${proyecto.tareas?.filter((t: any) => t.completada).map((t: any) => t.nombre || t.titulo).join(", ")}
 
         INSTRUCCIONES:
         1. Saluda y celebra el éxito.
-        2. Resumen de LOGROS: 
-           - Si hay SEO: Menciona visibilidad y estructura.
-           - Si hay Reels/Social: Menciona la edición de Jessica y el impacto visual.
-           - Si hay Web: Menciona velocidad y experiencia de usuario.
-           - Si hay Pub. Física: Menciona calidad de entrega y gestión de proveedores.
-        3. ENCUESTA DE SATISFACCIÓN: Incluye una sección invitando al cliente a calificar su experiencia del 1 al 5.
-        4. RESEÑA DE GOOGLE: Solicita una reseña en nuestro perfil de Google usando este enlace exacto: https://www.google.com/search?q=agencia+deseo+digtla&sca_esv=c907fd948afe34b7&sxsrf=ANbL-n7cL2DEiPeksYuHS9mv8VEBk6tqFQ%3A1779076838624&source=hp&ei=5o4Kaoa2I5eRwbkPz7zp6Ac&iflsig=AFdpzrgAAAAAagqc9gRFJ1Wm10g_KB0ws15vKww0gviP&ved=0ahUKEwiGwffX-cGUAxWXSDABHU9eGn0Q4dUDCCM&uact=5&oq=agencia+deseo+digtla&gs_lp=Egdnd3Mtd2l6IhRhZ2VuY2lhIGRlc2VvIGRpZ3RsYTIFECEYoAFI5hRQAFjGE3AAeACQAQCYAacBoAGgFqoBBDAuMjC4AQPIAQD4AQGYAhSgArwXwgIKECMYgAQYigUYJ8ICBBAjGCfCAggQABiABBixA8ICBRAAGIAEwgIOEC4YgAQYsQMYxwEY0QPCAggQLhiABBixA8ICCxAAGIAEGLEDGMkDwgILEC4YgAQYxwEYrwHCAhQQLhiABBiKBRixAxiDARjHARjRA8ICCBAAGIAEGJIDwgILEAAYgAQYigUYkgPCAgsQLhivARjHARiABMICDRAuGIAEGMcBGNEDGArCAgcQABiABBgKwgIPEAAYgAQYChgLGLEDGMkDwgIJEAAYgAQYChgLwgIPEC4YChgLGK8BGMcBGIAEwgIMEAAYgAQYChgLGJIDwgIPEC4YgAQYChgLGMcBGNEDwgIGEAAYFhgewgICECbCAggQABiABBiiBMICBRAAGO8FwgIHECEYChigAZgDAJIHBDAuMjCgB6evAbIHBDAuMjC4B7wXwgcIMC41LjEzLjLIB2KACAE&sclient=gws-wiz#lrd=0x8e3e2fb9f791918f:0xb9c06b7463ea4cfd,3,,,,
+        2. Resumen de LOGROS.
+        3. ENCUESTA DE SATISFACCIÓN.
+        4. RESEÑA DE GOOGLE.
         5. CIERRE: Tono premium, ejecutivo y agradecido.
-        
+
         Responde ÚNICAMENTE en formato JSON: {"asunto": "...", "cuerpo": "..."}
       `;
+
       const result = await model.generateContent(prompt);
       return parseAIResponse(result.response.text());
     } catch (error) {
@@ -922,11 +802,7 @@ export const aiService = {
     }
   },
 
-  /**
-   * Punto 17 y 20: Análisis de Neuromarketing y Seguimiento Híbrido.
-   * Genera estrategias de contacto basadas en sesgos cognitivos y psicología de ventas.
-   */
-  async generarSeguimientoHibrido(cliente: { nombre: string, empresa?: string, dolores?: string, nicho?: string }): Promise<{ whatsapp: string, gmail: { asunto: string, cuerpo: string }, sesgoUtilizado: string }> {
+  async generarSeguimientoHibrido(cliente: { nombre: string; empresa?: string; dolores?: string; nicho?: string }): Promise<{ whatsapp: string, gmail: { asunto: string, cuerpo: string }, sesgoUtilizado: string }> {
     try {
       const model = getAIModel();
       const prompt = `
@@ -940,15 +816,15 @@ export const aiService = {
         - Nicho: ${cliente.nicho || "General"}
 
         TAREA:
-        1. Identifica el "Dolor Real" (el miedo o deseo profundo detrás de lo que dice).
-        2. Selecciona un sesgo cognitivo para el mensaje (ej: Prueba Social, Escasez, Autoridad o Reciprocidad).
-        3. Redacta un mensaje para WhatsApp (breve, directo, empático).
-        4. Redacta un correo para Gmail (profesional, estructurado, premium).
+        1. Identifica el "Dolor Real".
+        2. Selecciona un sesgo cognitivo para el mensaje.
+        3. Redacta un mensaje para WhatsApp.
+        4. Redacta un correo para Gmail.
 
         INSTRUCCIONES DE ESTILO:
-        - Tono: Colombiano Premium (educado, cálido, pero muy ejecutivo).
+        - Tono: Colombiano Premium.
         - No uses frases trilladas de vendedor.
-        - Enfócate en que DESEO DIGITAL no vende servicios, vende SOLUCIONES al dolor detectado.
+        - Enfócate en que DESEO DIGITAL no vende servicios, vende SOLUCIONES.
 
         RESPONDE ÚNICAMENTE EN JSON:
         {
@@ -970,10 +846,6 @@ export const aiService = {
     }
   },
 
-  /**
-   * Registra el feedback de Juan sobre una respuesta de la IA.
-   * Esto alimenta el "Aprendizaje de Small Data".
-   */
   async registrarRetroalimentacion(pregunta: string, respuestaDada: string, correccion: string) {
     await logsService.create({
       accion: "Feedback IA",
@@ -983,16 +855,13 @@ export const aiService = {
     });
   },
 
-  /**
-   * Sugiere paquetes de servicios basados en los dolores y necesidades capturados de un cliente.
-   */
   async sugerirServiciosSegunDolores(cliente: { nombre: string; empresa?: string; dolores?: string; necesidades?: string; nicho?: string }): Promise<string> {
     try {
       const servicios = await serviciosService.getAll();
       const model = getAIModel();
 
       const prompt = `
-        Eres el Growth Strategist Senior de DESEO DIGITAL. 
+        Eres el Growth Strategist Senior de DESEO DIGITAL.
         Tu misión es analizar los "Dolores" y "Necesidades" que Juan José (CEO) ha capturado de un prospecto y sugerir la solución más efectiva de nuestro catálogo.
 
         DATOS DEL PROSPECTO:
@@ -1006,15 +875,15 @@ export const aiService = {
         ${servicios.map(s => `- ${s.nombre} (${s.categoria}): ${s.descripcion}. Precio base: $${new Intl.NumberFormat('es-CO').format(s.precio_base)} COP`).join('\n')}
 
         REGLAS DE CUMPLIMIENTO LEGAL Y ÉTICA SEGÚN EL NICHO:
-        - Si el nicho es "Salud": La estrategia debe priorizar la autoridad y la confianza profesional. Evita promesas agresivas de resultados médicos. Los servicios de Social Media y Ads sugeridos deben cumplir con las directrices de ética médica y publicidad de salud (ej. Supersalud en Colombia).
-        - Si el nicho es "E-commerce": Enfócate en la seguridad transaccional, la transparencia en la política de devoluciones y el cumplimiento de la Ley del Consumidor y Habeas Data (protección de datos). Asegúrate de que los servicios de diseño web incluyan pasarelas seguras.
-        - Para otros nichos: Mantén un enfoque orientado a resultados comerciales y crecimiento digital premium.
+        - Si el nicho es "Salud": La estrategia debe priorizar la autoridad y la confianza profesional. Evita promesas agresivas de resultados médicos.
+        - Si el nicho es "E-commerce": Enfócate en la seguridad transaccional, la transparencia en la política de devoluciones y el cumplimiento de la Ley del Consumidor y Habeas Data.
+        - Para otros nichos: Mantener un enfoque orientado a resultados comerciales y crecimiento digital premium.
 
         INSTRUCCIONES PARA TU RECOMENDACIÓN:
         1. **Diagnóstico Estratégico**: Define brevemente cuál es el "cuello de botella" del cliente basándote en sus dolores.
         2. **Paquete Sugerido**: Recomienda la combinación de máximo 3 servicios que resolverán sus problemas de raíz.
         3. **Justificación ROI**: Explica por qué esta inversión es rentable para su nicho específico.
-        4. **Tono**: Premium, experto, empático y muy profesional. Usa un estilo Colombiano Premium (amable pero orientado a negocios).
+        4. **Tono**: Premium, experto, empático y muy profesional. Usa un estilo Colombiano Premium.
 
         Responde en formato Markdown estructurado y persuasivo para que Juan José pueda presentarlo.
       `;
@@ -1027,24 +896,20 @@ export const aiService = {
     }
   },
 
-  /**
-   * Genera un documento (Brief, Contrato, etc.) basado en el conocimiento almacenado.
-   */
-  // Punto 14: Engine de Templates mejorado
   async generarDocumentoEstructurado(tipo: string, datos: any): Promise<string> {
     try {
       const conocimiento = await conocimientoService.getAll();
       const plantilla = conocimiento.find(c => c.categoria === 'templates' && c.titulo.toLowerCase().includes(tipo.toLowerCase()));
 
       const model = getAIModel();
-      const dbPrompt = await promptsAIService.getBySlug('business_architect_documento');
+      const dbPrompt = await promptsAIService.getBySlug("business_architect_documento");
 
       let prompt = "";
       if (dbPrompt) {
         prompt = fillTemplate(dbPrompt.user_prompt_template, { tipo, plantilla, datos });
       } else {
         prompt = `
-        Eres el Business Architect y Consultor Senior de DESEO DIGITAL. 
+        Eres el Business Architect y Consultor Senior de DESEO DIGITAL.
         Tu tarea es redactar un **${tipo}** que sirva como diagnóstico profundo para la incursión al mundo digital.
 
         PLANTILLA DE PREGUNTAS Y ESTRUCTURA DE JUAN JOSÉ (CEO):
@@ -1055,8 +920,8 @@ export const aiService = {
 
         INSTRUCCIONES:
         1. Usa las preguntas de la plantilla para evaluar la **identidad de la empresa** y su **madurez organizacional**.
-        2. No te limites a llenar espacios; analiza si la empresa está bien estructurada para lo digital según los datos proporcionados.
-        3. Si detectas que falta información crítica en la identidad o estructura, agrégala como una "Observación de Estrategia".
+        2. No te limites a llenar espacios; analiza si la empresa está bien estructurada para lo digital.
+        3. Si detectas que falta información crítica, agrégala como una "Observación de Estrategia".
         4. El objetivo es que el cliente sienta que DESEO DIGITAL entiende quiénes son y qué necesitan corregir internamente para crecer.
         5. Tono: Premium, analítico, directo y altamente profesional.
       `;
