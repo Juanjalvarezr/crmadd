@@ -357,9 +357,8 @@ export default function Clientes() {
             if (sequences && sequences.length > 0) {
               await iniciarSecuenciaParaCliente(sequences[0].id, createdCliente.id);
             }
-          } catch (emailErr) {
-            console.warn('Error iniciando secuencia de email:', emailErr);
-            // No bloquear el flujo si falla la secuencia de email
+          } catch {
+            // automation opcional
           }
         }
       }
@@ -1029,117 +1028,60 @@ export default function Clientes() {
           <Grid container spacing={2}>
             {paginatedClientes.map((cliente) => {
               const totalPagado = clientePaymentSummary.get(cliente.id) || 0;
-
               return (
                 <Grid item xs={12} sm={6} md={4} lg={3} key={cliente.id}>
-                  <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', border: '1px solid', borderColor: 'divider' }}>
-                    <CardContent sx={{ flexGrow: 1, py: { xs: 0.5, sm: 1 }, px: { xs: 1, sm: 1.5 }, '&:last-child': { pb: 1 } }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 0.5, mb: 0.25, pl: 2.5 }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 0 }}>
-                          <Box sx={{ width: 24, height: 24, borderRadius: '50%', bgcolor: 'primary.main', color: 'primary.contrastText', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.65rem', fontWeight: 700, flexShrink: 0 }}>
+                  <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column', border: '1px solid', borderColor: 'divider', bgcolor: 'background.paper', transition: 'box-shadow 0.18s ease, transform 0.18s ease', '&:hover': { boxShadow: '0 8px 18px rgba(0,0,0,0.10)', transform: { xs: 'none', sm: 'translateY(-1px)' } } }}>
+                    <CardContent sx={{ flexGrow: 1, py: { xs: 0.6, sm: 0.9 }, px: { xs: 1, sm: 1.25 }, '&:last-child': { pb: 0.9 } }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 0.5, mb: 0.35, pl: 0 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6, minWidth: 0, flex: 1 }}>
+                          <Box sx={{ width: 22, height: 22, borderRadius: '50%', bgcolor: 'primary.main', color: 'primary.contrastText', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.6rem', fontWeight: 800, flexShrink: 0 }}>
                             {cliente.nombre?.charAt(0).toUpperCase()}
                           </Box>
-                          <Typography variant="subtitle2" sx={{ fontWeight: 700, fontSize: { xs: '0.75rem', sm: '0.85rem' }, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                            {cliente.nombre}
-                          </Typography>
+                          <Box sx={{ minWidth: 0, flex: 1 }}>
+                            <Typography variant="body2" sx={{ fontWeight: 700, lineHeight: 1.15, fontSize: { xs: '0.72rem', sm: '0.8rem' }, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{cliente.nombre}</Typography>
+                            <Typography variant="caption" color="text.secondary" noWrap sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem' }, lineHeight: 1.1 }}>{cliente.empresa || '—'}</Typography>
+                          </Box>
                         </Box>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.4, flexShrink: 0 }}>
                           {cliente.lead_score !== undefined && (
                             <Tooltip title={`Lead Score: ${cliente.lead_score}/100 - ${getLeadQuality(cliente.lead_score).toUpperCase()}`}>
-                              <Box sx={{ 
-                                width: 20, 
-                                height: 20, 
-                                borderRadius: '50%', 
-                                bgcolor: getLeadScoreColor(cliente.lead_score), 
-                                display: 'flex', 
-                                alignItems: 'center', 
-                                justifyContent: 'center',
-                                fontSize: '0.6rem',
-                                fontWeight: 700,
-                                color: 'white',
-                                border: '2px solid',
-                                borderColor: getLeadScoreColor(cliente.lead_score)
-                              }}>
+                              <Box sx={{ width: 18, height: 18, borderRadius: '50%', bgcolor: getLeadScoreColor(cliente.lead_score), display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.55rem', fontWeight: 800, color: 'white' }}>
                                 {cliente.lead_score}
                               </Box>
                             </Tooltip>
                           )}
-                          <SafeChip label={cliente.estado} color={getEstadoColor(cliente.estado)} size="small" sx={{ fontWeight: 500, fontSize: { xs: '0.6rem', sm: '0.65rem' }, height: 18 }} />
+                          <SafeChip label={cliente.estado} color={getEstadoColor(cliente.estado)} size="small" sx={{ fontWeight: 600, fontSize: { xs: '0.55rem', sm: '0.58rem' }, height: 16, px: 0.6 }} />
                         </Box>
                       </Box>
 
-                      <Stack spacing={0.25} sx={{ pl: 2.5 }}>
+                      <Stack spacing={0.3} sx={{ pl: 0, mt: 0.6 }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                          <FiMail size={11} color="text.secondary" />
-                          <Typography variant="caption" color="text.secondary" noWrap sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem' } }}>{cliente.email}</Typography>
+                          <FiMail size={10} color="text.secondary" />
+                          <Typography variant="caption" color="text.secondary" noWrap sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem' }, lineHeight: 1.1 }}>{cliente.email}</Typography>
                         </Box>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                          <FiPhone size={11} color="text.secondary" />
-                          <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem' } }}>{cliente.telefono || '—'}</Typography>
+                          <FiPhone size={10} color="text.secondary" />
+                          <Typography variant="caption" color="text.secondary" noWrap sx={{ fontSize: { xs: '0.6rem', sm: '0.65rem' }, lineHeight: 1.1 }}>{cliente.telefono || '—'}</Typography>
                         </Box>
                       </Stack>
 
-                      <Divider sx={{ my: 0.5, pl: 2.5 }} />
+                      <Divider sx={{ my: 0.6, pl: 0 }} />
 
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pl: 2.5 }}>
-                        <Typography variant="caption" sx={{ fontWeight: 600, fontSize: { xs: '0.65rem', sm: '0.7rem' } }}>Total Pagado</Typography>
-                        <Typography variant="caption" color="success.main" sx={{ fontWeight: 700, fontSize: { xs: '0.65rem', sm: '0.7rem' } }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pl: 0 }}>
+                        <Typography variant="caption" sx={{ fontWeight: 700, fontSize: { xs: '0.6rem', sm: '0.65rem' }, lineHeight: 1.1, textTransform: 'uppercase', letterSpacing: 0.3 }}>Total pagado</Typography>
+                        <Typography variant="caption" color="success.main" sx={{ fontWeight: 800, fontSize: { xs: '0.65rem', sm: '0.72rem' }, lineHeight: 1.1 }}>
                           {new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(totalPagado)}
                         </Typography>
                       </Box>
                     </CardContent>
 
-                    <Box sx={{ p: { xs: 0.5, sm: 1 }, display: 'flex', flexWrap: 'wrap', gap: 0.5, justifyContent: 'center' }}>
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        startIcon={<FiTarget size={14} />}
-                        onClick={(e) => { e.stopPropagation(); window.location.href = `/proyectos?cliente_id=${cliente.id}`; }}
-                      >
-                        Proyectos
-                      </Button>
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        startIcon={<FiFileText size={14} />}
-                        onClick={(e) => { e.stopPropagation(); window.location.href = `/facturacion?cliente_id=${cliente.id}`; }}
-                      >
-                        Facturas
-                      </Button>
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        startIcon={<FiDownload size={14} />}
-                        onClick={(e) => { e.stopPropagation(); window.location.href = `/contratos?cliente_id=${cliente.id}`; }}
-                      >
-                        Contratos
-                      </Button>
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        startIcon={<FiCalendar size={14} />}
-                        onClick={(e) => { e.stopPropagation(); window.location.href = `/tareas?cliente_id=${cliente.id}`; }}
-                      >
-                        Tareas
-                      </Button>
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        startIcon={<FiMail size={14} />}
-                        onClick={(e) => { e.stopPropagation(); window.location.href = `/email-marketing?email=${encodeURIComponent(cliente.email)}`; }}
-                      >
-                        Email
-                      </Button>
+                    <Box sx={{ p: { xs: 0.5, sm: 0.75 }, display: 'flex', flexWrap: 'wrap', gap: 0.5, justifyContent: 'center', borderTop: '1px solid', borderColor: 'divider' }}>
+                      <Button size="small" variant="outlined" startIcon={<FiTarget size={13} />} onClick={(e) => { e.stopPropagation(); window.location.href = `/proyectos?cliente_id=${cliente.id}`; }} sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem' }, minHeight: 28, px: 1 }}>Proyectos</Button>
+                      <Button size="small" variant="outlined" startIcon={<FiFileText size={13} />} onClick={(e) => { e.stopPropagation(); window.location.href = `/facturacion?cliente_id=${cliente.id}`; }} sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem' }, minHeight: 28, px: 1 }}>Facturas</Button>
+                      <Button size="small" variant="outlined" startIcon={<FiCalendar size={13} />} onClick={(e) => { e.stopPropagation(); window.location.href = `/tareas?cliente_id=${cliente.id}`; }} sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem' }, minHeight: 28, px: 1 }}>Tareas</Button>
+                      <Button size="small" variant="outlined" startIcon={<FiMail size={13} />} onClick={(e) => { e.stopPropagation(); window.location.href = `/email-marketing?email=${encodeURIComponent(cliente.email)}`; }} sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem' }, minHeight: 28, px: 1 }}>Email</Button>
                       {cliente.telefono && (
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          startIcon={<FiMessageSquare size={14} />}
-                          color="success"
-                          onClick={(e) => { e.stopPropagation(); window.open(`https://wa.me/${cliente.telefono.replace(/\D/g, '')}?text=${encodeURIComponent('Hola ' + cliente.nombre + ', ¿cómo estás?')}`, '_blank'); }}
-                        >
-                          WhatsApp
-                        </Button>
+                        <Button size="small" variant="outlined" color="success" startIcon={<FiMessageSquare size={13} />} onClick={(e) => { e.stopPropagation(); window.open(`https://wa.me/${cliente.telefono.replace(/\D/g, '')}?text=${encodeURIComponent('Hola ' + cliente.nombre + ', ¿cómo estás?')}`, '_blank'); }} sx={{ fontSize: { xs: '0.65rem', sm: '0.7rem' }, minHeight: 28, px: 1 }}>WhatsApp</Button>
                       )}
                     </Box>
 

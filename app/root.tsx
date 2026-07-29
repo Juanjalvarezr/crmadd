@@ -52,19 +52,21 @@ export default function Root() {
         text: { primary: themeMode === 'dark' ? '#f1f5f9' : '#1f232e', secondary: themeMode === 'dark' ? '#cbd5e1' : '#617182' },
       },
 
-      shape: { borderRadius: 12 },
+      shape: { borderRadius: 10 },
       typography: {
         fontFamily: 'Inter, Roboto, system-ui, -apple-system, Segoe UI, sans-serif',
-        h4: { fontSize: { xs: '1.25rem', sm: '1.6rem', md: '2rem' }, fontWeight: 800 },
-        h5: { fontSize: { xs: '1.1rem', sm: '1.25rem' }, fontWeight: 700 },
-        h6: { fontSize: { xs: '1rem', sm: '1.1rem' }, fontWeight: 700 },
-        button: { textTransform: 'none', fontWeight: 600 },
+        h4: { fontSize: { xs: '1.25rem', sm: '1.5rem', md: '1.75rem' }, fontWeight: 800, lineHeight: 1.2 },
+        h5: { fontSize: { xs: '1.05rem', sm: '1.15rem' }, fontWeight: 700, lineHeight: 1.25 },
+        h6: { fontSize: { xs: '0.95rem', sm: '1.05rem' }, fontWeight: 700, lineHeight: 1.3 },
+        body2: { fontSize: '0.82rem', lineHeight: 1.45 },
+        caption: { fontSize: '0.72rem', lineHeight: 1.35 },
+        button: { textTransform: 'none', fontWeight: 600, fontSize: '0.82rem' },
       },
       components: {
-        MuiCard: { styleOverrides: { root: { borderRadius: 16, border: '1px solid', borderColor: 'divider', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' } } },
+        MuiCard: { styleOverrides: { root: { borderRadius: 14, border: '1px solid', borderColor: 'divider', boxShadow: '0 1px 2px rgba(0,0,0,0.04)', transition: 'box-shadow .15s ease, transform .15s ease' } } },
         MuiPaper: { styleOverrides: { root: { backgroundImage: 'none' } } },
-        MuiButton: { styleOverrides: { root: { borderRadius: 10, padding: '6px 12px' } } },
-        MuiTableCell: { styleOverrides: { root: { borderBottom: '1px solid', borderColor: 'divider' } } },
+        MuiButton: { styleOverrides: { root: { borderRadius: 10, padding: '6px 12px', transition: 'transform .15s ease, box-shadow .15s ease', '&:active': { transform: 'translateY(0)' } } } },
+        MuiTableCell: { styleOverrides: { root: { borderBottom: '1px solid', borderColor: 'divider', padding: '6px 12px' } } },
       }
     });
 
