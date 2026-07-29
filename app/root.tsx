@@ -63,10 +63,11 @@ export default function Root() {
         button: { textTransform: 'none', fontWeight: 600, fontSize: '0.82rem' },
       },
       components: {
-        MuiCard: { styleOverrides: { root: { borderRadius: 14, border: '1px solid', borderColor: 'divider', boxShadow: '0 1px 2px rgba(0,0,0,0.04)', transition: 'box-shadow .15s ease, transform .15s ease' } } },
+        MuiCard: { styleOverrides: { root: { borderRadius: 14, border: '1px solid', borderColor: 'divider', boxShadow: '0 1px 2px rgba(0,0,0,0.04)', transition: 'box-shadow .15s ease, transform .15s ease', '&:hover': { boxShadow: '0 6px 20px rgba(0,0,0,0.08)', transform: 'translateY(-1px)' } } } },
         MuiPaper: { styleOverrides: { root: { backgroundImage: 'none' } } },
         MuiButton: { styleOverrides: { root: { borderRadius: 10, padding: '6px 12px', transition: 'transform .15s ease, box-shadow .15s ease', '&:active': { transform: 'translateY(0)' } } } },
-        MuiTableCell: { styleOverrides: { root: { borderBottom: '1px solid', borderColor: 'divider', padding: '6px 12px' } } },
+        MuiTableCell: { styleOverrides: { root: { borderBottom: '1px solid', borderColor: 'divider', padding: '6px 12px', transition: 'background .15s ease', '&:focus-visible': { backgroundColor: 'rgba(255,255,255,0.04)', outline: 'none' } } } },
+        MuiChip: { styleOverrides: { root: { transition: 'all .15s ease', '&:hover': { transform: 'translateY(-0.5px)', boxShadow: '0 0 0 1px rgba(255,255,255,0.08) inset' } } } },
       }
     });
 
