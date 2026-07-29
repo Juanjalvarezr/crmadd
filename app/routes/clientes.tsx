@@ -1312,15 +1312,15 @@ export default function Clientes() {
           </Box>
           {selectedClient && (
             <Box sx={{ mt: 1 }}>
-              <Tabs value={detailTab} onChange={(_, v) => setDetailTab(v)} variant="fullWidth" size="small" sx={{ minHeight: 36, '& .MuiTab-root': { minHeight: 36, py: 0.5, fontSize: { xs: '0.7rem', sm: '0.8rem' } } }}>
-                <Tab label="Datos" />
-                <Tab label={`Historial (${relatedProyectos.length + relatedOportunidades.length + relatedTareas.length})`} />
-                <Tab label="Proyectos" />
-                <Tab label="Oportunidades" />
-                <Tab label="Tareas" />
-                <Tab label={`Facturas (${relatedFacturas.length})`} />
-                <Tab label={`Contratos (${relatedContratos.length})`} />
-                <Tab label={`Pagos (${relatedTransacciones.length})`} />
+              <Tabs value={detailTab} onChange={(_, v) => setDetailTab(v)} variant="fullWidth" size="small" sx={{ minHeight: 40, '& .MuiTab-root': { minHeight: 40, py: 0.8, fontSize: { xs: '0.72rem', sm: '0.8rem' }, fontWeight: 600 }, '& .MuiTabs-indicator': { height: 3 } }}>
+                <Tab icon={<FiUsers size={14} />} iconPosition="start" label="Datos" />
+                <Tab icon={<FiActivity size={14} />} iconPosition="start" label={`Historial (${relatedProyectos.length + relatedOportunidades.length + relatedTareas.length})`} />
+                <Tab icon={<FiFolder size={14} />} iconPosition="start" label="Proyectos" />
+                <Tab icon={<FiTarget size={14} />} iconPosition="start" label="Oportunidades" />
+                <Tab icon={<FiList size={14} />} iconPosition="start" label="Tareas" />
+                <Tab icon={<FiFileText size={14} />} iconPosition="start" label={`Facturas (${relatedFacturas.length})`} />
+                <Tab icon={<FiShield size={14} />} iconPosition="start" label={`Contratos (${relatedContratos.length})`} />
+                <Tab icon={<FiDollarSign size={14} />} iconPosition="start" label={`Pagos (${relatedTransacciones.length})`} />
               </Tabs>
               <Divider sx={{ mb: 1 }} />
 

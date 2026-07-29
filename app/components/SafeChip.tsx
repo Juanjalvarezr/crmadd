@@ -15,9 +15,10 @@ interface SafeChipProps {
   label: string;
   color?: keyof typeof SAFE_COLORS;
   size?: "small" | "medium";
-  variant?: "filled" | "outlined";
+  variant?: "filled" | "outlined" | "tonal";
   sx?: Record<string, any>;
   icon?: React.ReactNode;
+  hover?: boolean;
   [key: string]: any;
 }
 
@@ -32,6 +33,9 @@ const SafeChip: React.FC<SafeChipProps> = ({
 }) => {
   const safe = SAFE_COLORS[color] || SAFE_COLORS.default;
   const isSmall = size === "small";
+
+  const tonalBg = variant === "tonal" ? `${safe.bg}18` : undefined;
+  const tonalBorder = variant === "tonal" ? `1px solid ${safe.bg}55` : undefined;
 
   const base: Record<string, any> = {
     display: "inline-flex",
@@ -48,8 +52,10 @@ const SafeChip: React.FC<SafeChipProps> = ({
     boxSizing: "border-box",
     transition: "all 0.15s ease",
     color: safe.text,
-    backgroundColor: variant === "outlined" ? "transparent" : safe.bg,
-    border: variant === "outlined" ? `1px solid ${safe.bg}` : "none",
+    backgroundColor: variant === "outlined" ? "transparent" : variant === "tonal" ? tonalBg : safe.bg,
+    border: variant === "outlined" ? `1px solid ${safe.bg}` : variant === "tonal" ? tonalBorder : "none",
+    boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
+    ...(hover ? { cursor: "pointer", "&:hover": { transform: "translateY(-1px)", boxShadow: "0 4px 10px rgba(0,0,0,0.08)" } } : {}),
     ...sx,
   };
 
