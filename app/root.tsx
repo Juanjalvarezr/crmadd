@@ -194,6 +194,14 @@ export default function Root() {
     return () => window.removeEventListener("open-ai-chat", handler as EventListener);
   }, []);
 
+  useEffect(() => {
+    try {
+      const marker = document.createElement('div');
+      marker.setAttribute('data-hermes-mounted', 'true');
+      marker.style.display = 'none';
+      document.body.appendChild(marker);
+    } catch {}
+  }, []);
   const handleDrawerToggle = () => setMobileOpen((prev) => !prev);
   const handleToggleCollapse = () => {
     const nextState = !isCollapsed;
