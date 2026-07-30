@@ -560,18 +560,8 @@ export default function Facturacion() {
                 </Grid>
                 <Grid item xs={12} sm={4}>
                   <FormControl fullWidth>
-                    <InputLabel>Estado</InputLabel>
-                    <Select name="estado" label="Estado" defaultValue={editItem?.estado || 'borrador'}>
-                      <MenuItem value="borrador">Borrador</MenuItem>
-                      <MenuItem value="enviada">Enviada</MenuItem>
-                      <MenuItem value="pagada">Pagada</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                  <FormControl fullWidth>
-                    <InputLabel>Estado de pago</InputLabel>
-                    <Select name="estado_pago" label="Estado de pago" defaultValue={editItem?.estado_pago || 'pendiente'}>
+                    <InputLabel>Tipo de cobro</InputLabel>
+                    <Select name="estado_pago" label="Tipo de cobro" defaultValue={editItem?.estado_pago || 'pendiente'}>
                       <MenuItem value="anticipo">Anticipo</MenuItem>
                       <MenuItem value="parcial">Parcial</MenuItem>
                       <MenuItem value="pago_final">Pago final</MenuItem>

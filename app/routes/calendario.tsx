@@ -135,6 +135,19 @@ export default function Calendario() {
     setIsModalOpen(true);
   };
 
+  const navigateToEntity = () => {
+    if (!selectedEvent) return;
+    const t = selectedEvent.type;
+    const idMatch = selectedEvent.id.match(/^(tarea|venta|proyecto|cliente)-(.+)$/);
+    const entityId = idMatch ? idMatch[2] : null;
+    if (t === 'tarea' && entityId) {
+      window.location.href = `/tareas?highlight=${entityId}`;
+    } else if (t === 'venta' && entityId) {
+      window.location.href = `/ventas?highlight=${entityId}`;
+    }
+    setIsModalOpen(false);
+  };
+
   const eventStyleGetter = (event: CalEvent) => {
     const icon = event.type === 'tarea' ? '☑️' : event.type === 'venta' ? '💰' : '📌';
     const time = event.start ? format(event.start, 'HH:mm') : '';
@@ -254,61 +267,43 @@ export default function Calendario() {
         </Grid>
       </Paper>
 
-      {/* Controles de vista — mobile friendly */}
-      <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", alignItems: "center" }}>
-        <Box sx={{ display: "flex", border: "1px solid", borderColor: "divider", borderRadius: 1.5, overflow: "hidden" }}>
-          <IconButton size="small" onClick={() => {
-            const d = new Date(date);
-            d.setMonth(d.getMonth() - 1);
-            setDate(d);
-          }} sx={{ borderRadius: 0 }}>
-            <FiChevronLeft size={16} />
-          </IconButton>
-          <Button
+      {/* Controles compactos */}
+      <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap', alignItems: 'center' }}>
+        <Button size="small" variant="contained" startIcon={<FiPlus size={14} />} onClick={() => window.location.href = '/tareas?new=1'}>Nueva tarea</Button>
+        <Select size="small" value={filterProyecto} onChange={(e) => setFilterProyecto(String(e.target.value))} sx={{ minWidth: 160, fontSize: '0.7rem' }}>
+          <MenuItem value="all">Todos los proyectos</MenuItem>
+          <MenuItem value="">Sin proyecto</MenuItem>
+          {(proyectos || []).map((p: any) => (<MenuItem key={p.id} value={String(p.id)}>{p.nombre}</MenuItem>))}
+        </Select>
+        {([{ f: 'all', l: 'Todos' }, { f: 'tarea', l: 'Tareas' }, { f: 'venta', l: 'Cierres' }] as const).map(({ f, l }) => (
+          <Chip
+            key={f}
+            label={f === 'all' ? l : f === 'tarea' ? 'Tareas' : 'Cierres'}
             size="small"
-            onClick={() => setDate(new Date())}
-            sx={{ borderRadius: 0, px: 1.5, fontSize: "0.72rem", fontWeight: 600, minWidth: 0 }}
-          >
-            Hoy
-          </Button>
-          <IconButton size="small" onClick={() => {
-            const d = new Date(date);
-            d.setMonth(d.getMonth() + 1);
-            setDate(d);
-          }} sx={{ borderRadius: 0 }}>
-            <FiChevronRight size={16} />
-          </IconButton>
-        </Box>
-
-        <Box sx={{ display: "flex", border: "1px solid", borderColor: "divider", borderRadius: 1.5, overflow: "hidden" }}>
-          {[
-            { label: "Mes", val: Views.MONTH },
-            { label: "Semana", val: Views.WEEK },
-            { label: "Día", val: Views.DAY },
-          ].map((v) => (
-            <Button
-              key={v.val}
-              size="small"
-              onClick={() => setView(v.val)}
-              sx={{
-                borderRadius: 0,
-                px: { xs: 1, sm: 1.5 },
-                fontSize: "0.72rem",
-                fontWeight: 600,
-                bgcolor: view === v.val ? "primary.main" : "transparent",
-                color: view === v.val ? "#ffffff" : "text.primary",
-                "&:hover": { bgcolor: view === v.val ? "primary.dark" : "action.hover" },
-              }}
-            >
-              {v.label}
-            </Button>
-          ))}
-        </Box>
-
-        <Typography variant="caption" sx={{ fontWeight: 700, color: "text.secondary", ml: "auto" }}>
-          {format(date, "MMMM yyyy", { locale: es }).toUpperCase()}
-        </Typography>
+            variant={filter === f ? 'filled' : 'outlined'}
+            onClick={() => setFilter(f)}
+            sx={{ fontSize: '0.68rem', height: 26, cursor: 'pointer' }}
+          />
+        ))}
+        <IconButton size="small" onClick={loadEvents}><FiRefreshCw size={14} /></IconButton>
       </Box>
+
+      {/* KPIs compactos */}
+      <Grid container spacing={1} sx={{ mt: 1 }}>
+        {[
+          { label: 'Total', value: events.length, color: '#1976d2' },
+          { label: 'Tareas', value: tareas.length, color: '#2196f3' },
+          { label: 'Cierres', value: ventas.length, color: '#e91e63' },
+          { label: 'Hoy', value: hoy.length, color: '#4caf50' },
+        ].map((s) => (
+          <Grid item xs={3} key={s.label}>
+            <Box sx={{ textAlign: 'center' }}>
+              <Typography sx={{ fontWeight: 800, color: s.color, lineHeight: 1, fontSize: { xs: '0.9rem', sm: '1.1rem' } }}>{s.value}</Typography>
+              <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.6rem' }}>{s.label}</Typography>
+            </Box>
+          </Grid>
+        ))}
+      </Grid>
 
       {/* Calendario principal */}
       <Paper
@@ -408,6 +403,11 @@ export default function Calendario() {
             </DialogContent>
             <DialogActions>
               <Button onClick={() => setIsModalOpen(false)} size="small">Cerrar</Button>
+              {selectedEvent && (
+                <Button size="small" variant="contained" onClick={navigateToEntity}>
+                  {selectedEvent.type === 'tarea' ? 'Ver tarea' : 'Ver oportunidad'}
+                </Button>
+              )}
             </DialogActions>
           </>
         )}
