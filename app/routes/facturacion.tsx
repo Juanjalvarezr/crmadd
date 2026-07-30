@@ -66,6 +66,29 @@ export default function Facturacion() {
   const [anulacionItem, setAnulacionItem] = useState<any>(null);
   const [anulacionMotivo, setAnulacionMotivo] = useState("");
   const [expandFilters, setExpandFilters] = useState(false);
+  const [form, setForm] = useState<any>({});
+
+  useEffect(() => {
+    if (open && editItem) {
+      setForm({
+        numero: editItem.numero || '',
+        cliente_id: editItem.cliente_id || '',
+        proyecto_id: editItem.proyecto_id || '',
+        tipo: editItem.tipo || 'servicio',
+        subtotal: editItem.subtotal || '',
+        iva: editItem.iva || '',
+        total: editItem.total || '',
+        moneda: editItem.moneda || 'COP',
+        estado_pago: editItem.estado_pago || 'pendiente',
+        estado: editItem.estado || 'borrador',
+        fecha_emision: editItem.fecha_emision || new Date().toISOString().slice(0, 10),
+        fecha_vencimiento: editItem.fecha_vencimiento || '',
+        notas: editItem.notas || '',
+      });
+    }
+  }, [open, editItem]);
+
+  const updateForm = (field: string) => (e: any) => setForm((prev: any) => ({ ...prev, [field]: e.target.value }));
 
   const load = async () => {
     setLoading(true);
@@ -120,6 +143,12 @@ export default function Facturacion() {
   const getProyectoNombre = (id: any) => {
     const p = proyectos.find((x: any) => String(x.id) === String(id));
     return p?.nombre || '-';
+  };
+
+  const formatPhone = (raw: string) => {
+    const digits = String(raw || '').replace(/\D/g, '');
+    if (!digits) return '';
+    return digits.startsWith('57') ? `+${digits}` : `+57${digits}`;
   };
 
   const formatCOP = (v: any) => `$${Number(v || 0).toLocaleString("es-CO")}`;
@@ -201,13 +230,8 @@ export default function Facturacion() {
     const cliente = clientes.find((c: any) => String(c.id) === String(row.cliente_id));
     const pdfBlob = await generarFacturaPDF(row, cliente);
     const url = URL.createObjectURL(pdfBlob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `factura-${row.numero || row.id}.pdf`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
+    setPreviewUrl(url);
+    setPreviewOpen(true);
   };
 
   const handlePreview = async (row: any) => {
@@ -220,8 +244,9 @@ export default function Facturacion() {
 
   const handleWhatsApp = async (row: any) => {
     const cliente = clientes.find((c: any) => String(c.id) === String(row.cliente_id));
-    const telefono = cliente?.telefono || cliente?.telefono_whatsapp || '';
-    if (!telefono) return setError('El cliente no tiene teléfono');
+    const phoneRaw = cliente?.telefono || cliente?.telefono_whatsapp || '';
+    const phone = formatPhone(phoneRaw);
+    if (!phone) return setError('El cliente no tiene teléfono');
 
     setSendingWhatsApp(row.id);
     try {
@@ -230,7 +255,7 @@ export default function Facturacion() {
       const pdfUrl = await uploadPDFToStorage(pdfBlob, path);
 
       const msg = encodeURIComponent(`Hola ${cliente?.nombre || ''}, te comparto la factura ${row.numero || row.id} por un valor de ${row.moneda} ${formatCOP(row.total)}. Descargala aqui: ${pdfUrl}`);
-      window.open(`https://wa.me/${telefono.replace(/[^\d]/g, '')}?text=${msg}`, '_blank');
+      window.open(`https://wa.me/${phone.replace(/[^\d]/g, '')}?text=${msg}`, '_blank');
     } catch (e) {
       setError('Error generando PDF para WhatsApp');
     } finally {
@@ -249,7 +274,7 @@ export default function Facturacion() {
       const pdfUrl = await uploadPDFToStorage(pdfBlob, path);
 
       const html = `<p>Hola ${cliente?.nombre || ''},</p><p>Adjunto factura ${row.numero || row.id} por ${row.moneda} ${formatCOP(row.total)}.</p><p><a href="${pdfUrl}">Descargar factura</a></p>`;
-      const res = await facturasService.enviarEmail(row, html);
+      await facturasService.enviarEmail({ ...row, cliente, pdfUrl, html }, html);
       setSuccess('Correo enviado');
     } catch (e) {
       setError('Error enviando correo');
@@ -495,7 +520,7 @@ export default function Facturacion() {
       )}
 
       {/* Dialog Factura */}
-      <Dialog open={open} onClose={() => { setOpen(false); setEditItem(null); }} maxWidth="sm" fullWidth>
+      <Dialog open={open} onClose={() => { if (!editItem) { setOpen(false); setEditItem(null); } }} maxWidth="sm" fullWidth>
         <DialogTitle>{editItem?.id ? 'Editar Factura' : 'Nueva Factura'}</DialogTitle>
         <DialogContent>
           <form id="factura-form" onSubmit={handleSave}>
