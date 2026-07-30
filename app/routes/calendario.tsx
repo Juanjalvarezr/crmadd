@@ -3,7 +3,7 @@ import {
   Box, Typography, Paper, Button, IconButton, Tooltip, CircularProgress, Select, MenuItem,
   Dialog, DialogTitle, DialogContent, DialogActions, Chip, Stack, Grid
 } from "@mui/material";
-import { FiCalendar, FiInfo, FiRefreshCw, FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { FiCalendar, FiInfo, FiRefreshCw, FiChevronLeft, FiChevronRight, FiPlus } from "react-icons/fi";
 import { Calendar, dateFnsLocalizer, Views } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay, isToday } from "date-fns";
 import { es } from "date-fns/locale/es";
