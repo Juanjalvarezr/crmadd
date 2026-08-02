@@ -33,6 +33,7 @@ interface CRMState {
   fetchClientes: () => Promise<void>;
   fetchProyectos: () => Promise<void>;
   fetchTareas: () => Promise<void>;
+  fetchOportunidades: () => Promise<void>;
   fetchFacturas: () => Promise<void>;
   fetchTransacciones: () => Promise<void>;
   fetchContratos: () => Promise<void>;
@@ -132,6 +133,16 @@ export const useCRMStore = create<CRMState>((set, get) => ({
     try {
       const tareas = await tareasService.getAll();
       set({ tareas, isLoading: false });
+    } catch (err: any) {
+      set({ error: err.message, isLoading: false });
+    }
+  },
+
+  fetchOportunidades: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const oportunidades = await oportunidadesService.getAll();
+      set({ oportunidades, isLoading: false });
     } catch (err: any) {
       set({ error: err.message, isLoading: false });
     }
