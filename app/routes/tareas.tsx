@@ -44,10 +44,11 @@ const getEstadoColor = (e: string): "default" | "primary" | "success" => {
 };
 
 export default function Tareas() {
-  const store = useCRMStore();
-  const [tareas, setTareas] = useState<Tarea[]>([]);
+  const tareas = useCRMStore((s) => s.tareas);
+  const clientes = useCRMStore((s) => s.clientes);
+  const fetchTareas = useCRMStore((s) => s.fetchTareas);
+  const fetchClientes = useCRMStore((s) => s.fetchClientes);
   const [equipo, setEquipo] = useState<any[]>([]);
-  const [clientes, setClientes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -83,8 +84,8 @@ export default function Tareas() {
       setLoading(true);
       setError(null);
       await Promise.all([
-        store.fetchTareas(),
-        store.fetchClientes()
+        fetchTareas(),
+        fetchClientes()
       ]);
     } catch (err: any) {
       setError("Error al cargar tareas: " + err.message);
@@ -94,11 +95,6 @@ export default function Tareas() {
   };
 
   useEffect(() => { loadTareas(); }, []);
-
-  useEffect(() => {
-    setTareas(store.tareas as Tarea[]);
-    setClientes(store.clientes);
-  }, [store.tareas.length, store.clientes.length]);
 
   const filtered = tareas.filter(t => {
     const matchSearch = t.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||

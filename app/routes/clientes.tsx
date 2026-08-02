@@ -45,12 +45,17 @@ export function meta() {
 }
 
 export default function Clientes() {
-  const store = useCRMStore();
+  const clientes = useCRMStore((s) => s.clientes);
+  const fetchClientes = useCRMStore((s) => s.fetchClientes);
+  const fetchProyectos = useCRMStore((s) => s.fetchProyectos);
+  const fetchOportunidades = useCRMStore((s) => s.fetchOportunidades);
+  const fetchTareas = useCRMStore((s) => s.fetchTareas);
+  const proyectos = useCRMStore((s) => s.proyectos);
+  const oportunidades = useCRMStore((s) => s.oportunidades);
+  const storeTareas = useCRMStore((s) => s.tareas);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   
-  // Estados para datos
-  const [clientes, setClientes] = useState<Cliente[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
@@ -108,7 +113,7 @@ export default function Clientes() {
     try {
       setLoading(true);
       setError(null);
-      await store.fetchClientes();
+      await fetchClientes();
     } catch (err: any) {
       setError("Error al cargar clientes: " + err.message);
     } finally {
@@ -120,10 +125,6 @@ export default function Clientes() {
   useEffect(() => {
     loadClientes();
   }, []);
-
-  useEffect(() => {
-    setClientes(store.clientes);
-  }, [store.clientes.length]);
 
   const filteredClientes = useMemo(() => {
     return clientes.filter(cliente => {

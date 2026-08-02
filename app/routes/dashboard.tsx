@@ -32,7 +32,14 @@ const initialState = {
 };
 
 export default function Dashboard() {
-  const store = useCRMStore();
+  const clientes = useCRMStore((s) => s.clientes);
+  const proyectos = useCRMStore((s) => s.proyectos);
+  const oportunidades = useCRMStore((s) => s.oportunidades);
+  const tareas = useCRMStore((s) => s.tareas);
+  const fetchDashboardData = useCRMStore((s) => s.fetchDashboardData);
+  const isLoading = useCRMStore((s) => s.isLoading);
+  const storeError = useCRMStore((s) => s.error);
+
   const [data, setData] = useState(initialState);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -117,25 +124,20 @@ export default function Dashboard() {
     [setStats]
   );
 
-  const fetchDashboardData = useCallback(
-    async (forceRefresh = false) => {
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
       setLoading(true);
       setError(null);
-
       try {
-        await store.fetchDashboardData();
+        await fetchDashboardData();
       } catch (networkError) {
-        console.error("No fue posible sincronizar con el backend:", networkError);
-        setError("No fue posible sincronizar con el backend. Intenta nuevamente.");
+        if (!cancelled) setError("No fue posible sincronizar con el backend. Intenta nuevamente.");
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
-    },
-    [store]
-  );
-
-  useEffect(() => {
-    fetchDashboardData(false);
+    })();
+    return () => { cancelled = true; };
   }, [fetchDashboardData]);
 
   useEffect(() => {
