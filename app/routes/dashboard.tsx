@@ -37,11 +37,10 @@ export default function Dashboard() {
   const oportunidades = useCRMStore((s) => s.oportunidades);
   const tareas = useCRMStore((s) => s.tareas);
   const fetchDashboardData = useCRMStore((s) => s.fetchDashboardData);
-  const isLoading = useCRMStore((s) => s.isLoading);
+  const storeIsLoading = useCRMStore((s) => s.isLoading);
   const storeError = useCRMStore((s) => s.error);
 
   const [data, setData] = useState(initialState);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [stats, setStats] = useState({
     totalClientes: 0,
@@ -127,18 +126,14 @@ export default function Dashboard() {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      setLoading(true);
-      setError(null);
       try {
         await fetchDashboardData();
       } catch (networkError) {
         if (!cancelled) setError("No fue posible sincronizar con el backend. Intenta nuevamente.");
-      } finally {
-        if (!cancelled) setLoading(false);
       }
     })();
     return () => { cancelled = true; };
-  }, [fetchDashboardData]);
+  }, []);
 
   useEffect(() => {
     setData({
@@ -151,22 +146,15 @@ export default function Dashboard() {
   }, [proyectos.length, clientes.length, oportunidades.length, tareas.length]);
 
   useEffect(() => {
-    if (!loading) {
+    if (!storeIsLoading) {
       calculateStats(data);
     }
-  }, [loading, data, calculateStats]);
-
-  const loadDashboardData = useCallback(
-    async (forceRefresh = false) => {
-      await fetchDashboardData(forceRefresh);
-    },
-    [fetchDashboardData]
-  );
+  }, [storeIsLoading, data, calculateStats]);
 
   const refreshMetrics = async () => {
     setSyncAnchorEl(null);
     try {
-      await loadDashboardData(true);
+      await fetchDashboardData(true);
     } catch (refreshError) {
       console.error("No se pudo refrescar el dashboard:", refreshError);
     }
@@ -190,7 +178,7 @@ export default function Dashboard() {
           maximumFractionDigits: 0,
         }).format(value);
 
-  if (loading) {
+  if (storeIsLoading) {
     return (
       <Box
         sx={{
