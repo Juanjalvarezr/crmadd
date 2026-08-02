@@ -14,6 +14,7 @@ import {
   oportunidadesService 
 } from "../services/database"; // Corregido el typo "Serrvices"
 import { useNotificationStore } from "../store/useNotificationStore";
+import { useCRMStore } from "../store/useCRMStore";
 
 const locales = {
   "es": es,
@@ -46,6 +47,7 @@ interface CalEvent {
 }
 
 export default function Calendario() {
+  const store = useCRMStore();
   const [events, setEvents] = useState<CalEvent[]>([]);
   const [loading, setLoading] = useState(true);
   
@@ -61,54 +63,7 @@ export default function Calendario() {
   const loadEvents = async () => {
     try {
       setLoading(true);
-      // Cargar tareas, ventas y clientes para sincronizar la información estratégica
-      const [tareas, ventas, clientes] = await Promise.all([
-        tareasService.getAll(),
-        oportunidadesService.getAll(),
-        clientesService.getAll()
-      ]);
-
-      const calendarEvents: CalEvent[] = [];
-
-      // Mapear Tareas al calendario
-      tareas.forEach((t: any) => {
-        if (t.fecha) {
-          const date = new Date(t.fecha);
-          const cliente = t.cliente_id ? clientes.find((c: any) => c.id === t.cliente_id) : null;
-          const clienteInfo = cliente ? ` (${cliente.nombre}${cliente.nicho ? ` - ${cliente.nicho}` : ''})` : '';
-
-          calendarEvents.push({
-            id: `tarea-${t.id}`,
-            title: `[Tarea] ${t.titulo}${clienteInfo}`,
-            start: date,
-            end: date,
-            allDay: true,
-            type: 'tarea',
-            color: t.estado === 'Completada' ? '#4caf50' : '#2196f3',
-            desc: t.descripcion
-          });
-        }
-      });
-
-      // Mapear Oportunidades (Cierres proyectados)
-      ventas.forEach((v: any) => {
-        // Simulamos que el created_at + 15 días es la fecha de cierre si no hay otra
-        const date = new Date(v.created_at);
-        date.setDate(date.getDate() + 15);
-        
-        calendarEvents.push({
-          id: `venta-${v.id}`,
-          title: `[Cierre] ${v.nombre}`,
-          start: date,
-          end: date,
-          allDay: true,
-          type: 'venta',
-          color: '#e91e63',
-          desc: `Oportunidad: ${v.cliente_nombre} - ${new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP" }).format(v.valor)}`
-        });
-      });
-
-      setEvents(calendarEvents);
+      await store.fetchDashboardData();
     } catch (error) {
       console.error("Error al cargar calendario", error);
       showNotification("Error al cargar eventos del calendario.", "error");
@@ -116,6 +71,55 @@ export default function Calendario() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const tareas = store.tareas || [];
+    const ventas = store.oportunidades || [];
+    const clientes = store.clientes || [];
+
+    const calendarEvents: CalEvent[] = [];
+
+    // Mapear Tareas al calendario
+    tareas.forEach((t: any) => {
+      if (t.fecha) {
+        const date = new Date(t.fecha);
+        const cliente = t.cliente_id ? clientes.find((c: any) => String(c.id) === String(t.cliente_id)) : null;
+        const clienteInfo = cliente ? ` (${cliente.nombre}${cliente.nicho ? ` - ${cliente.nicho}` : ''})` : '';
+
+        calendarEvents.push({
+          id: `tarea-${t.id}`,
+          title: `[Tarea] ${t.titulo}${clienteInfo}`,
+          start: date,
+          end: date,
+          allDay: true,
+          type: 'tarea',
+          color: t.estado === 'Completada' ? '#4caf50' : '#2196f3',
+          desc: t.descripcion
+        });
+      }
+    });
+
+    // Mapear Oportunidades (Cierres proyectados)
+    ventas.forEach((v: any) => {
+      // Simulamos que el created_at + 15 días es la fecha de cierre si no hay otra
+      const date = new Date(v.created_at);
+      date.setDate(date.getDate() + 15);
+      
+      calendarEvents.push({
+        id: `venta-${v.id}`,
+        title: `[Cierre] ${v.nombre}`,
+        start: date,
+        end: date,
+        allDay: true,
+        type: 'venta',
+        color: '#e91e63',
+        desc: `Oportunidad: ${v.cliente_nombre} - ${new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP" }).format(v.valor)}`
+      });
+    });
+
+    setEvents(calendarEvents);
+  }, [store.tareas.length, store.oportunidades.length, store.clientes.length]);
+
 
   const handleSelectEvent = (event: CalEvent) => {
     setSelectedEvent(event);

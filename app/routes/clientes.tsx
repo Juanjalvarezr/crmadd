@@ -23,6 +23,7 @@ import DOMPurify from 'dompurify';
 import { FiSearch, FiPlus, FiEdit, FiTrash2, FiFilter, FiCalendar, FiX, FiUsers, FiRefreshCw, FiPhone, FiMail, FiFileText, FiDownload, FiEye, FiMessageSquare, FiStar, FiBriefcase, FiTarget, FiAlertCircle } from "react-icons/fi";
 import { clientesService } from "../services/database";
 import { proyectosService, oportunidadesService, tareasService } from "../services/database";
+import { useCRMStore } from "../store/useCRMStore";
 import { SupabaseStatus } from "../components/SupabaseTest";
 import { format } from "date-fns";
 import { EmptyState } from "../components/EmptyState";
@@ -44,6 +45,7 @@ export function meta() {
 }
 
 export default function Clientes() {
+  const store = useCRMStore();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   
@@ -106,9 +108,7 @@ export default function Clientes() {
     try {
       setLoading(true);
       setError(null);
-      const data = await clientesService.getAll();
-      console.log('[CLIENTES DEBUG] loadClientes data:', data, 'length:', (data || []).length);
-      setClientes(data || []);
+      await store.fetchClientes();
     } catch (err: any) {
       console.error('[CLIENTES DEBUG] loadClientes error:', err);
       setError("Error al cargar clientes: " + err.message);
@@ -121,6 +121,10 @@ export default function Clientes() {
   useEffect(() => {
     loadClientes();
   }, []);
+
+  useEffect(() => {
+    setClientes(store.clientes);
+  }, [store.clientes.length]);
 
   const filteredClientes = useMemo(() => {
     return clientes.filter(cliente => {

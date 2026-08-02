@@ -22,6 +22,7 @@ import {
 } from "react-icons/fi";
 import { proyectosService, clientesService, oportunidadesService, tareasService } from "../services/database";
 import { StatCard } from "../components/StatCard";
+import { useCRMStore } from "../store/useCRMStore";
 
 const initialState = {
   proyectos: [],
@@ -31,6 +32,7 @@ const initialState = {
 };
 
 export default function Dashboard() {
+  const store = useCRMStore();
   const [data, setData] = useState(initialState);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -121,70 +123,30 @@ export default function Dashboard() {
       setError(null);
 
       try {
-        const proyectosPromise = proyectosService
-          .getAll()
-          .then((proyectos) => ({ proyectos, source: "real" }))
-          .catch(() => ({ proyectos: [], source: "empty" }));
-
-        const clientesPromise = clientesService
-          .getAll()
-          .then((clientes) => ({ clientes, source: "real" }))
-          .catch(() => ({ clientes: [], source: "empty" }));
-
-        const oportunidadesPromise = oportunidadesService
-          .getAll()
-          .then((oportunidades) => ({ oportunidades, source: "real" }))
-          .catch(() => ({ oportunidades: [], source: "empty" }));
-
-        const tareasPromise = tareasService
-          .getAll()
-          .then((tareas) => ({ tareas, source: "real" }))
-          .catch(() => ({ tareas: [], source: "empty" }));
-
-        const [proyectosResult, clientesResult, oportunidadesResult, tareasResult] =
-          await Promise.all([
-            proyectosPromise,
-            clientesPromise,
-            oportunidadesPromise,
-            tareasPromise,
-          ]);
-
-        const proyectos = proyectosResult.proyectos;
-        const clientes = clientesResult.clientes;
-        const oportunidades = oportunidadesResult.oportunidades;
-        const tareas = tareasResult.tareas;
-        const isUsingMockData =
-          proyectosResult.source === "empty" &&
-          clientesResult.source === "empty" &&
-          oportunidadesResult.source === "empty" &&
-          tareasResult.source === "empty";
-
-        setData({
-          proyectos,
-          clientes,
-          oportunidades,
-          tareas,
-          isUsingMockData,
-        } as any);
+        await store.fetchDashboardData();
       } catch (networkError) {
         console.error("No fue posible sincronizar con el backend:", networkError);
         setError("No fue posible sincronizar con el backend. Intenta nuevamente.");
-        setData({
-          proyectos: [],
-          clientes: [],
-          oportunidades: [],
-          isUsingMockData: false,
-        });
       } finally {
         setLoading(false);
       }
     },
-    [setData]
+    [store]
   );
 
   useEffect(() => {
     fetchDashboardData(false);
   }, [fetchDashboardData]);
+
+  useEffect(() => {
+    setData({
+      proyectos: store.proyectos,
+      clientes: store.clientes,
+      oportunidades: store.oportunidades,
+      tareas: store.tareas,
+      isUsingMockData: false,
+    } as any);
+  }, [store.proyectos.length, store.clientes.length, store.oportunidades.length, store.tareas.length]);
 
   useEffect(() => {
     if (!loading) {

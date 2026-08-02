@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { clientesService, proyectosService, oportunidadesService } from '../services/database';
+import { clientesService, proyectosService, oportunidadesService, tareasService } from '../services/database';
 
 interface Notification {
   id: string;
@@ -14,6 +14,8 @@ interface CRMState {
   clientes: any[];
   oportunidades: any[];
   proyectos: any[];
+  tareas: any[];
+  facturas: any[];
   notifications: Notification[];
   stats: {
     totalIngresos: number;
@@ -26,6 +28,10 @@ interface CRMState {
 
   // Acciones
   fetchDashboardData: () => Promise<void>;
+  fetchClientes: () => Promise<void>;
+  fetchProyectos: () => Promise<void>;
+  fetchTareas: () => Promise<void>;
+  fetchFacturas: () => Promise<void>;
   updateStats: () => void;
   addCliente: (cliente: any) => void;
   updateCliente: (id: number, data: any) => void;
@@ -38,6 +44,8 @@ export const useCRMStore = create<CRMState>((set, get) => ({
   clientes: [],
   oportunidades: [],
   proyectos: [],
+  tareas: [],
+  facturas: [],
   notifications: [
     {
       id: '1',
@@ -60,10 +68,11 @@ export const useCRMStore = create<CRMState>((set, get) => ({
   fetchDashboardData: async () => {
     set({ isLoading: true, error: null });
     try {
-      const [clientes, oportunidades, proyectos] = await Promise.all([
-        clientesService.getAll(),
-        oportunidadesService.getAll(),
-        proyectosService.getAll(),
+      const [clientes, oportunidades, proyectos, tareas] = await Promise.all([
+        clientesService.getAll().catch(() => []),
+        oportunidadesService.getAll().catch(() => []),
+        proyectosService.getAll().catch(() => []),
+        tareasService.getAll().catch(() => []),
       ]);
 
       const totalIngresos = oportunidades.reduce((acc: number, curr: any) => acc + (curr.valor || 0), 0);
@@ -78,6 +87,7 @@ export const useCRMStore = create<CRMState>((set, get) => ({
         clientes,
         oportunidades,
         proyectos,
+        tareas,
         stats: {
           totalIngresos,
           clientesActivos,
@@ -89,6 +99,41 @@ export const useCRMStore = create<CRMState>((set, get) => ({
     } catch (err: any) {
       set({ error: err.message, isLoading: false });
     }
+  },
+
+  fetchClientes: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const clientes = await clientesService.getAll();
+      set({ clientes, isLoading: false });
+    } catch (err: any) {
+      set({ error: err.message, isLoading: false });
+    }
+  },
+
+  fetchProyectos: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const proyectos = await proyectosService.getAll();
+      set({ proyectos, isLoading: false });
+    } catch (err: any) {
+      set({ error: err.message, isLoading: false });
+    }
+  },
+
+  fetchTareas: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const tareas = await tareasService.getAll();
+      set({ tareas, isLoading: false });
+    } catch (err: any) {
+      set({ error: err.message, isLoading: false });
+    }
+  },
+
+  fetchFacturas: async () => {
+    // Facturas service missing, empty stub for now
+    set({ isLoading: false, facturas: [] });
   },
 
   updateStats: () => {

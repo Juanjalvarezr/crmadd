@@ -8,6 +8,7 @@ import {
 import { FiPlus, FiEdit, FiTrash2, FiCheck, FiSearch, FiCalendar, FiX, FiRefreshCw, FiCheckSquare, FiTarget, FiUser } from "react-icons/fi";
 import { tareasService, clientesService } from "../services/database";
 import { useNotificationStore } from "../store/useNotificationStore";
+import { useCRMStore } from "../store/useCRMStore";
 import { format, startOfDay, isBefore } from "date-fns";
 import { EmptyState } from "../components/EmptyState";
 import { useLocation } from "react-router";
@@ -43,6 +44,7 @@ const getEstadoColor = (e: string): "default" | "primary" | "success" => {
 };
 
 export default function Tareas() {
+  const store = useCRMStore();
   const [tareas, setTareas] = useState<Tarea[]>([]);
   const [equipo, setEquipo] = useState<any[]>([]);
   const [clientes, setClientes] = useState<any[]>([]);
@@ -80,12 +82,10 @@ export default function Tareas() {
     try {
       setLoading(true);
       setError(null);
-      const [data, cliData] = await Promise.all([
-        tareasService.getAll(),
-        clientesService.getAll()
+      await Promise.all([
+        store.fetchTareas(),
+        store.fetchClientes()
       ]);
-      setTareas(data as Tarea[]);
-      setClientes(cliData);
     } catch (err: any) {
       setError("Error al cargar tareas: " + err.message);
     } finally {
@@ -94,6 +94,11 @@ export default function Tareas() {
   };
 
   useEffect(() => { loadTareas(); }, []);
+
+  useEffect(() => {
+    setTareas(store.tareas as Tarea[]);
+    setClientes(store.clientes);
+  }, [store.tareas.length, store.clientes.length]);
 
   const filtered = tareas.filter(t => {
     const matchSearch = t.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
