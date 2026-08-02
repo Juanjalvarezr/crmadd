@@ -22,6 +22,7 @@ import { TareasTab } from "./TareasTab";
 import type { Proyecto, TareaProyecto, RecursoProyecto, PlanItem } from "../types/crm";
 import { aiService } from "../services/ai";
 import { useNotificationStore } from "../store/useNotificationStore";
+import { useCRMStore } from "../store/useCRMStore";
 
 // Esquema de validación con Zod
 const proyectoSchema = z.object({
@@ -44,6 +45,7 @@ export function meta() {
 }
 
 export default function Proyectos() {
+  const store = useCRMStore();
   const { showNotification } = useNotificationStore();
   const [proyectos, setProyectos] = useState<Proyecto[]>([]);
   const [clientes, setClientes] = useState<any[]>([]);
@@ -95,16 +97,10 @@ export default function Proyectos() {
     const loadData = async () => {
       try {
         setLoading(true);
-        
-        // Cargar clientes y proyectos reales
-        const [clientesData, proyectosData] = await Promise.all([
-          clientesService.getAll(),
-          proyectosService.getAll()
+        await Promise.all([
+          store.fetchClientes(),
+          store.fetchProyectos()
         ]);
-        
-        setClientes(clientesData);
-        
-        setProyectos(proyectosData);
       } catch (err: any) {
         setError("Error al cargar datos: " + err.message);
       } finally {
@@ -114,6 +110,11 @@ export default function Proyectos() {
 
     loadData();
   }, []);
+
+  useEffect(() => {
+    setClientes(store.clientes);
+    setProyectos(store.proyectos);
+  }, [store.clientes.length, store.proyectos.length]);
 
   useEffect(() => {
     const updateMobile = () => setIsMobile(window.innerWidth <= 600);

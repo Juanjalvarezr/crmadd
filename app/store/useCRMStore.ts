@@ -16,6 +16,8 @@ interface CRMState {
   proyectos: any[];
   tareas: any[];
   facturas: any[];
+  transacciones: any[];
+  contratos: any[];
   notifications: Notification[];
   stats: {
     totalIngresos: number;
@@ -32,6 +34,8 @@ interface CRMState {
   fetchProyectos: () => Promise<void>;
   fetchTareas: () => Promise<void>;
   fetchFacturas: () => Promise<void>;
+  fetchTransacciones: () => Promise<void>;
+  fetchContratos: () => Promise<void>;
   updateStats: () => void;
   addCliente: (cliente: any) => void;
   updateCliente: (id: number, data: any) => void;
@@ -46,6 +50,8 @@ export const useCRMStore = create<CRMState>((set, get) => ({
   proyectos: [],
   tareas: [],
   facturas: [],
+  transacciones: [],
+  contratos: [],
   notifications: [
     {
       id: '1',
@@ -134,6 +140,14 @@ export const useCRMStore = create<CRMState>((set, get) => ({
   fetchFacturas: async () => {
     // Facturas service missing, empty stub for now
     set({ isLoading: false, facturas: [] });
+  },
+
+  fetchTransacciones: async () => {
+    set({ isLoading: false, transacciones: [] });
+  },
+
+  fetchContratos: async () => {
+    set({ isLoading: false, contratos: [] });
   },
 
   updateStats: () => {
