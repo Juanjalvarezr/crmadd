@@ -30,7 +30,7 @@ import {
   testConnection as baseTestConnection,
 } from './supabase';
 
-const TIMEOUT_MS = 8000;
+const TIMEOUT_MS = 20000;
 
 const withTimeout = async <T>(promise: Promise<T>, label = 'operación'): Promise<T> => {
   return Promise.race([

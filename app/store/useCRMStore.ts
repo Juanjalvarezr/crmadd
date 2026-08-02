@@ -75,12 +75,22 @@ export const useCRMStore = create<CRMState>((set, get) => ({
   fetchDashboardData: async () => {
     set({ isLoading: true, error: null });
     try {
-      const [clientes, oportunidades, proyectos, tareas] = await Promise.all([
+      const results = await Promise.allSettled([
         clientesService.getAll().catch(() => []),
         oportunidadesService.getAll().catch(() => []),
         proyectosService.getAll().catch(() => []),
         tareasService.getAll().catch(() => []),
       ]);
+
+      const clientes = results[0].status === 'fulfilled' ? results[0].value : [];
+      const oportunidades = results[1].status === 'fulfilled' ? results[1].value : [];
+      const proyectos = results[2].status === 'fulfilled' ? results[2].value : [];
+      const tareas = results[3].status === 'fulfilled' ? results[3].value : [];
+
+      const failed = results.filter(r => r.status === 'rejected').length;
+      if (failed > 0) {
+        set({ error: `No fue posible sincronizar toda la información. Se muestran datos parciales (${failed} fuente(s) fallida).` });
+      }
 
       const totalIngresos = oportunidades.reduce((acc: number, curr: any) => acc + (curr.valor || 0), 0);
       const clientesActivos = clientes.filter((c: any) => c.estado === 'Activo').length;
