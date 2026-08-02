@@ -356,14 +356,14 @@ export default function Clientes() {
     setDetailTab(0);
     try {
       await Promise.all([
-        store.fetchProyectos(),
-        store.fetchOportunidades(),
-        store.fetchTareas(),
+        fetchProyectos(),
+        fetchOportunidades(),
+        fetchTareas(),
       ]);
       const clienteId = String(cliente.id);
-      setRelatedProyectos(store.proyectos.filter((x: any) => String(x.clienteId) === clienteId || String(x.cliente_id) === clienteId));
-      setRelatedOportunidades(store.oportunidades.filter((x: any) => String(x.cliente_id) === clienteId));
-      setRelatedTareas(store.tareas.filter((x: any) => String(x.cliente_id) === clienteId));
+      setRelatedProyectos(proyectos.filter((x: any) => String(x.clienteId) === clienteId || String(x.cliente_id) === clienteId));
+      setRelatedOportunidades(oportunidades.filter((x: any) => String(x.cliente_id) === clienteId));
+      setRelatedTareas(storeTareas.filter((x: any) => String(x.cliente_id) === clienteId));
     } catch (e) {
       setRelatedProyectos([]);
       setRelatedOportunidades([]);

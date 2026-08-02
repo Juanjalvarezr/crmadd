@@ -142,13 +142,13 @@ export default function Dashboard() {
 
   useEffect(() => {
     setData({
-      proyectos: store.proyectos,
-      clientes: store.clientes,
-      oportunidades: store.oportunidades,
-      tareas: store.tareas,
+      proyectos,
+      clientes,
+      oportunidades,
+      tareas,
       isUsingMockData: false,
     } as any);
-  }, [store.proyectos.length, store.clientes.length, store.oportunidades.length, store.tareas.length]);
+  }, [proyectos.length, clientes.length, oportunidades.length, tareas.length]);
 
   useEffect(() => {
     if (!loading) {
