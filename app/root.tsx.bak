@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router";
 import { Box, Snackbar, Alert, CircularProgress, ThemeProvider, CssBaseline, createTheme } from "@mui/material";
 import { useNotificationStore } from "./store/useNotificationStore";
@@ -44,9 +44,9 @@ export default function Root() {
     const isLoginPage = location.pathname === "/login";
 
     if (!isAuthenticated && !isLoginPage) {
-      navigate("/login", { replace: true });
+      navigate("/login");
     } else if (isAuthenticated && isLoginPage) {
-      navigate("/", { replace: true });
+      navigate("/");
     }
   }, [navigate, location.pathname]);
 
@@ -117,7 +117,15 @@ export default function Root() {
               minHeight: "calc(100vh - 120px)",
             }}
           >
-            <Outlet />
+            <Suspense
+              fallback={
+                <Box sx={{ display: "flex", justifyContent: "center", p: 5 }}>
+                  <CircularProgress />
+                </Box>
+              }
+            >
+              <Outlet />
+            </Suspense>
           </Box>
           <MobileFab />
           <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
