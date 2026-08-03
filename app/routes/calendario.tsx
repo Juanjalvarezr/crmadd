@@ -47,7 +47,10 @@ interface CalEvent {
 }
 
 export default function Calendario() {
-  const store = useCRMStore();
+  const tareas = useCRMStore((s) => s.tareas);
+  const oportunidades = useCRMStore((s) => s.oportunidades);
+  const clientes = useCRMStore((s) => s.clientes);
+  const fetchDashboardData = useCRMStore((s) => s.fetchDashboardData);
   const [events, setEvents] = useState<CalEvent[]>([]);
   const [loading, setLoading] = useState(true);
   
@@ -63,7 +66,7 @@ export default function Calendario() {
   const loadEvents = async () => {
     try {
       setLoading(true);
-      await store.fetchDashboardData();
+      await fetchDashboardData();
     } catch (error) {
       console.error("Error al cargar calendario", error);
       showNotification("Error al cargar eventos del calendario.", "error");
@@ -73,17 +76,17 @@ export default function Calendario() {
   };
 
   useEffect(() => {
-    const tareas = store.tareas || [];
-    const ventas = store.oportunidades || [];
-    const clientes = store.clientes || [];
+    const tareasLocal = tareas || [];
+    const ventas = oportunidades || [];
+    const clientesLocal = clientes || [];
 
     const calendarEvents: CalEvent[] = [];
 
     // Mapear Tareas al calendario
-    tareas.forEach((t: any) => {
+    tareasLocal.forEach((t: any) => {
       if (t.fecha) {
         const date = new Date(t.fecha);
-        const cliente = t.cliente_id ? clientes.find((c: any) => String(c.id) === String(t.cliente_id)) : null;
+        const cliente = t.cliente_id ? clientesLocal.find((c: any) => String(c.id) === String(t.cliente_id)) : null;
         const clienteInfo = cliente ? ` (${cliente.nombre}${cliente.nicho ? ` - ${cliente.nicho}` : ''})` : '';
 
         calendarEvents.push({
@@ -118,7 +121,7 @@ export default function Calendario() {
     });
 
     setEvents(calendarEvents);
-  }, [store.tareas.length, store.oportunidades.length, store.clientes.length]);
+  }, [tareas.length, oportunidades.length, clientes.length]);
 
 
   const handleSelectEvent = (event: CalEvent) => {

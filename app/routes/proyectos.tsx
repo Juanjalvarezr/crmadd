@@ -45,10 +45,11 @@ export function meta() {
 }
 
 export default function Proyectos() {
-  const store = useCRMStore();
+  const proyectos = useCRMStore((s) => s.proyectos);
+  const clientes = useCRMStore((s) => s.clientes);
+  const fetchClientes = useCRMStore((s) => s.fetchClientes);
+  const fetchProyectos = useCRMStore((s) => s.fetchProyectos);
   const { showNotification } = useNotificationStore();
-  const [proyectos, setProyectos] = useState<Proyecto[]>([]);
-  const [clientes, setClientes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("activos");
@@ -98,8 +99,8 @@ export default function Proyectos() {
       try {
         setLoading(true);
         await Promise.all([
-          store.fetchClientes(),
-          store.fetchProyectos()
+          fetchClientes(),
+          fetchProyectos()
         ]);
       } catch (err: any) {
         setError("Error al cargar datos: " + err.message);
@@ -112,9 +113,8 @@ export default function Proyectos() {
   }, []);
 
   useEffect(() => {
-    setClientes(store.clientes);
-    setProyectos(store.proyectos);
-  }, [store.clientes.length, store.proyectos.length]);
+    // datos ya viven en los selectores del store
+  }, [proyectos.length, clientes.length]);
 
   useEffect(() => {
     const updateMobile = () => setIsMobile(window.innerWidth <= 600);
