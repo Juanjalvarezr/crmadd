@@ -2,12 +2,12 @@ import React, { useState, useEffect } from "react";
 import { useCRMStore } from "../store/useCRMStore";
 
 export function meta() {
-  return [{ title: "Facturación | CRM Agencia" }];
+  return [{ title: "Contratos | CRM Agencia" }];
 }
 
-export default function Facturacion() {
-  const facturas = useCRMStore((s) => s.facturas);
-  const fetchFacturas = useCRMStore((s) => s.fetchFacturas);
+export default function Contratos() {
+  const contratos = useCRMStore((s) => s.contratos);
+  const fetchContratos = useCRMStore((s) => s.fetchContratos);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -17,23 +17,23 @@ export default function Facturacion() {
       try {
         setLoading(true);
         setError(null);
-        await fetchFacturas();
+        await fetchContratos();
       } catch (err: any) {
-        if (!cancelled) setError(err.message || "Error al cargar facturas");
+        if (!cancelled) setError(err.message || "Error al cargar contratos");
       } finally {
         if (!cancelled) setLoading(false);
       }
     })();
     return () => { cancelled = true; };
-  }, [fetchFacturas]);
+  }, [fetchContratos]);
 
   if (loading) return null;
   if (error) return <div>Error: {error}</div>;
 
   return (
     <div>
-      <h1>Facturación</h1>
-      <p>Total facturas: {facturas.length}</p>
+      <h1>Contratos</h1>
+      <p>Total contratos: {contratos.length}</p>
     </div>
   );
 }
