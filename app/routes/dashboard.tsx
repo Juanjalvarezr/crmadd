@@ -293,7 +293,7 @@ export default function Dashboard() {
               </Typography>
               <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
                 <Chip
-                  label={loading ? "Sincronizando..." : "Datos actualizados"}
+                  label={storeIsLoading ? "Sincronizando..." : "Datos actualizados"}
                   sx={{
                     background: "rgba(255,255,255,0.18)",
                     color: "white",
