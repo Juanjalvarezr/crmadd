@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router";
 import { Box, Snackbar, Alert, CircularProgress, ThemeProvider, CssBaseline, createTheme } from "@mui/material";
 import { useNotificationStore } from "./store/useNotificationStore";
@@ -29,7 +29,7 @@ export default function Root() {
     return "dark";
   });
 
-  const theme = React.useMemo(() => createTheme({
+  const theme = useMemo(() => createTheme({
     palette: {
       mode: themeMode,
     },
@@ -69,8 +69,8 @@ export default function Root() {
     return <Outlet />;
   }
 
-  const [hydrated, setHydrated] = React.useState(false);
-  React.useEffect(() => {
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => {
     setHydrated(true);
   }, []);
 
