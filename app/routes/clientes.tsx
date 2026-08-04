@@ -500,6 +500,7 @@ export default function Clientes() {
           <Button size="small" variant="contained" startIcon={<FiPlus />} onClick={openCreate}>Nuevo Cliente</Button>
         </Box>
       </Box>
+      {selectedIds.length > 0 && (
         <Paper
           elevation={4}
           sx={{
