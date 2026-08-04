@@ -1253,7 +1253,7 @@ export default function Proyectos() {
                 </Box>
                 <IconButton onClick={() => setSelectedProyecto(null)}><X /></IconButton>
               </Box>
-              <Tabs value={activeProjectTab} onChange={(_, v) => setActiveProjectTab(v)} textColor="primary" indicatorColor="primary" variant="scrollable" scrollButtons="auto" size="small" sx={{ mt: 1 }}>
+              <Tabs value={activeProjectTab} onChange={(_, v) => setActiveProjectTab(v)} textColor="primary" indicatorColor="primary" variant="scrollable" scrollButtons="auto" size="small" sx={{ mt: 1, minHeight: 32, '& .MuiTab-root': { minHeight: 32, py: 0.5, fontSize: { xs: '0.75rem', sm: '0.8rem' }, minWidth: 0, padding: '0 8px' } }}>
                 <Tab label="Información General" />
                 <Tab label={`Tareas (${selectedProyecto.tareas?.length || 0})`} />
                 <Tab label={`Recursos (${selectedProyecto.recursos?.length || 0})`} />

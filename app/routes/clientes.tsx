@@ -996,7 +996,7 @@ export default function Clientes() {
           </Box>
           {selectedClient && (
             <Box sx={{ mt: 1 }}>
-              <Tabs value={detailTab} onChange={(_, v) => setDetailTab(v)} variant="scrollable" scrollButtons="auto" size="small">
+              <Tabs value={detailTab} onChange={(_, v) => setDetailTab(v)} variant="scrollable" scrollButtons="auto" size="small" sx={{ minHeight: 32, '& .MuiTab-root': { minHeight: 32, py: 0.5, fontSize: { xs: '0.75rem', sm: '0.8rem' }, minWidth: 0, padding: '0 8px' } }}>
                 <Tab label="Datos" />
                 <Tab label="Proyectos" />
                 <Tab label="Oportunidades" />
