@@ -18,7 +18,6 @@ import {
 import { format, formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 import { emailService, equipoService, logsService, clientesService, proyectosService } from "../services/database";
-import { TareasTab } from "./TareasTab";
 import type { Proyecto, TareaProyecto, RecursoProyecto, PlanItem } from "../types/crm";
 import { aiService } from "../services/ai";
 import { useNotificationStore } from "../store/useNotificationStore";
@@ -1323,12 +1322,6 @@ export default function Proyectos() {
                   </Grid>
                 </Box>
               ) : activeProjectTab === 1 ? (
-                <TareasTab
-                  proyecto={selectedProyecto!}
-                  onAddTarea={handleAddTarea}
-                  onToggleTarea={handleToggleTarea}
-                  onDeleteTarea={handleDeleteTarea}
-                />
               ) : activeProjectTab === 3 ? (
                 <Box sx={{ py: 1 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
