@@ -23,6 +23,7 @@ import type { Proyecto, TareaProyecto, RecursoProyecto, PlanItem } from "../type
 import { aiService } from "../services/ai";
 import { useNotificationStore } from "../store/useNotificationStore";
 import { useCRMStore } from "../store/useCRMStore";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
 // Esquema de validación con Zod
 const proyectoSchema = z.object({
@@ -53,6 +54,7 @@ export default function Proyectos() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("activos");
+  const [viewMode, setViewMode] = useState<"grid" | "kanban">("grid");
   const [openProyectoModal, setOpenProyectoModal] = useState(false);
   const [editingProyecto, setEditingProyecto] = useState<Proyecto | null>(null);
   const [selectedProyecto, setSelectedProyecto] = useState<Proyecto | null>(null);
@@ -768,6 +770,25 @@ export default function Proyectos() {
     }
   };
 
+  const onDragEndProject = async (result: any) => {
+    if (!result.destination) return;
+    const proyectoId = result.draggableId;
+    const nuevoEstado = result.destination.droppableId as Proyecto["estado"];
+    const proyecto = proyectos.find(p => String(p.id) === String(proyectoId));
+    if (!proyecto || proyecto.estado === nuevoEstado) return;
+
+    const prev = proyectos.map(p => p.id === Number(proyectoId) ? { ...p, estado: nuevoEstado } : p);
+    setProyectos(prev);
+    try {
+      const actualizadoEn = new Date().toISOString();
+      await proyectosService.update(proyecto.id, { estado: nuevoEstado, actualizadoEn });
+      showNotification(`Proyecto movido a ${nuevoEstado.replace("_", " ")}`, "success");
+    } catch (err: any) {
+      showNotification("Error al mover proyecto: " + err.message, "error");
+      loadData();
+    }
+  };
+
   // Funciones de utilidad
   const getEstadoColor = (estado: Proyecto["estado"]) => {
     const colors = {
@@ -839,7 +860,7 @@ export default function Proyectos() {
       </Box>
 
       {/* Tabs compactos */}
-      <Box sx={{ display: "flex", gap: 1, mb: 2, overflowX: "auto", pb: 0.5 }}>
+      <Box sx={{ display: "flex", gap: 1, mb: 2, overflowX: "auto", pb: 0.5, flexWrap: "wrap", alignItems: "center" }}>
         {[
           { key: "activos", label: `Activos (${proyectos.filter(p => p.estado === "planificacion" || p.estado === "en_progreso").length})`, icon: <Play size={14} /> },
           { key: "completados", label: `Completados (${proyectos.filter(p => p.estado === "completado").length})`, icon: <CheckCircle size={14} /> },
@@ -856,6 +877,10 @@ export default function Proyectos() {
             sx={{ borderRadius: 2 }}
           />
         ))}
+        <Box sx={{ ml: "auto", display: "flex", gap: 0.5 }}>
+          <Button size="small" variant={viewMode === "grid" ? "contained" : "text"} onClick={() => setViewMode("grid")}>Grid</Button>
+          <Button size="small" variant={viewMode === "kanban" ? "contained" : "text"} onClick={() => setViewMode("kanban")}>Pipeline</Button>
+        </Box>
       </Box>
 
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
@@ -866,7 +891,7 @@ export default function Proyectos() {
         </Box>
       )}
 
-      {!loading && !error && (
+      {!loading && !error && viewMode === "grid" && (
         <Grid container spacing={3}>
           {proyectosFiltrados.map((proyecto) => (
             <Grid item xs={12} md={6} lg={4} key={proyecto.id}>
@@ -923,27 +948,19 @@ export default function Proyectos() {
                     <Typography variant="body2" sx={{ fontWeight: "bold", mb: 1 }}>
                       Progreso: {proyecto.progreso}%
                     </Typography>
-                    <LinearProgress
-                      variant="determinate"
-                      value={proyecto.progreso}
-                      sx={{
-                        height: 8,
-                        borderRadius: 4,
-                        backgroundColor: "#e0e0e0",
-                        "& .MuiLinearProgress-bar": {
-                          borderRadius: 4,
-                          backgroundColor: getEstadoColor(proyecto.estado)
-                        }
-                      }}
+                    <LinearProgress 
+                      variant="determinate" 
+                      value={proyecto.progreso} 
+                      sx={{ height: 8, borderRadius: 4, backgroundColor: "#e0e0e0", "& .MuiLinearProgress-bar": { borderRadius: 4, backgroundColor: getEstadoColor(proyecto.estado) } }}
                     />
                   </Box>
                   
                   <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
                     <Typography variant="caption" color="text.secondary">
-                      📅 {format(new Date(proyecto.fechaInicio), "dd/MM/yyyy")}
+                      {format(new Date(proyecto.fechaInicio), "dd/MM/yyyy")}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      🎯 {format(new Date(proyecto.fechaFin), "dd/MM/yyyy")}
+                      {format(new Date(proyecto.fechaFin), "dd/MM/yyyy")}
                     </Typography>
                   </Box>
                   
@@ -951,7 +968,7 @@ export default function Proyectos() {
                     <Typography variant="body2" sx={{ fontWeight: "bold" }}>
                       Presupuesto: {formatCOP(proyecto.presupuesto)}
                     </Typography>
-                    <Typography variant="body2" sx={{ fontWeight: "bold", color: proyecto.costoActual > proyecto.presupuesto ? "#f44336" : "#4caf50" }}>
+                    <Typography variant="body2" sx={{ fontWeight: "bold", color: (Number(proyecto.costoActual || 0) > proyecto.presupuesto) ? "#f44336" : "#4caf50" }}>
                       Costo: {formatCOP(proyecto.costoActual)}
                     </Typography>
                   </Box>
@@ -1012,6 +1029,59 @@ export default function Proyectos() {
             </Grid>
           ))}
         </Grid>
+      )}
+
+      {!loading && !error && viewMode === "kanban" && (
+        <DragDropContext onDragEnd={onDragEndProject}>
+          <Box sx={{ display: 'flex', gap: 2, overflowX: 'auto', pb: 2, minHeight: 400 }}>
+            {["planificacion", "en_progreso", "pausado", "completado", "cancelado"].map(col => {
+              const proyectosCol = proyectosFiltrados.filter(p => p.estado === col);
+              return (
+                <Paper key={col} sx={{ minWidth: 300, flex: 1, p: 2, bgcolor: '#f8f9fa', borderTop: `4px solid ${getEstadoColor(col)}` }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                    <Typography variant="subtitle1" sx={{ fontWeight: "bold" }}>{col.replace("_", " ")}</Typography>
+                    <Chip label={proyectosCol.length} size="small" />
+                  </Box>
+                  <Droppable droppableId={col}>
+                    {(provided, snapshot) => (
+                      <Box
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        sx={{ minHeight: 200, bgcolor: snapshot.isDraggingOver ? 'rgba(0,0,0,0.05)' : 'transparent', transition: 'background-color 0.2s', borderRadius: 1 }}
+                      >
+                        {proyectosCol.map((proyecto, index) => (
+                          <Draggable key={proyecto.id} draggableId={String(proyecto.id)} index={index}>
+                            {(provided, snapshot) => (
+                              <Box ref={provided.innerRef} {...provided.draggableProps} sx={{ mb: 2 }}>
+                                <Paper elevation={snapshot.isDragging ? 4 : 1} sx={{ p: 2, borderRadius: 2, borderLeft: `4px solid ${getEstadoColor(proyecto.estado)}` }}>
+                                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                    <Box>
+                                      <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>{proyecto.nombre}</Typography>
+                                      <Typography variant="body2" color="text.secondary" noWrap sx={{ mb: 1 }}>{proyecto.clienteNombre}</Typography>
+                                    </Box>
+                                    <Box sx={{ display: 'flex', gap: 0.5 }} {...provided.dragHandleProps}>
+                                      <Tooltip title="Ver detalles"><IconButton size="small" onClick={() => setSelectedProyecto(proyecto)}><Eye size={16} /></IconButton></Tooltip>
+                                      <Tooltip title="Editar"><IconButton size="small" onClick={() => handleOpenProyectoModal(proyecto)}><Edit2 size={16} /></IconButton></Tooltip>
+                                    </Box>
+                                  </Box>
+                                  <Box sx={{ display: 'flex', gap: 0.5, mt: 1, flexWrap: 'wrap' }}>
+                                    <Chip size="small" label={proyecto.prioridad} />
+                                    <Chip size="small" label={`${proyecto.progreso}%`} />
+                                  </Box>
+                                </Paper>
+                              </Box>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                      </Box>
+                    )}
+                  </Droppable>
+                </Paper>
+              );
+            })}
+          </Box>
+        </DragDropContext>
       )}
 
       {/* Modal para crear/editar proyecto */}
@@ -1266,7 +1336,9 @@ export default function Proyectos() {
                   onDeleteTarea={handleDeleteTarea}
                 />
               ) : activeProjectTab === 3 ? (
-                /* PESTAÑA DE ESTRATEGIA Y CONTENIDO */
+                {/*
+                  PESTAÑA DE ESTRATEGIA Y CONTENIDO
+                */}
                 <Box sx={{ py: 1 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                     <Typography variant="subtitle2" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
