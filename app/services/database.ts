@@ -28,6 +28,8 @@ import {
   conocimientoService as baseConocimientoService,
   authService as baseAuthService,
   testConnection as baseTestConnection,
+  facturasService as baseFacturasService,
+  contratosService as baseContratosService,
 } from './supabase';
 
 const TIMEOUT_MS = 20000;
@@ -170,6 +172,20 @@ export const conocimientoService = {
   buscarSemantico: (embedding: number[]) => withTimeout(baseConocimientoService.buscarSemantico(embedding), 'conocimientoService.buscarSemantico').catch(() => []),
   create: (item: any) => withTimeout(baseConocimientoService.create(item), 'conocimientoService.create'),
   delete: (id: number) => withTimeout(baseConocimientoService.delete(id), 'conocimientoService.delete'),
+};
+
+export const facturasService = {
+  getAll: () => withTimeout(baseFacturasService.getAll(), 'facturasService.getAll'),
+  create: (factura: any) => withTimeout(baseFacturasService.create(factura), 'facturasService.create'),
+  update: (id: number, updates: any) => withTimeout(baseFacturasService.update(id, updates), 'facturasService.update'),
+  delete: (id: number) => withTimeout(baseFacturasService.delete(id), 'facturasService.delete'),
+};
+
+export const contratosService = {
+  getAll: () => withTimeout(baseContratosService.getAll(), 'contratosService.getAll'),
+  create: (contrato: any) => withTimeout(baseContratosService.create(contrato), 'contratosService.create'),
+  update: (id: number, updates: any) => withTimeout(baseContratosService.update(id, updates), 'contratosService.update'),
+  delete: (id: number) => withTimeout(baseContratosService.delete(id), 'contratosService.delete'),
 };
 
 export const authService = {

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { clientesService, proyectosService, oportunidadesService, tareasService } from '../services/database';
+import { clientesService, proyectosService, oportunidadesService, tareasService, facturasService, contratosService } from '../services/database';
 
 interface Notification {
   id: string;
@@ -159,8 +159,10 @@ export const useCRMStore = create<CRMState>((set, get) => ({
   },
 
   fetchFacturas: async () => {
-    // Facturas service missing, empty stub for now
-    set({ isLoading: false, facturas: [] });
+    try {
+      const facturas = await facturasService.getAll();
+      set({ facturas, isLoading: false });
+    } catch (err: any) { set({ error: err.message, isLoading: false }); }
   },
 
   fetchTransacciones: async () => {
@@ -168,7 +170,10 @@ export const useCRMStore = create<CRMState>((set, get) => ({
   },
 
   fetchContratos: async () => {
-    set({ isLoading: false, contratos: [] });
+    try {
+      const contratos = await contratosService.getAll();
+      set({ contratos, isLoading: false });
+    } catch (err: any) { set({ error: err.message, isLoading: false }); }
   },
 
   updateStats: () => {

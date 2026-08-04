@@ -188,11 +188,35 @@ export type Tables = {
   };
   prompts_ai: {
     id: string;
-    slug: string; // 'director_estrategico', 'content_lead', etc.
+    slug: string;
     system_prompt: string;
     user_prompt_template: string;
-    version: number; // Corregido: estaba como string en algunos lugares
+    version: number;
     actualizado_en: string;
+  };
+  facturas: {
+    id: number;
+    numero_factura?: string;
+    proyecto_id?: string;
+    cliente_id?: number;
+    estado: string;
+    total: number;
+    fecha_emision?: string;
+    fecha_vencimiento?: string;
+    created_at: string;
+    updated_at: string;
+  };
+  contratos: {
+    id: number;
+    proyecto_id?: string;
+    cliente_id?: number;
+    factura_id?: number;
+    estado: string;
+    fecha_inicio?: string;
+    fecha_fin?: string;
+    valor: number;
+    created_at: string;
+    updated_at: string;
   };
 };
 
@@ -915,3 +939,75 @@ export async function testConnection() {
     return { success: false, message: error.message };
   }
 }
+
+// --- Servicio de Facturas ---
+export const facturasService = {
+  async getAll() {
+    const { data, error } = await supabase
+      .from('facturas')
+      .select('*')
+      .order('fecha_emision', { ascending: false });
+    if (error) throw error;
+    return (data || []).map((f: any) => ({ ...f, total: Number(f.total || 0) }));
+  },
+  async create(factura: Omit<Tables['facturas'], 'id' | 'created_at' | 'updated_at'>) {
+    const { data, error } = await supabase
+      .from('facturas')
+      .insert([{ ...factura, fecha_emision: factura.fecha_emision || new Date().toISOString(), updated_at: new Date().toISOString() }])
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+  async update(id: number, updates: Partial<Tables['facturas']>) {
+    const { data, error } = await supabase
+      .from('facturas')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+  async delete(id: number) {
+    const { error } = await supabase.from('facturas').delete().eq('id', id);
+    if (error) throw error;
+    return true;
+  },
+};
+
+// --- Servicio de Contratos ---
+export const contratosService = {
+  async getAll() {
+    const { data, error } = await supabase
+      .from('contratos')
+      .select('*')
+      .order('fecha_inicio', { ascending: false });
+    if (error) throw error;
+    return data || [];
+  },
+  async create(contrato: Omit<Tables['contratos'], 'id' | 'created_at' | 'updated_at'>) {
+    const { data, error } = await supabase
+      .from('contratos')
+      .insert([{ ...contrato, updated_at: new Date().toISOString() }])
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+  async update(id: number, updates: Partial<Tables['contratos']>) {
+    const { data, error } = await supabase
+      .from('contratos')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+  async delete(id: number) {
+    const { error } = await supabase.from('contratos').delete().eq('id', id);
+    if (error) throw error;
+    return true;
+  },
+};
