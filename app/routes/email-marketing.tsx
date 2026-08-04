@@ -353,17 +353,21 @@ export default function EmailMarketing() {
       </Paper>
 
       {/* Pestañas de navegación */}
-      <Paper sx={{ p: 2, mb: 3, borderRadius: 2 }}>
-        <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+      <Paper sx={{ p: 1.5, mb: 3, borderRadius: 2 }}>
+        <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
           <Button
             variant={activeTab === "campanas" ? "contained" : "outlined"}
             startIcon={<Send />}
             onClick={() => setActiveTab("campanas")}
             sx={{ 
-              borderRadius: 2,
+              borderRadius: 1.5,
               backgroundColor: activeTab === "campanas" ? "#e91e63" : "transparent",
               borderColor: activeTab === "campanas" ? "#e91e63" : "#e0e0e0",
-              color: activeTab === "campanas" ? "white" : "#666"
+              color: activeTab === "campanas" ? "white" : "#666",
+              py: 0.5,
+              px: 1.5,
+              fontSize: { xs: '0.75rem', sm: '0.8rem' },
+              minHeight: 32
             }}
           >
             Campañas
@@ -373,10 +377,14 @@ export default function EmailMarketing() {
             startIcon={<Edit2 />}
             onClick={() => setActiveTab("plantillas")}
             sx={{ 
-              borderRadius: 2,
+              borderRadius: 1.5,
               backgroundColor: activeTab === "plantillas" ? "#e91e63" : "transparent",
               borderColor: activeTab === "plantillas" ? "#e91e63" : "#e0e0e0",
-              color: activeTab === "plantillas" ? "white" : "#666"
+              color: activeTab === "plantillas" ? "white" : "#666",
+              py: 0.5,
+              px: 1.5,
+              fontSize: { xs: '0.75rem', sm: '0.8rem' },
+              minHeight: 32
             }}
           >
             Plantillas
@@ -386,10 +394,14 @@ export default function EmailMarketing() {
             startIcon={<BarChart2 />}
             onClick={() => setActiveTab("estadisticas")}
             sx={{ 
-              borderRadius: 2,
+              borderRadius: 1.5,
               backgroundColor: activeTab === "estadisticas" ? "#e91e63" : "transparent",
               borderColor: activeTab === "estadisticas" ? "#e91e63" : "#e0e0e0",
-              color: activeTab === "estadisticas" ? "white" : "#666"
+              color: activeTab === "estadisticas" ? "white" : "#666",
+              py: 0.5,
+              px: 1.5,
+              fontSize: { xs: '0.75rem', sm: '0.8rem' },
+              minHeight: 32
             }}
           >
             Estadísticas
