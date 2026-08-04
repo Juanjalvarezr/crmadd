@@ -69,31 +69,18 @@ export default function Root() {
     return <Outlet />;
   }
 
-  const isSSR = typeof window === "undefined";
   const [hydrated, setHydrated] = React.useState(false);
   React.useEffect(() => {
     setHydrated(true);
   }, []);
 
-  if (!hydrated || storeIsLoading) {
+  if (!hydrated) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
         <Box sx={{ textAlign: "center" }}>
           <CircularProgress />
           <Typography sx={{ mt: 2 }}>Cargando CRM...</Typography>
         </Box>
-      </Box>
-    );
-  }
-
-  if (storeError) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh", p: 2 }}>
-        <Alert severity="error" sx={{ maxWidth: 600 }}>
-          <strong>Error de carga</strong>
-          <Typography variant="body2">{storeError}</Typography>
-          <Button size="small" sx={{ mt: 1 }} onClick={() => window.location.reload()}>Reintentar</Button>
-        </Alert>
       </Box>
     );
   }
