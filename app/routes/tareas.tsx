@@ -276,67 +276,6 @@ export default function Tareas() {
           ))}
         </Box>
       )}
-          { title: "Completadas", value: loading ? "..." : completadas, color: "success" },
-          { title: "Alta Prioridad", value: loading ? "..." : altaPrioridad, color: "error" },
-          { title: "Vencidas", value: loading ? "..." : vencidas, color: "error" },
-        ].map((kpi) => (
-          <Box key={kpi.title} sx={{ flex: { xs: "100%", sm: "48%", md: "18%" } }}>
-            <StatCard title={kpi.title} value={kpi.value} subtitle="" icon={<ActividadIcon />} color={kpi.color as any} />
-          </Box>
-        ))}
-      </Box>
-
-      {/* Tabla */}
-      <Paper sx={{ p: 3 }}>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3, flexWrap: "wrap", gap: 2 }}>
-          <Typography variant="h6">Lista de Tareas ({filtered.length})</Typography>
-          <Button variant="contained" startIcon={<FiPlus />} onClick={handleOpenModal}>Nueva Tarea</Button>
-        </Box>
-
-        <Box sx={{ display: "flex", gap: 2, mb: 3, flexDirection: { xs: "column", md: "row" } }}>
-          <TextField
-            fullWidth placeholder="Buscar tareas..."
-            value={searchTerm} onChange={(e: any) => setSearchTerm(e.target.value)}
-            InputProps={{ startAdornment: <InputAdornment position="start"><FiSearch /></InputAdornment> }}
-          />
-          <FormControl sx={{ minWidth: 150 }}>
-            <InputLabel>Prioridad</InputLabel>
-            <Select value={prioridadFilter} label="Prioridad" onChange={(e: any) => setPrioridadFilter(e.target.value)}>
-              <MenuItem value="all">Todas</MenuItem>
-              <MenuItem value="Alta">Alta</MenuItem>
-              <MenuItem value="Media">Media</MenuItem>
-              <MenuItem value="Baja">Baja</MenuItem>
-            </Select>
-          </FormControl>
-          <FormControl sx={{ minWidth: 160 }}>
-            <InputLabel>Estado</InputLabel>
-            <Select value={estadoFilter} label="Estado" onChange={(e: any) => setEstadoFilter(e.target.value)}>
-              <MenuItem value="all">Todos</MenuItem>
-              <MenuItem value="Pendiente">Pendiente</MenuItem>
-              <MenuItem value="En progreso">En progreso</MenuItem>
-              <MenuItem value="Completada">Completada</MenuItem>
-            </Select>
-          </FormControl>
-        </Box>
-
-        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-
-        {loading ? (
-          <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}><CircularProgress color="primary" /></Box>
-        ) : (
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow sx={{ backgroundColor: "#f3e5f5" }}>
-                  <TableCell sx={{ fontWeight: "bold" }}>Título</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Cliente / Nicho</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Descripción</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Fecha</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Prioridad</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Estado</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Acciones</TableCell>
-                </TableRow>
-              </TableHead>
               <TableBody>
                 {filtered.map((tarea) => (
                   <TableRow key={tarea.id} hover sx={{ backgroundColor: isVencida(tarea) ? "#fff3e0" : "inherit" }}>
