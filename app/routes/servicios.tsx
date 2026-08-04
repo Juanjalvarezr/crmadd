@@ -43,7 +43,13 @@ export default function Servicios() {
     try {
       setLoading(true);
       const data = await serviciosService.getAll();
-      const uniq = Array.from(new Map(data.map((s: any) => [s.nombre.toLowerCase().trim(), s])).values());
+      const seen = new Set<string>();
+      const uniq = (Array.isArray(data) ? data : []).filter((s: any) => {
+        const key = String(s?.nombre ?? '').toLowerCase().trim();
+        if (!key || seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
       setServicios(uniq);
     } catch (err: any) {
       setError(err.message);
