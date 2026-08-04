@@ -33,6 +33,10 @@ export default function Root() {
     palette: {
       mode: themeMode,
     },
+    typography: {
+      fontSize: { xs: 13, sm: 14, md: 15 },
+      fontFamily: 'Inter, Roboto, Helvetica, Arial, sans-serif',
+    },
   }), [themeMode]);
 
   useEffect(() => {
@@ -112,7 +116,7 @@ export default function Root() {
             component="main"
             sx={{
               flexGrow: 1,
-              p: { xs: 1, sm: 2, md: 3 },
+              p: { xs: 1, sm: 1.5, md: 2 },
               backgroundColor: "background.default",
               minHeight: "calc(100vh - 120px)",
             }}
