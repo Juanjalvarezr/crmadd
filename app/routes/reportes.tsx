@@ -49,10 +49,13 @@ export default function Reportes() {
   const [fechaInicio, setFechaInicio] = useState(format(startOfMonth(new Date()), "yyyy-MM-dd"));
   const [fechaFin, setFechaFin] = useState(format(endOfMonth(new Date()), "yyyy-MM-dd"));
   const [tipoReporte, setTipoReporte] = useState("general");
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" as "success" | "error" });
   
   // Estados de datos
   const [metricas, setMetricas] = useState<Metrica[]>([]);
   const [reporteData, setReporteData] = useState<ReporteData[]>([]);
+
+  const handleCloseSnackbar = () => setSnackbar({ ...snackbar, open: false });
 
   // Cargar datos de reportes (simulado - conectar con Supabase después)
   useEffect(() => {
