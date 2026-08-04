@@ -491,21 +491,15 @@ export default function Clientes() {
       {/* Indicador de conexión a Supabase */}
       <SupabaseStatus />
       
-      {/* Header compacto */}
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1.5 }}>
-        <FiUsers size={22} color="#1976d2" />
-        <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1976d2", fontSize: { xs: "1.1rem", sm: "1.25rem" } }}>
-          Clientes
-        </Typography>
-        <Chip label={`${clientes.length} registros`} size="small" sx={{ ml: 1 }} />
-        <Box sx={{ flex: 1 }} />
-        <Button size="small" startIcon={<FiRefreshCw size={14} />} onClick={loadClientes} disabled={loading} sx={{ minHeight: 32 }}>
-          {loading ? "..." : "Recargar"}
-        </Button>
+      {/* Header compacto mobile */}
+      <Box sx={{ mb: { xs: 1.5, sm: 2 } }}>
+        <Typography variant="h6" sx={{ fontWeight: "bold", fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>Clientes</Typography>
+        <Box sx={{ display: "flex", gap: 1, mt: 1, flexWrap: "wrap" }}>
+          <Button size="small" startIcon={<FiSearch />} onClick={() => setIsFilterDrawerOpen(true)}>Filtros</Button>
+          <Button size="small" onClick={exportCSV}>Exportar CSV</Button>
+          <Button size="small" variant="contained" startIcon={<FiPlus />} onClick={openCreate}>Nuevo Cliente</Button>
+        </Box>
       </Box>
-
-      {/* Barra de Acciones en Lote */}
-      {selectedIds.length > 0 && (
         <Paper
           elevation={4}
           sx={{

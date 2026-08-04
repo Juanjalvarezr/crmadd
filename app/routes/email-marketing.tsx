@@ -342,12 +342,12 @@ export default function EmailMarketing() {
         borderRadius: 2
       }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
-          <Mail size={28} color="#1976d2" />
-          <Typography variant="h5" sx={{ fontWeight: "bold", color: "#1976d2" }}>
+          <Mail size={24} color="#1976d2" />
+          <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1976d2", fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>
             Email Marketing
           </Typography>
         </Box>
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
           Crea y gestiona campañas de email marketing para tus clientes. Automatiza comunicaciones y mide resultados.
         </Typography>
       </Paper>

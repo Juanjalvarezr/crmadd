@@ -350,12 +350,12 @@ export default function Reportes() {
         borderRadius: 2
       }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
-          <FiBarChart size={28} color="#1976d2" />
-          <Typography variant="h5" sx={{ fontWeight: "bold", color: "#1976d2" }}>
+          <FiBarChart size={24} color="#1976d2" />
+          <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1976d2", fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>
             Reportes y Analytics
           </Typography>
         </Box>
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
           Métricas en tiempo real del rendimiento de DESEO DIGITAL. Analiza ingresos, clientes y crecimiento.
         </Typography>
       </Paper>

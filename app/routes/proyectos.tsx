@@ -824,11 +824,13 @@ export default function Proyectos() {
   return (
     <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
       {/* Header compacto */}
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1.5, flexWrap: "wrap" }}>
-        <Folder size={22} color="#1976d2" />
-        <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1976d2", flex: 1 }}>Proyectos</Typography>
-        <Button size="small" variant="outlined" startIcon={<RefreshCw size={14} />} onClick={() => window.location.reload()}>Actualizar</Button>
-        <Button size="small" variant="contained" startIcon={<Plus size={16} />} onClick={() => handleOpenProyectoModal()} sx={{ backgroundColor: "#e91e63", '&:hover': { backgroundColor: "#c2185b" } }}>Nuevo</Button>
+      {/* Header compacto mobile */}
+      <Box sx={{ mb: { xs: 1.5, sm: 2 } }}>
+        <Typography variant="h6" sx={{ fontWeight: "bold", fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>Proyectos</Typography>
+        <Box sx={{ display: "flex", gap: 1, mt: 1, flexWrap: "wrap" }}>
+          <Button size="small" startIcon={<FiRefreshCw size={14} />} onClick={loadProyectos} disabled={loading}>Recargar</Button>
+          <Button size="small" variant="contained" startIcon={<FiPlus />} onClick={handleOpenModal}>Nuevo</Button>
+        </Box>
       </Box>
 
       {/* Filtros compactos */}

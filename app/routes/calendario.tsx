@@ -149,16 +149,16 @@ export default function Calendario() {
   }
 
   return (
-    <Box sx={{ p: { xs: 1, sm: 2, md: 3 }, height: 'calc(100vh - 80px)' }}>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1.5 }}>
-        <FiCalendar size={22} color="#1976d2" />
-        <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1976d2", flex: 1 }}>Calendario</Typography>
+    <Box sx={{ p: { xs: 1, sm: 1.5, md: 2 }, height: { xs: 'calc(100vh - 100px)', sm: 'calc(100vh - 80px)' } }}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1, flexWrap: "wrap" }}>
+        <FiCalendar size={20} color="#1976d2" />
+        <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1976d2", flex: 1, fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>Calendario</Typography>
         <Tooltip title="Sincroniza tus tareas y proyecciones de ventas en un solo lugar.">
           <IconButton color="primary" size="small"><FiInfo /></IconButton>
         </Tooltip>
       </Box>
 
-      <Paper sx={{ p: 2, height: '100%', minHeight: { xs: 420, sm: 520 }, borderRadius: 2 }}>
+      <Paper sx={{ p: { xs: 1, sm: 2 }, height: '100%', minHeight: { xs: 360, sm: 480 }, borderRadius: 2, overflow: 'hidden' }}>
         <Calendar
           localizer={localizer}
           events={events}

@@ -132,11 +132,13 @@ export default function Tareas() {
 
   return (
     <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1.5, flexWrap: "wrap" }}>
-        <FiCheckSquare size={22} color="#9C27B0" />
-        <Typography variant="h6" sx={{ color: "#7B1FA2", fontWeight: "bold", flex: 1 }}>Tareas</Typography>
-        <Button size="small" startIcon={<FiRefreshCw size={14} />} onClick={loadTareas} disabled={loading} sx={{ minHeight: 32 }}>{loading ? "..." : "Recargar"}</Button>
-        <Button variant="contained" size="small" startIcon={<FiPlus size={16} />} onClick={handleOpenModal} sx={{ minHeight: 32 }}>Nueva</Button>
+      {/* Header compacto mobile */}
+      <Box sx={{ mb: { xs: 1.5, sm: 2 } }}>
+        <Typography variant="h6" sx={{ fontWeight: "bold", fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>Tareas</Typography>
+        <Box sx={{ display: "flex", gap: 1, mt: 1, flexWrap: "wrap" }}>
+          <Button size="small" startIcon={<FiRefreshCw size={14} />} onClick={loadTareas} disabled={loading}>Recargar</Button>
+          <Button size="small" variant="contained" startIcon={<FiPlus />} onClick={openCreate}>Nueva</Button>
+        </Box>
       </Box>
 
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 2 }}>

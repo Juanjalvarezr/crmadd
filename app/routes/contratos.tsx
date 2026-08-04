@@ -63,11 +63,13 @@ export default function Contratos() {
 
   return (
     <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1.5, flexWrap: "wrap" }}>
-        <FiFileText size={22} color="#795548" />
-        <Typography variant="h6" sx={{ color: "#795548", fontWeight: "bold", flex: 1 }}>Contratos</Typography>
-        <Button size="small" startIcon={<FiRefreshCw size={14} />} onClick={load} disabled={loading}>Recargar</Button>
-        <Button variant="contained" size="small" startIcon={<FiPlus size={16} />} onClick={openCreate}>Nuevo</Button>
+      {/* Header compacto mobile */}
+      <Box sx={{ mb: { xs: 1.5, sm: 2 } }}>
+        <Typography variant="h6" sx={{ fontWeight: "bold", fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>Contratos</Typography>
+        <Box sx={{ display: "flex", gap: 1, mt: 1, flexWrap: "wrap" }}>
+          <Button size="small" startIcon={<FiRefreshCw size={14} />} onClick={loadContratos} disabled={loading}>Recargar</Button>
+          <Button size="small" variant="contained" startIcon={<FiPlus />} onClick={openCreate}>Nuevo</Button>
+        </Box>
       </Box>
 
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 2 }}>
