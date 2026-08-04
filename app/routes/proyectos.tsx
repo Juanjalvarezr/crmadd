@@ -1336,9 +1336,6 @@ export default function Proyectos() {
                   onDeleteTarea={handleDeleteTarea}
                 />
               ) : activeProjectTab === 3 ? (
-                {/*
-                  PESTAÑA DE ESTRATEGIA Y CONTENIDO
-                */}
                 <Box sx={{ py: 1 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                     <Typography variant="subtitle2" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
