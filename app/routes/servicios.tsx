@@ -43,7 +43,8 @@ export default function Servicios() {
     try {
       setLoading(true);
       const data = await serviciosService.getAll();
-      setServicios(data);
+      const uniq = Array.from(new Map(data.map((s: any) => [s.nombre.toLowerCase().trim(), s])).values());
+      setServicios(uniq);
     } catch (err: any) {
       setError(err.message);
     } finally {

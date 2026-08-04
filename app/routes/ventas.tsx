@@ -82,6 +82,8 @@ export default function Ventas() {
 
   // Estado para Propuesta IA
   const [openPropuestaModal, setOpenPropuestaModal] = useState(false);
+  const [openPdfModal, setOpenPdfModal] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [propuestaGenerada, setPropuestaPropuesta] = useState("");
   const [resumenWhatsApp, setResumenWhatsApp] = useState("");
   const [loadingPropuesta, setLoadingPropuesta] = useState(false);
@@ -512,9 +514,10 @@ export default function Ventas() {
                                       <Typography variant="body2" sx={{ fontWeight: "bold", color: "success.main" }}>{formatValue(opp.valor)}</Typography>
                                       <Chip label={`${opp.probabilidad}%`} size="small" color={opp.probabilidad >= 75 ? 'success' : opp.probabilidad >= 40 ? 'warning' : 'error'} sx={{ height: 20, fontSize: '0.65rem' }} />
                                     </Box>
-                                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.5, borderTop: '1px solid #eee', pt: 1 }}>
+                                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.5, borderTop: '1px solid #eee', pt: 1, flexWrap: 'wrap' }}>
                                       <IconButton size="small" onClick={() => handleEdit(opp)} sx={{ color: 'text.secondary' }}><FiEdit size={14}/></IconButton>
                                       <IconButton size="small" onClick={() => handleDelete(opp)} color="error"><FiTrash2 size={14}/></IconButton>
+                                      <IconButton size="small" onClick={() => handleGenerarPropuestaAI(opp)} sx={{ color: '#daa520' }}><FiZap size={14}/></IconButton>
                                     </Box>
                                   </Paper>
                                 </Box>
@@ -671,13 +674,14 @@ export default function Ventas() {
                   fullWidth 
                   variant="contained" 
                   color="success"
-                  sx={{ mt: 2 }} // Usar el Snackbar global
+                  sx={{ mt: 2 }}
                   onClick={() => {
-                    navigator.clipboard.writeText(resumenWhatsApp);
-                    showNotification("Resumen de WhatsApp copiado ✓", "success");
+                    const telefono = import.meta.env.VITE_WHATSAPP_NUMBER || "+573000000000";
+                    const texto = encodeURIComponent(resumenWhatsApp || `Hola, queremos cerrar la oportunidad: ${propuestaGenerada}`);
+                    window.open(`https://wa.me/${telefono.replace(/[^\d]/g, '')}?text=${texto}`, '_blank');
                   }}
                 >
-                  Copiar para WhatsApp
+                  Enviar por WhatsApp
                 </Button>
               </Grid>
             </Grid>

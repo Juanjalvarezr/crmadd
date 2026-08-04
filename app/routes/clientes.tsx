@@ -997,7 +997,7 @@ export default function Clientes() {
           </Box>
           {selectedClient && (
             <Box sx={{ mt: 1 }}>
-              <Tabs value={detailTab} onChange={(_, v) => setDetailTab(v)} variant="fullWidth">
+              <Tabs value={detailTab} onChange={(_, v) => setDetailTab(v)} variant="scrollable" scrollButtons="auto" size="small">
                 <Tab label="Datos" />
                 <Tab label="Proyectos" />
                 <Tab label="Oportunidades" />
