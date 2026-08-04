@@ -331,9 +331,6 @@ export default function Tareas() {
                   </TableRow>
                 ))}
               </TableBody>
-            </Table>
-          </TableContainer>
-        )}
 
         {!loading && !error && filtered.length === 0 && (
           <Box sx={{ mt: 2 }}>
