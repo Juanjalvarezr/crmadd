@@ -1322,6 +1322,11 @@ export default function Proyectos() {
                   </Grid>
                 </Box>
               ) : activeProjectTab === 1 ? (
+                <Box sx={{ py: 1 }}>
+                  <Typography variant="body2" color="text.secondary">
+                    Selecciona una fase administrativa para ver el detalle.
+                  </Typography>
+                </Box>
               ) : activeProjectTab === 3 ? (
                 <Box sx={{ py: 1 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
