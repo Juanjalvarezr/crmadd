@@ -199,25 +199,83 @@ export default function Tareas() {
 
   return (
     <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
-      {/* Header */}
-      <Paper sx={{ p: 3, mb: 3, background: "linear-gradient(135deg, #f3e5f5 0%, #e8eaf6 100%)", borderLeft: "5px solid #9C27B0" }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 1, flexWrap: "wrap" }}>
-          <FiCheckSquare size={28} color="#9C27B0" />
-          <Typography variant="h5" sx={{ color: "#7B1FA2", flex: 1 }}>Tareas y Actividades</Typography>
-          <Button size="small" startIcon={<FiRefreshCw size={14} />} onClick={loadTareas} disabled={loading}>
-            {loading ? "..." : "Recargar"}
-          </Button>
-        </Box>
-        <Typography variant="body2" color="text.secondary">
-          Organiza y prioriza tus actividades diarias. Nunca pierdas un seguimiento importante.
-        </Typography>
-      </Paper>
+      {/* Header compacto */}
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1.5, flexWrap: "wrap" }}>
+        <FiCheckSquare size={22} color="#9C27B0" />
+        <Typography variant="h6" sx={{ color: "#7B1FA2", fontWeight: "bold", flex: 1 }}>Tareas</Typography>
+        <Button size="small" startIcon={<FiRefreshCw size={14} />} onClick={loadTareas} disabled={loading} sx={{ minHeight: 32 }}>{loading ? "..." : "Recargar"}</Button>
+        <Button variant="contained" size="small" startIcon={<FiPlus size={16} />} onClick={handleOpenModal} sx={{ minHeight: 32 }}>Nueva</Button>
+      </Box>
 
-      {/* KPIs */}
-      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2, mb: 4 }}>
-        {[
-          { title: "Pendientes", value: loading ? "..." : pendientes, color: "warning" },
-          { title: "En Progreso", value: loading ? "..." : enProgreso, color: "primary" },
+      {/* KPIs compactos */}
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 2 }}>
+        <Box sx={{ flex: { xs: "50%", sm: "25%" } }}><StatCard title="Pendientes" value={loading ? "..." : pendientes} subtitle="Pendientes" color="warning" /></Box>
+        <Box sx={{ flex: { xs: "50%", sm: "25%" } }}><StatCard title="En curso" value={loading ? "..." : enProgreso} subtitle="En progreso" color="primary" /></Box>
+        <Box sx={{ flex: { xs: "50%", sm: "25%" } }}><StatCard title="Completadas" value={loading ? "..." : completadas} subtitle="Completadas" color="success" /></Box>
+        <Box sx={{ flex: { xs: "50%", sm: "25%" } }}><StatCard title="Alta" value={loading ? "..." : altaPrioridad} subtitle="Alta prioridad" color="error" /></Box>
+      </Box>
+
+      {/* Filtros compactos */}
+      <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 2 }}>
+        <TextField fullWidth size="small" placeholder="Buscar..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} InputProps={{ startAdornment: <InputAdornment position="start"><FiSearch size={16} /></InputAdornment> }} />
+        <FormControl size="small" sx={{ minWidth: 120 }}>
+          <InputLabel>Prioridad</InputLabel>
+          <Select value={prioridadFilter} label="Prioridad" onChange={(e) => setPrioridadFilter(e.target.value)}>
+            <MenuItem value="all">Todas</MenuItem>
+            <MenuItem value="Alta">Alta</MenuItem>
+            <MenuItem value="Media">Media</MenuItem>
+            <MenuItem value="Baja">Baja</MenuItem>
+          </Select>
+        </FormControl>
+        <FormControl size="small" sx={{ minWidth: 120 }}>
+          <InputLabel>Estado</InputLabel>
+          <Select value={estadoFilter} label="Estado" onChange={(e) => setEstadoFilter(e.target.value)}>
+            <MenuItem value="all">Todos</MenuItem>
+            <MenuItem value="Pendiente">Pendiente</MenuItem>
+            <MenuItem value="En progreso">En curso</MenuItem>
+            <MenuItem value="Completada">Completada</MenuItem>
+          </Select>
+        </FormControl>
+      </Box>
+
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+
+      {loading ? (
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+          {[...Array(5)].map((_, i) => (
+            <Paper key={i} sx={{ p: 1.5, borderRadius: 2 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <Skeleton variant="circular" width={32} height={32} sx={skeletonAgencyStyle} />
+                <Box sx={{ flex: 1 }}>
+                  <Skeleton width="60%" height={18} sx={{ ...skeletonAgencyStyle, mb: 0.5 }} />
+                  <Skeleton width="40%" height={16} sx={skeletonAgencyStyle} />
+                </Box>
+              </Box>
+            </Paper>
+          ))}
+        </Box>
+      ) : filtered.length === 0 ? (
+        <EmptyState title="Sin tareas" description="Crea tu primera tarea para comenzar a organizar el trabajo." />
+      ) : (
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+          {filtered.map((t) => (
+            <Paper key={t.id} sx={{ p: { xs: 1.5, sm: 2 }, borderRadius: 2, border: '1px solid', borderColor: 'divider', display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 'bold', wordBreak: 'break-word' }}>{t.titulo}</Typography>
+                <Typography variant="caption" color="text.secondary">{formatDate(t.fecha)}</Typography>
+              </Box>
+              <Chip size="small" label={t.estado} color={getEstadoColor(t.estado)} />
+              <Chip size="small" label={t.prioridad} color={getPrioridadColor(t.prioridad)} />
+              {isVencida(t) && <Chip size="small" label="Vencida" color="error" />}
+              <Box sx={{ display: 'flex', gap: 0.5 }}>
+                <IconButton size="small" onClick={() => handleComplete(t)}><FiCheck size={16} /></IconButton>
+                <IconButton size="small" onClick={() => handleEdit(t)}><FiEdit size={16} /></IconButton>
+                <IconButton size="small" onClick={() => handleDelete(t)}><FiTrash2 size={16} /></IconButton>
+              </Box>
+            </Paper>
+          ))}
+        </Box>
+      )}
           { title: "Completadas", value: loading ? "..." : completadas, color: "success" },
           { title: "Alta Prioridad", value: loading ? "..." : altaPrioridad, color: "error" },
           { title: "Vencidas", value: loading ? "..." : vencidas, color: "error" },

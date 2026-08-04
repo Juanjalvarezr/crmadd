@@ -804,169 +804,66 @@ export default function Proyectos() {
 
   return (
     <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
-      {/* Header */}
-      <Paper sx={{ 
-        p: { xs: 2, sm: 3 }, 
-        mb: { xs: 2, sm: 3 }, 
-        backgroundColor: "#e3f2fd", 
-        borderLeft: "5px solid #2196f3",
-        borderRadius: 2
-      }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
-          <Folder size={28} color="#1976d2" />
-          <Typography variant="h5" sx={{ fontWeight: "bold", color: "#1976d2" }}>
-            Gestión de Proyectos
-          </Typography>
-        </Box>
-        <Typography variant="body2" color="text.secondary">
-          Organiza y gestiona todos los proyectos por cliente. Asigna servicios, seguimiento y controla el progreso.
-        </Typography>
-      </Paper>
+      {/* Header compacto */}
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1.5, flexWrap: "wrap" }}>
+        <Folder size={22} color="#1976d2" />
+        <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1976d2", flex: 1 }}>Proyectos</Typography>
+        <Button size="small" variant="outlined" startIcon={<RefreshCw size={14} />} onClick={() => window.location.reload()}>Actualizar</Button>
+        <Button size="small" variant="contained" startIcon={<Plus size={16} />} onClick={() => handleOpenProyectoModal()} sx={{ backgroundColor: "#e91e63", '&:hover': { backgroundColor: "#c2185b" } }}>Nuevo</Button>
+      </Box>
 
-      {/* Filtros */}
-      <Paper sx={{ p: 2, mb: 3, borderRadius: 2 }}>
-        <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} md={3}>
-            <TextField
-              label="Buscar Cliente"
-              fullWidth
-              size="small"
-              value={filtroCliente}
-              onChange={(e) => setFiltroCliente(e.target.value)}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <Users size={16} />
-                  </InputAdornment>
-                )
-              }}
-            />
-          </Grid>
-          <Grid item xs={12} md={2}>
-            <FormControl fullWidth size="small">
-              <InputLabel>Estado</InputLabel>
-              <Select
-                value={filtroEstado}
-                label="Estado"
-                onChange={(e) => setFiltroEstado(e.target.value)}
-              >
-                <MenuItem value="">Todos</MenuItem>
-                <MenuItem value="planificacion">Planificación</MenuItem>
-                <MenuItem value="en_progreso">En Progreso</MenuItem>
-                <MenuItem value="pausado">Pausado</MenuItem>
-                <MenuItem value="completado">Completado</MenuItem>
-                <MenuItem value="cancelado">Cancelado</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={12} md={2}>
-            <FormControl fullWidth size="small">
-              <InputLabel>Prioridad</InputLabel>
-              <Select
-                value={filtroPrioridad}
-                label="Prioridad"
-                onChange={(e) => setFiltroPrioridad(e.target.value)}
-              >
-                <MenuItem value="">Todas</MenuItem>
-                <MenuItem value="baja">Baja</MenuItem>
-                <MenuItem value="media">Media</MenuItem>
-                <MenuItem value="alta">Alta</MenuItem>
-                <MenuItem value="urgente">Urgente</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item xs={12} md={5}>
-            <Box sx={{ display: "flex", gap: 2, justifyContent: "flex-end" }}>
-              <Button
-                variant="contained"
-                startIcon={<Plus />}
-                onClick={() => handleOpenProyectoModal()}
-                sx={{ backgroundColor: "#e91e63", '&:hover': { backgroundColor: "#c2185b" } }}
-              >
-                Nuevo Proyecto
-              </Button>
-              <Button
-                variant="outlined"
-                startIcon={<RefreshCw />}
-                onClick={() => window.location.reload()}
-              >
-                Actualizar
-              </Button>
-            </Box>
-          </Grid>
-        </Grid>
-      </Paper>
+      {/* Filtros compactos */}
+      <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 2 }}>
+        <TextField fullWidth size="small" placeholder="Buscar cliente..." value={filtroCliente} onChange={(e) => setFiltroCliente(e.target.value)} InputProps={{ startAdornment: <InputAdornment position="start"><Users size={16} /></InputAdornment> }} />
+        <FormControl size="small" sx={{ minWidth: 140 }}>
+          <InputLabel>Estado</InputLabel>
+          <Select value={filtroEstado} label="Estado" onChange={(e) => setFiltroEstado(e.target.value)}>
+            <MenuItem value="">Todos</MenuItem>
+            <MenuItem value="planificacion">Planificación</MenuItem>
+            <MenuItem value="en_progreso">En progreso</MenuItem>
+            <MenuItem value="pausado">Pausado</MenuItem>
+            <MenuItem value="completado">Completado</MenuItem>
+            <MenuItem value="cancelado">Cancelado</MenuItem>
+          </Select>
+        </FormControl>
+        <FormControl size="small" sx={{ minWidth: 140 }}>
+          <InputLabel>Prioridad</InputLabel>
+          <Select value={filtroPrioridad} label="Prioridad" onChange={(e) => setFiltroPrioridad(e.target.value)}>
+            <MenuItem value="">Todas</MenuItem>
+            <MenuItem value="baja">Baja</MenuItem>
+            <MenuItem value="media">Media</MenuItem>
+            <MenuItem value="alta">Alta</MenuItem>
+            <MenuItem value="urgente">Urgente</MenuItem>
+          </Select>
+        </FormControl>
+      </Box>
 
-      {/* Pestañas de navegación */}
-      <Paper sx={{ p: 1, mb: 2, borderRadius: 2, display: 'flex', justifyContent: 'center' }}>
-        <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", justifyContent: "center" }}>
-          <Button
-            variant={activeTab === "activos" ? "contained" : "text"}
-            size="small"
-            startIcon={<Play />}
-            onClick={() => setActiveTab("activos")}
-            sx={{ 
-              borderRadius: 2,
-              backgroundColor: activeTab === "activos" ? "#e91e63" : "transparent",
-              borderColor: activeTab === "activos" ? "#e91e63" : "#e0e0e0",
-              color: activeTab === "activos" ? "white" : "#666"
-            }}
-          >
-            Activos ({proyectos.filter(p => p.estado === "planificacion" || p.estado === "en_progreso").length})
-          </Button>
-          <Button
-            variant={activeTab === "completados" ? "contained" : "outlined"}
-            startIcon={<CheckCircle />}
-            onClick={() => setActiveTab("completados")}
-            sx={{ 
-              borderRadius: 2,
-              backgroundColor: activeTab === "completados" ? "#e91e63" : "transparent",
-              borderColor: activeTab === "completados" ? "#e91e63" : "#e0e0e0",
-              color: activeTab === "completados" ? "white" : "#666"
-            }}
-          >
-            Completados ({proyectos.filter(p => p.estado === "completado").length})
-          </Button>
-          <Button
-            variant={activeTab === "pausados" ? "contained" : "outlined"}
-            startIcon={<Pause />}
-            onClick={() => setActiveTab("pausados")}
-            sx={{ 
-              borderRadius: 2,
-              backgroundColor: activeTab === "pausados" ? "#e91e63" : "transparent",
-              borderColor: activeTab === "pausados" ? "#e91e63" : "#e0e0e0",
-              color: activeTab === "pausados" ? "white" : "#666"
-            }}
-          >
-            Pausados ({proyectos.filter(p => p.estado === "pausado").length})
-          </Button>
-          <Button
-            variant={activeTab === "todos" ? "contained" : "text"}
-            size="small"
-            startIcon={<Folder />}
-            onClick={() => setActiveTab("todos")}
-            sx={{ 
-              borderRadius: 2,
-              backgroundColor: activeTab === "todos" ? "#e91e63" : "transparent",
-              borderColor: activeTab === "todos" ? "#e91e63" : "#e0e0e0",
-              color: activeTab === "todos" ? "white" : "#666"
-            }}
-          >
-            Todos ({proyectos.length})
-          </Button>
-        </Box>
-      </Paper>
+      {/* Tabs compactos */}
+      <Box sx={{ display: "flex", gap: 1, mb: 2, overflowX: "auto", pb: 0.5 }}>
+        {[
+          { key: "activos", label: `Activos (${proyectos.filter(p => p.estado === "planificacion" || p.estado === "en_progreso").length})`, icon: <Play size={14} /> },
+          { key: "completados", label: `Completados (${proyectos.filter(p => p.estado === "completado").length})`, icon: <CheckCircle size={14} /> },
+          { key: "pausados", label: `Pausados (${proyectos.filter(p => p.estado === "pausado").length})`, icon: <Pause size={14} /> },
+          { key: "todos", label: `Todos (${proyectos.length})`, icon: <Folder size={14} /> },
+        ].map((tab) => (
+          <Chip
+            key={tab.key}
+            icon={tab.icon}
+            label={tab.label}
+            variant={activeTab === tab.key ? "filled" : "outlined"}
+            color={activeTab === tab.key ? "primary" : "default"}
+            onClick={() => setActiveTab(tab.key)}
+            sx={{ borderRadius: 2 }}
+          />
+        ))}
+      </Box>
+
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
       {loading && (
         <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
           <CircularProgress />
         </Box>
-      )}
-
-      {!loading && error && (
-        <Alert severity="error" sx={{ mb: 3 }}>
-          {error}
-        </Alert>
       )}
 
       {!loading && !error && (

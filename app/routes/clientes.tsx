@@ -492,72 +492,30 @@ export default function Clientes() {
       {/* Indicador de conexión a Supabase */}
       <SupabaseStatus />
       
-      {/* Header de sección con navegación clara - Responsive */}
-      <Paper sx={{ 
-        p: { xs: 2, sm: 3 }, 
-        mb: { xs: 2, sm: 3 }, 
-        backgroundColor: "#e3f2fd", 
-        borderLeft: "5px solid #2196f3",
-        borderRadius: 2
-      }}>
-        <Box sx={{ 
-          display: "flex", 
-          alignItems: { xs: "flex-start", sm: "center" }, 
-          gap: 2, 
-          mb: 1,
-          flexDirection: { xs: "column", sm: "row" }
-        }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <FiUsers size={28} color="#1976d2" />
-            <Typography variant="h5" sx={{ fontWeight: "bold", color: "#1976d2", fontSize: { xs: "1.25rem", sm: "1.5rem" } }}>
-              Gestión de Clientes
-            </Typography>
-          </Box>
-        </Box>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: { xs: 2, sm: 1 } }}>
-          Administra tu base de clientes SEO. Registra nuevos clientes, edita información y haz seguimiento.
+      {/* Header compacto */}
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1.5 }}>
+        <FiUsers size={22} color="#1976d2" />
+        <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1976d2", fontSize: { xs: "1.1rem", sm: "1.25rem" } }}>
+          Clientes
         </Typography>
-        <Box sx={{ 
-          mt: { xs: 1, sm: 2 }, 
-          display: "flex", 
-          gap: 1, 
-          alignItems: "center",
-          flexWrap: "wrap"
-        }}>
-          <Chip 
-            label={`${clientes.length} clientes`} 
-            color="primary" 
-            size="small" 
-            sx={{ fontWeight: 500 }}
-          />
-          <Chip 
-            label={`${clientesActivos} activos`} 
-            color="success" 
-            size="small"
-            sx={{ fontWeight: 500 }}
-          />
-          <Button 
-            size="small" 
-            startIcon={<FiRefreshCw size={14} />} 
-            onClick={loadClientes}
-            disabled={loading}
-            sx={{ ml: "auto" }}
-          >
-            {loading ? "..." : "Recargar"}
-          </Button>
-        </Box>
+        <Chip label={`${clientes.length} registros`} size="small" sx={{ ml: 1 }} />
+        <Box sx={{ flex: 1 }} />
+        <Button size="small" startIcon={<FiRefreshCw size={14} />} onClick={loadClientes} disabled={loading} sx={{ minHeight: 32 }}>
+          {loading ? "..." : "Recargar"}
+        </Button>
+      </Box>
 
       {/* Barra de Acciones en Lote */}
       {selectedIds.length > 0 && (
-        <Paper 
-          elevation={4} 
-          sx={{ 
-            p: 2, 
-            mb: 3, 
-            bgcolor: '#1a237e', 
-            color: 'white', 
-            display: 'flex', 
-            justifyContent: 'space-between', 
+        <Paper
+          elevation={4}
+          sx={{
+            p: 1.5,
+            mb: 2,
+            bgcolor: '#1a237e',
+            color: 'white',
+            display: 'flex',
+            justifyContent: 'space-between',
             alignItems: 'center',
             borderRadius: 2,
             position: 'sticky',
@@ -565,8 +523,8 @@ export default function Clientes() {
             zIndex: 10
           }}
         >
-          <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-            {selectedIds.length} clientes seleccionados
+          <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
+            {selectedIds.length} seleccionados
           </Typography>
           <Box sx={{ display: 'flex', gap: 1 }}>
             <Button 
@@ -585,7 +543,7 @@ export default function Clientes() {
               onClick={() => handleMessage({ nombre: 'Grupo Seleccionado' } as any)}
               sx={{ bgcolor: '#4caf50' }}
             >
-              WhatsApp (IA)
+              WhatsApp
             </Button>
             <Button variant="outlined" size="small" onClick={() => setSelectedIds([])} sx={{ color: 'white', borderColor: 'white' }}>
               Cancelar
@@ -593,45 +551,20 @@ export default function Clientes() {
           </Box>
         </Paper>
       )}
-      </Paper>
 
-      {/* Tarjetas de Estadísticas */}
-      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3, mb: 4 }}>
-        <Box sx={{ flex: { xs: "100%", sm: "48%", md: "23%" } }}>
-          <StatCard
-            title="Total Clientes"
-            value={loading ? "..." : clientes.length}
-            subtitle="En base de datos"
-            icon={<ClientesIcon />}
-            color="primary"
-          />
+      {/* Tarjetas compactas */}
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 2 }}>
+        <Box sx={{ flex: { xs: "50%", sm: "25%" } }}>
+          <StatCard title="Total" value={loading ? "..." : clientes.length} subtitle="En BD" icon={<ClientesIcon />} color="primary" />
         </Box>
-        <Box sx={{ flex: { xs: "100%", sm: "48%", md: "23%" } }}>
-          <StatCard
-            title="Activos"
-            value={clientesActivos}
-            subtitle="Clientes activos"
-            icon={<ClientesIcon />}
-            color="success"
-          />
+        <Box sx={{ flex: { xs: "50%", sm: "25%" } }}>
+          <StatCard title="Activos" value={clientesActivos} subtitle="Activos" icon={<ClientesIcon />} color="success" />
         </Box>
-        <Box sx={{ flex: { xs: "100%", sm: "48%", md: "23%" } }}>
-          <StatCard
-            title="Inactivos"
-            value={clientesInactivos}
-            subtitle="Clientes inactivos"
-            icon={<ClientesIcon />}
-            color="error"
-          />
+        <Box sx={{ flex: { xs: "50%", sm: "25%" } }}>
+          <StatCard title="Inactivos" value={clientesInactivos} subtitle="Inactivos" icon={<ClientesIcon />} color="error" />
         </Box>
-        <Box sx={{ flex: { xs: "100%", sm: "48%", md: "23%" } }}>
-          <StatCard
-            title="Nuevos este Mes"
-            value={clientesNuevosEsteMes}
-            subtitle="Nuevos registros"
-            icon={<ClientesIcon />}
-            color="warning"
-          />
+        <Box sx={{ flex: { xs: "50%", sm: "25%" } }}>
+          <StatCard title="Nuevos" value={clientesNuevosEsteMes} subtitle="Este mes" icon={<ClientesIcon />} color="warning" />
         </Box>
       </Box>
 

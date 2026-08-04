@@ -195,7 +195,7 @@ export default function Dashboard() {
 
   return (
     <Box sx={{ mb: 4 }}>
-      <Grid container spacing={{ xs: 2, sm: 3 }} sx={{ mb: { xs: 2, sm: 3 } }}>
+      <Grid container spacing={{ xs: 1, sm: 1.5 }} sx={{ mb: { xs: 1.5, sm: 2 } }}>
         <Grid item xs={12}>
           <Box
             sx={{
@@ -247,7 +247,7 @@ export default function Dashboard() {
         </Alert>
       ) : null}
 
-      <Grid container spacing={{ xs: 2, sm: 3 }}>
+      <Grid container spacing={{ xs: 1, sm: 1.5 }}>
         <Grid item xs={12} md={6}>
           <Card
             sx={{
@@ -256,40 +256,38 @@ export default function Dashboard() {
               color: "white",
               position: "relative",
               overflow: "hidden",
-              minHeight: 120,
-              borderRadius: 3,
+              minHeight: 96,
+              borderRadius: 2,
               border: '1px solid',
               borderColor: 'rgba(255,255,255,0.1)',
-              transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+              transition: 'transform 0.2s ease, box-shadow 0.2s ease',
               '&:hover': {
-                transform: 'translateY(-4px)',
-                boxShadow: '0 12px 24px rgba(233,30,99,0.3)'
+                transform: 'translateY(-2px)',
+                boxShadow: '0 8px 18px rgba(233,30,99,0.25)'
               }
             }}
           >
             <Box
               sx={{
                 position: "absolute",
-                top: -24,
-                right: -24,
-                width: 120,
-                height: 120,
+                top: -20,
+                right: -20,
+                width: 100,
+                height: 100,
                 background: "rgba(255,255,255,0.12)",
                 borderRadius: "50%",
-                filter: "blur(16px)",
+                filter: "blur(14px)",
               }}
             />
-            <CardContent sx={{ position: 'relative', zIndex: 1 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                <FiTrendingUp size={22} />
-                <Typography variant="overline" sx={{ letterSpacing: 1.5, fontWeight: 700, color: 'rgba(255,255,255,0.9)' }}>
-                  Análisis Estratégico AI
+            <CardContent sx={{ position: 'relative', zIndex: 1, '&:last-child': { pb: 2 } }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                <FiTrendingUp size={18} />
+                <Typography variant="overline" sx={{ letterSpacing: 1, fontWeight: 700, color: 'rgba(255,255,255,0.9)', fontSize: '0.7rem' }}>
+                  Análisis AI
                 </Typography>
               </Box>
-              <Typography variant="body1" sx={{ fontWeight: 400, mb: 2 }}>
-                {resumenAI.trim().length
-                  ? resumenAI
-                  : "Revisa tus tareas pendientes para comenzar el día."}
+              <Typography variant="body2" sx={{ fontWeight: 400, mb: 1 }}>
+                {resumenAI.trim().length ? resumenAI : "Revisa tus tareas pendientes para comenzar el día."}
               </Typography>
               <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
                 <Chip
@@ -298,7 +296,8 @@ export default function Dashboard() {
                     background: "rgba(255,255,255,0.18)",
                     color: "white",
                     fontWeight: "bold",
-                    fontSize: '0.75rem'
+                    fontSize: '0.7rem',
+                    height: 24
                   }}
                 />
                 <Chip
@@ -307,17 +306,19 @@ export default function Dashboard() {
                     background: "rgba(255,255,255,0.18)",
                     color: "white",
                     fontWeight: "bold",
-                    fontSize: '0.75rem'
+                    fontSize: '0.7rem',
+                    height: 24
                   }}
                 />
                 <Chip
-                  icon={<FiCalendar size={13} />}
+                  icon={<FiCalendar size={12} />}
                   label="Hoy"
                   sx={{
                     background: "rgba(255,255,255,0.18)",
                     color: "white",
                     fontWeight: "bold",
-                    fontSize: '0.75rem'
+                    fontSize: '0.7rem',
+                    height: 24
                   }}
                 />
               </Box>
@@ -325,72 +326,62 @@ export default function Dashboard() {
           </Card>
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={6} sm={4} md={2}>
           <StatCard
             title="Proyectos"
             value={stats.proyectosActivos}
             subtitle="En ejecución"
-            icon={<FiActivity size={28} />}
+            icon={<FiActivity size={22} />}
             color="warning"
           />
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={6} sm={4} md={2}>
           <StatCard
-            title="Proyectos"
-            value={stats.proyectosActivos}
-            subtitle="En ejecución"
-            icon={<FiActivity size={28} />}
-            color="warning"
-          />
-        </Grid>
-
-        <Grid item xs={12} sm={6} md={3}>
-          <StatCard
-            title="Ingresos Totales"
+            title="Ingresos"
             value={formatCurrency(stats.totalPresupuestado)}
-            subtitle={`${stats.proyectosActivos} proyectos en curso`}
-            icon={<FiDollarSign size={28} />}
+            subtitle={`${stats.proyectosActivos} activos`}
+            icon={<FiDollarSign size={22} />}
             color="primary"
           />
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={6} sm={4} md={2}>
           <StatCard
             title="Recaudado"
             value={formatCurrency(stats.totalRecaudado)}
-            subtitle={`${stats.totalClientes} clientes registrados`}
-            icon={<FiActivity size={28} />}
+            subtitle={`${stats.totalClientes} clientes`}
+            icon={<FiActivity size={22} />}
             color="success"
           />
         </Grid>
 
-        <Grid item xs={12} sm={6} md={4}>
+        <Grid item xs={6} sm={4} md={2}>
           <StatCard
             title="Ventas"
             value={formatCurrency(stats.valorPipeline)}
-            subtitle="Oportunidades abiertas"
-            icon={<FiTrendingUp size={28} />}
+            subtitle="Oportunidades"
+            icon={<FiTrendingUp size={22} />}
             color="secondary"
           />
         </Grid>
 
-        <Grid item xs={12} sm={6} md={4}>
+        <Grid item xs={6} sm={4} md={2}>
           <StatCard
             title="Clientes"
             value={stats.totalClientes}
-            subtitle="Activos en esta semana"
-            icon={<FiUsers size={28} />}
+            subtitle="Registrados"
+            icon={<FiUsers size={22} />}
             color="info"
           />
         </Grid>
 
-        <Grid item xs={12} sm={6} md={4}>
+        <Grid item xs={6} sm={4} md={2}>
           <StatCard
-            title="Tareas pendientes"
+            title="Tareas"
             value={stats.tareasPendientes}
-            subtitle="Sin completar"
-            icon={<FiTarget size={28} />}
+            subtitle="Pendientes"
+            icon={<FiTarget size={22} />}
             color={stats.tareasPendientes > 0 ? "warning" : "success"}
           />
         </Grid>

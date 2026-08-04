@@ -152,35 +152,21 @@ export default function Calendario() {
 
   return (
     <Box sx={{ p: { xs: 1, sm: 2, md: 3 }, height: 'calc(100vh - 80px)' }}>
-      <Paper sx={{ 
-        p: { xs: 2, sm: 3 }, 
-        mb: 2, 
-        backgroundColor: "#e3f2fd", 
-        borderLeft: "5px solid #2196f3",
-        borderRadius: 2
-      }}>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <FiCalendar size={28} color="#1976d2" />
-            <Typography variant="h5" sx={{ fontWeight: "bold", color: "#1976d2" }}>
-              Calendario de la Agencia
-            </Typography>
-          </Box>
-          <Tooltip title="Sincroniza tus tareas y proyecciones de ventas en un solo lugar.">
-            <IconButton color="primary">
-              <FiInfo />
-            </IconButton>
-          </Tooltip>
-        </Box>
-      </Paper>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1.5 }}>
+        <FiCalendar size={22} color="#1976d2" />
+        <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1976d2", flex: 1 }}>Calendario</Typography>
+        <Tooltip title="Sincroniza tus tareas y proyecciones de ventas en un solo lugar.">
+          <IconButton color="primary" size="small"><FiInfo /></IconButton>
+        </Tooltip>
+      </Box>
 
-      <Paper sx={{ p: 2, height: '100%', minHeight: '600px', borderRadius: 2 }}>
+      <Paper sx={{ p: 2, height: '100%', minHeight: { xs: 420, sm: 520 }, borderRadius: 2 }}>
         <Calendar
           localizer={localizer}
           events={events}
           startAccessor="start"
           endAccessor="end"
-          style={{ height: '100%', minHeight: '500px' }}
+          style={{ height: '100%', minHeight: '100%' }}
           culture="es"
           onSelectEvent={handleSelectEvent}
           eventPropGetter={eventStyleGetter}
