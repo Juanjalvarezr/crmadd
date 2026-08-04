@@ -52,7 +52,6 @@ export function meta() {
   ];
 }
 
-
 // Zod para Emails
 const campanaSchema = z.object({
   nombre: z.string().min(5, "El nombre es muy corto"),

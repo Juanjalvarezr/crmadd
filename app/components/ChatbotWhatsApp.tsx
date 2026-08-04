@@ -75,8 +75,7 @@ export default function ChatbotWhatsApp() {
               }
             });
           } catch (error) {
-            console.error("Error generando QR:", error);
-          }
+                      }
         }
       }
     };
@@ -221,8 +220,7 @@ export default function ChatbotWhatsApp() {
         });
       }
     } catch (error) {
-      console.error("Error AI Bot:", error);
-    } finally {
+          } finally {
       setIsProcessingAIResponse(false); //
     }
   }, [mensajeActual, selectedRole.slug, addMensaje]);

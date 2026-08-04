@@ -274,8 +274,7 @@ export default function Clientes() {
       } catch (dbErr: any) {
         // Si fallan columnas extendidas que no existen físicamente en la DB, reintentar en modo compatibilidad
         if (dbErr.message?.includes("column") || dbErr.message?.includes("schema") || dbErr.message?.includes("cache")) {
-          console.warn("Faltan columnas de esquema completo. Guardando en Modo Compatibilidad...", dbErr.message);
-          
+                    
           // Modo compatibilidad: Combinamos nombre + empresa en el campo nombre, y omitimos las columnas extendidas
           const compatName = formData.empresa ? `${DOMPurify.sanitize(formData.nombre)} - ${DOMPurify.sanitize(formData.empresa)}` : DOMPurify.sanitize(formData.nombre);
           const compatData = {

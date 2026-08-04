@@ -48,8 +48,7 @@ const executeGenerateContent = async (prompt: string, modelName = "gemini-1.5-fl
       if (error) throw error;
       if (data && data.text) return data.text;
     } catch (err) {
-      console.warn("⚠️ Supabase Edge Function falló, usando SDK de Gemini local como respaldo:", err);
-    }
+          }
   }
 
   // Fallback Local SDK
@@ -73,8 +72,7 @@ const executeEmbedContent = async (text: string): Promise<number[]> => {
       if (error) throw error;
       if (data && data.embedding) return data.embedding;
     } catch (err) {
-      console.warn("⚠️ Supabase Edge Function de embeddings falló, usando SDK local:", err);
-    }
+          }
   }
 
   // Fallback Local SDK
@@ -159,8 +157,7 @@ const parseAIResponse = (text: string): any => {
       const arrayStart = text.indexOf('[');
       const arrayEnd = text.lastIndexOf(']');
       if (arrayStart === -1 || arrayEnd === -1) {
-        console.warn("No se encontró JSON en la respuesta, devolviendo texto plano.");
-        return { text };
+                return { text };
       }
       jsonContent = text.substring(arrayStart, arrayEnd + 1);
     } else {
@@ -171,8 +168,7 @@ const parseAIResponse = (text: string): any => {
     
     return JSON.parse(cleanText);
   } catch (error) {
-    console.error("Error crítico parseando respuesta de IA:", error);
-    return { text, error: true };
+        return { text, error: true };
   }
 };
 
@@ -224,8 +220,7 @@ export const ejecutarAccionSincrona = async (pregunta: string, respuestaIA: stri
     const responseText = result.response.text();
     const infoAccion = parseAIResponse(responseText);
     if (infoAccion.error || !infoAccion.accion || infoAccion.accion === "NINGUNA") {
-      console.log("🤖 IA no detectó acciones técnicas para ejecutar.");
-      return null;
+            return null;
     }
 
     const datos = infoAccion.datos || {};
@@ -284,8 +279,7 @@ export const ejecutarAccionSincrona = async (pregunta: string, respuestaIA: stri
     }
 
     if (infoAccion.accion === "BLOQUEO_OPERATIVO") {
-      console.warn("🛑 Bloqueo por Regla de Oro:", infoAccion.datos.motivo);
-      return `🛑 Acción Bloqueada: ${infoAccion.datos.motivo}`;
+            return `🛑 Acción Bloqueada: ${infoAccion.datos.motivo}`;
     }
 
     if (infoAccion.accion === "ACTUALIZAR_PROYECTO") {
@@ -301,16 +295,14 @@ export const ejecutarAccionSincrona = async (pregunta: string, respuestaIA: stri
               detalle: `Error al intentar actualizar ID ${idLimpio}: ${error.message}`,
               usuario: "Sistema IA"
             });
-            console.error("Error en acción IA:", error);
-            return `⚠️ Error técnico al actualizar: ${error.message || "Verifica los datos"}`;
+                        return `⚠️ Error técnico al actualizar: ${error.message || "Verifica los datos"}`;
           });
       }
     }
 
     return infoAccion.confirmacion;
   } catch (e) { 
-    console.error("Falla en Orquestador:", e);
-    throw new Error("No se pudo ejecutar la acción automática."); 
+        throw new Error("No se pudo ejecutar la acción automática."); 
   }
 };
 
@@ -375,8 +367,7 @@ export const aiService = {
       }
 
     } catch (error: any) {
-      console.error("Error al generar propuesta con IA:", error);
-      throw error; // Lanzamos el error para que la UI lo maneje (Ej. mostrando un Snackbar de error)
+            throw error; // Lanzamos el error para que la UI lo maneje (Ej. mostrando un Snackbar de error)
     }
   },
 
@@ -390,8 +381,7 @@ export const aiService = {
       const result = await model.countTokens(texto);
       return result.totalTokens;
     } catch (error) {
-      console.warn("Error al contar tokens, usando estimación fallback:", error);
-      return Math.ceil(texto.length / 4);
+            return Math.ceil(texto.length / 4);
     }
   },
 
@@ -405,8 +395,7 @@ export const aiService = {
       const result = await embeddingModel.embedContent(texto);
       return result.embedding.values;
     } catch (error) {
-      console.error("Error al generar embedding:", error);
-      throw error;
+            throw error;
     }
   },
 
@@ -452,8 +441,7 @@ export const aiService = {
       const result = await model.generateContent(prompt);
       return parseAIResponse(result.response.text());
     } catch (error) {
-      console.error("Error en generarPlanContenido:", error);
-      throw error;
+            throw error;
     }
   },
 
@@ -537,8 +525,7 @@ export const aiService = {
 
       return textoRespuesta;
     } catch (error: any) {
-      console.error("Error en chat de asistente:", error);
-      throw error;
+            throw error;
     }
   },
 
@@ -564,8 +551,7 @@ export const aiService = {
       
       return this.chatAsistente(pregunta, contextoCRM, roleSlug);
     } catch (error) {
-      console.error("Error al obtener datos reales para el chatbot:", error);
-      return "Lo siento, en este momento no puedo acceder a la base de datos de proyectos para darte información exacta.";
+            return "Lo siento, en este momento no puedo acceder a la base de datos de proyectos para darte información exacta.";
     }
   },
 
@@ -610,8 +596,7 @@ export const aiService = {
       const result = await model.generateContent(prompt);
       return result.response.text();
     } catch (error) {
-      console.error("Error en analizarRiesgoProyecto:", error);
-      return "Hubo un error al intentar analizar el riesgo del proyecto con la IA.";
+            return "Hubo un error al intentar analizar el riesgo del proyecto con la IA.";
     }
   },
 
@@ -697,8 +682,7 @@ export const aiService = {
       const result = await model.generateContent(prompt);
       return result.response.text();
     } catch (error) {
-      console.error("Error en análisis financiero:", error);
-      return "No pude realizar el análisis financiero en este momento.";
+            return "No pude realizar el análisis financiero en este momento.";
     }
   },
 
@@ -737,8 +721,7 @@ export const aiService = {
       const data = parseAIResponse(result.response.text());
       return Array.isArray(data) ? data : [];
     } catch (error) {
-      console.error("Error en auditoría proactiva:", error);
-      return [];
+            return [];
     }
   },
 
@@ -772,8 +755,7 @@ export const aiService = {
       const result = await model.generateContent(prompt);
       return result.response.text();
     } catch (error) {
-      console.error("Error al generar resumen diario:", error);
-      return "Hoy es un gran día para impulsar DESEO DIGITAL. Revisa tus tareas pendientes para comenzar.";
+            return "Hoy es un gran día para impulsar DESEO DIGITAL. Revisa tus tareas pendientes para comenzar.";
     }
   },
 
@@ -802,8 +784,7 @@ export const aiService = {
       const result = await model.generateContent(prompt);
       return result.response.text();
     } catch (error) {
-      console.error("Error al generar resumen CEO:", error);
-      return "Hola Juan José, hoy es un excelente día para revisar los proyectos en curso y los anticipos por recaudar. ¡Vamos a romperla en Deseo Digital!";
+            return "Hola Juan José, hoy es un excelente día para revisar los proyectos en curso y los anticipos por recaudar. ¡Vamos a romperla en Deseo Digital!";
     }
   },
 
@@ -847,8 +828,7 @@ export const aiService = {
       const result = await model.generateContent(prompt);
       return result.response.text();
     } catch (error) {
-      console.error("Error al generar rompehielo:", error);
-      return `Hola ${cliente.nombre}, un gusto saludarte de nuevo. Me quedé pensando en los retos de ${cliente.empresa || 'tu marca'} que mencionamos hoy. ¿Te gustaría que habláramos unos minutos sobre cómo podemos darles solución?`;
+            return `Hola ${cliente.nombre}, un gusto saludarte de nuevo. Me quedé pensando en los retos de ${cliente.empresa || 'tu marca'} que mencionamos hoy. ¿Te gustaría que habláramos unos minutos sobre cómo podemos darles solución?`;
     }
   }
   ,
@@ -957,8 +937,7 @@ export const aiService = {
       const result = await model.generateContent(prompt);
       return parseAIResponse(result.response.text());
     } catch (error) {
-      console.error("Error en Neuromarketing Service:", error);
-      return {
+            return {
         whatsapp: `Hola ${cliente.nombre}, un gusto saludarte de DESEO DIGITAL. Me quedé pensando en lo que mencionaste de ${cliente.empresa}...`,
         gmail: { asunto: "Propuesta de valor", cuerpo: "Hola..." },
         sesgoUtilizado: "Ninguno por error técnico"
@@ -1018,8 +997,7 @@ export const aiService = {
       const result = await model.generateContent(prompt);
       return result.response.text();
     } catch (error) {
-      console.error("Error en sugerirServiciosSegunDolores:", error);
-      return "No pude generar una sugerencia personalizada en este momento. Por favor, revisa el catálogo de servicios manualmente.";
+            return "No pude generar una sugerencia personalizada en este momento. Por favor, revisa el catálogo de servicios manualmente.";
     }
   },
 

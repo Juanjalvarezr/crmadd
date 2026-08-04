@@ -19,8 +19,7 @@ export const oportunidadesService = {
       if (error) throw error;
       return data as Oportunidad[];
     } catch (error) {
-      console.error('Error al obtener oportunidades:', error);
-      throw error;
+            throw error;
     }
   },
 
@@ -40,8 +39,7 @@ export const oportunidadesService = {
       if (error) throw error;
       return data as Oportunidad;
     } catch (error) {
-      console.error('Error al obtener oportunidad:', error);
-      throw error;
+            throw error;
     }
   },
 
@@ -66,8 +64,7 @@ export const oportunidadesService = {
       if (error) throw error;
       return data as Oportunidad;
     } catch (error) {
-      console.error('Error al crear oportunidad:', error);
-      throw error;
+            throw error;
     }
   },
 
@@ -89,8 +86,7 @@ export const oportunidadesService = {
       if (error) throw error;
       return data as Oportunidad;
     } catch (error) {
-      console.error('Error al actualizar oportunidad:', error);
-      throw error;
+            throw error;
     }
   },
 
@@ -108,8 +104,7 @@ export const oportunidadesService = {
 
       if (error) throw error;
     } catch (error) {
-      console.error('Error al eliminar oportunidad:', error);
-      throw error;
+            throw error;
     }
   },
 
@@ -129,8 +124,7 @@ export const oportunidadesService = {
       if (error) throw error;
       return data as Oportunidad[];
     } catch (error) {
-      console.error('Error al buscar oportunidades:', error);
-      throw error;
+            throw error;
     }
   },
 
@@ -150,8 +144,7 @@ export const oportunidadesService = {
       if (error) throw error;
       return data as Oportunidad[];
     } catch (error) {
-      console.error('Error al obtener oportunidades por etapa:', error);
-      throw error;
+            throw error;
     }
   },
 
@@ -171,8 +164,7 @@ export const oportunidadesService = {
       if (error) throw error;
       return data as Oportunidad[];
     } catch (error) {
-      console.error('Error al obtener oportunidades por cliente:', error);
-      throw error;
+            throw error;
     }
   },
 
@@ -191,8 +183,7 @@ export const oportunidadesService = {
       if (error) throw error;
       return data as Oportunidad[];
     } catch (error) {
-      console.error('Error al obtener oportunidades cerradas:', error);
-      throw error;
+            throw error;
     }
   },
 
@@ -220,8 +211,7 @@ export const oportunidadesService = {
 
       return { total, valorTotal, cerradas, tasaConversion };
     } catch (error) {
-      console.error('Error al calcular estadísticas:', error);
-      throw error;
+            throw error;
     }
   },
 };

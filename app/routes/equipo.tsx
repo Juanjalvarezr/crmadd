@@ -27,8 +27,7 @@ export default function Equipo() {
       const data = await equipoService.getAll();
       setMiembros(data || []);
     } catch (err) {
-      console.error("[EQUIPO] cargar:", err);
-    } finally {
+          } finally {
       setLoading(false);
     }
   };
@@ -62,8 +61,7 @@ export default function Equipo() {
       setOpenModal(false);
       loadEquipo();
     } catch (err) {
-      console.error("[EQUIPO] guardar:", err);
-      alert("Error guardando miembro");
+            alert("Error guardando miembro");
     }
   };
 
@@ -73,8 +71,7 @@ export default function Equipo() {
       await equipoService.delete(id);
       setMiembros((prev) => prev.filter((m) => m.id !== id));
     } catch (err) {
-      console.error("[EQUIPO] eliminar:", err);
-      alert("Error eliminando miembro");
+            alert("Error eliminando miembro");
     }
   };
 

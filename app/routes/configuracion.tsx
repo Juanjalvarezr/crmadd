@@ -127,8 +127,7 @@ export default function Configuracion() {
         try {
           return JSON.parse(stored);
         } catch (e) {
-          console.error(e);
-        }
+                  }
       }
     }
     return {
@@ -190,8 +189,7 @@ export default function Configuracion() {
         const data = await configuracionService.getEmpresa();
         if (data) setEmpresaConfig(data);
       } catch (err: any) {
-        console.error("Error al cargar config:", err.message);
-      }
+              }
     };
     const loadReglas = async () => {
       const data = await reglasAIService.getAll();
@@ -519,8 +517,7 @@ export default function Configuracion() {
         .select();
 
       if (errCliFull) {
-        console.warn("Faltan columnas extendidas en clientes. Activando Modo Compatibilidad...", errCliFull.message);
-        esModoCompatibilidad = true;
+                esModoCompatibilidad = true;
 
         // Limpiar para asegurar transacción limpia
         await supabase.from('clientes').delete().neq('id', 0);
@@ -558,8 +555,7 @@ export default function Configuracion() {
         .from('equipo')
         .insert(listadoEquipo);
       if (errEquipo) {
-        console.error("Error al insertar equipo:", errEquipo);
-      }
+              }
 
       // 4. Crear las oportunidades de venta y proyectos vinculados correspondientes
       const oportunidadesAInsertar: any[] = [];

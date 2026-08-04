@@ -156,16 +156,14 @@ export default function Dashboard() {
     try {
       await fetchDashboardData(true);
     } catch (refreshError) {
-      console.error("No se pudo refrescar el dashboard:", refreshError);
-    }
+          }
   };
 
   const handleOpenSyncDialog = () => setSyncDialog(true);
   const handleCloseSyncDialog = () => setSyncDialog(false);
 
   const submitSyncObservation = () => {
-    console.log("Observación guardada para sincronizar:", syncObservation);
-    setSyncDialog(false);
+        setSyncDialog(false);
     setSyncObservation("");
   };
 

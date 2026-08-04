@@ -607,8 +607,7 @@ export default function Proyectos() {
       setSelectedProyecto(proyectoActualizado);
       showNotification("¡Plan de contenido generado con éxito! ✨", "success");
     } catch (err: any) {
-      console.error(err);
-      showNotification("Error al generar el plan con IA", "error");
+            showNotification("Error al generar el plan con IA", "error");
     } finally {
       setGeneratingPlan(false);
     }
@@ -636,8 +635,7 @@ export default function Proyectos() {
       setProyectos(prev => prev.map(p => p.id === selectedProyecto.id ? proyectoActualizado : p));
       setSelectedProyecto(proyectoActualizado);
     } catch (err: any) {
-      console.error(err);
-      showNotification("Error al actualizar item del plan", "error");
+            showNotification("Error al actualizar item del plan", "error");
     }
   };
 

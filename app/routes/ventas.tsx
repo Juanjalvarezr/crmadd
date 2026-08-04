@@ -174,8 +174,7 @@ export default function Ventas() {
           );
 
           if (proyectoDuplicado) {
-            console.warn("Proyecto ya existe para esta oportunidad. Evitando duplicado.");
-            showNotification(
+                        showNotification(
               `El proyecto para "${oppObj.nombre}" ya había sido creado anteriormente.`,
               'info',
               'Proyecto ya registrado 📁'

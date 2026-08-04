@@ -75,8 +75,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         alert('Configurando metas...');
         break;
       default:
-        console.log('Acción no reconocida:', action);
-    }
+            }
   };
 
   const drawerContent = (

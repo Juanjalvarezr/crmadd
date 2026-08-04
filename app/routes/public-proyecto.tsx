@@ -100,8 +100,7 @@ export default function PublicProyecto() {
         const data = await proyectosService.getById(id);
         setProyecto(data as any);
       } catch (err: any) {
-        console.error("Error al cargar proyecto público:", err);
-        setError("No pudimos validar el Magic Link de este proyecto. Confirma el enlace con tu asesor estratégico.");
+                setError("No pudimos validar el Magic Link de este proyecto. Confirma el enlace con tu asesor estratégico.");
       } finally {
         setLoading(false);
       }

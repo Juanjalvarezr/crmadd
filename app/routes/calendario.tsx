@@ -68,8 +68,7 @@ export default function Calendario() {
       setLoading(true);
       await fetchDashboardData();
     } catch (error) {
-      console.error("Error al cargar calendario", error);
-      showNotification("Error al cargar eventos del calendario.", "error");
+            showNotification("Error al cargar eventos del calendario.", "error");
     } finally {
       setLoading(false);
     }
@@ -122,7 +121,6 @@ export default function Calendario() {
 
     setEvents(calendarEvents);
   }, [tareas.length, oportunidades.length, clientes.length]);
-
 
   const handleSelectEvent = (event: CalEvent) => {
     setSelectedEvent(event);

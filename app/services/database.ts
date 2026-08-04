@@ -37,13 +37,11 @@ const TIMEOUT_MS = 20000;
 const withTimeout = async <T>(promise: Promise<T>, label = 'operación'): Promise<T> => {
   return Promise.race([
     promise.catch((err) => {
-      console.error(`[database.ts] Error en ${label}:`, err);
-      throw err;
+            throw err;
     }),
     new Promise<T>((_, reject) =>
       setTimeout(() => {
-        console.warn(`[database.ts] Timeout en ${label} (${TIMEOUT_MS}ms)`);
-        reject(new Error('Timeout en base de datos'));
+                reject(new Error('Timeout en base de datos'));
       }, TIMEOUT_MS)
     ),
   ]);
@@ -119,8 +117,7 @@ export const emailService = {
       (async () => {
         const apiKey = (import.meta as any).env?.VITE_RESEND_API_KEY;
         if (!apiKey) {
-          console.warn('Simulando envío de email (falta API Key de Resend)');
-          return { id: 'simulated-id', message: 'Email simulado correctamente' } as any;
+                    return { id: 'simulated-id', message: 'Email simulado correctamente' } as any;
         }
 
         const response = await fetch('https://api.resend.com/emails', {
@@ -140,8 +137,7 @@ export const emailService = {
 
         if (!response.ok) {
           const errorData = (await response.json().catch(() => ({}))) as Record<string, unknown>;
-          console.error('Error de Resend:', response.status, errorData);
-          return { id: 'simulated-id', message: 'Error API, email simulado' } as any;
+                    return { id: 'simulated-id', message: 'Error API, email simulado' } as any;
         }
 
         return (await response.json()) as Record<string, unknown>;
