@@ -41,7 +41,6 @@ export default function ChatbotWhatsApp() {
   const [escuchando, setEscuchando] = useState(false);
   const [snackbar, setSnackbar] = useState<{open: boolean, message: string, severity: "info" | "warning" | "error" | "success"}>({ open: false, message: "", severity: "info" });
   const [isMobile, setIsMobile] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Punto 7: Selección de Agente/Rol
