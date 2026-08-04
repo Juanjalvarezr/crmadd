@@ -283,16 +283,16 @@ export default function Ventas() {
 
   const handleSave = async () => {
     if (!formData.nombre || !formData.cliente_nombre || formData.cliente_nombre === "__otro__") {
-      setSnackbar({ open: true, message: "Debes asignar un cliente real a la oportunidad.", severity: "error" });
+      showNotification("Debes asignar un cliente real a la oportunidad.", "error");
       return;
     }
 
     if (formData.valor <= 0) {
-      setSnackbar({ open: true, message: "Asigna un valor estimado para proyectar tus ingresos.", severity: "warning" });
+      showNotification("Asigna un valor estimado para proyectar tus ingresos.", "warning");
     }
 
     if ((formData.etapa === "Negociación" || formData.etapa === "Cierre") && formData.valor <= 0) {
-      setSnackbar({ open: true, message: "Se requiere un valor mayor a 0 para esta etapa.", severity: "error" });
+      showNotification("Se requiere un valor mayor a 0 para esta etapa.", "error");
       return;
     }
 
@@ -517,6 +517,7 @@ export default function Ventas() {
                                       <IconButton size="small" onClick={() => handleEdit(opp)} sx={{ color: 'text.secondary' }}><FiEdit size={14}/></IconButton>
                                       <IconButton size="small" onClick={() => handleDelete(opp)} color="error"><FiTrash2 size={14}/></IconButton>
                                       <IconButton size="small" onClick={() => handleGenerarPropuestaAI(opp)} sx={{ color: '#daa520' }}><FiZap size={14}/></IconButton>
+                                      <IconButton size="small" onClick={() => handleOpenPropuestaModal(opp)} sx={{ color: '#1976d2' }}><FiFileText size={14}/></IconButton>
                                     </Box>
                                   </Paper>
                                 </Box>
