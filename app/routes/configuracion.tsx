@@ -12,7 +12,7 @@ import {
   FiMoon, FiSun, FiLock, FiKey, FiTrash2, FiCheck, FiAlertCircle, FiZap,
   FiPackage, FiShare2, FiPlus, FiList
 } from "react-icons/fi";
-import { configuracionService, reglasAIService, conocimientoService, promptsAIService, supabase, testConnection } from "../services/database";
+import { configuracionService, reglasAIService, conocimientoService, promptsAIService, supabase, testConnection } from "./supabase";
 import { useNotificationStore } from "../store/useNotificationStore";
 import { aiService } from "../services/ai";
 import KnowledgeFileUploader from "../services/KnowledgeFileUploader";

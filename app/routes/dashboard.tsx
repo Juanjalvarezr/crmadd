@@ -20,7 +20,7 @@ import {
   FiTarget,
   FiActivity,
 } from "react-icons/fi";
-import { proyectosService, clientesService, oportunidadesService, tareasService } from "../services/database";
+import { proyectosService, clientesService, oportunidadesService, tareasService } from "./supabase";
 import { StatCard } from "../components/StatCard";
 import { useCRMStore } from "../store/useCRMStore";
 

@@ -6,7 +6,7 @@ import {
   InputLabel, FormControl, Divider
 } from "@mui/material";
 import { FiUserPlus, FiMail, FiEdit2, FiTrash2 } from "react-icons/fi";
-import { equipoService } from '../services/database';
+import { equipoService } from '../services/supabase';
 
 export default function Equipo() {
   const [miembros, setMiembros] = useState<any[]>([]);

@@ -11,7 +11,7 @@ import {
   proyectosService,
   clientesService,
   oportunidadesService
-} from "./database";
+} from "./supabase";
 import type { Proyecto, Tarea } from "../types/crm";
 
 // Inicializamos el SDK de Gemini. 

@@ -4,7 +4,7 @@ import {
   Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Alert, CircularProgress, Chip, Skeleton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow
 } from "@mui/material";
 import { FiPlus, FiEdit, FiTrash2, FiCheck, FiSearch, FiRefreshCw, FiCheckSquare, FiX } from "react-icons/fi";
-import { tareasService, clientesService } from "../services/database";
+import { tareasService, clientesService } from "./supabase";
 import { useNotificationStore } from "../store/useNotificationStore";
 import { useCRMStore } from "../store/useCRMStore";
 import { format, startOfDay, isBefore } from "date-fns";

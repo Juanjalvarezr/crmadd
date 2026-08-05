@@ -8,7 +8,7 @@ import {
   FiSend, FiMessageSquare, FiX, FiZap, FiUserCheck, FiMic, FiCalendar, FiMail, FiMapPin, FiPhone, FiAlertTriangle
 } from "react-icons/fi"; //
 import { aiService } from "../services/ai";
-import { supabase } from "../services/database";
+import { supabase } from "./supabase";
 import DOMPurify from "dompurify";
 import { useChatStore } from "../store/useChatStore";
 import { motion, AnimatePresence } from "framer-motion";

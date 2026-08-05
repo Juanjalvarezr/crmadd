@@ -8,7 +8,7 @@ import {
 import { 
   FiPackage, FiPlus, FiEdit, FiTrash2, FiStar, FiClock, FiCheck, FiX, FiPlusCircle 
 } from "react-icons/fi";
-import { serviciosService } from "../services/database";
+import { serviciosService } from "./supabase";
 
 export function meta() {
   return [

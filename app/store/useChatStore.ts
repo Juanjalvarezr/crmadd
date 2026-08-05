@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { proyectosService } from '../services/database';
+import { proyectosService } from '../services/supabase';
 import { z } from 'zod';
 
 export interface Mensaje {

@@ -19,7 +19,7 @@ const skeletonAgencyStyle = {
   border: '1px solid rgba(233, 30, 99, 0.05)'
 };
 import { FiPlus, FiEdit, FiTrash2, FiSearch, FiX, FiRefreshCw, FiTrendingUp, FiMove, FiFileText, FiMessageSquare, FiCopy, FiZap } from "react-icons/fi";
-import { tareasService, serviciosService, clientesService, oportunidadesService, proyectosService } from "../services/database";
+import { tareasService, serviciosService, clientesService, oportunidadesService, proyectosService } from "./supabase";
 
 import { aiService } from "../services/ai";
 import { useNotificationStore } from "../store/useNotificationStore";

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { clientesService, proyectosService, oportunidadesService, tareasService, facturasService, contratosService } from '../services/database';
+import { clientesService, proyectosService, oportunidadesService, tareasService, facturasService, contratosService } from '../services/supabase';
 
 interface Notification {
   id: string;

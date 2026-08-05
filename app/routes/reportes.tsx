@@ -15,7 +15,7 @@ import {
   tareasService,
   clientesService,
   oportunidadesService
-} from "../services/database";
+} from "./supabase";
 
 // Tipos para reportes
 interface Metrica {
