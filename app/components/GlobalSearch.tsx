@@ -5,9 +5,7 @@ import {
 } from '@mui/material';
 import { FiSearch, FiUser, FiFolder, FiCheckSquare, FiZap, FiPlus } from 'react-icons/fi';
 import { useNavigate } from 'react-router'; // Hook de React Router
-import { tareasService } from '../services/supabase'; // Mantener servicios no modularizados
-import { clientesService } from '../services/clientesService'; // Importar desde el nuevo módulo
-import { proyectosService } from '../services/proyectosService'; // Importar desde el nuevo módulo
+import { tareasService, clientesService, proyectosService } from '../services/supabase';
 
 export default function GlobalSearch({ open, onClose }: { open: boolean, onClose: () => void }) {
   const [query, setQuery] = useState('');
