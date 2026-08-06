@@ -118,7 +118,7 @@ export default function Proyectos() {
   }, [proyectos.length, clientes.length]);
 
   useEffect(() => {
-    const updateMobile = () => setIsMobile(window.innerWidth <= 600);
+    useEffect(() => { if (typeof window !== "undefined") { const updateMobile = () => setIsMobile(window.innerWidth <= 600); updateMobile(); window.addEventListener("resize", updateMobile); return () => window.removeEventListener("resize", updateMobile); } }, []);
     updateMobile();
     window.addEventListener("resize", updateMobile);
     return () => window.removeEventListener("resize", updateMobile);
@@ -126,11 +126,11 @@ export default function Proyectos() {
 
   // Sistema de Magic Links: Genera una URL pública temporal para el cliente
   const handleGenerateMagicLink = (proyecto: Proyecto) => {
-    const baseUrl = window.location.origin;
+    const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
     // Sugerencia: Asegúrate de crear la ruta /public/proyecto/$id para que el cliente acceda
     const magicUrl = `${baseUrl}/public/proyecto/${proyecto.id}`;
     
-    navigator.clipboard.writeText(magicUrl);
+    if (typeof navigator !== "undefined" && navigator.clipboard) navigator.clipboard.writeText(magicUrl);
     
     showNotification(
       "¡Magic Link copiado! El cliente ahora puede ver su avance sin loguearse. 🚀", 
@@ -340,7 +340,7 @@ export default function Proyectos() {
   };
 
   const handleDeleteProyecto = async (proyecto: Proyecto) => {
-    if (confirm(`¿Estás seguro de eliminar el proyecto "${proyecto.nombre}"?`)) {
+    if (typeof window !== "undefined" && confirm(`¿Estás seguro de eliminar el proyecto "${proyecto.nombre}"?`)) {
       try {
         await proyectosService.delete(proyecto.id);
         setProyectos(prev => prev.filter(p => p.id !== proyecto.id));
@@ -476,7 +476,7 @@ export default function Proyectos() {
     ].join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
+    let link: HTMLAnchorElement | null = null; if (typeof document !== "undefined") { link = document.createElement('a'); document.body.appendChild(link); link.click(); document.body.removeChild(link); }
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
     link.setAttribute('download', `proyecto_${proyecto.nombre.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.csv`);

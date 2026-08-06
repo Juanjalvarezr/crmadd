@@ -67,10 +67,10 @@ export default function Ventas() {
   useEffect(() => {
     const handlePresentationChange = (e: any) => setPresentationMode(e.detail === 'on');
     if (typeof window !== "undefined") {
-      setPresentationMode(localStorage.getItem("presentation_mode") === "true");
-      window.addEventListener("presentation-mode-changed", handlePresentationChange);
+      if (typeof window !== "undefined") setPresentationMode(localStorage.getItem("presentation_mode") === "true");
+      if (typeof window !== "undefined") window.addEventListener("presentation-mode-changed", handlePresentationChange);
     }
-    return () => window.removeEventListener("presentation-mode-changed", handlePresentationChange);
+    return () => { if (typeof window !== "undefined") window.removeEventListener("presentation-mode-changed", handlePresentationChange); };
   }, []);
 
   const formatValue = (val: number) => presentationMode ? "••••••" : formatCOP(val);
@@ -326,7 +326,7 @@ export default function Ventas() {
   };
 
   const handleDelete = async (opp: Oportunidad) => {
-    if (!confirm(`¿Eliminar "${opp.nombre}"?`)) return;
+    if (typeof window !== "undefined" && !confirm(`¿Eliminar "${opp.nombre}"?`)) return;
     try {
       await oportunidadesService.delete(opp.id);
       await loadData(); // Usar el Snackbar global
@@ -655,7 +655,7 @@ export default function Ventas() {
                   variant="text" 
                   sx={{ mt: 1 }}
                   onClick={() => { // Usar el Snackbar global
-                    navigator.clipboard.writeText(propuestaGenerada);
+                    if (typeof navigator !== "undefined" && navigator.clipboard) navigator.clipboard.writeText(propuestaGenerada);
                     showNotification("Propuesta copiada al portapapeles", "success");
                   }}
                 >
@@ -678,7 +678,7 @@ export default function Ventas() {
                   onClick={() => {
                     const telefono = import.meta.env.VITE_WHATSAPP_NUMBER || "+573000000000";
                     const texto = encodeURIComponent(resumenWhatsApp || `Hola, queremos cerrar la oportunidad: ${propuestaGenerada}`);
-                    window.open(`https://wa.me/${telefono.replace(/[^\d]/g, '')}?text=${texto}`, '_blank');
+                    if (typeof window !== "undefined") window.open(`https://wa.me/${telefono.replace(/[^\d]/g, '')}?text=${texto}`, '_blank');
                   }}
                 >
                   Enviar por WhatsApp

@@ -53,7 +53,7 @@ export default function Documentos() {
   };
 
   const handleDelete = async (row: any) => {
-    if (!confirm(`¿Eliminar documento #${row.id}?`)) return;
+    if (typeof window !== "undefined" && !confirm(`¿Eliminar documento #${row.id}?`)) return;
     try { await documentosService.delete(row.id); await load(); showNotification("Documento eliminado", "success"); }
     catch (err: any) { showNotification(err.message || "Error eliminando documento", "error"); }
   };

@@ -61,12 +61,12 @@ export default function Equipo() {
       setOpenModal(false);
       loadEquipo();
     } catch (err) {
-            alert("Error guardando miembro");
+            if (typeof window !== "undefined") alert("Error guardando miembro");
     }
   };
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm("¿Eliminar este miembro del equipo?")) return;
+    if (typeof window !== "undefined" && !window.confirm("¿Eliminar este miembro del equipo?")) return;
     try {
       await equipoService.delete(id);
       setMiembros((prev) => prev.filter((m) => m.id !== id));

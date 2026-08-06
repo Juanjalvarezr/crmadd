@@ -56,7 +56,7 @@ export default function Contratos() {
   };
 
   const handleDelete = async (row: any) => {
-    if (!confirm(`¿Eliminar contrato #${row.id}?`)) return;
+    if (typeof window !== "undefined" && !confirm(`¿Eliminar contrato #${row.id}?`)) return;
     try { await contratosService.delete(row.id); await load(); showNotification("Contrato eliminado", "success"); }
     catch (err: any) { showNotification(err.message || "Error eliminando contrato", "error"); }
   };

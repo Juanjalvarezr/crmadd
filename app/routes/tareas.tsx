@@ -125,7 +125,7 @@ export default function Tareas() {
   };
 
   const handleDelete = async (tarea: Tarea) => {
-    if (!confirm(`¿Eliminar "${tarea.titulo}"?`)) return;
+    if (typeof window !== "undefined" && !confirm(`¿Eliminar "${tarea.titulo}"?`)) return;
     try { await tareasService.delete(tarea.id); await loadTareas(); showNotification("Tarea eliminada", "success"); }
     catch (err: any) { showNotification("Error: " + err.message, "error"); }
   };
