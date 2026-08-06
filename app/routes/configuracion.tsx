@@ -122,7 +122,7 @@ export default function Configuracion() {
   // Estados para Campos y Estados personalizados
   const [catalogos, setCatalogos] = useState(() => {
     if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("crm_custom_catalogs");
+      const stored = typeof window !== "undefined" ? localStorage.getItem("crm_custom_catalogs") : null;
       if (stored) {
         try {
           return JSON.parse(stored);
@@ -142,7 +142,7 @@ export default function Configuracion() {
   const handleSaveCatalogos = (newCatalogos: typeof catalogos) => {
     setCatalogos(newCatalogos);
     if (typeof window !== "undefined") {
-      localStorage.setItem("crm_custom_catalogs", JSON.stringify(newCatalogos));
+      if (typeof window !== "undefined") localStorage.setItem("crm_custom_catalogs", JSON.stringify(newCatalogos));
     }
     showNotification("Campos y Estados actualizados en caché global", "success");
   };
@@ -284,9 +284,9 @@ export default function Configuracion() {
     try {
       // Aplicar tema inmediatamente
       if (preferenciasConfig.tema === "dark") {
-        document.body.classList.add("dark-mode");
+        if (typeof document !== "undefined") document.body.classList.add("dark-mode");
       } else {
-        document.body.classList.remove("dark-mode");
+        if (typeof document !== "undefined") document.body.classList.remove("dark-mode");
       }
       
       // Aquí iría la llamada a Supabase para guardar preferencias

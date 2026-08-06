@@ -40,8 +40,7 @@ export default function Root() {
   }), [themeMode]);
 
   useEffect(() => {
-    const stored =
-      typeof window !== "undefined"
+    const stored = typeof window !== "undefined"
         ? window.localStorage.getItem("crm_logged_in")
         : null;
     const isAuthenticated = stored === null ? true : stored === "true";
