@@ -5,7 +5,7 @@ import {
   TextField, FormControl, InputLabel, Select, MenuItem
 } from "@mui/material";
 import { FiRefreshCw, FiPlus, FiFileText, FiX } from "react-icons/fi";
-import { contratosService } from "./supabase";
+import { contratosService } from "../services/supabase";
 import { useCRMStore } from "../store/useCRMStore";
 import { useNotificationStore } from "../store/useNotificationStore";
 

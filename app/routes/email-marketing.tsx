@@ -14,7 +14,7 @@ import {
   X, RefreshCw, Check, AlertCircle, Clock, Target, TrendingUp
 } from "lucide-react";
 import { format } from "date-fns";
-import { emailService, clientesService } from "./supabase";
+import { emailService, clientesService } from "../services/supabase";
 
 // Tipos para Email Marketing
 interface CampanaEmail {

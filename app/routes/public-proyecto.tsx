@@ -10,7 +10,7 @@ import {
   FiBriefcase, FiCheckCircle, FiClock, FiLayers, FiLink, 
   FiCalendar, FiPlay, FiSmartphone, FiTrendingUp, FiActivity, FiStar 
 } from "react-icons/fi";
-import { proyectosService } from "./supabase";
+import { proyectosService } from "../services/supabase";
 import type { Proyecto } from "../types/crm";
 
 // Colores de fase administrativa

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Box, Typography, Paper, Button, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, FormControl, InputLabel, Select, MenuItem, Chip, CircularProgress, Alert } from "@mui/material";
 import { FiFileText, FiPlus, FiX, FiEye, FiDownload } from "react-icons/fi";
-import { documentosService } from "./supabase";
+import { documentosService } from "../services/supabase";
 import { useNotificationStore } from "../store/useNotificationStore";
 
 export function meta() {

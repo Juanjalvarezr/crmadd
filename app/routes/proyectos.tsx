@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
-import { emailService, equipoService, logsService, clientesService, proyectosService } from "./supabase";
+import { emailService, subagentesService as equipoService, logsService, clientesService, proyectosService } from "../services/supabase";
 import type { Proyecto, TareaProyecto, RecursoProyecto, PlanItem } from "../types/crm";
 import { aiService } from "../services/ai";
 import { useNotificationStore } from "../store/useNotificationStore";

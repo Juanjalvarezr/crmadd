@@ -5,7 +5,7 @@ import {
   TextField, FormControl, InputLabel, Select, MenuItem, Divider
 } from "@mui/material";
 import { FiRefreshCw, FiPlus, FiFileText, FiX, FiEye, FiSend } from "react-icons/fi";
-import { facturasService, emailService } from "./supabase";
+import { facturasService, emailService } from "../services/supabase";
 import { useCRMStore } from "../store/useCRMStore";
 import { useNotificationStore } from "../store/useNotificationStore";
 

@@ -21,8 +21,8 @@ const skeletonAgencyStyle = {
 };
 import DOMPurify from 'dompurify';
 import { FiSearch, FiPlus, FiEdit, FiTrash2, FiFilter, FiCalendar, FiX, FiUsers, FiRefreshCw, FiPhone, FiMail, FiFileText, FiDownload, FiEye, FiMessageSquare, FiStar, FiBriefcase, FiTarget, FiAlertCircle } from "react-icons/fi";
-import { clientesService } from "./supabase";
-import { proyectosService, oportunidadesService, tareasService } from "./supabase";
+import { clientesService } from "../services/supabase";
+import { proyectosService, oportunidadesService, tareasService } from "../services/supabase";
 import { useCRMStore } from "../store/useCRMStore";
 import { SupabaseStatus } from "../components/SupabaseTest";
 import { format } from "date-fns";

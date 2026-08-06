@@ -12,7 +12,7 @@ import {
   tareasService, 
   clientesService, 
   oportunidadesService 
-} from "./supabase"; // Corregido el typo "Serrvices"
+} from "../services/supabase"; // Corregido el typo "Serrvices"
 import { useNotificationStore } from "../store/useNotificationStore";
 import { useCRMStore } from "../store/useCRMStore";
 
