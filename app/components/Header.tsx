@@ -16,7 +16,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick, themeMode = "dark",
 
   React.useEffect(() => {
     if (typeof window !== "undefined") {
-      setIsPresentationMode(localStorage.getItem("presentation_mode") === "true");
+      if (typeof window !== "undefined") if (typeof window !== "undefined") setIsPresentationMode(localStorage.getItem("presentation_mode") === "true");
     }
   }, []);
 
@@ -24,14 +24,14 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick, themeMode = "dark",
     const nextMode = !isPresentationMode;
     setIsPresentationMode(nextMode);
     if (typeof window !== "undefined") {
-      localStorage.setItem("presentation_mode", String(nextMode));
-      window.dispatchEvent(new CustomEvent("presentation-mode-changed", { detail: nextMode ? 'on' : 'off' }));
+      if (typeof window !== "undefined") if (typeof window !== "undefined") localStorage.setItem("presentation_mode", String(nextMode));
+      if (typeof window !== "undefined") if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("presentation-mode-changed", { detail: nextMode ? 'on' : 'off' }));
     }
   };
 
   const handleOpenSearch = () => {
     if (typeof window !== "undefined") {
-      window.dispatchEvent(new CustomEvent("open-global-search"));
+      if (typeof window !== "undefined") if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("open-global-search"));
     }
   };
 

@@ -69,11 +69,11 @@ export default function Dashboard() {
       const detail = (event as CustomEvent).detail;
       setPresentationMode(detail === "on");
     };
-    window.addEventListener("presentation-mode-changed", handler);
+    if (typeof window !== "undefined") if (typeof window !== "undefined") window.addEventListener("presentation-mode-changed", handler);
     if (typeof window !== "undefined") {
       setPresentationMode(localStorage.getItem("presentation_mode") === "true");
     }
-    return () => window.removeEventListener("presentation-mode-changed", handler);
+    return () => { if (typeof window !== "undefined") window.removeEventListener("presentation-mode-changed", handler); };
   }, []);
 
   const calculateStats = useCallback(

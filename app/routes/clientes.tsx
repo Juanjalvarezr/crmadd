@@ -291,7 +291,7 @@ export default function Clientes() {
             await clientesService.create(compatData);
           }
           
-          localStorage.setItem("crm_compat_mode", "true");
+          if (typeof window !== "undefined") if (typeof window !== "undefined") localStorage.setItem("crm_compat_mode", "true");
         } else {
           throw dbErr;
         }
@@ -313,7 +313,7 @@ export default function Clientes() {
   
   // Eliminar cliente en Supabase
   const handleDelete = async (cliente: Cliente) => {
-    if (confirm(`¿Estás seguro de eliminar a ${cliente.nombre}?`)) {
+    if (typeof window !== "undefined" && confirm(`¿Estás seguro de eliminar a ${cliente.nombre}?`)) {
       try {
         await clientesService.delete(cliente.id);
         await loadClientes(); // Recargar lista
@@ -372,7 +372,7 @@ export default function Clientes() {
 
   const handleCall = (cliente: Cliente) => {
     if (cliente.telefono) {
-      window.open(`tel:${cliente.telefono}`, '_self');
+      if (typeof window !== "undefined") window.open(`tel:${cliente.telefono}`, '_self');
     } else {
       setSnackbar({ 
         open: true, 
@@ -384,7 +384,7 @@ export default function Clientes() {
 
   const handleEmail = (cliente: Cliente) => {
     if (cliente.email) {
-      window.open(`mailto:${cliente.email}?subject=Contacto desde DESEO DIGITAL`, '_blank');
+      if (typeof window !== "undefined") window.open(`mailto:${cliente.email}?subject=Contacto desde DESEO DIGITAL`, '_blank');
     } else {
       setSnackbar({ 
         open: true, 

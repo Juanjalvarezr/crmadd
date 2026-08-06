@@ -58,22 +58,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const handleQuickAction = (action: string) => {
     switch (action) {
       case 'export':
-        alert('Exportando datos a CSV...');
+        if (typeof window !== 'undefined') alert('Exportando datos a CSV...');
         break;
       case 'import':
-        alert('Importando datos desde CSV...');
+        if (typeof window !== 'undefined') alert('Importando datos desde CSV...');
         break;
       case 'calendar':
-        alert('Abriendo calendario...');
+        if (typeof window !== 'undefined') alert('Abriendo calendario...');
         break;
       case 'reports':
-        alert('Generando reportes...');
+        if (typeof window !== 'undefined') alert('Generando reportes...');
         break;
       case 'sales':
-        alert('Viendo panel de ventas...');
+        if (typeof window !== 'undefined') alert('Viendo panel de ventas...');
         break;
       case 'goals':
-        alert('Configurando metas...');
+        if (typeof window !== 'undefined') alert('Configurando metas...');
         break;
       default:
             }
