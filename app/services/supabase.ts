@@ -852,6 +852,51 @@ export const reglasAIService = {
 };
 
 // Punto 8: Servicio de Prompts Dinámicos
+export const documentosService = {
+  async getAll() {
+    const { data, error } = await supabase
+      .from('documentos')
+      .select('*')
+      .order('fecha_creacion', { ascending: false });
+    if (error) throw error;
+    return data || [];
+  },
+  async create(payload: any) {
+    const { data, error } = await supabase
+      .from('documentos')
+      .insert([payload])
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+  async delete(id: string) {
+    const { error } = await supabase
+      .from('documentos')
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
+    return true;
+  },
+  async upload(file: File) {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `doc-${Date.now()}.${fileExt}`;
+    const filePath = `crm-documents/${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('crm-documents')
+      .upload(filePath, file);
+
+    if (uploadError) throw uploadError;
+
+    const { data } = supabase.storage
+      .from('crm-documents')
+      .getPublicUrl(filePath);
+
+    return data.publicUrl;
+  }
+};
+
 export const promptsAIService = {
   async getBySlug(slug: string) {
     const { data, error } = await supabase
