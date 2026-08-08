@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Box, Typography, Paper, Button, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, FormControl, InputLabel, Select, MenuItem, Chip, CircularProgress, Alert } from "@mui/material";
-import { FiFileText, FiPlus, FiX, FiEye, FiDownload } from "react-icons/fi";
+import { FiFileText, FiPlus, FiX, FiEye, FiDownload, FiUpload } from "react-icons/fi";
 import { documentosService } from "../services/supabase";
 import { useNotificationStore } from "../store/useNotificationStore";
 
@@ -14,6 +14,8 @@ export default function Documentos() {
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
   const [form, setForm] = useState({ titulo: "", tipo: "propuesta", proyecto_id: "", cliente_id: "", url: "", descripcion: "" });
   const { showNotification } = useNotificationStore();
 
@@ -37,18 +39,34 @@ export default function Documentos() {
     setOpen(true);
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selected = e.target.files?.[0] || null;
+    setFile(selected);
+    if (selected && !form.titulo) {
+      setForm({ ...form, titulo: selected.name });
+    }
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
-      const payload = { ...form, proyecto_id: form.proyecto_id || null, cliente_id: form.cliente_id ? Number(form.cliente_id) : null };
+      let url = form.url;
+      if (file) {
+        setUploading(true);
+        url = await documentosService.upload(file);
+        setUploading(false);
+      }
+      const payload = { ...form, proyecto_id: form.proyecto_id || null, cliente_id: form.cliente_id ? Number(form.cliente_id) : null, url };
       await documentosService.create(payload);
       showNotification("Documento creado", "success");
       setOpen(false);
+      setFile(null);
       await load();
     } catch (err: any) {
       showNotification(err.message || "Error guardando documento", "error");
     } finally {
       setSaving(false);
+      setUploading(false);
     }
   };
 
@@ -96,16 +114,23 @@ export default function Documentos() {
                 <MenuItem value="contrato">Contrato</MenuItem>
                 <MenuItem value="factura">Factura</MenuItem>
                 <MenuItem value="brief">Brief</MenuItem>
+                <MenuItem value="cronograma">Cronograma</MenuItem>
+                <MenuItem value="identidad">Identidad</MenuItem>
+                <MenuItem value="idea">Idea</MenuItem>
                 <MenuItem value="otro">Otro</MenuItem>
               </Select>
             </FormControl>
+            <Button variant="outlined" size="small" component="label" startIcon={<FiUpload size={16} />}>
+              {file ? file.name : "Subir archivo"}
+              <input type="file" hidden onChange={handleFileChange} />
+            </Button>
             <TextField label="URL" size="small" value={form.url} onChange={(e) => setForm({ ...form, url: e.target.value })} fullWidth />
             <TextField label="Descripción" size="small" value={form.descripcion} onChange={(e) => setForm({ ...form, descripcion: e.target.value })} fullWidth />
           </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpen(false)} disabled={saving}>Cancelar</Button>
-          <Button variant="contained" disabled={saving || !form.titulo} onClick={handleSave}>{saving ? "Guardando..." : "Guardar"}</Button>
+          <Button onClick={() => setOpen(false)} disabled={saving || uploading}>Cancelar</Button>
+          <Button variant="contained" disabled={saving || uploading || !form.titulo} onClick={handleSave}>{uploading ? "Subiendo..." : saving ? "Guardando..." : "Guardar"}</Button>
         </DialogActions>
       </Dialog>
     </Box>
