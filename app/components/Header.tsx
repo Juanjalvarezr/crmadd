@@ -1,7 +1,8 @@
-import React from "react";
-import { AppBar, Toolbar, Typography, Avatar, Box, IconButton, Menu, MenuItem, Badge, Chip, Divider, List, ListItem, ListItemIcon, ListItemText, Button } from "@mui/material";
+import { useEffect, useState, Fragment } from "react";
+import { AppBar, Toolbar, Typography, Avatar, Box, IconButton, Menu, MenuItem, Badge, Chip, List, ListItem, ListItemIcon, ListItemText, Button } from "@mui/material";
 import { FiLogOut, FiSettings, FiBell, FiUser, FiMenu, FiAlertCircle, FiTrendingUp, FiInfo, FiSun, FiMoon, FiSearch, FiEye, FiEyeOff } from "react-icons/fi";
 import { useCRMStore } from "../store/useCRMStore";
+import { supabase } from "../services/supabase";
 
 interface HeaderProps {
   onMenuClick?: () => void;
@@ -9,31 +10,60 @@ interface HeaderProps {
   onToggleTheme?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onMenuClick, themeMode = "dark", onToggleTheme }) => {
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const [notificationAnchor, setNotificationAnchor] = React.useState<null | HTMLElement>(null);
-  const [isPresentationMode, setIsPresentationMode] = React.useState(false);
+type CurrentUser = { nombre: string; email: string; rol: string; avatar: string };
 
-  React.useEffect(() => {
-    if (typeof window !== "undefined") {
-      if (typeof window !== "undefined") setIsPresentationMode(localStorage.getItem("presentation_mode") === "true");
-    }
+export const Header: React.FC<HeaderProps> = ({ onMenuClick, themeMode = "dark", onToggleTheme }) => {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [notificationAnchor, setNotificationAnchor] = useState<null | HTMLElement>(null);
+  const [isPresentationMode, setIsPresentationMode] = useState(false);
+  const [currentUser, setCurrentUser] = useState<CurrentUser>({ nombre: "", email: "", rol: "", avatar: "" });
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setIsPresentationMode(localStorage.getItem("presentation_mode") === "true");
+  }, []);
+
+  useEffect(() => {
+    let mounted = true;
+    const loadUser = async () => {
+      const { data } = await supabase.auth.getUser();
+      if (!mounted) return;
+      const user = data?.user;
+      if (user) {
+        const meta: any = user.user_metadata ?? {};
+        setCurrentUser({
+          nombre: meta.nombre || meta.full_name || user.email || "Usuario",
+          email: user.email || "",
+          rol: meta.rol || "Usuario",
+          avatar: (meta.nombre?.[0] || user.email?.[0] || "U").toUpperCase(),
+        });
+      }
+    };
+    loadUser();
+
+    const { data: sub } = supabase.auth.onAuthStateChange(() => {
+      if (!mounted) return;
+      loadUser();
+    });
+
+    return () => {
+      mounted = false;
+      sub.subscription.unsubscribe();
+    };
   }, []);
 
   const handleTogglePresentation = () => {
     const nextMode = !isPresentationMode;
     setIsPresentationMode(nextMode);
     if (typeof window !== "undefined") {
-      if (typeof window !== "undefined") {
       localStorage.setItem("presentation_mode", String(nextMode));
       window.dispatchEvent(new CustomEvent("presentation-mode-changed", { detail: nextMode ? 'on' : 'off' }));
-    }
     }
   };
 
   const handleOpenSearch = () => {
     if (typeof window !== "undefined") {
-      if (typeof window !== "undefined") window.dispatchEvent(new CustomEvent("open-global-search"));
+      window.dispatchEvent(new CustomEvent("open-global-search"));
     }
   };
 
@@ -47,13 +77,6 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick, themeMode = "dark",
       case 'error': return <FiAlertCircle color="#f44336" />;
       default: return <FiInfo color="#2196f3" />;
     }
-  };
-
-  const currentUser = {
-    nombre: "Juan José Álvarez",
-    email: "juanjose@seodigital.com",
-    rol: "CEO & Founder",
-    avatar: "JJ"
   };
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -80,6 +103,15 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick, themeMode = "dark",
       "Soporte": "success",
     };
     return colors[role] || "default";
+  };
+
+  const handleLogout = async () => {
+    handleClose();
+    try {
+      await supabase.auth.signOut();
+    } catch (e) {
+      console.error("Logout failed", e);
+    }
   };
 
   const isDark = themeMode === "dark";
@@ -218,7 +250,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick, themeMode = "dark",
                 Configuración
               </Box>
             </MenuItem>
-            <MenuItem onClick={handleClose} sx={{ color: "error.main" }}>
+            <MenuItem onClick={handleLogout} sx={{ color: "error.main" }}>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                 <FiLogOut size={16} />
                 Cerrar sesión
@@ -273,10 +305,10 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick, themeMode = "dark",
                     <ListItemText
                       primary={<Typography variant="body2" sx={{ fontWeight: n.read ? "normal" : "bold" }}>{n.title}</Typography>}
                       secondary={
-                        <React.Fragment>
+                        <Fragment>
                           <Typography variant="caption" color="text.primary" sx={{ display: 'block', mb: 0.5 }}>{n.message}</Typography>
                           <Typography variant="caption" color="text.secondary">{n.time}</Typography>
-                        </React.Fragment>
+                        </Fragment>
                       }
                     />
                   </ListItem>

@@ -1,16 +1,7 @@
-/**
- * Wrapper de supabase.ts con timeout.
- * Fuente de verdad: app/services/supabase.ts
- */
-
 import {
   supabase as supabaseClient,
   Tables,
   ClienteSchema,
-  mapDBToCliente,
-  mapClienteToDB,
-  mapDBToProyecto,
-  mapProyectoToDB,
   serviciosService as baseServiciosService,
   tareasService as baseTareasService,
   clientesService as baseClientesService,
@@ -19,7 +10,6 @@ import {
   subagentesService as baseSubagentesService,
   interaccionesService as baseInteraccionesService,
   logsService as baseLogsService,
-  emailService as baseEmailService,
   configuracionService as baseConfiguracionService,
   reglasAIService as baseReglasAIService,
   promptsAIService as basePromptsAIService,
@@ -30,9 +20,13 @@ import {
   contratosService as baseContratosService,
 } from './supabase';
 
+export const supabase = supabaseClient;
+export type { Tables };
+export { ClienteSchema };
+
 const TIMEOUT_MS = 20000;
 
-const withTimeout = async <T>(promise: Promise<T>, label = 'operación'): Promise<T> => {
+const withTimeout = async <T>(promise: Promise<T>, _label = 'operación'): Promise<T> => {
   return Promise.race([
     promise.catch((err) => { throw err; }),
     new Promise<T>((_, reject) =>
@@ -40,10 +34,6 @@ const withTimeout = async <T>(promise: Promise<T>, label = 'operación'): Promis
     ),
   ]);
 };
-
-export const supabase = supabaseClient;
-export type { Tables };
-export { ClienteSchema, mapDBToCliente, mapClienteToDB, mapDBToProyecto, mapProyectoToDB };
 
 export const serviciosService = {
   getAll: () => withTimeout(baseServiciosService.getAll(), 'serviciosService.getAll'),
@@ -88,51 +78,29 @@ export const equipoService = {
 };
 
 export const interaccionesService = {
-  getAll: () => withTimeout(baseInteraccionesService.getAll(), 'interaccionesService.getAll'),
   create: (interaccion: any) => withTimeout(baseInteraccionesService.create(interaccion), 'interaccionesService.create'),
-  update: (id: number, updates: any) => withTimeout(baseInteraccionesService.update(id, updates), 'interaccionesService.update'),
-  delete: (id: number) => withTimeout(baseInteraccionesService.delete(id), 'interaccionesService.delete'),
 };
 
 export const logsService = {
-  getAll: () => withTimeout(baseLogsService.getAll(), 'logsService.getAll'),
   create: (log: any) => withTimeout(baseLogsService.create(log), 'logsService.create'),
 };
 
-export const emailService = {
-  send: (payload: any) => withTimeout(baseEmailService.send(payload), 'emailService.send'),
-};
-
-export const configuracionService = {
-  getAll: () => withTimeout(baseConfiguracionService.getAll(), 'configuracionService.getAll'),
-  update: (id: string, updates: any) => withTimeout(baseConfiguracionService.update(id, updates), 'configuracionService.update'),
-};
-
-export const reglasAIService = {
-  getAll: () => withTimeout(baseReglasAIService.getAll(), 'reglasAIService.getAll'),
-  create: (regla: any) => withTimeout(baseReglasAIService.create(regla), 'reglasAIService.create'),
-  update: (id: number, updates: any) => withTimeout(baseReglasAIService.update(id, updates), 'reglasAIService.update'),
-  delete: (id: number) => withTimeout(baseReglasAIService.delete(id), 'reglasAIService.delete'),
-};
-
-export const promptsAIService = {
-  getAll: () => withTimeout(basePromptsAIService.getAll(), 'promptsAIService.getAll'),
-  create: (prompt: any) => withTimeout(basePromptsAIService.create(prompt), 'promptsAIService.create'),
-  update: (id: number, updates: any) => withTimeout(basePromptsAIService.update(id, updates), 'promptsAIService.update'),
-  delete: (id: number) => withTimeout(basePromptsAIService.delete(id), 'promptsAIService.delete'),
-};
-
-export const conocimientoService = {
-  getAll: () => withTimeout(baseConocimientoService.getAll(), 'conocimientoService.getAll'),
-  create: (item: any) => withTimeout(baseConocimientoService.create(item), 'conocimientoService.create'),
-  update: (id: number, updates: any) => withTimeout(baseConocimientoService.update(id, updates), 'conocimientoService.update'),
-  delete: (id: number) => withTimeout(baseConocimientoService.delete(id), 'conocimientoService.delete'),
-};
+export const configuracionService = baseConfiguracionService;
+export const reglasAIService = baseReglasAIService;
+export const promptsAIService = basePromptsAIService;
+export const conocimientoService = baseConocimientoService;
 
 export const authService = {
-  login: (credentials: any) => withTimeout(baseAuthService.login(credentials), 'authService.login'),
-  logout: () => withTimeout(baseAuthService.logout(), 'authService.logout'),
-  session: () => withTimeout(baseAuthService.session(), 'authService.session'),
+  login: (credentials: any) => withTimeout(baseAuthService.signIn(credentials.email, credentials.password), 'authService.login'),
+  logout: () => withTimeout(baseAuthService.signOut(), 'authService.logout'),
+  session: async () => {
+    try {
+      const { data } = await supabaseClient.auth.getUser();
+      return data.user ?? null;
+    } catch (err: any) {
+      return Promise.reject(err);
+    }
+  },
 };
 
 export async function testConnection() {

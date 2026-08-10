@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router";
 import { Box, Snackbar, Alert, CircularProgress, ThemeProvider, CssBaseline, createTheme } from "@mui/material";
 import { useNotificationStore } from "./store/useNotificationStore";
@@ -6,6 +6,8 @@ import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
 import { MobileFab } from "./components/MobileFab";
 import GlobalSearch from "./components/GlobalSearch";
+import { supabase as supabaseClient } from "./services/supabase";
+import { authService } from "./services/database";
 
 const DRAWER_WIDTH = 260;
 
@@ -28,30 +30,57 @@ export default function Root() {
     }
     return "dark";
   });
+  const [authReady, setAuthReady] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  const theme = React.useMemo(() => createTheme({
-    palette: {
-      mode: themeMode,
-    },
+  const theme = useMemo(() => createTheme({
+    palette: { mode: themeMode },
     typography: {
-      fontSize: { xs: 13, sm: 14, md: 15 },
+      fontSize: 14,
       fontFamily: 'Inter, Roboto, Helvetica, Arial, sans-serif',
     },
   }), [themeMode]);
 
   useEffect(() => {
-    const stored = typeof window !== "undefined"
-        ? window.localStorage.getItem("crm_logged_in")
-        : null;
-    const isAuthenticated = stored === null ? true : stored === "true";
+    let mounted = true;
+
+    const init = async () => {
+      try {
+        const session = await authService.session();
+        if (!mounted) return;
+        setIsAuthenticated(Boolean(session));
+      } catch (err) {
+        if (!mounted) return;
+        console.error("Auth init error:", err);
+        setIsAuthenticated(false);
+      } finally {
+        if (mounted) setAuthReady(true);
+      }
+    };
+
+    init();
+
+    const { data: sub } = supabaseClient.auth.onAuthStateChange((_event, session) => {
+      setIsAuthenticated(Boolean(session));
+      setAuthReady(true);
+    });
+
+    return () => {
+      mounted = false;
+      sub.subscription.unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
     const isLoginPage = location.pathname === "/login";
+    if (!authReady) return;
 
     if (!isAuthenticated && !isLoginPage) {
       navigate("/login", { replace: true });
     } else if (isAuthenticated && isLoginPage) {
       navigate("/", { replace: true });
     }
-  }, [navigate, location.pathname]);
+  }, [authReady, isAuthenticated, navigate, location.pathname]);
 
   useEffect(() => {
     const handler = (e: Event) => {
@@ -64,8 +93,25 @@ export default function Root() {
     return () => window.removeEventListener("theme-changed", handler as EventListener);
   }, []);
 
-  if (location.pathname === "/login") {
+  const isLoginPage = location.pathname === "/login";
+
+  if (isLoginPage) {
     return <Outlet />;
+  }
+
+  if (!authReady) {
+    return (
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Box sx={{ display: "flex", minHeight: "100vh", alignItems: "center", justifyContent: "center" }}>
+          <CircularProgress />
+        </Box>
+      </ThemeProvider>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null;
   }
 
   const handleDrawerToggle = () => setMobileOpen((prev) => !prev);
@@ -86,6 +132,15 @@ export default function Root() {
     }
   };
 
+  const mainWidth: Record<string, string> = useMemo(() => {
+    const collapsed = isCollapsed ? "calc(100% - 70px)" : "calc(100% - 200px)";
+    return {
+      xs: "100%",
+      sm: collapsed,
+      md: isCollapsed ? "calc(100% - 70px)" : `calc(100% - ${DRAWER_WIDTH}px)`,
+    };
+  }, [isCollapsed]);
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -101,11 +156,7 @@ export default function Root() {
             flex: 1,
             display: "flex",
             flexDirection: "column",
-            width: {
-              xs: "100%",
-              sm: isCollapsed ? "calc(100% - 70px)" : "calc(100% - 200px)",
-              md: isCollapsed ? "calc(100% - 70px)" : `calc(100% - ${DRAWER_WIDTH}px)`,
-            },
+            width: mainWidth,
             transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
             overflowX: "hidden",
           }}
