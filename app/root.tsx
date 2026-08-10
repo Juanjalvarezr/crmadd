@@ -55,6 +55,7 @@ export default function Root() {
   }, [navigate, location.pathname]);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
     const handler = (e: Event) => {
       const detail = (e as CustomEvent).detail;
       if (detail === "light" || detail === "dark") {
@@ -69,21 +70,7 @@ export default function Root() {
     return <Outlet />;
   }
 
-  const [hydrated, setHydrated] = React.useState(false);
-  React.useEffect(() => {
-    setHydrated(true);
-  }, []);
 
-  if (!hydrated) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
-        <Box sx={{ textAlign: "center" }}>
-          <CircularProgress />
-          <Typography sx={{ mt: 2 }}>Cargando CRM...</Typography>
-        </Box>
-      </Box>
-    );
-  }
 
   const handleDrawerToggle = () => setMobileOpen((prev) => !prev);
   const handleToggleCollapse = () => {
