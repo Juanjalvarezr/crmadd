@@ -58,21 +58,21 @@ export default function ChatbotWhatsApp() {
   // Generar QR Code
   useEffect(() => {
     const generateQR = async () => {
-      if (qrCanvas.current && qrVisible && isHydrated) {
-        const canvas = qrCanvas.current;
-        const ctx = canvas.getContext("2d");
-        
-        if (ctx) {
-          try {
-            const QRCodeModule = await import("qrcode");
-            const QRCode = QRCodeModule.default || QRCodeModule;
-            await (QRCode as any).toCanvas(canvas, qrValue, {
-              width: 200,
-              margin: 2,
-              color: {
-                dark: "#e91e63",
-                light: "#ffffff"
-              }
+      if (typeof window === "undefined" || !qrCanvas.current || !qrVisible || !isHydrated) return;
+      const canvas = qrCanvas.current;
+      const ctx = canvas.getContext("2d");
+      
+      if (ctx) {
+        try {
+          const QRCodeModule = await import("qrcode");
+          const QRCode = QRCodeModule.default || QRCodeModule;
+          await (QRCode as any).toCanvas(canvas, qrValue, {
+            width: 200,
+            margin: 2,
+            color: {
+              dark: "#e91e63",
+              light: "#ffffff"
+            }
             });
           } catch (error) {
                       }

@@ -179,6 +179,7 @@ export default function Proyectos() {
 
   // Función para disparar celebración
   const dispararCelebracion = async () => {
+    if (typeof window === "undefined") return;
     const confettiModule = await import("canvas-confetti");
     const confetti = confettiModule.default || confettiModule;
     confetti({
