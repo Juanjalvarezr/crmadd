@@ -73,9 +73,9 @@ export default function ChatbotWhatsApp() {
               dark: "#e91e63",
               light: "#ffffff"
             }
-            });
-          } catch (error) {
-                      }
+          });
+        } catch (error) {
+          // ignore QR errors
         }
       }
     };
