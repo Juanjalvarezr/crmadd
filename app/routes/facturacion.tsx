@@ -98,7 +98,7 @@ export default function Facturacion() {
       return;
     }
     const texto = encodeURIComponent(`Hola ${cliente}, te compartimos tu factura #${row.numero_factura || row.id} por $${Number(row.total || 0).toFixed(0)}. Estado: ${row.estado || "Borrador"}. Fecha vencimiento: ${row.fecha_vencimiento || "Sin definir"}. Ante cualquier duda respondé este mensaje.`);
-    if (typeof window !== "undefined") window.open(`https://wa.me/${telefono}?text=${texto}`, "_blank");
+    if (typeof window !== "undefined") if (typeof window !== "undefined") window.open(`https://wa.me/${telefono}?text=${texto}`, "_blank");
     showNotification("Abriendo WhatsApp...", "info");
   };
 

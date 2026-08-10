@@ -142,7 +142,7 @@ export default function Configuracion() {
   const handleSaveCatalogos = (newCatalogos: typeof catalogos) => {
     setCatalogos(newCatalogos);
     if (typeof window !== "undefined") {
-      if (typeof window !== "undefined") localStorage.setItem("crm_custom_catalogs", JSON.stringify(newCatalogos));
+      if (typeof window !== "undefined") if (typeof window !== "undefined") localStorage.setItem("crm_custom_catalogs", JSON.stringify(newCatalogos));
     }
     showNotification("Campos y Estados actualizados en caché global", "success");
   };
@@ -284,9 +284,9 @@ export default function Configuracion() {
     try {
       // Aplicar tema inmediatamente
       if (preferenciasConfig.tema === "dark") {
-        if (typeof document !== "undefined") document.body.classList.add("dark-mode");
+        if (typeof document !== "undefined") if (typeof document !== "undefined") document.body.classList.add("dark-mode");
       } else {
-        if (typeof document !== "undefined") document.body.classList.remove("dark-mode");
+        if (typeof document !== "undefined") if (typeof document !== "undefined") document.body.classList.remove("dark-mode");
       }
       
       // Aquí iría la llamada a Supabase para guardar preferencias
@@ -830,17 +830,17 @@ export default function Configuracion() {
 
       // Guardamos la configuración en LocalStorage para adaptar la UI
       if (esModoCompatibilidad) {
-        localStorage.setItem("crm_compat_mode", "true");
+        if (typeof window !== "undefined") localStorage.setItem("crm_compat_mode", "true");
         showNotification("⚠️ Datos cargados en Modo Compatibilidad (Base de datos simplificada detectada)", "warning");
       } else {
-        localStorage.setItem("crm_compat_mode", "false");
+        if (typeof window !== "undefined") localStorage.setItem("crm_compat_mode", "false");
         showNotification("¡Datos reales inicializados con éxito con todas las 9 empresas reales!", "success");
       }
 
       // Eliminar el Snackbar local
 
       setTimeout(() => {
-        window.location.reload();
+        if (typeof window !== "undefined") window.location.reload();
       }, 2500);
 
     } catch (err: any) {

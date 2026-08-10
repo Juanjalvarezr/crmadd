@@ -655,7 +655,7 @@ export default function Ventas() {
                   variant="text" 
                   sx={{ mt: 1 }}
                   onClick={() => { // Usar el Snackbar global
-                    if (typeof navigator !== "undefined" && navigator.clipboard) navigator.clipboard.writeText(propuestaGenerada);
+                    if (typeof navigator !== "undefined" && navigator.clipboard) if (typeof navigator !== "undefined" && navigator.clipboard) navigator.clipboard.writeText(propuestaGenerada);
                     showNotification("Propuesta copiada al portapapeles", "success");
                   }}
                 >

@@ -130,7 +130,7 @@ export default function Proyectos() {
     // Sugerencia: Asegúrate de crear la ruta /public/proyecto/$id para que el cliente acceda
     const magicUrl = `${baseUrl}/public/proyecto/${proyecto.id}`;
     
-    if (typeof navigator !== "undefined" && navigator.clipboard) navigator.clipboard.writeText(magicUrl);
+    if (typeof navigator !== "undefined" && navigator.clipboard) if (typeof navigator !== "undefined" && navigator.clipboard) navigator.clipboard.writeText(magicUrl);
     
     showNotification(
       "¡Magic Link copiado! El cliente ahora puede ver su avance sin loguearse. 🚀", 
