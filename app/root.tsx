@@ -29,37 +29,24 @@ export default function Root() {
     return "dark";
   });
 
-  const theme = React.useMemo(() => createTheme({
-    palette: {
-      mode: themeMode,
-    },
-    typography: {
-      fontSize: { xs: 13, sm: 14, md: 15 },
-      fontFamily: 'Inter, Roboto, Helvetica, Arial, sans-serif',
-    },
-  }), [themeMode]);
+  const theme = React.useMemo(
+    () =>
+      createTheme({
+        palette: {
+          mode: themeMode,
+          primary: { main: "#6366f1" },
+          secondary: { main: "#ec4899" },
+          background: { default: themeMode === "dark" ? "#0f172a" : "#f8fafc", paper: themeMode === "dark" ? "#1e293b" : "#ffffff" },
+        },
+        typography: { fontFamily: 'Inter, system-ui, sans-serif' },
+      }),
+    [themeMode]
+  );
 
   useEffect(() => {
-    const stored =
-      typeof window !== "undefined"
-        ? window.localStorage.getItem("crm_logged_in")
-        : null;
-    const isAuthenticated = stored === null ? true : stored === "true";
-    const isLoginPage = location.pathname === "/login";
-
-    if (!isAuthenticated && !isLoginPage) {
-      navigate("/login", { replace: true });
-    } else if (isAuthenticated && isLoginPage) {
-      navigate("/", { replace: true });
-    }
-  }, [navigate, location.pathname]);
-
-  useEffect(() => {
-    const handler = (e: Event) => {
-      const detail = (e as CustomEvent).detail;
-      if (detail === "light" || detail === "dark") {
-        setThemeMode(detail);
-      }
+    const handler = (event: Event) => {
+      const custom = event as CustomEvent<"light" | "dark">;
+      if (custom.detail) setThemeMode(custom.detail);
     };
     window.addEventListener("theme-changed", handler as EventListener);
     return () => window.removeEventListener("theme-changed", handler as EventListener);
@@ -67,22 +54,6 @@ export default function Root() {
 
   if (location.pathname === "/login") {
     return <Outlet />;
-  }
-
-  const [hydrated, setHydrated] = React.useState(false);
-  React.useEffect(() => {
-    setHydrated(true);
-  }, []);
-
-  if (!hydrated) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
-        <Box sx={{ textAlign: "center" }}>
-          <CircularProgress />
-          <Typography sx={{ mt: 2 }}>Cargando CRM...</Typography>
-        </Box>
-      </Box>
-    );
   }
 
   const handleDrawerToggle = () => setMobileOpen((prev) => !prev);
@@ -95,7 +66,7 @@ export default function Root() {
   };
 
   const handleToggleTheme = () => {
-    const nextMode = themeMode === "dark" ? "light" : "dark";
+    const nextMode = themeMode === "light" ? "dark" : "light";
     setThemeMode(nextMode);
     if (typeof window !== "undefined") {
       window.localStorage.setItem("theme_mode", nextMode);
@@ -106,53 +77,21 @@ export default function Root() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Box sx={{ display: "flex", minHeight: "100vh", overflowX: "hidden" }}>
-        <Sidebar
-          open={mobileOpen}
-          onClose={handleDrawerToggle}
-          isCollapsed={isCollapsed}
-          onToggleCollapse={handleToggleCollapse}
-        />
-        <Box
-          sx={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            width: {
-              xs: "100%",
-              sm: isCollapsed ? "calc(100% - 70px)" : "calc(100% - 200px)",
-              md: isCollapsed ? "calc(100% - 70px)" : `calc(100% - ${DRAWER_WIDTH}px)`,
-            },
-            transition: "width 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-            overflowX: "hidden",
-          }}
-        >
-          <Header onMenuClick={handleDrawerToggle} themeMode={themeMode} onToggleTheme={handleToggleTheme} />
-          <Box
-            component="main"
-            sx={{
-              flexGrow: 1,
-              p: { xs: 1, sm: 1.5, md: 2 },
-              backgroundColor: "background.default",
-              minHeight: "calc(100vh - 120px)",
-            }}
-          >
+      <Box sx={{ display: "flex", minHeight: "100vh" }}>
+        <Header onToggleSidebar={handleDrawerToggle} onToggleTheme={handleToggleTheme} themeMode={themeMode} />
+        <Sidebar mobileOpen={mobileOpen} onDrawerToggle={handleDrawerToggle} isCollapsed={isCollapsed} onToggleCollapse={handleToggleCollapse} />
+        <Box component="main" sx={{ flexGrow: 1, p: { xs: 1, sm: 2, md: 3 }, minHeight: "100vh", bgcolor: "background.default" }}>
+          <Snackbar open={open} autoHideDuration={3000} onClose={hideNotification} anchorOrigin={{ vertical: "top", horizontal: "right" }}>
+            <Alert onClose={hideNotification} severity={severity} sx={{ width: "100%" }}>
+              {message}
+            </Alert>
+          </Snackbar>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
             <Outlet />
           </Box>
-          <MobileFab />
-          <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
         </Box>
+        <MobileFab />
       </Box>
-      <Snackbar
-        open={open}
-        autoHideDuration={5000}
-        onClose={hideNotification}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-      >
-        <Alert onClose={hideNotification} severity={severity} sx={{ width: "100%" }}>
-          {message}
-        </Alert>
-      </Snackbar>
     </ThemeProvider>
   );
 }
