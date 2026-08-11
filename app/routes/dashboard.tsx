@@ -266,7 +266,7 @@ export default function Dashboard() {
       ) : null}
 
       <Grid container spacing={{ xs: 1, sm: 1.5 }}>
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12} md={8}>
           <Card
             sx={{
               background:
@@ -344,7 +344,7 @@ export default function Dashboard() {
           </Card>
         </Grid>
 
-        <Grid item xs={6} sm={4} md={2}>
+        <Grid item xs={6} sm={6} md={3}>
           <StatCard
             title="Proyectos"
             value={stats.proyectosActivos}
@@ -354,7 +354,7 @@ export default function Dashboard() {
           />
         </Grid>
 
-        <Grid item xs={6} sm={4} md={2}>
+        <Grid item xs={6} sm={6} md={3}>
           <StatCard
             title="Ingresos"
             value={formatCurrency(stats.totalPresupuestado)}
@@ -364,7 +364,7 @@ export default function Dashboard() {
           />
         </Grid>
 
-        <Grid item xs={6} sm={4} md={2}>
+        <Grid item xs={6} sm={6} md={3}>
           <StatCard
             title="Recaudado"
             value={formatCurrency(stats.totalRecaudado)}
@@ -374,7 +374,7 @@ export default function Dashboard() {
           />
         </Grid>
 
-        <Grid item xs={6} sm={4} md={2}>
+        <Grid item xs={6} sm={6} md={3}>
           <StatCard
             title="Ventas"
             value={formatCurrency(stats.valorPipeline)}
@@ -384,7 +384,7 @@ export default function Dashboard() {
           />
         </Grid>
 
-        <Grid item xs={6} sm={4} md={2}>
+        <Grid item xs={6} sm={6} md={3}>
           <StatCard
             title="Clientes"
             value={stats.totalClientes}
@@ -394,7 +394,7 @@ export default function Dashboard() {
           />
         </Grid>
 
-        <Grid item xs={6} sm={4} md={2}>
+        <Grid item xs={6} sm={6} md={3}>
           <StatCard
             title="Tareas"
             value={stats.tareasPendientes}
