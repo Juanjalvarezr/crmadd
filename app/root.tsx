@@ -9,7 +9,7 @@ import GlobalSearch from "./components/GlobalSearch";
 
 const DRAWER_WIDTH = 260;
 
-export default function Root() {
+export default function Root() { useEffect(() => { document.title = "CRM DESEO DIGITAL"; }, []);
   const navigate = useNavigate();
   const location = useLocation();
   const { open, message, severity, hideNotification } = useNotificationStore();
