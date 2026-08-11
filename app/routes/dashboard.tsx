@@ -75,6 +75,22 @@ export default function Dashboard() {
     return () => window.removeEventListener("presentation-mode-changed", handler);
   }, []);
 
+  const [dbStatus, setDbStatus] = useState<{ ok: boolean; message: string } | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch('/api/healthz');
+        const data = await res.json().catch(() => ({}));
+        if (!cancelled) setDbStatus({ ok: res.ok, message: data.message || (res.ok ? 'API OK' : 'API caída') });
+      } catch (e: any) {
+        if (!cancelled) setDbStatus({ ok: false, message: 'Sin conexión con el backend' });
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
   const calculateStats = useCallback(
     (source: any) => {
       const proyectos = Array.isArray(source.proyectos) ? source.proyectos : [];
