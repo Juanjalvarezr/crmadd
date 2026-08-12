@@ -36,7 +36,7 @@ const getEstadoColor = (e: string) => {
   return map[e] || "default";
 };
 
-export default function Tareas() {
+export default function Tareas() { const openCreate = () => { if (typeof window !== "undefined") { alert("Crear nueva tarea..."); } };
   const tareas = useCRMStore((s) => s.tareas);
   const clientes = useCRMStore((s) => s.clientes);
   const fetchTareas = useCRMStore((s) => s.fetchTareas);

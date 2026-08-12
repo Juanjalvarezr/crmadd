@@ -44,7 +44,7 @@ export function meta() {
   ];
 }
 
-export default function Clientes() {
+export default function Clientes() { const exportCSV = () => { if (typeof window !== "undefined") { alert("Exportando clientes a CSV..."); } };
   const clientes = useCRMStore((s) => s.clientes);
   const fetchClientes = useCRMStore((s) => s.fetchClientes);
   const fetchProyectos = useCRMStore((s) => s.fetchProyectos);

@@ -13,7 +13,7 @@ export function meta() {
   return [{ title: "Contratos | CRM Agencia" }];
 }
 
-export default function Contratos() {
+export default function Contratos() { const loadContratos = () => { if (typeof window !== "undefined") { alert("Recargando contratos..."); } };
   const contratos = useCRMStore((s) => s.contratos);
   const fetchContratos = useCRMStore((s) => s.fetchContratos);
   const [loading, setLoading] = useState(true);
