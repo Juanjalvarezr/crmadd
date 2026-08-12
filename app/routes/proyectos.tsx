@@ -113,7 +113,7 @@ export default function Proyectos() {
     };
     loadData();
     return () => { mounted = false; clearTimeout(timer); };
-  }, []);
+  }, [fetchClientes, fetchProyectos]);
 
   useEffect(() => {
     // datos ya viven en los selectores del store
@@ -897,7 +897,7 @@ export default function Proyectos() {
         <Alert severity="info" sx={{ mt: 2 }}>No hay proyectos para mostrar. Creá uno nuevo para comenzar.</Alert>
       )}
 
-      {!loading && !error && viewMode === "grid" && proyectosFiltrados.length > 0 && (
+      {!loading && !error && proyectosFiltrados.length > 0 && (
         <Grid container spacing={3}>
           {proyectosFiltrados.map((proyecto) => (
             <Grid item xs={12} md={6} lg={4} key={proyecto.id}>
@@ -1040,7 +1040,7 @@ export default function Proyectos() {
         </Grid>
       )}
 
-      {!loading && !error && viewMode === "kanban" && (
+      {!loading && !error && proyectosFiltrados.length > 0 && (
         <DragDropContext onDragEnd={onDragEndProject}>
           <Box sx={{ display: 'flex', gap: 2, overflowX: 'auto', pb: 2, minHeight: 400 }}>
             {["planificacion", "en_progreso", "pausado", "completado", "cancelado"].map(col => {
