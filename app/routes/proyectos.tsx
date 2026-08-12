@@ -893,7 +893,11 @@ export default function Proyectos() {
         </Box>
       )}
 
-      {!loading && !error && viewMode === "grid" && (
+      {!loading && !error && proyectosFiltrados.length === 0 && (
+        <Alert severity="info" sx={{ mt: 2 }}>No hay proyectos para mostrar. Creá uno nuevo para comenzar.</Alert>
+      )}
+
+      {!loading && !error && viewMode === "grid" && proyectosFiltrados.length > 0 && (
         <Grid container spacing={3}>
           {proyectosFiltrados.map((proyecto) => (
             <Grid item xs={12} md={6} lg={4} key={proyecto.id}>
