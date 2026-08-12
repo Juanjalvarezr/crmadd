@@ -14,7 +14,6 @@ const menuItems = [
   { label: "Clientes", icon: FiUsers, path: "/clientes", notifications: 0, color: "#4caf50" },
   { label: "Equipo (Subagentes)", icon: FiUsers, path: "/equipo", notifications: 0, color: "#2196f3" },
   { label: "Servicios ★", icon: FiPackage, path: "/servicios", notifications: 0, color: "#ff9800" },
-  { label: "Proyectos", icon: FiFolderOpen, path: "/proyectos", notifications: 0, color: "#2196f3" },
   { label: "Oportunidades", icon: FiTrendingUp, path: "/ventas", notifications: 0, color: "#9c27b0" },
   { label: "Tareas", icon: FiCheckSquare, path: "/tareas", notifications: 0, color: "#f44336" },
   { label: "Facturación", icon: FiFileText, path: "/facturacion", notifications: 0, color: "#009688" },
