@@ -901,9 +901,6 @@ export default function Proyectos() {
                     <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
                       {proyecto.nombre}
                     </Typography>
-                    <Typography variant="caption" sx={{ color: "text.secondary", display: "block", mt: -0.5 }}>
-                      Cliente: {proyecto.clienteNombre || proyecto.clienteId || "Sin asignar"}
-                    </Typography>
                     <Box sx={{ display: "flex", gap: 1 }}>
                       <Chip
                         label={proyecto.estado.replace("_", " ")}
