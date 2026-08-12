@@ -61,21 +61,6 @@ export interface RecursoProyecto {
   url: string;
 }
 
-export interface AgentePermiso {
-  agente_id: number;
-  modulo: string;
-  acciones: string[];
-}
-
-export interface AgenteActividad {
-  agente_id: number;
-  accion: string;
-  entidad_tipo?: string;
-  entidad_id?: number;
-  detalle?: any;
-  created_at: string;
-}
-
 export interface Proyecto {
   id: string;
   nombre: string;

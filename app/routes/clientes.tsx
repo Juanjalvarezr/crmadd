@@ -349,39 +349,6 @@ export default function Clientes() { const exportCSV = () => { if (typeof window
     setOpenModal(true);
   };
 
-  useEffect(() => {
-    if (selectedClient) {
-      const clienteId = String(selectedClient.id);
-      const nombreNorm = selectedClient.nombre.toLowerCase().trim();
-      setRelatedProyectos(
-        proyectos.filter(
-          (x: any) =>
-            String(x.clienteId) === clienteId ||
-            String(x.cliente_id) === clienteId ||
-            (x.cliente_nombre && x.cliente_nombre.toLowerCase().trim() === nombreNorm)
-        )
-      );
-      setRelatedOportunidades(
-        oportunidades.filter(
-          (x: any) =>
-            String(x.cliente_id) === clienteId ||
-            (x.cliente_nombre && x.cliente_nombre.toLowerCase().trim() === nombreNorm)
-        )
-      );
-      setRelatedTareas(
-        storeTareas.filter(
-          (x: any) =>
-            String(x.cliente_id) === clienteId ||
-            (x.cliente_nombre && x.cliente_nombre.toLowerCase().trim() === nombreNorm)
-        )
-      );
-    } else {
-      setRelatedProyectos([]);
-      setRelatedOportunidades([]);
-      setRelatedTareas([]);
-    }
-  }, [selectedClient, proyectos, oportunidades, storeTareas]);
-
   // Funciones para las nuevas acciones
   const handleViewDetails = async (cliente: Cliente) => {
     setSelectedClient(cliente);
@@ -392,8 +359,14 @@ export default function Clientes() { const exportCSV = () => { if (typeof window
         fetchOportunidades(),
         fetchTareas(),
       ]);
+      const clienteId = String(cliente.id);
+      setRelatedProyectos(proyectos.filter((x: any) => String(x.clienteId) === clienteId || String(x.cliente_id) === clienteId));
+      setRelatedOportunidades(oportunidades.filter((x: any) => String(x.cliente_id) === clienteId));
+      setRelatedTareas(storeTareas.filter((x: any) => String(x.cliente_id) === clienteId));
     } catch (e) {
-      // Ignorar errores de carga secundaria
+      setRelatedProyectos([]);
+      setRelatedOportunidades([]);
+      setRelatedTareas([]);
     }
   };
 
@@ -1018,7 +991,7 @@ export default function Clientes() { const exportCSV = () => { if (typeof window
           </Box>
           {selectedClient && (
             <Box sx={{ mt: 1 }}>
-              <Tabs value={detailTab} onChange={(_, v) => setDetailTab(v)} variant="scrollable" scrollButtons="auto" sx={{ minHeight: 32, '& .MuiTab-root': { minHeight: 32, py: 0.5, fontSize: { xs: '0.75rem', sm: '0.8rem' }, minWidth: 0, padding: '0 8px' } }}>
+              <Tabs value={detailTab} onChange={(_, v) => setDetailTab(v)} variant="scrollable" scrollButtons="auto" size="small" sx={{ minHeight: 32, '& .MuiTab-root': { minHeight: 32, py: 0.5, fontSize: { xs: '0.75rem', sm: '0.8rem' }, minWidth: 0, padding: '0 8px' } }}>
                 <Tab label="Datos" />
                 <Tab label="Proyectos" />
                 <Tab label="Oportunidades" />
