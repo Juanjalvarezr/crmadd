@@ -830,7 +830,7 @@ export default function Proyectos() {
       <Box sx={{ mb: { xs: 1.5, sm: 2 } }}>
         <Typography variant="h6" sx={{ fontWeight: "bold", fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>Proyectos</Typography>
         <Box sx={{ display: "flex", gap: 1, mt: 1, flexWrap: "wrap" }}>
-          <Button size="small" startIcon={<FiRefreshCw size={14} />} onClick={loadProyectos} disabled={loading}>Recargar</Button>
+          <Button size="small" startIcon={<RefreshCw size={14} />} onClick={loadProyectos} disabled={loading}>Recargar</Button>
           <Button size="small" variant="contained" startIcon={<FiPlus />} onClick={handleOpenModal}>Nuevo</Button>
         </Box>
       </Box>
