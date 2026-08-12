@@ -17,7 +17,8 @@ import {
 } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
-import { emailService, subagentesService as equipoService, logsService, clientesService, proyectosService } from "../services/supabase";
+import { emailService, subagentesService as equipoService, logsService, proyectosService } from "../services/supabase";
+import { REGLAS_NEGOCIO } from "../constants/reglasNegocio";
 import type { Proyecto, TareaProyecto, RecursoProyecto, PlanItem } from "../types/crm";
 import { aiService } from "../services/ai";
 import { useNotificationStore } from "../store/useNotificationStore";
@@ -120,10 +121,12 @@ export default function Proyectos() {
   }, [proyectos.length, clientes.length]);
 
   useEffect(() => {
-    useEffect(() => { if (typeof window !== "undefined") { const updateMobile = () => setIsMobile(window.innerWidth <= 600); updateMobile(); window.addEventListener("resize", updateMobile); return () => window.removeEventListener("resize", updateMobile); } }, []);
-    updateMobile();
-    window.addEventListener("resize", updateMobile);
-    return () => window.removeEventListener("resize", updateMobile);
+    if (typeof window !== "undefined") {
+      const updateMobile = () => setIsMobile(window.innerWidth <= 600);
+      updateMobile();
+      window.addEventListener("resize", updateMobile);
+      return () => window.removeEventListener("resize", updateMobile);
+    }
   }, []);
 
   // Sistema de Magic Links: Genera una URL pública temporal para el cliente
@@ -313,6 +316,18 @@ export default function Proyectos() {
         creadoEn: editingProyecto?.creadoEn || new Date().toISOString(),
         actualizadoEn: new Date().toISOString()
       };
+
+      // --- Reglas duras DESEO DIGITAL ---
+      const bloqueo = REGLAS_NEGOCIO.calcularBloqueoOperativo({
+        onboardingChecklist: nuevoProyecto.onboardingChecklist,
+        estadoPago: nuevoProyecto.estadoPago
+      });
+      if (bloqueo && data.estado !== 'cancelado') {
+        showNotification(`Bloqueo operativo: ${bloqueo}`, 'warning');
+        if (editingProyecto?.faseAdministrativa !== 'operacion') {
+          showNotification('El proyecto queda en fase previa hasta superar el bloqueo.', 'info');
+        }
+      }
 
       if (editingProyecto) {
         await proyectosService.update(editingProyecto.id, nuevoProyecto);
@@ -830,8 +845,8 @@ export default function Proyectos() {
       <Box sx={{ mb: { xs: 1.5, sm: 2 } }}>
         <Typography variant="h6" sx={{ fontWeight: "bold", fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>Proyectos</Typography>
         <Box sx={{ display: "flex", gap: 1, mt: 1, flexWrap: "wrap" }}>
-          <Button size="small" startIcon={<RefreshCw size={14} />} onClick={loadProyectos} disabled={loading}>Recargar</Button>
-          <Button size="small" variant="contained" startIcon={<FiPlus />} onClick={handleOpenModal}>Nuevo</Button>
+          <Button size="small" startIcon={<RefreshCw size={14} />} onClick={() => { setLoading(true); fetchProyectos().finally(() => setLoading(false)); }} disabled={loading}>Recargar</Button>
+          <Button size="small" variant="contained" startIcon={<FiPlus />} onClick={() => { setEditingProyecto(null); reset(); setOpenProyectoModal(true); }}>Nuevo</Button>
         </Box>
       </Box>
 
@@ -862,7 +877,7 @@ export default function Proyectos() {
       </Box>
 
       {/* Tabs compactos */}
-      <Box sx={{ display: "flex", gap: 1, mb: 2, overflowX: "auto", pb: 0.5, flexWrap: "wrap", alignItems: "center" }}>
+      <Box sx={{ display: "flex", gap: 1, mb: 2, overflowX: "auto", pb: 0.5, flexWrap: "nowrap", alignItems: "center", scrollbarWidth: "none" }}>
         {[
           { key: "activos", label: `Activos (${proyectos.filter(p => p.estado === "planificacion" || p.estado === "en_progreso").length})`, icon: <Play size={14} /> },
           { key: "completados", label: `Completados (${proyectos.filter(p => p.estado === "completado").length})`, icon: <CheckCircle size={14} /> },
@@ -876,12 +891,20 @@ export default function Proyectos() {
             variant={activeTab === tab.key ? "filled" : "outlined"}
             color={activeTab === tab.key ? "primary" : "default"}
             onClick={() => setActiveTab(tab.key)}
-            sx={{ borderRadius: 2 }}
+            sx={{ 
+              borderRadius: 2.5,
+              fontWeight: activeTab === tab.key ? 700 : 500,
+              fontVariantNumeric: 'tabular-nums',
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              transition: 'all 0.2s ease',
+              '&:hover': { transform: 'scale(1.02)' }
+            }}
           />
         ))}
-        <Box sx={{ ml: "auto", display: "flex", gap: 0.5 }}>
-          <Button size="small" variant={viewMode === "grid" ? "contained" : "text"} onClick={() => setViewMode("grid")}>Grid</Button>
-          <Button size="small" variant={viewMode === "kanban" ? "contained" : "text"} onClick={() => setViewMode("kanban")}>Pipeline</Button>
+        <Box sx={{ ml: "auto", display: "flex", gap: 0.5, flexShrink: 0 }}>
+          <Button size="small" variant={viewMode === "grid" ? "contained" : "text"} onClick={() => setViewMode("grid")} sx={{ borderRadius: 2, fontWeight: 600 }}>Grid</Button>
+          <Button size="small" variant={viewMode === "kanban" ? "contained" : "text"} onClick={() => setViewMode("kanban")} sx={{ borderRadius: 2, fontWeight: 600 }}>Pipeline</Button>
         </Box>
       </Box>
 
@@ -1264,7 +1287,7 @@ export default function Proyectos() {
                 </Box>
                 <IconButton onClick={() => setSelectedProyecto(null)}><X /></IconButton>
               </Box>
-              <Tabs value={activeProjectTab} onChange={(_, v) => setActiveProjectTab(v)} textColor="primary" indicatorColor="primary" variant="scrollable" scrollButtons="auto" size="small" sx={{ mt: 1, minHeight: 32, '& .MuiTab-root': { minHeight: 32, py: 0.5, fontSize: { xs: '0.75rem', sm: '0.8rem' }, minWidth: 0, padding: '0 8px' } }}>
+              <Tabs value={activeProjectTab} onChange={(_, v) => setActiveProjectTab(v)} textColor="primary" indicatorColor="primary" variant="scrollable" scrollButtons="auto" sx={{ mt: 1, minHeight: 32, '& .MuiTab-root': { minHeight: 32, py: 0.5, fontSize: { xs: '0.75rem', sm: '0.8rem' }, minWidth: 0, padding: '0 8px' } }}>
                 <Tab label="Información General" />
                 <Tab label={`Tareas (${selectedProyecto.tareas?.length || 0})`} />
                 <Tab label={`Recursos (${selectedProyecto.recursos?.length || 0})`} />

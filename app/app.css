@@ -7,9 +7,123 @@
 
 html,
 body {
-  @apply bg-white dark:bg-gray-950;
+  @apply bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
 
   @media (prefers-color-scheme: dark) {
     color-scheme: dark;
   }
 }
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.4);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(156, 163, 175, 0.7);
+}
+
+/* React Big Calendar Overrides & Dark Mode Improvements */
+.rbc-calendar {
+  font-family: inherit;
+  color: inherit;
+}
+
+.rbc-toolbar {
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.rbc-toolbar button {
+  color: inherit;
+  border: 1px solid rgba(156, 163, 175, 0.3);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-weight: 500;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.rbc-toolbar button:hover {
+  background-color: rgba(156, 163, 175, 0.15);
+}
+
+.rbc-toolbar button.rbc-active {
+  background-color: #1976d2 !important;
+  color: #ffffff !important;
+  border-color: #1976d2 !important;
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.3);
+}
+
+.rbc-header {
+  padding: 10px 4px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid rgba(156, 163, 175, 0.2);
+}
+
+.rbc-month-view, .rbc-time-view {
+  border: 1px solid rgba(156, 163, 175, 0.2);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.rbc-day-bg + .rbc-day-bg {
+  border-left: 1px solid rgba(156, 163, 175, 0.15);
+}
+
+.rbc-month-row + .rbc-month-row {
+  border-top: 1px solid rgba(156, 163, 175, 0.15);
+}
+
+.rbc-off-range-bg {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+.dark .rbc-off-range-bg {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.rbc-today {
+  background-color: rgba(25, 118, 210, 0.08) !important;
+}
+
+.rbc-date-cell {
+  padding: 6px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.rbc-event {
+  border-radius: 6px !important;
+  padding: 3px 8px !important;
+  font-size: 0.78rem !important;
+  font-weight: 600 !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.rbc-event:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.rbc-event-content {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+

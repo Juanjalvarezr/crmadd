@@ -6,10 +6,13 @@ import {
   InputLabel, FormControl, Divider
 } from "@mui/material";
 import { FiUserPlus, FiMail, FiEdit2, FiTrash2 } from "react-icons/fi";
-import { subagentesService as equipoService } from '../services/supabase';
+import { subagentesService as equipoService, agentePermisosService, agenteActividadService } from '../services/supabase';
+import { perfilesAgente, type RolAgente, modulosCrm } from '../constants/agentes';
+import type { AgentePermiso } from '../types/crm';
 
 export default function Equipo() {
   const [miembros, setMiembros] = useState<any[]>([]);
+  const [actividades, setActividades] = useState<Record<number, any[]>>({});
   const [loading, setLoading] = useState(true);
   const [openModal, setOpenModal] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -18,23 +21,43 @@ export default function Equipo() {
     email: "",
     rol: "Técnico",
     especialidad: "",
-    estado: "Activo"
+    estado: "Activo",
+    bio: "",
+    avatar_url: "",
+    skills: [] as string[],
+    herramientas: [] as string[],
+    capacidad_max_proyectos: 3,
+    modo_operativo: "activo" as const,
+    agent_prompt_slug: ""
   });
+  const [permisos, setPermisos] = useState<AgentePermiso[]>([]);
 
   const loadEquipo = async () => {
     setLoading(true);
     try {
       const data = await equipoService.getAll();
       setMiembros(data || []);
+      try {
+        const acts = await agenteActividadService.getByAgente(0, 200);
+        const grouped: Record<number, any[]> = {};
+        for (const item of acts) {
+          const key = Number(item.agente_id);
+          if (!grouped[key]) grouped[key] = [];
+          if (grouped[key].length < 5) grouped[key].push(item);
+        }
+        setActividades(grouped);
+      } catch {
+        setActividades({});
+      }
     } catch (err) {
-          } finally {
+    } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => { loadEquipo(); }, []);
 
-  const handleOpenModal = (miembro?: any) => {
+  const handleOpenModal = async (miembro?: any) => {
     if (miembro) {
       setEditingId(miembro.id);
       setFormData({
@@ -42,26 +65,85 @@ export default function Equipo() {
         email: miembro.email || "",
         rol: miembro.rol || "Técnico",
         especialidad: miembro.especialidad || "",
-        estado: miembro.estado || "Activo"
+        estado: miembro.estado || "Activo",
+        bio: miembro.bio || "",
+        avatar_url: miembro.avatar_url || "",
+        skills: Array.isArray(miembro.skills) ? miembro.skills : [],
+        herramientas: Array.isArray(miembro.herramientas) ? miembro.herramientas : [],
+        capacidad_max_proyectos: Number(miembro.capacidad_max_proyectos || 3),
+        modo_operativo: miembro.modo_operativo || "activo",
+        agent_prompt_slug: miembro.agent_prompt_slug || ""
       });
+      try {
+        const perms = await agentePermisosService.getByAgente(miembro.id);
+        setPermisos(perms);
+      } catch {
+        setPermisos([]);
+      }
     } else {
       setEditingId(null);
-      setFormData({ nombre: "", email: "", rol: "Técnico", especialidad: "", estado: "Activo" });
+      setFormData({
+        nombre: "",
+        email: "",
+        rol: "Técnico",
+        especialidad: "",
+        estado: "Activo",
+        bio: "",
+        avatar_url: "",
+        skills: [],
+        herramientas: [],
+        capacidad_max_proyectos: 3,
+        modo_operativo: "activo",
+        agent_prompt_slug: ""
+      });
+      setPermisos([]);
     }
     setOpenModal(true);
   };
 
+  const handleRolChange = (rol: string) => {
+    setFormData((prev) => {
+      const perfil = perfilesAgente[rol as RolAgente];
+      return {
+        ...prev,
+        rol,
+        especialidad: prev.especialidad || perfil?.descripcion || "",
+        skills: perfil?.skills_sugeridas || [],
+        herramientas: perfil?.herramientas_sugeridas || [],
+        capacidad_max_proyectos: perfil?.max_proyectos ?? prev.capacidad_max_proyectos,
+        agent_prompt_slug: perfil?.prompt_sugerido || prev.agent_prompt_slug
+      };
+    });
+  };
+
   const handleSave = async () => {
     try {
-      if (editingId) {
-        await equipoService.update(editingId, formData as any);
-      } else {
-        await equipoService.create(formData as any);
+      const payload: any = { ...formData };
+      if (!editingId) {
+        const perfil = perfilesAgente[formData.rol as RolAgente];
+        if (perfil && !payload.agent_prompt_slug) payload.agent_prompt_slug = perfil.prompt_sugerido;
       }
+      const saved = editingId
+        ? await equipoService.update(editingId, payload)
+        : await equipoService.create(payload);
+
+      if (saved?.id) {
+        try { await agenteActividadService.create(saved.id, editingId ? 'perfil_actualizado' : 'perfil_creado', 'equipo', saved.id); } catch {}
+
+        for (const modulo of modulosCrm) {
+          const checked = permisos.find((p) => p.modulo === modulo);
+          if (checked) {
+            try { await agentePermisosService.setPermiso(saved.id, modulo, checked.acciones); } catch {}
+          } else {
+            try { await agentePermisosService.removePermiso(saved.id, modulo); } catch {}
+          }
+        }
+      }
+
       setOpenModal(false);
       loadEquipo();
     } catch (err) {
-            if (typeof window !== "undefined") alert("Error guardando miembro");
+      if (typeof window !== "undefined") alert("Error guardando miembro");
     }
   };
 
@@ -141,6 +223,22 @@ export default function Equipo() {
                     </IconButton>
                   </Box>
                 </Box>
+
+                {actividades[miembro.id]?.length ? (
+                  <Box sx={{ mt: 1.5, p: 1, bgcolor: '#f7f9fc', borderRadius: 1, fontSize: 12 }}>
+                    <Typography variant="caption" sx={{ fontWeight: 'bold', color: 'text.secondary' }}>
+                      Actividad reciente
+                    </Typography>
+                    {actividades[miembro.id].slice(0, 3).map((act, i) => (
+                      <Box key={i} sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, mt: 0.3 }}>
+                        <Typography variant="caption" sx={{ flex: 1 }}>{act.accion}</Typography>
+                        <Typography variant="caption" sx={{ color: 'text.secondary', whiteSpace: 'nowrap' }}>
+                          {new Date(act.created_at).toLocaleDateString()}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Box>
+                ) : null}
               </CardContent>
             </Card>
           </Grid>
@@ -154,42 +252,118 @@ export default function Equipo() {
         )}
       </Grid>
 
-      <Dialog open={openModal} onClose={() => setOpenModal(false)} fullWidth maxWidth="xs">
+      <Dialog open={openModal} onClose={() => setOpenModal(false)} fullWidth maxWidth="md">
         <DialogTitle>{editingId ? "Editar Miembro" : "Nuevo Miembro del Equipo"}</DialogTitle>
         <DialogContent>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}>
+            <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+              <TextField
+                label="Nombre Completo"
+                sx={{ flex: '1 1 240px' }}
+                value={formData.nombre}
+                onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+              />
+              <TextField
+                label="Email"
+                sx={{ flex: '1 1 240px' }}
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              />
+            </Box>
+
+            <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+              <FormControl sx={{ flex: '1 1 220px' }}>
+                <InputLabel>Perfil / Rol</InputLabel>
+                <Select
+                  value={formData.rol}
+                  label="Perfil / Rol"
+                  onChange={(e) => handleRolChange(e.target.value)}
+                >
+                  {(Object.keys(perfilesAgente) as RolAgente[]).map((rol) => (
+                    <MenuItem key={rol} value={rol}>
+                      {perfilesAgente[rol].icono} {rol}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <TextField
+                label="Especialidad / Función visible"
+                sx={{ flex: '2 1 300px' }}
+                value={formData.especialidad}
+                onChange={(e) => setFormData({ ...formData, especialidad: e.target.value })}
+              />
+            </Box>
+
             <TextField
-              label="Nombre Completo"
+              label="Bio corta"
               fullWidth
-              value={formData.nombre}
-              onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+              value={formData.bio}
+              onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
             />
-            <TextField
-              label="Email"
-              fullWidth
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            />
-            <FormControl fullWidth>
-              <InputLabel>Rol</InputLabel>
-              <Select
-                value={formData.rol}
-                label="Rol"
-                onChange={(e) => setFormData({ ...formData, rol: e.target.value })}
-              >
-                <MenuItem value="Técnico">Técnico</MenuItem>
-                <MenuItem value="Creativo">Creativo</MenuItem>
-                <MenuItem value="Soporte">Soporte</MenuItem>
-                <MenuItem value="Admin">Admin</MenuItem>
-                <MenuItem value="Vendedor">Vendedor</MenuItem>
-              </Select>
-            </FormControl>
-            <TextField
-              label="Especialidad (Ej: SEO, React, Diseño)"
-              fullWidth
-              value={formData.especialidad}
-              onChange={(e) => setFormData({ ...formData, especialidad: e.target.value })}
-            />
+
+            <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+              <TextField
+                label="Avatar URL"
+                sx={{ flex: '1 1 240px' }}
+                value={formData.avatar_url}
+                onChange={(e) => setFormData({ ...formData, avatar_url: e.target.value })}
+              />
+              <TextField
+                label="Prompt slug"
+                sx={{ flex: '1 1 240px' }}
+                value={formData.agent_prompt_slug}
+                onChange={(e) => setFormData({ ...formData, agent_prompt_slug: e.target.value })}
+              />
+            </Box>
+
+            <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", alignItems: "center" }}>
+              <TextField
+                label="Capacidad máx. proyectos"
+                type="number"
+                sx={{ width: 180 }}
+                value={formData.capacidad_max_proyectos}
+                onChange={(e) => setFormData({ ...formData, capacidad_max_proyectos: Number(e.target.value || 0) })}
+              />
+              <FormControl sx={{ minWidth: 160 }}>
+                <InputLabel>Modo operativo</InputLabel>
+                <Select
+                  value={formData.modo_operativo}
+                  label="Modo operativo"
+                  onChange={(e) => setFormData({ ...formData, modo_operativo: e.target.value as any })}
+                >
+                  <MenuItem value="activo">Activo</MenuItem>
+                  <MenuItem value="solo_lectura">Solo lectura</MenuItem>
+                  <MenuItem value="vacaciones">Vacaciones</MenuItem>
+                  <MenuItem value="inactivo">Inactivo</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+
+            <Box>
+              <Typography variant="subtitle2">Permisos por módulo</Typography>
+              <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mt: 1 }}>
+                {modulosCrm.map((modulo) => {
+                  const checked = !!permisos.find((p) => p.modulo === modulo);
+                  return (
+                    <Chip
+                      key={modulo}
+                      label={modulo}
+                      clickable
+                      color={checked ? "primary" : "default"}
+                      variant={checked ? "filled" : "outlined"}
+                      onClick={() =>
+                        setPermisos((prev) => {
+                          if (prev.find((p) => p.modulo === modulo)) {
+                            return prev.filter((p) => p.modulo !== modulo);
+                          }
+                          return [...prev, { agente_id: 0, modulo, acciones: ['leer', 'crear', 'editar'] }];
+                        })
+                      }
+                    />
+                  );
+                })}
+              </Box>
+            </Box>
           </Box>
         </DialogContent>
         <DialogActions>

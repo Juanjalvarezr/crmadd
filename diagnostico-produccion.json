@@ -1,0 +1,35 @@
+{
+  "fecha": "2026-08-12T22:46:20.823Z",
+  "rutas": {
+    "/": {
+      "status": 200,
+      "title": "Loading...",
+      "bodyLength": 3860
+    },
+    "/contratos": {
+      "status": 200,
+      "title": "Loading...",
+      "bodyLength": 3860
+    },
+    "/proyectos": {
+      "status": 200,
+      "title": "Loading...",
+      "bodyLength": 3860
+    },
+    "/tareas": {
+      "status": 200,
+      "title": "Loading...",
+      "bodyLength": 3860
+    },
+    "/clientes": {
+      "status": 200,
+      "title": "Loading...",
+      "bodyLength": 3860
+    },
+    "/documentos": {
+      "status": 200,
+      "title": "Loading...",
+      "bodyLength": 3860
+    }
+  }
+}

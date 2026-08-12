@@ -517,7 +517,7 @@ export default function Ventas() {
                                       <IconButton size="small" onClick={() => handleEdit(opp)} sx={{ color: 'text.secondary' }}><FiEdit size={14}/></IconButton>
                                       <IconButton size="small" onClick={() => handleDelete(opp)} color="error"><FiTrash2 size={14}/></IconButton>
                                       <IconButton size="small" onClick={() => handleGenerarPropuestaAI(opp)} sx={{ color: '#daa520' }}><FiZap size={14}/></IconButton>
-                                      <IconButton size="small" onClick={() => handleOpenPropuestaModal(opp)} sx={{ color: '#1976d2' }}><FiFileText size={14}/></IconButton>
+                                      <IconButton size="small" onClick={() => handleGenerarPropuestaAI(opp)} sx={{ color: '#1976d2' }}><FiFileText size={14}/></IconButton>
                                     </Box>
                                   </Paper>
                                 </Box>

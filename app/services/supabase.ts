@@ -572,49 +572,10 @@ export const proyectosService = {
 };
 
 // Subagentes (Equipo Técnico)
-/*
 export const subagentesService = {
   async getAll() {
     const { data, error } = await supabase
-      .from('subagentes')
-      .select('*')
-      .order('nombre', { ascending: true });
-    if (error) throw error;
-    return data || []; // Corregido: estaba como string en algunos lugares
-  },
-  async create(subagente: Omit<Tables['subagentes'], 'id' | 'created_at'>) {
-    const { data, error } = await supabase
-      .from('subagentes')
-      .insert([subagente])
-      .select()
-      .single();
-    if (error) throw error;
-    return data;
-  },
-  async update(id: number, updates: Partial<Tables['subagentes']>) {
-    const { data, error } = await supabase
-      .from('subagentes')
-      .update(updates)
-      .eq('id', id)
-      .select()
-      .single();
-    if (error) throw error;
-    return data;
-  },
-  async delete(id: number) {
-    const { error } = await supabase
-      .from('subagentes')
-      .delete()
-      .eq('id', id);
-    if (error) throw error;
-    return true;
-  }
-};
-*/
-export const subagentesService = {
-  async getAll() {
-    const { data, error } = await supabase
-      .from('equipo') // Usar la tabla 'equipo' según el README
+      .from('equipo')
       .select('*')
       .order('nombre', { ascending: true });
     if (error) {
@@ -649,6 +610,75 @@ export const subagentesService = {
       .eq('id', id);
     if (error) throw error;
     return true;
+  }
+};
+
+// Permisos granulares por agente
+export const agentePermisosService = {
+  async getByAgente(agenteId: number) {
+    const { data, error } = await supabase
+      .from('agente_permisos')
+      .select('*')
+      .eq('agente_id', agenteId);
+    if (error) throw error;
+    return data || [];
+  },
+  async setPermiso(agenteId: number, modulo: string, acciones: string[]) {
+    const { data, error } = await supabase
+      .from('agente_permisos')
+      .upsert({ agente_id: agenteId, modulo, acciones, created_at: new Date().toISOString() }, { onConflict: 'agente_id,modulo' })
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+  async removePermiso(agenteId: number, modulo: string) {
+    const { error } = await supabase
+      .from('agente_permisos')
+      .delete()
+      .eq('agente_id', agenteId)
+      .eq('modulo', modulo);
+    if (error) throw error;
+    return true;
+  }
+};
+
+// Actividad / auditoría por agente
+export const agenteActividadService = {
+  async create(agenteId: number, accion: string, entidadTipo?: string, entidadId?: number, detalle?: any) {
+    const { data, error } = await supabase
+      .from('agente_actividad')
+      .insert([{
+        agente_id: agenteId,
+        accion,
+        entidad_tipo: entidadTipo,
+        entidad_id: entidadId,
+        detalle: detalle || {},
+        created_at: new Date().toISOString()
+      }])
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+  async getByAgente(agenteId: number, limit = 50) {
+    const { data, error } = await supabase
+      .from('agente_actividad')
+      .select('*')
+      .eq('agente_id', agenteId)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    if (error) throw error;
+    return data || [];
+  },
+  async getAllRecent(limit = 100) {
+    const { data, error } = await supabase
+      .from('agente_actividad')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(limit);
+    if (error) throw error;
+    return data || [];
   }
 };
 

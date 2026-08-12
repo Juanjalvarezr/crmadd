@@ -32,10 +32,76 @@ export default function Root() { useEffect(() => { document.title = "CRM DESEO D
   const theme = React.useMemo(() => createTheme({
     palette: {
       mode: themeMode,
+      primary: {
+        main: '#1976d2',
+        light: '#42a5f5',
+        dark: '#1565c0',
+      },
     },
     typography: {
-      fontSize: { xs: 13, sm: 14, md: 15 },
       fontFamily: 'Inter, Roboto, Helvetica, Arial, sans-serif',
+      h4: { fontVariantNumeric: 'tabular-nums' },
+      h5: { fontVariantNumeric: 'tabular-nums' },
+      h6: { fontVariantNumeric: 'tabular-nums' },
+    },
+    components: {
+      MuiPaper: {
+        styleOverrides: {
+          root: {
+            backgroundImage: 'none',
+            borderRadius: 14,
+            transition: 'box-shadow 0.25s ease, border-color 0.25s ease',
+          },
+        },
+      },
+      MuiCard: {
+        styleOverrides: {
+          root: {
+            borderRadius: 14,
+            backgroundImage: 'none',
+          },
+        },
+      },
+      MuiTab: {
+        styleOverrides: {
+          root: {
+            textTransform: 'none',
+            fontWeight: 600,
+            borderRadius: 8,
+            minHeight: 36,
+            padding: '6px 14px',
+            transition: 'all 0.2s ease',
+            '&.Mui-selected': {
+              fontWeight: 700,
+            },
+          },
+        },
+      },
+      MuiTabs: {
+        styleOverrides: {
+          indicator: {
+            height: 3,
+            borderRadius: '3px 3px 0 0',
+          },
+        },
+      },
+      MuiChip: {
+        styleOverrides: {
+          root: {
+            fontWeight: 600,
+            borderRadius: 8,
+          },
+        },
+      },
+      MuiButton: {
+        styleOverrides: {
+          root: {
+            textTransform: 'none',
+            fontWeight: 600,
+            borderRadius: 10,
+          },
+        },
+      },
     },
   }), [themeMode]);
 
@@ -116,7 +182,8 @@ export default function Root() { useEffect(() => { document.title = "CRM DESEO D
             component="main"
             sx={{
               flexGrow: 1,
-              p: { xs: 1, sm: 1.5, md: 2 },
+              px: { xs: 1.5, sm: 2.5, md: 3.5 },
+              py: { xs: 2, sm: 2.5, md: 3 },
               backgroundColor: "background.default",
               minHeight: "calc(100vh - 120px)",
             }}
