@@ -96,21 +96,23 @@ export default function Proyectos() {
 
   // Cargar datos iniciales
   useEffect(() => {
+    let mounted = true;
+    const timer = setTimeout(() => { if (mounted) setLoading(false); }, 8000);
     const loadData = async () => {
       try {
         setLoading(true);
-        await Promise.all([
-          fetchClientes(),
-          fetchProyectos()
-        ]);
+        await Promise.all([fetchClientes(), fetchProyectos()]);
       } catch (err: any) {
-        setError("Error al cargar datos: " + err.message);
+        if (mounted) setError("Error al cargar datos: " + err.message);
       } finally {
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+          clearTimeout(timer);
+        }
       }
     };
-
     loadData();
+    return () => { mounted = false; clearTimeout(timer); };
   }, []);
 
   useEffect(() => {
