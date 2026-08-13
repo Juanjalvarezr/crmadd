@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router";
-import { Box, Snackbar, Alert, CircularProgress, ThemeProvider, CssBaseline, createTheme } from "@mui/material";
+import { Box, Snackbar, Alert, CircularProgress, ThemeProvider, CssBaseline, createTheme, Typography } from "@mui/material";
 import { useNotificationStore } from "./store/useNotificationStore";
 import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
@@ -18,15 +18,15 @@ class ErrorBoundary extends React.Component<any, { hasError: boolean; error: any
     return { hasError: true, error };
   }
   componentDidCatch(error: any, info: any) {
-    console.error('CRM ErrorBoundary:', error, info);
+    console.error("CRM ErrorBoundary:", error, info);
   }
   render() {
     if (this.state.hasError) {
       return (
-        <Box sx={{ p: 4, color: 'error.main' }}>
-          <Typography variant='h5' sx={{ fontWeight: 'bold', mb: 2 }}>Error en la aplicación</Typography>
-          <Typography variant='body2' sx={{ mb: 1, whiteSpace: 'pre-wrap' }}>{this.state.error?.message || String(this.state.error)}</Typography>
-          <Typography variant='caption' sx={{ color: 'text.secondary', whiteSpace: 'pre-wrap' }}>{this.state.error?.stack}</Typography>
+        <Box sx={{ p: 4, color: "error.main" }}>
+          <Typography variant="h5" sx={{ fontWeight: "bold", mb: 2 }}>Error en la aplicación</Typography>
+          <Typography variant="body2" sx={{ mb: 1, whiteSpace: "pre-wrap" }}>{this.state.error?.message || String(this.state.error)}</Typography>
+          <Typography variant="caption" sx={{ color: "text.secondary", whiteSpace: "pre-wrap" }}>{this.state.error?.stack}</Typography>
         </Box>
       );
     }
@@ -34,7 +34,8 @@ class ErrorBoundary extends React.Component<any, { hasError: boolean; error: any
   }
 }
 
-export default function Root() { useEffect(() => { document.title = "CRM DESEO DIGITAL"; }, []);
+export default function Root() {
+  useEffect(() => { document.title = "CRM DESEO DIGITAL"; }, []);
   const navigate = useNavigate();
   const location = useLocation();
   const { open, message, severity, hideNotification } = useNotificationStore();
@@ -57,6 +58,11 @@ export default function Root() { useEffect(() => { document.title = "CRM DESEO D
   const theme = React.useMemo(() => createTheme({
     palette: {
       mode: themeMode,
+      primary: {
+        main: '#1976d2',
+        light: '#42a5f5',
+        dark: '#1565c0',
+      },
     },
     typography: {
       fontSize: { xs: 13, sm: 14, md: 15 },
@@ -113,8 +119,8 @@ export default function Root() { useEffect(() => { document.title = "CRM DESEO D
   };
 
   return (
+    <ErrorBoundary>
     <ThemeProvider theme={theme}>
-      <ErrorBoundary>
       <CssBaseline />
       <Box sx={{ display: "flex", minHeight: "100vh", overflowX: "hidden" }}>
         <Sidebar
@@ -164,6 +170,6 @@ export default function Root() { useEffect(() => { document.title = "CRM DESEO D
         </Alert>
       </Snackbar>
     </ThemeProvider>
+    </ErrorBoundary>
   );
-};
-</ErrorBoundary>
+}
