@@ -176,6 +176,7 @@ export const useCRMStore = create<CRMState>((set, get) => ({
     } catch (err: any) { set({ error: err.message, isLoading: false }); }
   },
 
+  setProyectos: (proyectos: any[]) => set({ proyectos }),
   updateStats: () => {
     const { clientes, oportunidades, proyectos } = get();
     const totalIngresos = oportunidades.reduce((acc: number, curr: any) => acc + (curr.valor || 0), 0);

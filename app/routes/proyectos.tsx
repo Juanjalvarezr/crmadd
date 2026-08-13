@@ -78,7 +78,14 @@ export default function Proyectos() {
   const [sendingEmail, setSendingEmail] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
-  // React Hook Form con Zod
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const updateMobile = () => setIsMobile(window.innerWidth <= 600);
+    updateMobile();
+    window.addEventListener("resize", updateMobile);
+    return () => window.removeEventListener("resize", updateMobile);
+  }, []);
+
   const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm({
     resolver: zodResolver(proyectoSchema),
     defaultValues: {
@@ -118,13 +125,6 @@ export default function Proyectos() {
   useEffect(() => {
     // datos ya viven en los selectores del store
   }, [proyectos.length, clientes.length]);
-
-  useEffect(() => {
-    useEffect(() => { if (typeof window !== "undefined") { const updateMobile = () => setIsMobile(window.innerWidth <= 600); updateMobile(); window.addEventListener("resize", updateMobile); return () => window.removeEventListener("resize", updateMobile); } }, []);
-    updateMobile();
-    window.addEventListener("resize", updateMobile);
-    return () => window.removeEventListener("resize", updateMobile);
-  }, []);
 
   // Sistema de Magic Links: Genera una URL pública temporal para el cliente
   const handleGenerateMagicLink = (proyecto: Proyecto) => {
