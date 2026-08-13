@@ -164,6 +164,6 @@ export default function Root() { useEffect(() => { document.title = "CRM DESEO D
         </Alert>
       </Snackbar>
     </ThemeProvider>
-    </ErrorBoundary>
   );
 };
+</ErrorBoundary>
