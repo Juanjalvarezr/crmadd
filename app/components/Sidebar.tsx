@@ -471,9 +471,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
         sx={{
           display: { xs: 'block', sm: 'none' },
           zIndex: 1500,
-          '& .MuiDrawer-paper': { 
-            boxSizing: 'border-box', 
-            width: DRAWER_WIDTH,
+          '& .MuiDrawer-paper': {
+            boxSizing: 'border-box',
+            width: '85vw',
+            maxWidth: DRAWER_WIDTH,
             border: "none"
           },
         }}
