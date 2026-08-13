@@ -9,6 +9,31 @@ import GlobalSearch from "./components/GlobalSearch";
 
 const DRAWER_WIDTH = 260;
 
+class ErrorBoundary extends React.Component<any, { hasError: boolean; error: any }> {
+  constructor(props: any) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error: any) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error: any, info: any) {
+    console.error('CRM ErrorBoundary:', error, info);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <Box sx={{ p: 4, color: 'error.main' }}>
+          <Typography variant='h5' sx={{ fontWeight: 'bold', mb: 2 }}>Error en la aplicación</Typography>
+          <Typography variant='body2' sx={{ mb: 1, whiteSpace: 'pre-wrap' }}>{this.state.error?.message || String(this.state.error)}</Typography>
+          <Typography variant='caption' sx={{ color: 'text.secondary', whiteSpace: 'pre-wrap' }}>{this.state.error?.stack}</Typography>
+        </Box>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 export default function Root() { useEffect(() => { document.title = "CRM DESEO DIGITAL"; }, []);
   const navigate = useNavigate();
   const location = useLocation();
@@ -89,6 +114,7 @@ export default function Root() { useEffect(() => { document.title = "CRM DESEO D
 
   return (
     <ThemeProvider theme={theme}>
+      <ErrorBoundary>
       <CssBaseline />
       <Box sx={{ display: "flex", minHeight: "100vh", overflowX: "hidden" }}>
         <Sidebar
