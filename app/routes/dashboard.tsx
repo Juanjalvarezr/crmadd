@@ -55,6 +55,7 @@ export default function Dashboard() {
   const [syncDialog, setSyncDialog] = useState(false);
   const [syncObservation, setSyncObservation] = useState("");
   const [syncAnchorEl, setSyncAnchorEl] = useState<null | HTMLElement>(null);
+  const [ready, setReady] = useState(false);
   const todayLabel = new Date().toLocaleDateString("es-CO", {
     weekday: "long",
     day: "numeric",
@@ -75,66 +76,33 @@ export default function Dashboard() {
     return () => window.removeEventListener("presentation-mode-changed", handler);
   }, []);
 
+  const timeoutRef = React.useRef<number | null>(null);
+  useEffect(() => {
+    timeoutRef.current = window.setTimeout(() => setReady(true), 8000);
+    return () => {
+      if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
+    };
+  }, []);
 
-
-  const calculateStats = useCallback(
-    (source: any) => {
-      const proyectos = Array.isArray(source.proyectos) ? source.proyectos : [];
-      const clientes = Array.isArray(source.clientes) ? source.clientes : [];
-      const oportunidades = Array.isArray(source.oportunidades)
-        ? source.oportunidades
-        : [];
-      const tareas = Array.isArray(source.tareas) ? source.tareas : [];
-
-      const totalPresupuestado = proyectos.reduce(
-        (acc: number, current: any) => acc + (Number(current.presupuesto) || 0),
-        0
-      );
-      const totalRecaudado = proyectos.reduce(
-        (acc: number, current: any) => acc + (Number(current.montoPagado) || 0),
-        0
-      );
-      const valorPipeline = oportunidades
-        .filter(
-          (oportunidad: any) =>
-            oportunidad.estado === "Abierta" ||
-            oportunidad.etapa === "Prospección" ||
-            oportunidad.etapa === "Propuesta"
-        )
-        .reduce(
-          (acc: number, current: any) => acc + (Number(current.valor) || 0),
-          0
-        );
-
-      setStats({
-        totalClientes: clientes.length,
-        proyectosActivos: proyectos.filter(
-          (proyecto: any) =>
-            proyecto.estado === "en_progreso" ||
-            proyecto.estado === "planificacion"
-        ).length,
-        valorPipeline,
-        totalPresupuestado,
-        totalRecaudado,
-        tareasPendientes: Array.isArray(tareas)
-          ? tareas.filter((t: any) => t.estado !== "Completada" && t.estado !== "Cancelada").length
-          : 0,
-      });
-    },
-    [setStats]
-  );
+  const retryWithTimeout = async () => {
+    setReady(false);
+    if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
+    timeoutRef.current = window.setTimeout(() => setReady(true), 8000);
+    try {
+      await fetchDashboardData();
+    } catch (networkError) {
+      setError("No fue posible sincronizar con el backend. Intenta nuevamente.");
+    }
+  };
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      try {
-        await fetchDashboardData();
-      } catch (networkError) {
-        if (!cancelled) setError("No fue posible sincronizar con el backend. Intenta nuevamente.");
-      }
+      await retryWithTimeout();
+      return () => { cancelled = true; };
     })();
-    return () => { cancelled = true; };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fetchDashboardData]);
 
   useEffect(() => {
     setData({
@@ -148,9 +116,27 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!storeIsLoading) {
-      calculateStats(data);
+      const proyectos = Array.isArray(data.proyectos) ? data.proyectos : [];
+      const clientes = Array.isArray(data.clientes) ? data.clientes : [];
+      const oportunidades = Array.isArray(data.oportunidades) ? data.oportunidades : [];
+      const tareas = Array.isArray(data.tareas) ? data.tareas : [];
+
+      const totalPresupuestado = proyectos.reduce((acc: number, current: any) => acc + (Number(current.presupuesto) || 0), 0);
+      const totalRecaudado = proyectos.reduce((acc: number, current: any) => acc + (Number(current.montoPagado) || 0), 0);
+      const valorPipeline = oportunidades
+        .filter((oportunidad: any) => oportunidad.estado === "Abierta" || oportunidad.etapa === "Prospección" || oportunidad.etapa === "Propuesta")
+        .reduce((acc: number, current: any) => acc + (Number(current.valor) || 0), 0);
+
+      setStats({
+        totalClientes: clientes.length,
+        proyectosActivos: proyectos.filter((proyecto: any) => proyecto.estado === "en_progreso" || proyecto.estado === "planificacion").length,
+        valorPipeline,
+        totalPresupuestado,
+        totalRecaudado,
+        tareasPendientes: Array.isArray(tareas) ? tareas.filter((t: any) => t.estado !== "Completada" && t.estado !== "Cancelada").length : 0,
+      });
     }
-  }, [storeIsLoading, data, calculateStats]);
+  }, [storeIsLoading, data]);
 
   const refreshMetrics = async () => {
     setSyncAnchorEl(null);
@@ -177,17 +163,12 @@ export default function Dashboard() {
           maximumFractionDigits: 0,
         }).format(value);
 
-  if (storeIsLoading) {
+  const shouldBlock = storeIsLoading && !ready;
+  if (shouldBlock) {
     return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "70vh",
-        }}
-      >
-        <CircularProgress />
+      <Box sx={{ p: 3 }}>
+        <Alert severity="info" sx={{ mb: 2 }}>Sincronizando datos... Si esto tarda, podés seguir navegando.</Alert>
+        <Button variant="contained" onClick={() => retryWithTimeout()}>Reintentar ahora</Button>
       </Box>
     );
   }
