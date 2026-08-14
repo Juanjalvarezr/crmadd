@@ -900,98 +900,117 @@ export default function Proyectos() {
         <Grid container spacing={{ xs: 1, sm: 1.5 }}>
           {proyectosFiltrados.map((proyecto) => (
             <Grid item xs={12} md={6} lg={4} key={proyecto.id}>
-              <Card sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-                <CardContent sx={{ flexGrow: 1, '&:last-child': { pb: 2 }, p: { xs: 1.5, sm: 2 } }}>
-                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1.5 }}>
-                    <Typography variant="subtitle2" sx={{ fontWeight: "bold", lineHeight: 1.2 }}>
+              <Card sx={{ 
+                height: "100%", 
+                display: "flex", 
+                flexDirection: { xs: "row", md: "column" },
+                borderRadius: 2
+              }}>
+                <CardContent sx={{ 
+                  flexGrow: 1, 
+                  '&:last-child': { pb: { xs: 1, sm: 2 } }, 
+                  p: { xs: 1.5, sm: 2 },
+                  width: { xs: 'auto', md: '100%' },
+                  flex: { xs: '1 1 auto', md: '1 1 auto' }
+                }}>
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: { xs: 0.5, sm: 1.5 }, gap: 1, flexWrap: "wrap" }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: "bold", lineHeight: 1.2, fontSize: { xs: '0.85rem', sm: '1rem' } }}>
                       {proyecto.nombre}
                     </Typography>
-                    <Typography variant="caption" sx={{ color: "text.secondary", display: "block", mt: -0.5, ml: 1, whiteSpace: 'nowrap' }}>
+                    <Typography variant="caption" sx={{ color: "text.secondary", display: "block", whiteSpace: 'nowrap', fontSize: { xs: '0.7rem', sm: '0.8rem' } }}>
                       {proyecto.clienteNombre || proyecto.clienteId || "Sin asignar"}
                     </Typography>
-                    <Box sx={{ display: "flex", gap: 0.5, ml: 1, mt: 0.5 }}>
-                      <Chip
-                        label={proyecto.estado.replace("_", " ")}
-                        size="small"
-                        sx={{
-                          backgroundColor: getEstadoColor(proyecto.estado),
-                          color: "white",
-                          fontSize: "0.65rem",
-                          height: 20
-                        }}
-                      />
-                      <Chip
-                        label={proyecto.prioridad}
-                        size="small"
-                        sx={{
-                          backgroundColor: getPrioridadColor(proyecto.prioridad),
-                          color: "white",
-                          fontSize: "0.65rem",
-                          height: 20
-                        }}
-                      />
-                    </Box>
                   </Box>
-                  
-                  <Typography variant="caption" color="text.secondary" sx={{ mb: 1.5, display: 'block' }}>
-                    {proyecto.descripcion}
-                  </Typography>
-                  
-                  <Box sx={{ mb: 1.5 }}>
-                    <Typography variant="caption" sx={{ fontWeight: "bold", mb: 0.5, display: 'block' }}>
-                      Cliente: {proyecto.clienteNombre}
-                    </Typography>
-                    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                      {(proyecto.servicios || []).map((servicio, index) => (
-                        <Chip
-                          key={index}
-                          label={servicio}
-                          size="small"
-                          variant="outlined"
-                          sx={{ fontSize: "0.6rem", height: 20 }}
-                        />
-                      ))}
-                    </Box>
-                  </Box>
-                  
-                  <Box sx={{ mb: 1.5 }}>
-                    <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
-                      <Typography variant="caption" sx={{ fontWeight: "bold" }}>
-                        Progreso: {proyecto.progreso}%
-                      </Typography>
-                    </Box>
-                    <LinearProgress 
-                      variant="determinate" 
-                      value={proyecto.progreso} 
-                      sx={{ height: 6, borderRadius: 3, backgroundColor: "#e0e0e0", "& .MuiLinearProgress-bar": { borderRadius: 3, backgroundColor: getEstadoColor(proyecto.estado) } }}
+
+                  <Box sx={{ display: "flex", gap: 0.5, mb: { xs: 0.5, sm: 1.5 }, flexWrap: "wrap" }}>
+                    <Chip
+                      label={proyecto.estado.replace("_", " ")}
+                      size="small"
+                      sx={{
+                        backgroundColor: getEstadoColor(proyecto.estado),
+                        color: "white",
+                        fontSize: { xs: '0.6rem', sm: '0.65rem' },
+                        height: { xs: 18, sm: 20 }
+                      }}
+                    />
+                    <Chip
+                      label={proyecto.prioridad}
+                      size="small"
+                      sx={{
+                        backgroundColor: getPrioridadColor(proyecto.prioridad),
+                        color: "white",
+                        fontSize: { xs: '0.6rem', sm: '0.65rem' },
+                        height: { xs: 18, sm: 20 }
+                      }}
                     />
                   </Box>
-                  
-                  <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
-                    <Typography variant="caption" color="text.secondary">
-                      {format(new Date(proyecto.fechaInicio), "dd/MM/yyyy")}
+
+                  <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+                    <Typography variant="caption" color="text.secondary" sx={{ mb: 1.5, display: 'block' }}>
+                      {proyecto.descripcion}
                     </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {format(new Date(proyecto.fechaFin), "dd/MM/yyyy")}
+
+                    <Box sx={{ mb: 1.5 }}>
+                      <Typography variant="caption" sx={{ fontWeight: "bold", mb: 0.5, display: 'block' }}>
+                        Cliente: {proyecto.clienteNombre}
+                      </Typography>
+                      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                        {(proyecto.servicios || []).map((servicio, index) => (
+                          <Chip
+                            key={index}
+                            label={servicio}
+                            size="small"
+                            variant="outlined"
+                            sx={{ fontSize: "0.6rem", height: 20 }}
+                          />
+                        ))}
+                      </Box>
+                    </Box>
+
+                    <Box sx={{ mb: 1.5 }}>
+                      <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
+                        <Typography variant="caption" sx={{ fontWeight: "bold" }}>
+                          Progreso: {proyecto.progreso}%
+                        </Typography>
+                      </Box>
+                      <LinearProgress 
+                        variant="determinate" 
+                        value={proyecto.progreso} 
+                        sx={{ height: 6, borderRadius: 3, backgroundColor: "#e0e0e0", "& .MuiLinearProgress-bar": { borderRadius: 3, backgroundColor: getEstadoColor(proyecto.estado) } }}
+                      />
+                    </Box>
+
+                    <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
+                      <Typography variant="caption" color="text.secondary">
+                        {format(new Date(proyecto.fechaInicio), "dd/MM/yyyy")}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {format(new Date(proyecto.fechaFin), "dd/MM/yyyy")}
+                      </Typography>
+                    </Box>
+
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+                      <Typography variant="caption" sx={{ fontWeight: "bold" }}>
+                        {formatCOP(proyecto.presupuesto)}
+                      </Typography>
+                      <Typography variant="caption" sx={{ fontWeight: "bold", color: (Number(proyecto.costoActual || 0) > proyecto.presupuesto) ? "#f44336" : "#4caf50" }}>
+                        {formatCOP(proyecto.costoActual)}
+                      </Typography>
+                    </Box>
+
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
+                      Actualizado: {formatDistanceToNow(new Date(proyecto.actualizadoEn), { addSuffix: true, locale: es })}
                     </Typography>
                   </Box>
-                  
-                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
-                    <Typography variant="caption" sx={{ fontWeight: "bold" }}>
-                      {formatCOP(proyecto.presupuesto)}
-                    </Typography>
-                    <Typography variant="caption" sx={{ fontWeight: "bold", color: (Number(proyecto.costoActual || 0) > proyecto.presupuesto) ? "#f44336" : "#4caf50" }}>
-                      {formatCOP(proyecto.costoActual)}
-                    </Typography>
-                  </Box>
-                  
-                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
-                    Actualizado: {formatDistanceToNow(new Date(proyecto.actualizadoEn), { addSuffix: true, locale: es })}
-                  </Typography>
                 </CardContent>
                 
-                <CardActions sx={{ justifyContent: "space-between", p: { xs: 1, sm: 1.5 } }}>
-                  <Box sx={{ display: "flex", gap: 1 }}>
+                <CardActions sx={{ 
+                  justifyContent: "space-between", 
+                  p: { xs: 1, sm: 1.5 },
+                  flexDirection: { xs: 'row', md: 'row' },
+                  gap: { xs: 0.5, sm: 1 }
+                }}>
+                  <Box sx={{ display: "flex", gap: { xs: 0.5, sm: 1 } }}>
                     <Tooltip title="Compartir progreso con cliente (Magic Link)">
                       <IconButton size="small" color="primary" onClick={() => handleGenerateMagicLink(proyecto)}>
                         <Share2 size={18} />
@@ -1008,7 +1027,7 @@ export default function Proyectos() {
                       </IconButton>
                     </Tooltip>
                   </Box>
-                  <Box sx={{ display: "flex", gap: 1 }}>
+                  <Box sx={{ display: "flex", gap: { xs: 0.5, sm: 1 } }}>
                     {proyecto.estado === "en_progreso" && (
                       <Tooltip title="Pausar">
                         <IconButton size="small" onClick={() => handleCambiarEstado(proyecto, "pausado")}>
