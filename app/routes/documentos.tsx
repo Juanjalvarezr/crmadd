@@ -85,7 +85,12 @@ export default function Documentos() {
 
       {loading && <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}><CircularProgress size={24} /></Box>}
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-
+      {!loading && items.length === 0 && (
+        <Paper sx={{ p: { xs: 2, sm: 3 }, textAlign: "center", borderRadius: 2, border: "1px dashed", borderColor: "divider" }}>
+          <Typography variant="body2" color="text.secondary">Sin documentos</Typography>
+          <Button size="small" variant="text" onClick={openCreate}>Crear el primero</Button>
+        </Paper>
+      )}
       <Box sx={{ display: "grid", gap: 1 }}>
         {items.map((row) => (
           <Paper key={row.id} variant="outlined" sx={{ p: 1.5, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
