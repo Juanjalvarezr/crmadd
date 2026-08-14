@@ -123,40 +123,43 @@ export default function Facturacion() {
   };
 
   return (
-    <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1.5, flexWrap: "wrap" }}>
-        <FiFileText size={22} color="#009688" />
-        <Typography variant="h6" sx={{ color: "#009688", fontWeight: "bold", flex: 1 }}>Facturación</Typography>
+    <Box sx={{ p: { xs: 1, sm: 1.5, md: 2 } }}>
+      <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 1, sm: 1.5 }, mb: { xs: 1, sm: 1.5 }, flexWrap: "wrap" }}>
+        <FiFileText size={18} color="#009688" />
+        <Typography variant="h6" sx={{ color: "#009688", fontWeight: "bold", flex: 1, fontSize: { xs: '1rem', sm: '1.1rem' } }}>Facturación</Typography>
         <Button size="small" startIcon={<FiRefreshCw size={14} />} onClick={load} disabled={loading}>Recargar</Button>
-        <Button variant="contained" size="small" startIcon={<FiPlus size={16} />} onClick={openCreate}>Nueva</Button>
+        <Button variant="contained" size="small" startIcon={<FiPlus size={14} />} onClick={openCreate}>Nueva</Button>
       </Box>
 
-      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 2 }}>
-        <Chip label={`${facturas.length} facturas`} size="small" />
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: { xs: 0.5, sm: 1 }, mb: { xs: 1, sm: 1.5 } }}>
+        <Chip label={`${facturas.length} facturas`} size="small" sx={{ height: { xs: 24, sm: 28 } }} />
       </Box>
 
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      {error && <Alert severity="error" sx={{ mb: { xs: 1, sm: 1.5 } }}>{error}</Alert>}
 
       {loading ? (
-        <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}><CircularProgress /></Box>
+        <Box sx={{ display: "flex", justifyContent: "center", p: { xs: 2, sm: 3 } }}><CircularProgress size={28} /></Box>
       ) : facturas.length === 0 ? (
-        <Paper sx={{ p: 4, borderRadius: 2, textAlign: "center" }}><Typography color="text.secondary">No hay facturas registradas.</Typography></Paper>
+        <Paper sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2, textAlign: "center", border: "1px dashed", borderColor: "divider" }}>
+          <Typography variant="body2" color="text.secondary">No hay facturas registradas.</Typography>
+          <Button size="small" variant="text" onClick={openCreate}>Crear la primera</Button>
+        </Paper>
       ) : (
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: { xs: 0.5, sm: 1 } }}>
           {facturas.slice(0, 20).map((f: any) => (
-            <Paper key={f.id} sx={{ p: { xs: 1.5, sm: 2 }, borderRadius: 2, display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap" }}>
+            <Paper key={f.id} sx={{ p: { xs: 1, sm: 1.5 }, borderRadius: 2, display: "flex", alignItems: "center", gap: { xs: 0.5, sm: 1 }, flexWrap: "wrap" }}>
               <Box sx={{ flex: 1, minWidth: 0 }}>
-                <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>Factura #{f.id}</Typography>
-                <Typography variant="caption" color="text.secondary">{f.numero_factura || ""}</Typography>
+                <Typography variant="caption" sx={{ fontWeight: "bold", fontSize: { xs: '0.85rem', sm: '0.9rem' } }}>Factura #{f.id}</Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontSize: { xs: '0.75rem', sm: '0.8rem' } }}>{f.numero_factura || ""}</Typography>
               </Box>
-              <Chip size="small" label={f.estado || "Borrador"} />
-              <Typography variant="body2" sx={{ fontWeight: "bold" }}>${Number(f.total || 0).toFixed(0)}</Typography>
-              <Box sx={{ display: "flex", gap: 0.5, flexWrap: "wrap" }}>
-                <Button size="small" onClick={() => openDetail(f)}>Ver</Button>
-                <Button size="small" onClick={() => openEdit(f)}>Editar</Button>
-                <Button size="small" color="error" onClick={() => handleDelete(f)}>Eliminar</Button>
-                <Button size="small" onClick={() => sendWhatsApp(f)}>WhatsApp</Button>
-                <Button size="small" onClick={() => sendEmail(f)}>Email</Button>
+              <Chip size="small" label={f.estado || "Borrador"} sx={{ height: { xs: 20, sm: 24 }, fontSize: { xs: '0.7rem', sm: '0.75rem' } }} />
+              <Typography variant="caption" sx={{ fontWeight: "bold", fontSize: { xs: '0.85rem', sm: '0.9rem' } }}>${Number(f.total || 0).toFixed(0)}</Typography>
+              <Box sx={{ display: "flex", gap: { xs: 0.25, sm: 0.5 }, flexWrap: "wrap" }}>
+                <Button size="small" variant="text" onClick={() => openDetail(f)} sx={{ minHeight: { xs: 28, sm: 32 } }}>Ver</Button>
+                <Button size="small" variant="text" onClick={() => openEdit(f)} sx={{ minHeight: { xs: 28, sm: 32 } }}>Editar</Button>
+                <Button size="small" color="error" variant="text" onClick={() => handleDelete(f)} sx={{ minHeight: { xs: 28, sm: 32 } }}>Eliminar</Button>
+                <Button size="small" variant="text" onClick={() => sendWhatsApp(f)} sx={{ minHeight: { xs: 28, sm: 32 } }}>WhatsApp</Button>
+                <Button size="small" variant="text" onClick={() => sendEmail(f)} sx={{ minHeight: { xs: 28, sm: 32 } }}>Email</Button>
               </Box>
             </Paper>
           ))}
