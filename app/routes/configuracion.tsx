@@ -972,6 +972,11 @@ export default function Configuracion() {
 
       {!loading && (
         <>
+          {(!dbStatus || !dbStatus.success) && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              Error de conexión con Supabase. Verificá las variables de entorno.
+            </Alert>
+          )}
           {/* Configuración de Empresa */}
           {activeTab === "empresa" && (
             <EmpresaTab 
