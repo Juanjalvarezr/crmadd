@@ -38,6 +38,7 @@ const getEstadoColor = (e: string) => {
 };
 
 export default function Tareas() { const openCreate = () => { if (typeof window !== "undefined") { alert("Crear nueva tarea..."); } };
+  const [isMobile, setIsMobile] = useState(false);
   const tareas = useCRMStore((s) => s.tareas);
   const clientes = useCRMStore((s) => s.clientes);
   const fetchTareas = useCRMStore((s) => s.fetchTareas);
@@ -60,6 +61,14 @@ export default function Tareas() { const openCreate = () => { if (typeof window 
     estado: "Pendiente" as "Pendiente" | "En progreso" | "Completada",
     cliente_id: "" as string | number,
   });
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const updateMobile = () => setIsMobile(window.innerWidth <= 600);
+    updateMobile();
+    window.addEventListener("resize", updateMobile);
+    return () => window.removeEventListener("resize", updateMobile);
+  }, []);
 
   const loadTareas = async () => {
     try {
