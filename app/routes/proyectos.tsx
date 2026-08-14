@@ -102,25 +102,23 @@ export default function Proyectos() {
   });
 
   // Cargar datos iniciales
+  const loadData = useCallback(async () => {
+    try {
+      setLoading(true);
+      await Promise.all([fetchClientes(), fetchProyectos()]);
+    } catch (err: any) {
+      setError("Error al cargar datos: " + err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchClientes, fetchProyectos]);
+
   useEffect(() => {
     let mounted = true;
     const timer = setTimeout(() => { if (mounted) setLoading(false); }, 8000);
-    const loadData = async () => {
-      try {
-        setLoading(true);
-        await Promise.all([fetchClientes(), fetchProyectos()]);
-      } catch (err: any) {
-        if (mounted) setError("Error al cargar datos: " + err.message);
-      } finally {
-        if (mounted) {
-          setLoading(false);
-          clearTimeout(timer);
-        }
-      }
-    };
     loadData();
     return () => { mounted = false; clearTimeout(timer); };
-  }, [fetchClientes, fetchProyectos]);
+  }, [loadData]);
 
   useEffect(() => {
     // datos ya viven en los selectores del store
