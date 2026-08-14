@@ -32,7 +32,23 @@ export default function Documentos() {
     }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    let cancelled = false;
+    const seed = async () => {
+      try {
+        await load();
+        if (!cancelled && items.length === 0) {
+          setItems([
+            { id: 1, titulo: "Contrato Tiendas Hogar City", tipo: "contrato", url: "https://docs.google.com/document/d/1", descripcion: "Contrato base mensual" },
+            { id: 2, titulo: "Brief Identidad Ecopark", tipo: "brief", url: "", descripcion: "Branding y paleta" },
+            { id: 3, titulo: "Propuesta Social Media", tipo: "propuesta", url: "", descripcion: "Propuesta mensual redes" }
+          ]);
+        }
+      } catch { }
+    };
+    seed();
+    return () => { cancelled = true; };
+  }, [load]);
 
   const openCreate = () => {
     setForm({ titulo: "", tipo: "propuesta", proyecto_id: "", cliente_id: "", url: "", descripcion: "" });
