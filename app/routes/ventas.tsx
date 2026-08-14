@@ -338,10 +338,10 @@ export default function Ventas() {
 
   return (
     <Box sx={{ p: { xs: 1, sm: 1.5, md: 2 } }}>
-      {/* Header */}
+      {/* Header compacto */}
       <Paper sx={{ p: { xs: 1.5, sm: 2 }, mb: { xs: 1, sm: 1.5 }, background: "linear-gradient(135deg, #fce4ec 0%, #fff8e1 100%)", borderLeft: "4px solid #E91E63" }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 0.5, flexWrap: "wrap" }}>
-          <FiTrendingUp size={22} color="#E91E63" />
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5, flexWrap: "wrap" }}>
+          <FiTrendingUp size={18} color="#E91E63" />
           <Typography variant="h6" sx={{ color: "#C2185B", flex: 1, fontSize: { xs: '1rem', sm: '1.1rem' } }}>
             Pipeline de Oportunidades
           </Typography>

@@ -77,9 +77,9 @@ export default function Documentos() {
   };
 
   return (
-    <Box sx={{ p: { xs: 1, sm: 2 } }}>
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-        <Typography variant="h6" sx={{ fontSize: { xs: "1.1rem", sm: "1.25rem" } }}>Documentos</Typography>
+    <Box sx={{ p: { xs: 1, sm: 1.5, md: 2 } }}>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: { xs: 1, sm: 1.5 } }}>
+        <Typography variant="h6" sx={{ fontSize: { xs: '1rem', sm: '1.1rem' } }}>Documentos</Typography>
         <Button variant="contained" size="small" startIcon={<FiPlus size={16} />} onClick={openCreate}>Nuevo</Button>
       </Box>
 
