@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -49,6 +49,7 @@ export default function Proyectos() {
   const clientes = useCRMStore((s) => s.clientes);
   const fetchClientes = useCRMStore((s) => s.fetchClientes);
   const fetchProyectos = useCRMStore((s) => s.fetchProyectos);
+  const setProyectos = useCRMStore((s) => s.setProyectos);
   const { showNotification } = useNotificationStore();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
