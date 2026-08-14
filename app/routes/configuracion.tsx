@@ -911,21 +911,20 @@ export default function Configuracion() {
   );
 
   return (
-    <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
-      {/* Header */}
+    <Box sx={{ p: { xs: 1, sm: 1.5, md: 2 } }}>
+      {/* Header compacto */}
       <Paper sx={{ 
-        p: { xs: 2, sm: 3 }, 
-        mb: { xs: 2, sm: 3 }, 
+        p: { xs: 1.5, sm: 2 }, 
+        mb: { xs: 1, sm: 1.5 }, 
         backgroundColor: (theme) => theme.palette.mode === 'dark' ? '#0d0e15' : '#e3f2fd', 
-        borderLeft: "5px solid",
+        borderLeft: "3px solid",
         borderColor: (theme) => theme.palette.mode === 'dark' ? '#e91e63' : '#2196f3',
-        borderRadius: 2,
-        backgroundImage: (theme) => theme.palette.mode === 'dark' ? 'linear-gradient(rgba(233, 30, 99, 0.05) 0%, rgba(0,0,0,0) 100%)' : 'none'
+        borderRadius: 2
       }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flex: 1 }}>
-            <FiSettings size={28} color="#1976d2" />
-            <Typography variant="h5" sx={{ fontWeight: "bold", color: "#1976d2" }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 1, sm: 2 }, mb: { xs: 1, sm: 2 }, flexWrap: "wrap" }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1 }}>
+            <FiSettings size={24} color="#1976d2" />
+            <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1976d2", fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>
               Configuración del Sistema
             </Typography>
           </Box>
@@ -935,32 +934,33 @@ export default function Configuracion() {
               label={dbStatus.success ? "Conectado a Supabase" : "Error de Conexión"} 
               color={dbStatus.success ? "success" : "error"}
               variant="outlined"
+              size="small"
             />
           )}
         </Box>
-        <Typography variant="body2" sx={{ color: (theme) => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.7)' : 'text.secondary' }}>
+        <Typography variant="body2" sx={{ color: (theme) => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.7)' : 'text.secondary', fontSize: { xs: '0.85rem', sm: '0.9rem' } }}>
           Personaliza tu CRM DESEO DIGITAL. Configura empresa, preferencias y seguridad.
         </Typography>
       </Paper>
 
-      {/* Pestañas de navegación */}
+      {/* Pestañas de navegación compactas */}
       <Paper sx={{ 
-        p: 2, 
-        mb: 3, 
+        p: { xs: 1, sm: 1.5 }, 
+        mb: { xs: 1, sm: 1.5 }, 
         borderRadius: 2,
         backgroundColor: (theme) => theme.palette.mode === 'dark' ? '#12131a' : '#fff',
         border: (theme) => theme.palette.mode === 'dark' ? '1px solid rgba(255,255,255,0.05)' : 'none',
-        boxShadow: (theme) => theme.palette.mode === 'dark' ? '0 8px 32px rgba(0,0,0,0.4)' : 1
+        boxShadow: (theme) => theme.palette.mode === 'dark' ? '0 4px 24px rgba(0,0,0,0.4)' : 1
       }}>
-        <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
-          <TabButton id="empresa" label="Empresa" icon={<FiUser />} />
-          <TabButton id="preferencias" label="Preferencias" icon={<FiGlobe />} />
-          <TabButton id="seguridad" label="Seguridad" icon={<FiShield />} />
-          <TabButton id="campos" label="Campos y Estados" icon={<FiList />} />
-          <TabButton id="cerebro" label="Cerebro & Activos" icon={<FiZap />} />
-          <TabButton id="plantillas" label="Plantillas" icon={<FiPackage />} />
-          <TabButton id="backup" label="Backup" icon={<FiDatabase />} />
-          <TabButton id="datos" label="Datos Reales" icon={<FiDatabase />} />
+        <Box sx={{ display: "flex", gap: { xs: 0.5, sm: 1 }, flexWrap: "wrap" }}>
+          <TabButton id="empresa" label="Empresa" icon={<FiUser size={16} />} />
+          <TabButton id="preferencias" label="Preferencias" icon={<FiGlobe size={16} />} />
+          <TabButton id="seguridad" label="Seguridad" icon={<FiShield size={16} />} />
+          <TabButton id="campos" label="Campos y Estados" icon={<FiList size={16} />} />
+          <TabButton id="cerebro" label="Cerebro & Activos" icon={<FiZap size={16} />} />
+          <TabButton id="plantillas" label="Plantillas" icon={<FiPackage size={16} />} />
+          <TabButton id="backup" label="Backup" icon={<FiDatabase size={16} />} />
+          <TabButton id="datos" label="Datos Reales" icon={<FiDatabase size={16} />} />
         </Box>
       </Paper>
 
