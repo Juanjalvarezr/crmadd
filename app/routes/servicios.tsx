@@ -156,88 +156,86 @@ export default function Servicios() {
   return (
     <Box sx={{ p: { xs: 1, sm: 1.5, md: 2 } }}>
       <Paper sx={{ 
-        p: { xs: 2, sm: 3 }, 
-        mb: 3, 
+        p: { xs: 1.5, sm: 2 }, 
+        mb: { xs: 1, sm: 1.5 }, 
         backgroundColor: "#fce4ec", 
         borderLeft: "5px solid #e91e63",
         borderRadius: 2
       }}>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 1.5 }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <FiPackage size={24} color="#e91e63" />
-            <Typography variant="h6" sx={{ fontWeight: "bold", color: "#e91e63", fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 1 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <FiPackage size={20} color="#e91e63" />
+            <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "#e91e63", fontSize: { xs: '0.95rem', sm: '1.1rem' } }}>
               Portafolio de Servicios
             </Typography>
           </Box>
           <Button
             variant="contained"
             size="small"
-            startIcon={<FiPlus />}
+            startIcon={<FiPlus size={14} />}
             onClick={() => handleOpenModal()}
-            sx={{ backgroundColor: "#e91e63", '&:hover': { backgroundColor: "#c2185b" } }}
+            sx={{ backgroundColor: "#e91e63", '&:hover': { backgroundColor: "#c2185b" }, minHeight: 32 }}
           >
             Nuevo Servicio
           </Button>
         </Box>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+        <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block" }}>
           Gestiona los paquetes, precios y entregables de la agencia DESEO DIGITAL.
         </Typography>
       </Paper>
 
       {loading ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', p: 5 }}><CircularProgress /></Box>
+        <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}><CircularProgress /></Box>
       ) : error ? (
-        <Alert severity="error">{error}</Alert>
+        <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>
       ) : (
-        <Grid container spacing={3}>
+        <Grid container spacing={{ xs: 1, sm: 1.5 }}>
           {servicios.map((servicio) => (
             <Grid item xs={12} sm={6} md={4} key={servicio.id}>
               <Card sx={{ 
                 height: '100%', 
                 display: 'flex', 
                 flexDirection: 'column',
-                borderRadius: 2,
-                transition: 'transform 0.2s',
-                '&:hover': { transform: 'translateY(-4px)', boxShadow: 4 }
+                borderRadius: 2
               }}>
-                <CardContent sx={{ flexGrow: 1 }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                    <Chip label={servicio.categoria} size="small" color="primary" variant="outlined" />
+                <CardContent sx={{ flexGrow: 1, p: { xs: 1.5, sm: 2 } }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                    <Chip label={servicio.categoria} size="small" color="primary" variant="outlined" sx={{ height: 24, fontSize: '0.7rem' }} />
                     <Box sx={{ display: 'flex', alignItems: 'center', color: '#daa520' }}>
                       {[...Array(5)].map((_, i) => (
-                        <FiStar key={i} size={14} fill={i < servicio.popularidad ? "#daa520" : "none"} />
+                        <FiStar key={i} size={12} fill={i < servicio.popularidad ? "#daa520" : "none"} />
                       ))}
                     </Box>
                   </Box>
-                  <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>{servicio.nombre}</Typography>
-                  <Typography variant="h5" sx={{ color: '#e91e63', fontWeight: 'bold', mb: 2 }}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>{servicio.nombre}</Typography>
+                  <Typography variant="h6" sx={{ color: '#e91e63', fontWeight: 'bold', mb: 1, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
                     {formatCurrency(servicio.precio_base)}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
                     {servicio.descripcion}
                   </Typography>
                   
                   {servicio.duracion && (
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, color: 'text.secondary' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1, color: 'text.secondary' }}>
                       <FiClock size={14} />
                       <Typography variant="caption">Duración: {servicio.duracion}</Typography>
                     </Box>
                   )}
 
                   <Divider sx={{ my: 1 }} />
-                  <Typography variant="caption" sx={{ fontWeight: 'bold', display: 'block', mb: 1 }}>Incluye:</Typography>
+                  <Typography variant="caption" sx={{ fontWeight: 'bold', display: 'block', mb: 0.5 }}>Incluye:</Typography>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
                     {servicio.incluye?.map((item: string, i: number) => (
-                      <Chip key={i} label={item} size="small" variant="outlined" sx={{ fontSize: '0.7rem' }} />
+                      <Chip key={i} label={item} size="small" variant="outlined" sx={{ fontSize: '0.7rem', height: 22 }} />
                     ))}
                   </Box>
                 </CardContent>
-                <CardActions sx={{ justifyContent: 'flex-end', p: 2, pt: 0 }}>
+                <CardActions sx={{ justifyContent: 'flex-end', p: { xs: 1, sm: 1.5 }, pt: 0 }}>
                   <IconButton size="small" onClick={() => handleOpenModal(servicio)} color="primary">
-                    <FiEdit />
+                    <FiEdit size={16} />
                   </IconButton>
                   <IconButton size="small" onClick={() => handleDelete(servicio.id)} color="error">
-                    <FiTrash2 />
+                    <FiTrash2 size={16} />
                   </IconButton>
                 </CardActions>
               </Card>
