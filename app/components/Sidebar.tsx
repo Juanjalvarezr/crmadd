@@ -120,11 +120,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Header del Sidebar - Logo DESEO DIGITAL */}
       <Box sx={{ 
-        p: isCollapsed ? "24px 8px" : 3, 
+        p: isCollapsed ? "18px 6px" : 2, 
         textAlign: "center", 
         background: "linear-gradient(135deg, rgba(233, 30, 99, 0.08) 0%, rgba(156, 39, 176, 0.08) 100%)",
         borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
-        mb: 2,
+        mb: 1.5,
         transition: "all 0.3s ease-in-out",
         display: "flex",
         flexDirection: "column",
@@ -133,37 +133,37 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {isCollapsed ? (
           <Tooltip title="Deseo Digital" placement="right">
             <Box sx={{ 
-              width: 42, 
-              height: 42, 
-              borderRadius: "12px", 
+              width: 36, 
+              height: 36, 
+              borderRadius: "10px", 
               background: "linear-gradient(135deg, #e91e63 0%, #9c27b0 100%)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              boxShadow: "0 4px 12px rgba(233, 30, 99, 0.3)",
+              boxShadow: "0 4px 10px rgba(233, 30, 99, 0.25)",
               cursor: "pointer",
               "&:hover": {
                 transform: "rotate(10deg) scale(1.05)",
-                boxShadow: "0 4px 20px rgba(233, 30, 99, 0.6)"
+                boxShadow: "0 4px 18px rgba(233, 30, 99, 0.5)"
               },
               transition: "all 0.3s ease-in-out"
             }}>
-              <Typography variant="h5" sx={{ fontWeight: "bold", color: "white", fontSize: "1.3rem" }}>
+              <Typography sx={{ fontWeight: "bold", color: "white", fontSize: "1.1rem" }}>
                 D
               </Typography>
             </Box>
           </Tooltip>
         ) : (
-          <Box sx={{ width: "100%", pr: onToggleCollapse ? 3 : 0 }}>
-            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0.5, mb: 0.5 }}>
-              <Typography variant="h5" sx={{ fontWeight: 900, letterSpacing: 2, color: "#ffffff" }}>
+          <Box sx={{ width: "100%", pr: onToggleCollapse ? 2.5 : 0 }}>
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0.5, mb: 0.25 }}>
+              <Typography sx={{ fontWeight: 900, letterSpacing: 1.5, color: "#ffffff", fontSize: "1.05rem" }}>
                 DESEO
               </Typography>
-              <Typography variant="h5" sx={{ fontWeight: 900, letterSpacing: 2, color: "#e91e63", textShadow: "0 0 10px rgba(233, 30, 99, 0.3)" }}>
+              <Typography sx={{ fontWeight: 900, letterSpacing: 1.5, color: "#e91e63", textShadow: "0 0 8px rgba(233, 30, 99, 0.25)", fontSize: "1.05rem" }}>
                 ★
               </Typography>
             </Box>
-            <Typography variant="h6" sx={{ fontWeight: "bold", letterSpacing: 4, color: "#9c27b0", fontSize: "1.1rem", mb: 1 }}>
+            <Typography sx={{ fontWeight: "bold", letterSpacing: 3, color: "#9c27b0", fontSize: "0.95rem", mb: 0.5 }}>
               DIGITAL
             </Typography>
             <Chip 
@@ -172,10 +172,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
               sx={{ 
                 background: "rgba(0, 229, 255, 0.08)", 
                 color: "#00e5ff", 
-                border: "1px solid rgba(0, 229, 255, 0.2)",
-                fontSize: "0.68rem",
+                border: "1px solid rgba(0, 229, 255, 0.2)", 
+                fontSize: "0.65rem",
                 fontWeight: "bold",
-                height: 20
+                height: 18
               }} 
             />
           </Box>
@@ -183,18 +183,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </Box>
       
       {/* Indicador de Estado */}
-      <Box sx={{ px: 2, mb: 1.5, transition: "all 0.3s ease-in-out" }}>
+      <Box sx={{ px: 1.5, mb: 1, transition: "all 0.3s ease-in-out" }}>
         {isCollapsed ? (
           <Tooltip title="Sistema Activo" placement="right">
             <Box sx={{ 
               display: "flex", 
               justifyContent: "center", 
-              py: 1,
+              py: 0.75,
               position: "relative"
             }}>
               <Box sx={{ 
-                width: 10, 
-                height: 10, 
+                width: 8, 
+                height: 8, 
                 borderRadius: "50%", 
                 backgroundColor: "#4caf50",
                 boxShadow: "0 0 0 0 rgba(76, 175, 80, 0.7)",
@@ -204,31 +204,31 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </Tooltip>
         ) : (
           <Box sx={{ 
-            p: 1.2, 
+            p: 1, 
             backgroundColor: "rgba(76, 175, 80, 0.04)", 
             borderRadius: 2,
-            border: "1px solid rgba(76, 175, 80, 0.15)",
+            border: "1px solid rgba(76, 175, 80, 0.15)", 
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            gap: 1.5
+            gap: 1
           }}>
             <Box sx={{ 
-              width: 8, 
-              height: 8, 
+              width: 7, 
+              height: 7, 
               borderRadius: "50%", 
               backgroundColor: "#4caf50",
               boxShadow: "0 0 0 0 rgba(76, 175, 80, 0.7)",
               animation: "pulse 1.8s infinite"
             }} />
-            <Typography variant="body2" sx={{ fontWeight: "bold", color: "#81c784", fontSize: "0.8rem", letterSpacing: 0.5 }}>
+            <Typography sx={{ fontWeight: "bold", color: "#81c784", fontSize: "0.75rem", letterSpacing: 0.5 }}>
               SISTEMA ONLINE
             </Typography>
           </Box>
         )}
       </Box>
       
-      <Divider sx={{ borderColor: "rgba(255, 255, 255, 0.05)", mb: 1 }} />
+      <Divider sx={{ borderColor: "rgba(255, 255, 255, 0.05)", mb: 0.75 }} />
       
       {/* Menú Principal */}
       <List sx={{ px: 1, flexGrow: 1, overflowY: 'auto', py: 0.5 }}>

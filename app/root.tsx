@@ -65,8 +65,11 @@ export default function Root() {
       },
     },
     typography: {
-      fontSize: { xs: 13, sm: 14, md: 15 },
+      fontSize: 13.5,
       fontFamily: 'Inter, Roboto, Helvetica, Arial, sans-serif',
+      h6: { fontSize: '1.1rem' },
+      body2: { fontSize: '0.85rem' },
+      caption: { fontSize: '0.75rem' },
     },
   }), [themeMode]);
 

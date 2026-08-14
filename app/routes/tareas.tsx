@@ -9,6 +9,7 @@ import { useNotificationStore } from "../store/useNotificationStore";
 import { useCRMStore } from "../store/useCRMStore";
 import { format, startOfDay, isBefore } from "date-fns";
 import { EmptyState } from "../components/EmptyState";
+import { CompactTable } from "../components/CompactTable";
 import { StatCard } from "../components/StatCard";
 
 export function meta() {
@@ -131,13 +132,13 @@ export default function Tareas() { const openCreate = () => { if (typeof window 
   };
 
   return (
-    <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
+    <Box sx={{ p: { xs: 1, sm: 1.5, md: 2 } }}>
       {/* Header compacto mobile */}
-      <Box sx={{ mb: { xs: 1.5, sm: 2 } }}>
-        <Typography variant="h6" sx={{ fontWeight: "bold", fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>Tareas</Typography>
+      <Box sx={{ mb: { xs: 1, sm: 1.5 } }}>
+        <Typography variant="h6" sx={{ fontWeight: "bold", fontSize: { xs: '1rem', sm: '1.1rem' } }}>Tareas</Typography>
         <Box sx={{ display: "flex", gap: 1, mt: 1, flexWrap: "wrap" }}>
           <Button size="small" startIcon={<FiRefreshCw size={14} />} onClick={loadTareas} disabled={loading}>Recargar</Button>
-          <Button size="small" variant="contained" startIcon={<FiPlus />} onClick={openCreate}>Nueva</Button>
+          <Button size="small" variant="contained" startIcon={<FiPlus size={16} />} onClick={handleOpenModal}>Nueva</Button>
         </Box>
       </Box>
 
@@ -186,26 +187,58 @@ export default function Tareas() { const openCreate = () => { if (typeof window 
             </Paper>
           ))}
         </Box>
-      ) : (
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-          {filtered.map((t) => (
-            <Paper key={t.id} sx={{ p: { xs: 1.5, sm: 2 }, borderRadius: 2, display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
-              <Box sx={{ flex: 1, minWidth: 0 }}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 'bold', wordBreak: 'break-word' }}>{t.titulo}</Typography>
-                <Typography variant="caption" color="text.secondary">{formatDate(t.fecha)}</Typography>
-              </Box>
-              <Chip size="small" label={t.estado} color={getEstadoColor(t.estado)} />
-              <Chip size="small" label={t.prioridad} color={getPrioridadColor(t.prioridad)} />
-              {isVencida(t) && <Chip size="small" label="Vencida" color="error" />}
-              <Box sx={{ display: 'flex', gap: 0.5 }}>
-                <IconButton size="small" onClick={() => handleComplete(t)}><FiCheck size={16} /></IconButton>
-                <IconButton size="small" onClick={() => handleEdit(t)}><FiEdit size={16} /></IconButton>
-                <IconButton size="small" onClick={() => handleDelete(t)}><FiTrash2 size={16} /></IconButton>
-              </Box>
-            </Paper>
-          ))}
-        </Box>
-      )}
+      ) : !isMobile ? (
+        <CompactTable
+          rows={filtered}
+          getRowId={(t) => t.id}
+          columns={[
+            {
+              key: "titulo",
+              label: "Título",
+              render: (t) => (
+                <Box sx={{ display: "flex", flexDirection: "column", gap: 0.25 }}>
+                  <Typography variant="caption" sx={{ fontWeight: "bold", wordBreak: "break-word" }}>{t.titulo}</Typography>
+                  <Typography variant="caption" color="text.secondary">{formatDate(t.fecha)}</Typography>
+                </Box>
+              ),
+            },
+            {
+              key: "estado",
+              label: "Estado",
+              align: "center",
+              render: (t) => <Chip size="small" label={t.estado} color={getEstadoColor(t.estado)} sx={{ height: 20, fontSize: "0.75rem" }} />,
+            },
+            {
+              key: "prioridad",
+              label: "Prioridad",
+              align: "center",
+              render: (t) => <Chip size="small" label={t.prioridad} color={getPrioridadColor(t.prioridad)} sx={{ height: 20, fontSize: "0.75rem" }} />,
+            },
+            {
+              key: "vencida",
+              label: "",
+              align: "center",
+              width: 40,
+              render: (t) => isVencida(t) ? <Chip size="small" label="Vencida" color="error" sx={{ height: 20, fontSize: "0.7rem" }} /> : null,
+            },
+            {
+              key: "acciones",
+              label: "Acciones",
+              align: "right",
+              width: 120,
+              render: (t) => (
+                <Box sx={{ display: "flex", gap: 0.25, justifyContent: "flex-end" }}>
+                  <IconButton size="small" onClick={() => handleComplete(t)}><FiCheck size={16} /></IconButton>
+                  <IconButton size="small" onClick={() => handleEdit(t)}><FiEdit size={16} /></IconButton>
+                  <IconButton size="small" onClick={() => handleDelete(t)}><FiTrash2 size={16} /></IconButton>
+                </Box>
+              ),
+            },
+          ]}
+          loading={loading}
+          emptyText="Sin tareas"
+        />
+      ) : null}
 
       {!loading && filtered.length === 0 && (
         <Box sx={{ mt: 2 }}>

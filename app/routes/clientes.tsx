@@ -27,7 +27,8 @@ import { useCRMStore } from "../store/useCRMStore";
 import { SupabaseStatus } from "../components/SupabaseTest";
 import { format } from "date-fns";
 import { EmptyState } from "../components/EmptyState";
-import { useLocation } from "react-router"; // Corregido: estaba como string en algunos lugares
+import { CompactTable } from "../components/CompactTable";
+import { useLocation } from "react-router";
 import type { Cliente } from "../types/crm";
 
 const isLeadFrio = (fechaStr: string) => {
@@ -487,17 +488,17 @@ export default function Clientes() { const exportCSV = () => { if (typeof window
   };
 
   return (
-    <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
+    <Box sx={{ p: { xs: 1, sm: 1.5, md: 2 } }}>
       {/* Indicador de conexión a Supabase */}
       <SupabaseStatus />
-      
+        
       {/* Header compacto mobile */}
-      <Box sx={{ mb: { xs: 1.5, sm: 2 } }}>
-        <Typography variant="h6" sx={{ fontWeight: "bold", fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>Clientes</Typography>
+      <Box sx={{ mb: { xs: 1, sm: 1.5 } }}>
+        <Typography variant="h6" sx={{ fontWeight: "bold", fontSize: { xs: '1rem', sm: '1.1rem' } }}>Clientes</Typography>
         <Box sx={{ display: "flex", gap: 1, mt: 1, flexWrap: "wrap" }}>
-          <Button size="small" startIcon={<FiSearch />} onClick={() => setIsFilterDrawerOpen(true)}>Filtros</Button>
-          <Button size="small" onClick={exportCSV}>Exportar CSV</Button>
-          <Button size="small" variant="contained" startIcon={<FiPlus />} onClick={openCreate}>Nuevo Cliente</Button>
+          <Button size="small" startIcon={<FiSearch size={14} />} onClick={() => setIsFilterDrawerOpen(true)}>Filtros</Button>
+          <Button size="small" onClick={handleExportCSV}>Exportar</Button>
+          <Button size="small" variant="contained" startIcon={<FiPlus size={16} />} onClick={handleOpenModal}>Nuevo</Button>
         </Box>
       </Box>
       {selectedIds.length > 0 && (
@@ -547,7 +548,7 @@ export default function Clientes() { const exportCSV = () => { if (typeof window
       )}
 
       {/* Tarjetas compactas */}
-      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 2 }}>
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: { xs: 1, sm: 1.5 }, mb: { xs: 1.5, sm: 2 } }}>
         <Box sx={{ flex: { xs: "50%", sm: "25%" } }}>
           <StatCard title="Total" value={loading ? "..." : clientes.length} subtitle="En BD" icon={<ClientesIcon />} color="primary" />
         </Box>
@@ -564,40 +565,39 @@ export default function Clientes() { const exportCSV = () => { if (typeof window
 
       {/* Filtros y Búsqueda - Responsive */}
       <Paper sx={{ 
-        p: { xs: 2, sm: 3 }, 
-        mb: { xs: 2, sm: 3 },
+        p: { xs: 1.5, sm: 2 }, 
+        mb: { xs: 1, sm: 1.5 },
         borderRadius: 2
       }}>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: { xs: 2, sm: 3 }, flexDirection: { xs: "column", sm: "row" }, gap: { xs: 2, sm: 0 } }}>
-          <Typography variant="h6" sx={{ fontWeight: "bold", fontSize: { xs: "1rem", sm: "1.25rem" } }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: { xs: 1, sm: 1.5 }, flexDirection: { xs: "column", sm: "row" }, gap: { xs: 1, sm: 0 } }}>
+          <Typography variant="h6" sx={{ fontWeight: "bold", fontSize: { xs: '1rem', sm: '1.1rem' } }}>
             Lista ({filteredClientes.length})
           </Typography>
           <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", justifyContent: { xs: "stretch", sm: "flex-end" } }}>
             <Button 
               variant="outlined" 
-              startIcon={<FiFilter size={16} />}
-              onClick={() => setIsFilterDrawerOpen(true)}
               size="small"
-              sx={{ minWidth: { xs: "100%", sm: "auto" } }}
+              startIcon={<FiFilter size={14} />}
+              onClick={() => setIsFilterDrawerOpen(true)}
             >
-              Filtros Avanzados
+              Filtros
             </Button>
             <Button 
               variant="outlined" 
-              startIcon={<FiDownload size={16} />}
-              onClick={handleExportCSV}
               size="small"
-              sx={{ display: { xs: "none", sm: "flex" } }}
+              startIcon={<FiDownload size={14} />}
+              onClick={handleExportCSV}
             >
               Exportar
             </Button>
             <Button 
+              size="small"
               variant="contained" 
-              startIcon={<FiPlus size={18} />} 
+              startIcon={<FiPlus size={16} />} 
               onClick={handleOpenModal}
-              sx={{ backgroundColor: "#e91e63", whiteSpace: "nowrap", '&:hover': { backgroundColor: "#c2185b" }, minWidth: { xs: "100%", sm: "auto" } }}
+              sx={{ backgroundColor: "#e91e63", whiteSpace: "nowrap", '&:hover': { backgroundColor: "#c2185b" } }}
             >
-              Nuevo Cliente
+              Nuevo
             </Button>
           </Box>
         </Box>
@@ -739,74 +739,90 @@ export default function Clientes() { const exportCSV = () => { if (typeof window
               </Card>
             ))}
           </Box>
-        ) : (
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell padding="checkbox">
+          ) : (
+            <CompactTable
+              rows={paginatedClientes}
+              getRowId={(c) => c.id}
+              columns={[
+                {
+                  key: "select",
+                  label: "",
+                  width: 40,
+                  align: "center",
+                  render: (cliente) => (
                     <Checkbox
-                      indeterminate={selectedIds.length > 0 && selectedIds.length < paginatedClientes.length}
-                      checked={paginatedClientes.length > 0 && selectedIds.length === paginatedClientes.length}
-                      onChange={handleSelectAll}
+                      size="small"
+                      checked={selectedIds.includes(cliente.id)}
+                      onChange={() => handleSelectOne(cliente.id)}
                     />
-                  </TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Nombre</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Email</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Teléfono</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Estado</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Última Interacción</TableCell>
-                  <TableCell sx={{ fontWeight: "bold" }}>Acciones</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {paginatedClientes.map((cliente) => (
-                  <TableRow key={cliente.id} hover>
-                    <TableCell padding="checkbox">
-                      <Checkbox
-                        checked={selectedIds.includes(cliente.id)}
-                        onChange={() => handleSelectOne(cliente.id)}
-                      />
-                    </TableCell>
-                    <TableCell sx={{ fontWeight: "medium" }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        {cliente.nombre}
-                        {isLeadFrio(cliente.ultima_interaccion) && (
-                          <Tooltip title="Atención requerida: Lead Frío">
-                            <FiAlertCircle size={14} color="#f44336" />
-                          </Tooltip>
-                        )}
-                      </Box>
-                    </TableCell>
-                    <TableCell>{cliente.email}</TableCell>
-                    <TableCell>{cliente.telefono}</TableCell>
-                    <TableCell>
-                      <Chip label={cliente.estado} color={getEstadoColor(cliente.estado)} size="small" sx={{ fontWeight: "medium" }} />
-                    </TableCell>
-                    <TableCell>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                        <FiCalendar size={16} />
-                        {formatDate(cliente.ultima_interaccion)}
-                      </Box>
-                    </TableCell>
-                    <TableCell>
-                      <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-                        <Tooltip title="Ver detalles"><IconButton size="small" onClick={() => handleViewDetails(cliente)} sx={{ color: '#1976d2' }} aria-label={`Ver detalles de ${cliente.nombre}`}><FiEye size={16} /></IconButton></Tooltip>
-                        <Tooltip title={cliente.favorito ? "Quitar de favoritos" : "Marcar como favorito"}><IconButton size="small" onClick={() => handleToggleFavorite(cliente)} sx={{ color: cliente.favorito ? '#ffb400' : '#ccc' }} aria-label={`Favorito ${cliente.nombre}`}><FiStar size={16} style={{ fill: cliente.favorito ? '#ffb400' : 'none' }} /></IconButton></Tooltip>
-                        <Tooltip title="Editar cliente"><IconButton size="small" onClick={() => handleEdit(cliente)} sx={{ color: '#ff9800' }} aria-label={`Editar a ${cliente.nombre}`}><FiEdit size={16} /></IconButton></Tooltip>
-                        <Tooltip title="Llamar"><IconButton size="small" onClick={() => handleCall(cliente)} sx={{ color: '#4caf50' }} aria-label={`Llamar a ${cliente.nombre}`}><FiPhone size={16} /></IconButton></Tooltip>
-                        <Tooltip title="Enviar email"><IconButton size="small" onClick={() => handleEmail(cliente)} sx={{ color: '#9c27b0' }} aria-label={`Enviar email a ${cliente.nombre}`}><FiMail size={16} /></IconButton></Tooltip>
-                        <Tooltip title="Enviar mensaje"><IconButton size="small" onClick={() => handleMessage(cliente)} sx={{ color: '#00bcd4' }} aria-label={`Enviar mensaje a ${cliente.nombre}`}><FiMessageSquare size={16} /></IconButton></Tooltip>
-                        <Tooltip title="Ver historial"><IconButton size="small" onClick={() => handleHistory(cliente)} sx={{ color: '#607d8b' }} aria-label={`Ver historial de ${cliente.nombre}`}><FiFileText size={16} /></IconButton></Tooltip>
-                        <Tooltip title="Eliminar cliente"><IconButton size="small" onClick={() => handleDelete(cliente)} sx={{ color: '#f44336' }} aria-label={`Eliminar a ${cliente.nombre}`}><FiTrash2 size={16} /></IconButton></Tooltip>
-                      </Box>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        ))}
+                  ),
+                },
+                {
+                  key: "nombre",
+                  label: "Nombre",
+                  render: (cliente) => (
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                      {cliente.nombre}
+                      {isLeadFrio(cliente.ultima_interaccion) && (
+                        <Tooltip title="Lead Frío: Sin contacto hace +5 días">
+                          <Box sx={{ width: 7, height: 7, bgcolor: "error.main", borderRadius: "50%" }} />
+                        </Tooltip>
+                      )}
+                    </Box>
+                  ),
+                },
+                {
+                  key: "email",
+                  label: "Email",
+                  render: (cliente) => <>{cliente.email}</>,
+                },
+                {
+                  key: "telefono",
+                  label: "Teléfono",
+                  render: (cliente) => <>{cliente.telefono || "—"}</>,
+                },
+                {
+                  key: "estado",
+                  label: "Estado",
+                  align: "center",
+                  render: (cliente) => (
+                    <Chip label={cliente.estado} color={getEstadoColor(cliente.estado)} size="small" sx={{ height: 20, fontSize: "0.75rem" }} />
+                  ),
+                },
+                {
+                  key: "ultima_interaccion",
+                  label: "Última Interacción",
+                  render: (cliente) => (
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+                      <FiCalendar size={14} />
+                      {formatDate(cliente.ultima_interaccion)}
+                    </Box>
+                  ),
+                },
+                {
+                  key: "acciones",
+                  label: "Acciones",
+                  align: "right",
+                  width: 220,
+                  render: (cliente) => (
+                    <Box sx={{ display: "flex", gap: 0.25, flexWrap: "wrap", justifyContent: "flex-end" }}>
+                      <Tooltip title="Ver detalles"><IconButton size="small" onClick={() => handleViewDetails(cliente)} sx={{ color: '#1976d2' }} aria-label={`Ver detalles de ${cliente.nombre}`}><FiEye size={16} /></IconButton></Tooltip>
+                      <Tooltip title={cliente.favorito ? "Quitar de favoritos" : "Marcar como favorito"}><IconButton size="small" onClick={() => handleToggleFavorite(cliente)} sx={{ color: cliente.favorito ? '#ffb400' : '#ccc' }} aria-label={`Favorito ${cliente.nombre}`}><FiStar size={16} style={{ fill: cliente.favorito ? '#ffb400' : 'none' }} /></IconButton></Tooltip>
+                      <Tooltip title="Editar cliente"><IconButton size="small" onClick={() => handleEdit(cliente)} sx={{ color: '#ff9800' }} aria-label={`Editar a ${cliente.nombre}`}><FiEdit size={16} /></IconButton></Tooltip>
+                      <Tooltip title="Llamar"><IconButton size="small" onClick={() => handleCall(cliente)} sx={{ color: '#4caf50' }} aria-label={`Llamar a ${cliente.nombre}`}><FiPhone size={16} /></IconButton></Tooltip>
+                      <Tooltip title="Enviar email"><IconButton size="small" onClick={() => handleEmail(cliente)} sx={{ color: '#9c27b0' }} aria-label={`Enviar email a ${cliente.nombre}`}><FiMail size={16} /></IconButton></Tooltip>
+                      <Tooltip title="Enviar mensaje"><IconButton size="small" onClick={() => handleMessage(cliente)} sx={{ color: '#00bcd4' }} aria-label={`Enviar mensaje a ${cliente.nombre}`}><FiMessageSquare size={16} /></IconButton></Tooltip>
+                      <Tooltip title="Ver historial"><IconButton size="small" onClick={() => handleHistory(cliente)} sx={{ color: '#607d8b' }} aria-label={`Ver historial de ${cliente.nombre}`}><FiFileText size={16} /></IconButton></Tooltip>
+                      <Tooltip title="Eliminar cliente"><IconButton size="small" onClick={() => handleDelete(cliente)} sx={{ color: '#f44336' }} aria-label={`Eliminar a ${cliente.nombre}`}><FiTrash2 size={16} /></IconButton></Tooltip>
+                    </Box>
+                  ),
+                },
+              ]}
+              loading={loading}
+              emptyText="Sin clientes"
+            />
+          )
+        )}
 
         {!loading && !error && filteredClientes.length === 0 && (
           <Box sx={{ mt: 2 }}>

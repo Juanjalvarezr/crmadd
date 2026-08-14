@@ -337,55 +337,56 @@ export default function Ventas() {
   };
 
   return (
-    <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
+    <Box sx={{ p: { xs: 1, sm: 1.5, md: 2 } }}>
       {/* Header */}
-      <Paper sx={{ p: 3, mb: 3, background: "linear-gradient(135deg, #fce4ec 0%, #fff8e1 100%)", borderLeft: "5px solid #E91E63" }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 1, flexWrap: "wrap" }}>
-          <FiTrendingUp size={28} color="#E91E63" />
-          <Typography variant="h5" sx={{ color: "#C2185B", flex: 1 }}>
+      <Paper sx={{ p: { xs: 1.5, sm: 2 }, mb: { xs: 1, sm: 1.5 }, background: "linear-gradient(135deg, #fce4ec 0%, #fff8e1 100%)", borderLeft: "4px solid #E91E63" }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 0.5, flexWrap: "wrap" }}>
+          <FiTrendingUp size={22} color="#E91E63" />
+          <Typography variant="h6" sx={{ color: "#C2185B", flex: 1, fontSize: { xs: '1rem', sm: '1.1rem' } }}>
             Pipeline de Oportunidades
           </Typography>
           <Button size="small" startIcon={<FiRefreshCw size={14} />} onClick={loadData} disabled={loading}>
             {loading ? "..." : "Recargar"}
           </Button>
         </Box>
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant="caption" color="text.secondary">
           Gestiona y avanza tus oportunidades de negocio a través del embudo de ventas.
         </Typography>
       </Paper>
 
       {/* KPIs */}
-      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3, mb: 4 }}>
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: { xs: 1, sm: 1.5 }, mb: { xs: 1.5, sm: 2 } }}>
         {[
-          { title: "Total Oportunidades", value: loading ? "..." : filtered.length, subtitle: "En pipeline", color: "primary" },
+          { title: "Oportunidades", value: loading ? "..." : filtered.length, subtitle: "En pipeline", color: "primary" },
           { title: "Valor Potencial", value: loading ? "..." : formatValue(totalValor), subtitle: "Ingresos esperados", color: "success" },
           { title: "Prob. Promedio", value: loading ? "..." : `${avgProb}%`, subtitle: "De conversión", color: "warning" },
           { title: "En Cierre", value: loading ? "..." : enCierre, subtitle: "Listas para cerrar", color: "info" },
         ].map((kpi) => (
-          <Box key={kpi.title} sx={{ flex: { xs: "100%", sm: "48%", md: "23%" } }}>
+          <Box key={kpi.title} sx={{ flex: { xs: "50%", sm: "48%", md: "23%" } }}>
             <StatCard title={kpi.title} value={kpi.value} subtitle={kpi.subtitle} icon={<VentasIcon />} color={kpi.color as any} />
           </Box>
         ))}
       </Box>
 
       {/* Tabla */}
-      <Paper sx={{ p: 3 }}>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3, flexWrap: "wrap", gap: 2 }}>
-          <Typography variant="h6">Lista ({filtered.length})</Typography>
-          <Button variant="contained" startIcon={<FiPlus />} onClick={handleOpenModal}>
+      <Paper sx={{ p: { xs: 1.5, sm: 2 } }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: { xs: 1, sm: 1.5 }, flexWrap: "wrap", gap: 1 }}>
+          <Typography variant="h6" sx={{ fontSize: { xs: '1rem', sm: '1.1rem' } }}>Lista ({filtered.length})</Typography>
+          <Button size="small" variant="contained" startIcon={<FiPlus size={16} />} onClick={handleOpenModal}>
             Nueva Oportunidad
           </Button>
         </Box>
 
-        <Box sx={{ display: "flex", gap: 2, mb: 3, flexDirection: { xs: "column", md: "row" } }}>
+        <Box sx={{ display: "flex", gap: 1, mb: { xs: 1, sm: 1.5 }, flexDirection: { xs: "column", md: "row" } }}>
           <TextField
+            size="small"
             fullWidth
             placeholder="Buscar por nombre o cliente..."
             value={searchTerm}
             onChange={(e: any) => setSearchTerm(e.target.value)}
-            InputProps={{ startAdornment: <InputAdornment position="start"><FiSearch /></InputAdornment> }}
+            InputProps={{ startAdornment: <InputAdornment position="start"><FiSearch size={16} /></InputAdornment> }}
           />
-          <FormControl sx={{ minWidth: 200 }}>
+          <FormControl size="small" sx={{ minWidth: { xs: '100%', md: 200 } }}>
             <InputLabel>Etapa</InputLabel>
             <Select value={etapaFilter} label="Etapa" onChange={(e: any) => setEtapaFilter(e.target.value)}>
               <MenuItem value="all">Todas</MenuItem>
