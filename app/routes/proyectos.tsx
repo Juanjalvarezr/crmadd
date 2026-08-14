@@ -897,26 +897,27 @@ export default function Proyectos() {
       )}
 
       {!loading && !error && proyectosFiltrados.length > 0 && (
-        <Grid container spacing={3}>
+        <Grid container spacing={{ xs: 1, sm: 1.5 }}>
           {proyectosFiltrados.map((proyecto) => (
             <Grid item xs={12} md={6} lg={4} key={proyecto.id}>
               <Card sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-                <CardContent sx={{ flexGrow: 1 }}>
-                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 2 }}>
-                    <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
+                <CardContent sx={{ flexGrow: 1, '&:last-child': { pb: 2 }, p: { xs: 1.5, sm: 2 } }}>
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1.5 }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: "bold", lineHeight: 1.2 }}>
                       {proyecto.nombre}
                     </Typography>
-                    <Typography variant="caption" sx={{ color: "text.secondary", display: "block", mt: -0.5 }}>
-                      Cliente: {proyecto.clienteNombre || proyecto.clienteId || "Sin asignar"}
+                    <Typography variant="caption" sx={{ color: "text.secondary", display: "block", mt: -0.5, ml: 1, whiteSpace: 'nowrap' }}>
+                      {proyecto.clienteNombre || proyecto.clienteId || "Sin asignar"}
                     </Typography>
-                    <Box sx={{ display: "flex", gap: 1 }}>
+                    <Box sx={{ display: "flex", gap: 0.5, ml: 1, mt: 0.5 }}>
                       <Chip
                         label={proyecto.estado.replace("_", " ")}
                         size="small"
                         sx={{
                           backgroundColor: getEstadoColor(proyecto.estado),
                           color: "white",
-                          fontSize: "0.7rem"
+                          fontSize: "0.65rem",
+                          height: 20
                         }}
                       />
                       <Chip
@@ -925,18 +926,19 @@ export default function Proyectos() {
                         sx={{
                           backgroundColor: getPrioridadColor(proyecto.prioridad),
                           color: "white",
-                          fontSize: "0.7rem"
+                          fontSize: "0.65rem",
+                          height: 20
                         }}
                       />
                     </Box>
                   </Box>
                   
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                  <Typography variant="caption" color="text.secondary" sx={{ mb: 1.5, display: 'block' }}>
                     {proyecto.descripcion}
                   </Typography>
                   
-                  <Box sx={{ mb: 2 }}>
-                    <Typography variant="body2" sx={{ fontWeight: "bold", mb: 1 }}>
+                  <Box sx={{ mb: 1.5 }}>
+                    <Typography variant="caption" sx={{ fontWeight: "bold", mb: 0.5, display: 'block' }}>
                       Cliente: {proyecto.clienteNombre}
                     </Typography>
                     <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
@@ -946,20 +948,22 @@ export default function Proyectos() {
                           label={servicio}
                           size="small"
                           variant="outlined"
-                          sx={{ fontSize: "0.6rem" }}
+                          sx={{ fontSize: "0.6rem", height: 20 }}
                         />
                       ))}
                     </Box>
                   </Box>
                   
-                  <Box sx={{ mb: 2 }}>
-                    <Typography variant="body2" sx={{ fontWeight: "bold", mb: 1 }}>
-                      Progreso: {proyecto.progreso}%
-                    </Typography>
+                  <Box sx={{ mb: 1.5 }}>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
+                      <Typography variant="caption" sx={{ fontWeight: "bold" }}>
+                        Progreso: {proyecto.progreso}%
+                      </Typography>
+                    </Box>
                     <LinearProgress 
                       variant="determinate" 
                       value={proyecto.progreso} 
-                      sx={{ height: 8, borderRadius: 4, backgroundColor: "#e0e0e0", "& .MuiLinearProgress-bar": { borderRadius: 4, backgroundColor: getEstadoColor(proyecto.estado) } }}
+                      sx={{ height: 6, borderRadius: 3, backgroundColor: "#e0e0e0", "& .MuiLinearProgress-bar": { borderRadius: 3, backgroundColor: getEstadoColor(proyecto.estado) } }}
                     />
                   </Box>
                   
@@ -972,21 +976,21 @@ export default function Proyectos() {
                     </Typography>
                   </Box>
                   
-                  <Box sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}>
-                    <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-                      Presupuesto: {formatCOP(proyecto.presupuesto)}
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+                    <Typography variant="caption" sx={{ fontWeight: "bold" }}>
+                      {formatCOP(proyecto.presupuesto)}
                     </Typography>
-                    <Typography variant="body2" sx={{ fontWeight: "bold", color: (Number(proyecto.costoActual || 0) > proyecto.presupuesto) ? "#f44336" : "#4caf50" }}>
-                      Costo: {formatCOP(proyecto.costoActual)}
+                    <Typography variant="caption" sx={{ fontWeight: "bold", color: (Number(proyecto.costoActual || 0) > proyecto.presupuesto) ? "#f44336" : "#4caf50" }}>
+                      {formatCOP(proyecto.costoActual)}
                     </Typography>
                   </Box>
                   
-                  <Typography variant="caption" color="text.secondary">
+                  <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
                     Actualizado: {formatDistanceToNow(new Date(proyecto.actualizadoEn), { addSuffix: true, locale: es })}
                   </Typography>
                 </CardContent>
                 
-                <CardActions sx={{ justifyContent: "space-between", p: 2 }}>
+                <CardActions sx={{ justifyContent: "space-between", p: { xs: 1, sm: 1.5 } }}>
                   <Box sx={{ display: "flex", gap: 1 }}>
                     <Tooltip title="Compartir progreso con cliente (Magic Link)">
                       <IconButton size="small" color="primary" onClick={() => handleGenerateMagicLink(proyecto)}>

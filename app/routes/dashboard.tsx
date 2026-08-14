@@ -194,7 +194,7 @@ export default function Dashboard() {
 
   return (
     <Box sx={{ mb: 4 }}>
-      <Grid container spacing={{ xs: 1, sm: 1.5 }} sx={{ mb: { xs: 1.5, sm: 2 } }}>
+      <Grid container spacing={{ xs: 1, sm: 1.5 }} sx={{ mb: { xs: 1, sm: 1.5 } }}>
         <Grid item xs={12}>
           <Box
             sx={{
@@ -202,18 +202,18 @@ export default function Dashboard() {
               justifyContent: "space-between",
               alignItems: { xs: 'stretch', sm: 'center' },
               flexDirection: { xs: 'column', sm: 'row' },
-              gap: 1.5,
+              gap: 1,
             }}
           >
             <Box>
               <Typography
                 variant="overline"
-                sx={{ color: "text.secondary", letterSpacing: 1, fontWeight: 600 }}
+                sx={{ color: "text.secondary", letterSpacing: 1, fontWeight: 600, fontSize: '0.7rem' }}
               >
                 Panel de Control
               </Typography>
               <Typography 
-                variant="h4" 
+                variant="h5" 
                 sx={{ 
                   fontWeight: 900,
                   background: (theme) => theme.palette.mode === 'dark'
@@ -222,7 +222,7 @@ export default function Dashboard() {
                   backgroundClip: 'text',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
-                  fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' }
+                  fontSize: { xs: '1.15rem', sm: '1.5rem', md: '1.75rem' }
                 }}
               >
                 {todayLabel}

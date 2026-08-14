@@ -231,7 +231,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <Divider sx={{ borderColor: "rgba(255, 255, 255, 0.05)", mb: 1 }} />
       
       {/* Menú Principal */}
-      <List sx={{ px: 1.2, flexGrow: 1, overflowY: 'auto', py: 1 }}>
+      <List sx={{ px: 1, flexGrow: 1, overflowY: 'auto', py: 0.5 }}>
         {menuItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
@@ -253,12 +253,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 },
                 borderRadius: "12px",
                 transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)",
-                py: 1.5,
+                py: 1,
                 px: isCollapsed ? 1.5 : 2,
                 display: "flex",
                 justifyContent: isCollapsed ? "center" : "flex-start",
                 position: "relative",
-                mb: 0.8
+                mb: 0.5
               }}
             >
               {/* Indicador izquierdo brillante para item activo */}

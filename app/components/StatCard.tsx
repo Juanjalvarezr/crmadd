@@ -40,30 +40,30 @@ export const StatCard: React.FC<StatCardProps> = ({
   return (
     <Paper 
       sx={{ 
-        p: { xs: 2, sm: 3 },
+        p: { xs: 1.5, sm: 2 },
         height: "100%",
-        borderRadius: 3,
+        borderRadius: 2,
         border: '1px solid',
         borderColor: 'divider',
         bgcolor: 'background.paper',
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         '&:hover': {
-          transform: { xs: 'none', sm: 'translateY(-4px)' },
-          boxShadow: { xs: 1, sm: 6 },
+          transform: { xs: 'none', sm: 'translateY(-2px)' },
+          boxShadow: { xs: 1, sm: 4 },
           borderColor: colorConfig.bg
         }
       }}
     >
-      <Box sx={{ display: "flex", alignItems: { xs: 'flex-start', sm: 'center' }, justifyContent: "space-between", mb: { xs: 1.5, sm: 2 } }}>
+      <Box sx={{ display: "flex", alignItems: { xs: 'flex-start', sm: 'center' }, justifyContent: "space-between", mb: { xs: 1, sm: 1.5 } }}>
         <Box sx={{ flex: 1, minWidth: 0 }}>
-          <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5, fontWeight: 500, textTransform: 'uppercase', letterSpacing: 0.5, fontSize: '0.75rem' }}>
+          <Typography variant="caption" color="text.secondary" sx={{ mb: 0.25, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5, fontSize: '0.7rem' }}>
             {title}
           </Typography>
-          <Typography variant="h4" sx={{ fontWeight: 800, mb: 0.5, fontSize: { xs: '1.75rem', sm: '2.125rem' } }}>
+          <Typography variant="h5" sx={{ fontWeight: 800, mb: 0.25, fontSize: { xs: '1.4rem', sm: '1.75rem' } }}>
             {value}
           </Typography>
           {subtitle && (
-            <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
+            <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
               {subtitle}
             </Typography>
           )}
