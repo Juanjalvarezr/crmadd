@@ -18,6 +18,8 @@ interface CRMState {
   facturas: any[];
   transacciones: any[];
   contratos: any[];
+  briefs: any[];
+  sops: any[];
   notifications: Notification[];
   stats: {
     totalIngresos: number;
@@ -27,6 +29,7 @@ interface CRMState {
   };
   isLoading: boolean;
   error: string | null;
+  bloqueoOperativoActivo: boolean;
 
   // Acciones
   fetchDashboardData: () => Promise<void>;
@@ -37,12 +40,17 @@ interface CRMState {
   fetchFacturas: () => Promise<void>;
   fetchTransacciones: () => Promise<void>;
   fetchContratos: () => Promise<void>;
+  fetchBriefs: () => Promise<void>;
+  fetchSops: () => Promise<void>;
   updateStats: () => void;
   addCliente: (cliente: any) => void;
   updateCliente: (id: number, data: any) => void;
   addNotification: (notif: Omit<Notification, 'id' | 'read' | 'time'>) => void;
   markAsRead: (id: string) => void;
   clearNotifications: () => void;
+  checkBloqueoOperativo: (proyecto: any) => boolean;
+  addBrief: (brief: any) => void;
+  addSop: (sop: any) => void;
 }
 
 export const useCRMStore = create<CRMState>((set, get) => ({
@@ -53,6 +61,8 @@ export const useCRMStore = create<CRMState>((set, get) => ({
   facturas: [],
   transacciones: [],
   contratos: [],
+  briefs: [],
+  sops: [],
   notifications: [
     {
       id: '1',
@@ -71,6 +81,7 @@ export const useCRMStore = create<CRMState>((set, get) => ({
   },
   isLoading: false,
   error: null,
+  bloqueoOperativoActivo: false,
 
   fetchDashboardData: async () => {
     set({ isLoading: true, error: null });
@@ -176,6 +187,22 @@ export const useCRMStore = create<CRMState>((set, get) => ({
     } catch (err: any) { set({ error: err.message, isLoading: false }); }
   },
 
+  fetchBriefs: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const briefs = await (await import('../services/supabase')).briefsService.getAll();
+      set({ briefs, isLoading: false });
+    } catch (err: any) { set({ error: err.message, isLoading: false }); }
+  },
+
+  fetchSops: async () => {
+    set({ isLoading: true, error: null });
+    try {
+      const sops = await (await import('../services/supabase')).sopsService.getAll();
+      set({ sops, isLoading: false });
+    } catch (err: any) { set({ error: err.message, isLoading: false }); }
+  },
+
   setProyectos: (proyectos: any[]) => set({ proyectos }),
   updateStats: () => {
     const { clientes, oportunidades, proyectos } = get();
@@ -208,4 +235,24 @@ export const useCRMStore = create<CRMState>((set, get) => ({
     notifications: state.notifications.map(n => n.id === id ? { ...n, read: true } : n),
   })),
   clearNotifications: () => set({ notifications: [] }),
+  checkBloqueoOperativo: (proyecto) => {
+    const state = get();
+    if (!proyecto || proyecto.etapa === 'Cerrada' || proyecto.estado === 'Cerrado') return false;
+
+    const anticipoAprobado = proyecto.anticipo_aprobado || proyecto.anticipo_pagado;
+    if (!anticipoAprobado) {
+      set({ bloqueoOperativoActivo: true });
+      state.addNotification({
+        type: 'error',
+        title: 'BLOQUEO_OPERATIVO',
+        message: `Anticipo 50% no confirmado en proyecto ${proyecto.nombre || proyecto.id}.`,
+      });
+      return true;
+    }
+
+    set({ bloqueoOperativoActivo: false });
+    return false;
+  },
+  addBrief: (brief) => set((state) => ({ briefs: [brief, ...state.briefs] })),
+  addSop: (sop) => set((state) => ({ sops: [sop, ...state.sops] })),
 }));
