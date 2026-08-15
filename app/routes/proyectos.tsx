@@ -230,7 +230,6 @@ export default function Proyectos() {
 
   const handleSaveProyecto = async (data: z.infer<typeof proyectoSchema>) => {
     try {
-      // Validación profesional: No permitir completar si hay tareas pendientes vía modal
       if (data.estado === "completado") {
         const tareasActuales = editingProyecto?.tareas || [];
         const pendientes = tareasActuales.filter((t: TareaProyecto) => !t.completada).length;
@@ -242,12 +241,20 @@ export default function Proyectos() {
           );
           return;
         } else if (pendientes > 0 && isAdmin) {
-          // Si es admin, permitimos pero avisamos
           showNotification(
             `Proyecto forzado a completado por Administrador (${pendientes} pendientes ignoradas).`, 
             "info"
           );
         }
+      }
+
+      const fase = (editingProyecto?.faseAdministrativa || data.estado === "completado" ? "operacion" : "operacion") as Proyecto["faseAdministrativa"];
+      if (fase === "operacion" && !editingProyecto?.onboardingChecklist?.identidad_digital) {
+        showNotification(
+          "BLOQUEO_OPERATIVO: Falta Brief de Identidad aprobado antes de pasar a Operación.",
+          "error"
+        );
+        return;
       }
 
       const cliente = clientes.find(c => String(c.id) === String(data.clienteId));
