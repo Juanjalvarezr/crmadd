@@ -1056,3 +1056,83 @@ export const contratosService = {
     return true;
   },
 };
+
+interface BriefItem {
+  id: number;
+  proyecto_id?: string | null;
+  cliente_id?: number | null;
+  titulo: string;
+  estado: string;
+  created_at?: string;
+  updated_at?: string;
+}
+interface SopItem {
+  id: number;
+  titulo: string;
+  descripcion?: string;
+  categoria?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+// --- Servicio de Briefs ---
+export const briefsService = {
+  async getAll() {
+    const { data, error } = await supabase
+      .from('briefs')
+      .select('*')
+      .order('creado_en', { ascending: false });
+    if (error) throw error;
+    return (data || []) as BriefItem[];
+  },
+  async create(item: Omit<BriefItem, 'id' | 'created_at' | 'updated_at'>) {
+    const { data, error } = await supabase
+      .from('briefs')
+      .insert([{ ...item, actualizado_en: new Date().toISOString() }])
+      .select()
+      .single();
+    if (error) throw error;
+    return data as BriefItem;
+  },
+  async update(id: number, updates: Partial<BriefItem>) {
+    const { data, error } = await supabase
+      .from('briefs')
+      .update({ ...updates, actualizado_en: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+    return data as BriefItem;
+  },
+};
+
+// --- Servicio de SOPs ---
+export const sopsService = {
+  async getAll() {
+    const { data, error } = await supabase
+      .from('sops')
+      .select('*')
+      .order('creado_en', { ascending: false });
+    if (error) throw error;
+    return (data || []) as SopItem[];
+  },
+  async create(item: Omit<SopItem, 'id' | 'created_at' | 'updated_at'>) {
+    const { data, error } = await supabase
+      .from('sops')
+      .insert([{ ...item, actualizado_en: new Date().toISOString() }])
+      .select()
+      .single();
+    if (error) throw error;
+    return data as SopItem;
+  },
+  async update(id: number, updates: Partial<SopItem>) {
+    const { data, error } = await supabase
+      .from('sops')
+      .update({ ...updates, actualizado_en: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+    return data as SopItem;
+  },
+};
