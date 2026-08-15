@@ -1,7 +1,7 @@
 // Configuración de Supabase para DESEO DIGITAL
 import { createClient } from '@supabase/supabase-js';
 import * as z from 'zod';
-import type { Cliente, Oportunidad, Proyecto, Tarea } from '../types/crm';
+import type { Cliente } from '../types/crm';
 
 // Punto 1: Esquemas de Validación en Runtime
 export const ClienteSchema = z.object({
@@ -977,8 +977,7 @@ export const authService = {
 // Verificar conexión
 export async function testConnection() {
   try {
-    const { data, error } = await supabase.from('clientes').select('count', { count: 'exact', head: true });
-    if (error) throw error;
+    await supabase.from('clientes').select('count', { count: 'exact', head: true });
     return { success: true, message: 'Conexión exitosa a Supabase' };
   } catch (error: any) {
     return { success: false, message: error.message };

@@ -352,7 +352,7 @@ export default function Proyectos() {
     if (typeof window !== "undefined" && confirm(`¿Estás seguro de eliminar el proyecto "${proyecto.nombre}"?`)) {
       try {
         await proyectosService.delete(proyecto.id);
-        setProyectos(prev => prev.filter(p => p.id !== proyecto.id));
+        setProyectos(prev => prev.filter((p: Proyecto) => p.id !== proyecto.id));
         showNotification("Proyecto eliminado correctamente", "success");
       } catch (err: any) {
         showNotification("Error al eliminar proyecto: " + err.message, "error");
@@ -726,13 +726,15 @@ export default function Proyectos() {
       }
 
       const actualizadoEn = new Date().toISOString();
-      await proyectosService.update(proyecto.id, { estado: nuevoEstado, actualizadoEn: actualizadoEn });
+      await proyectosService.update(proyecto.id, { estado: nuevoEstado, actualizadoEn });
       
-      setProyectos(prev => prev.map(p => 
-        p.id === proyecto.id 
-          ? { ...p, estado: nuevoEstado, actualizadoEn }
-          : p
-      ));
+      setProyectos((prev) =>
+        prev.map((p: Proyecto) =>
+          p.id === proyecto.id
+            ? { ...p, estado: nuevoEstado, actualizadoEn }
+            : p
+        )
+      );
 
       if (nuevoEstado === "completado") {
         dispararCelebracion();
