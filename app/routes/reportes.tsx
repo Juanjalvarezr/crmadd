@@ -10,12 +10,8 @@ import {
   FiPieChart, FiActivity, FiTarget, FiFileText, FiX, FiClock, FiCheckCircle, FiAlertCircle
 } from "react-icons/fi";
 import { format, startOfMonth, endOfMonth, subMonths, startOfYear, endOfYear, getMonth, getYear } from "date-fns";
-import { es } from "date-fns/locale";
-import {
-  tareasService,
-  clientesService,
-  oportunidadesService
-} from "../services/supabase";
+import { es } from 'date-fns/locale';
+import { tareasService, clientesService, oportunidadesService } from "../services/supabase";
 
 // Tipos para reportes
 interface Metrica {
