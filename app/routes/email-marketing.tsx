@@ -606,7 +606,7 @@ export default function EmailMarketing() {
                     </CardContent>
                   </Card>
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid item xs={6} sm={6} md={3}>
                   <Card>
                     <CardContent sx={{ textAlign: "center" }}>
                       <Eye size={32} color="#4caf50" />
@@ -619,7 +619,7 @@ export default function EmailMarketing() {
                     </CardContent>
                   </Card>
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid item xs={6} sm={6} md={3}>
                   <Card>
                     <CardContent sx={{ textAlign: "center" }}>
                       <Target size={32} color="#2196f3" />
@@ -632,7 +632,7 @@ export default function EmailMarketing() {
                     </CardContent>
                   </Card>
                 </Grid>
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid item xs={6} sm={6} md={3}>
                   <Card>
                     <CardContent sx={{ textAlign: "center" }}>
                       <TrendingUp size={32} color="#ff9800" />

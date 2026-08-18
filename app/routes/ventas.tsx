@@ -640,7 +640,7 @@ export default function Ventas() {
             </Box>
           ) : (
             <Grid container spacing={{ xs: 1, sm: 2 }}>
-              <Grid item xs={12} md={7}>
+              <Grid item xs={6} md={7}>
                 <Typography variant="subtitle2" gutterBottom color="primary" sx={{ fontWeight: 'bold' }}>📄 Documento de Propuesta (Markdown)</Typography>
                 <Paper variant="outlined" sx={{ p: 2, bgcolor: '#fdfdfd', maxHeight: 400, overflowY: 'auto' }}>
                   <Typography variant="body2" component="pre" sx={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit' }}>
@@ -660,7 +660,7 @@ export default function Ventas() {
                   Copiar Propuesta Completa
                 </Button>
               </Grid>
-              <Grid item xs={12} md={5}>
+              <Grid item xs={6} md={5}>
                 <Typography variant="subtitle2" gutterBottom color="success.main" sx={{ fontWeight: 'bold' }}>💬 Resumen para WhatsApp</Typography>
                 <Paper variant="outlined" sx={{ p: 2, bgcolor: '#e8f5e9', border: '1px solid #4caf50' }}>
                   <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>

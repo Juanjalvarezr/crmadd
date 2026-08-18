@@ -304,7 +304,7 @@ export default function PublicProyecto() {
                 {proyecto.recursos && proyecto.recursos.length > 0 ? (
                   <Grid container spacing={2}>
                     {proyecto.recursos.map((rec: any, idx: number) => (
-                      <Grid item xs={12} sm={6} key={idx}>
+                      <Grid item xs={6} sm={6} key={idx}>
                         <Card variant="outlined" sx={{ 
                           borderColor: "rgba(255,255,255,0.06)", 
                           "&:hover": { borderColor: "primary.main", transform: "translateY(-2px)" },

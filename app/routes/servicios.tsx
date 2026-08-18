@@ -257,7 +257,7 @@ export default function Servicios() {
                 onChange={e => setFormData({ ...formData, nombre: e.target.value })}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={6} sm={6}>
               <FormControl fullWidth>
                 <InputLabel>Categoría</InputLabel>
                 <Select
@@ -274,7 +274,7 @@ export default function Servicios() {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={6} sm={6}>
               <TextField
                 label="Precio Base (COP)"
                 type="number"
@@ -293,7 +293,7 @@ export default function Servicios() {
                 onChange={e => setFormData({ ...formData, descripcion: e.target.value })}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={6} sm={6}>
               <TextField
                 label="Duración"
                 fullWidth
@@ -302,7 +302,7 @@ export default function Servicios() {
                 onChange={e => setFormData({ ...formData, duracion: e.target.value })}
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={6} sm={6}>
               <FormControl fullWidth>
                 <InputLabel>Popularidad (1-5)</InputLabel>
                 <Select
