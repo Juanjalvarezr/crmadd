@@ -133,10 +133,14 @@ export const useCRMStore = create<CRMState>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const clientes = await clientesService.getAll();
-      set({ clientes, isLoading: false });
-    } catch (err: any) {
-      set({ error: err.message, isLoading: false });
-    }
+      const list = clientes || [];
+      const base = list.find((c: any) => c.email === 'juanjosealvarez@gmail.com');
+      if (!base) {
+        const seeded = await clientesService.create({ nombre: 'Juan Jose Alvarez', email: 'juanjosealvarez@gmail.com', telefono: '320 369 8476', empresa: 'DESEO DIGITAL', nicho: 'Tecnología', estado: 'Activo' } as any);
+        if (seeded) list.push(seeded);
+      }
+      set({ clientes: list, isLoading: false });
+    } catch (err: any) { set({ error: err.message, isLoading: false }); }
   },
 
   fetchProyectos: async () => {
@@ -144,9 +148,7 @@ export const useCRMStore = create<CRMState>((set, get) => ({
     try {
       const proyectos = await proyectosService.getAll();
       set({ proyectos, isLoading: false });
-    } catch (err: any) {
-      set({ error: err.message, isLoading: false });
-    }
+    } catch (err: any) { set({ error: err.message, isLoading: false }); }
   },
 
   fetchTareas: async () => {
@@ -154,9 +156,7 @@ export const useCRMStore = create<CRMState>((set, get) => ({
     try {
       const tareas = await tareasService.getAll();
       set({ tareas, isLoading: false });
-    } catch (err: any) {
-      set({ error: err.message, isLoading: false });
-    }
+    } catch (err: any) { set({ error: err.message, isLoading: false }); }
   },
 
   fetchOportunidades: async () => {
@@ -164,9 +164,7 @@ export const useCRMStore = create<CRMState>((set, get) => ({
     try {
       const oportunidades = await oportunidadesService.getAll();
       set({ oportunidades, isLoading: false });
-    } catch (err: any) {
-      set({ error: err.message, isLoading: false });
-    }
+    } catch (err: any) { set({ error: err.message, isLoading: false }); }
   },
 
   fetchFacturas: async () => {
