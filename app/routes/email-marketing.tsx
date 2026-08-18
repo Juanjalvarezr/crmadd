@@ -592,8 +592,8 @@ export default function EmailMarketing() {
                 Estadísticas Generales
               </Typography>
               
-              <Grid container spacing={3} sx={{ mb: 4 }}>
-                <Grid item xs={12} sm={6} md={3}>
+              <Grid container spacing={{ xs: 1, sm: 2 }} sx={{ mb: 3 }}>
+                <Grid item xs={6} sm={6} md={3}>
                   <Card>
                     <CardContent sx={{ textAlign: "center" }}>
                       <Mail size={32} color="#e91e63" />

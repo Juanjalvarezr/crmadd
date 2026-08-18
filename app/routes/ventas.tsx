@@ -352,14 +352,14 @@ export default function Ventas() {
       </Paper>
 
       {/* KPIs */}
-      <Box sx={{ display: "flex", flexWrap: "wrap", gap: { xs: 1, sm: 1.5 }, mb: { xs: 1.5, sm: 2 } }}>
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: { xs: 0.5, sm: 0.75 }, mb: { xs: 0.75, sm: 1 } }}>
         {[
           { title: "Oportunidades", value: loading ? "..." : filtered.length, subtitle: "En pipeline", color: "primary" },
           { title: "Valor Potencial", value: loading ? "..." : formatValue(totalValor), subtitle: "Ingresos esperados", color: "success" },
           { title: "Prob. Promedio", value: loading ? "..." : `${avgProb}%`, subtitle: "De conversión", color: "warning" },
           { title: "En Cierre", value: loading ? "..." : enCierre, subtitle: "Listas para cerrar", color: "info" },
         ].map((kpi) => (
-          <Box key={kpi.title} sx={{ flex: { xs: "50%", sm: "48%", md: "23%" } }}>
+          <Box key={kpi.title} sx={{ flex: { xs: "50%", sm: "48%", md: "23%" }, minWidth: 0 }}>
             <StatCard title={kpi.title} value={kpi.value} subtitle={kpi.subtitle} icon={<VentasIcon />} color={kpi.color as any} />
           </Box>
         ))}
@@ -639,7 +639,7 @@ export default function Ventas() {
               <Typography variant="body1">La IA está diseñando la estrategia de cierre...</Typography>
             </Box>
           ) : (
-            <Grid container spacing={3}>
+            <Grid container spacing={{ xs: 1, sm: 2 }}>
               <Grid item xs={12} md={7}>
                 <Typography variant="subtitle2" gutterBottom color="primary" sx={{ fontWeight: 'bold' }}>📄 Documento de Propuesta (Markdown)</Typography>
                 <Paper variant="outlined" sx={{ p: 2, bgcolor: '#fdfdfd', maxHeight: 400, overflowY: 'auto' }}>
