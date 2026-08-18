@@ -487,8 +487,8 @@ export default function Clientes() {
         </Paper>
       )}
 
-      {/* Tarjetas compactas */}
-      <Box sx={{ display: "flex", flexWrap: "wrap", gap: { xs: 0.75, sm: 1 }, mb: { xs: 1, sm: 1.5 } }}>
+      {/* KPI compacto */}
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: { xs: 0.5, sm: 1 }, mb: { xs: 1, sm: 1.5 } }}>
         <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}>
           <StatCard title="Total" value={loading ? "..." : clientes.length} subtitle="En BD" icon={<ClientesIcon />} color="primary" />
         </Box>

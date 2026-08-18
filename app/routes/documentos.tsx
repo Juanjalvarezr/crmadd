@@ -3,6 +3,7 @@ import { Box, Typography, Paper, Button, IconButton, Dialog, DialogTitle, Dialog
 import { FiPlus, FiX, FiDownload, FiUpload } from "react-icons/fi";
 import { documentosService } from "../services/supabase";
 import { useNotificationStore } from "../store/useNotificationStore";
+import { StatCard } from "../components/StatCard";
 
 export function meta() {
   return [{ title: "Documentos | CRM Agencia" }];
@@ -97,6 +98,15 @@ export default function Documentos() {
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: { xs: 1, sm: 1.5 } }}>
         <Typography variant="h6" sx={{ fontSize: { xs: '1rem', sm: '1.1rem' } }}>Documentos</Typography>
         <Button variant="contained" size="small" startIcon={<FiPlus size={16} />} onClick={openCreate}>Nuevo</Button>
+      </Box>
+
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: { xs: 0.5, sm: 1 }, mb: { xs: 1, sm: 1.5 } }}>
+        <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}>
+          <StatCard title="Total" value={loading ? "..." : items.length} subtitle="Documentos" color="primary" />
+        </Box>
+        <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}>
+          <StatCard title="Con URL" value={items.filter((i: any) => i.url).length} subtitle="Enlaces" color="success" />
+        </Box>
       </Box>
 
       {loading && <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}><CircularProgress size={24} /></Box>}
