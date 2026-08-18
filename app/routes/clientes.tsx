@@ -23,6 +23,7 @@ import DOMPurify from 'dompurify';
 import { FiSearch, FiPlus, FiEdit, FiTrash2, FiFilter, FiCalendar, FiX, FiUsers, FiPhone, FiMail, FiFileText, FiDownload, FiEye, FiMessageSquare, FiStar, FiBriefcase, FiTarget } from "react-icons/fi";
 import { clientesService } from "../services/supabase";
 import { useCRMStore } from "../store/useCRMStore";
+import { BRAND } from "../theme";
 import { SupabaseStatus } from "../components/SupabaseTest";
 import { format } from "date-fns";
 import { EmptyState } from "../components/EmptyState";
@@ -466,7 +467,7 @@ export default function Clientes() {
               size="small" 
               startIcon={<FiMail />} 
               onClick={() => handleEmail({ email: clientes.filter(c => selectedIds.includes(c.id)).map(c => c.email).join(',') } as any)}
-              sx={{ bgcolor: '#e91e63' }}
+              sx={{ bgcolor: BRAND.secondary }}
             >
               Gmail
             </Button>
@@ -475,7 +476,7 @@ export default function Clientes() {
               size="small" 
               startIcon={<FiMessageSquare />} 
               onClick={() => handleMessage({ nombre: 'Grupo Seleccionado' } as any)}
-              sx={{ bgcolor: '#4caf50' }}
+              sx={{ bgcolor: BRAND.success }}
             >
               WhatsApp
             </Button>
@@ -487,17 +488,17 @@ export default function Clientes() {
       )}
 
       {/* Tarjetas compactas */}
-      <Box sx={{ display: "flex", flexWrap: "wrap", gap: { xs: 1, sm: 1.5 }, mb: { xs: 1.5, sm: 2 } }}>
-        <Box sx={{ flex: { xs: "50%", sm: "25%" } }}>
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: { xs: 0.75, sm: 1 }, mb: { xs: 1, sm: 1.5 } }}>
+        <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}>
           <StatCard title="Total" value={loading ? "..." : clientes.length} subtitle="En BD" icon={<ClientesIcon />} color="primary" />
         </Box>
-        <Box sx={{ flex: { xs: "50%", sm: "25%" } }}>
+        <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}>
           <StatCard title="Activos" value={clientesActivos} subtitle="Activos" icon={<ClientesIcon />} color="success" />
         </Box>
-        <Box sx={{ flex: { xs: "50%", sm: "25%" } }}>
+        <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}>
           <StatCard title="Inactivos" value={clientesInactivos} subtitle="Inactivos" icon={<ClientesIcon />} color="error" />
         </Box>
-        <Box sx={{ flex: { xs: "50%", sm: "25%" } }}>
+        <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}>
           <StatCard title="Nuevos" value={clientesNuevosEsteMes} subtitle="Este mes" icon={<ClientesIcon />} color="warning" />
         </Box>
       </Box>
@@ -748,7 +749,7 @@ export default function Clientes() {
                       <Tooltip title="Ver detalles"><IconButton size="small" onClick={() => handleViewDetails(cliente)} sx={{ color: '#1976d2' }} aria-label={`Ver detalles de ${cliente.nombre}`}><FiEye size={16} /></IconButton></Tooltip>
                       <Tooltip title={cliente.favorito ? "Quitar de favoritos" : "Marcar como favorito"}><IconButton size="small" onClick={() => handleToggleFavorite(cliente)} sx={{ color: cliente.favorito ? '#ffb400' : '#ccc' }} aria-label={`Favorito ${cliente.nombre}`}><FiStar size={16} style={{ fill: cliente.favorito ? '#ffb400' : 'none' }} /></IconButton></Tooltip>
                       <Tooltip title="Editar cliente"><IconButton size="small" onClick={() => handleEdit(cliente)} sx={{ color: '#ff9800' }} aria-label={`Editar a ${cliente.nombre}`}><FiEdit size={16} /></IconButton></Tooltip>
-                      <Tooltip title="Llamar"><IconButton size="small" onClick={() => handleCall(cliente)} sx={{ color: '#4caf50' }} aria-label={`Llamar a ${cliente.nombre}`}><FiPhone size={16} /></IconButton></Tooltip>
+                      <Tooltip title="Llamar"><IconButton size="small" onClick={() => handleCall(cliente)} sx={{ color: BRAND.success }} aria-label={`Llamar a ${cliente.nombre}`}><FiPhone size={16} /></IconButton></Tooltip>
                       <Tooltip title="Enviar email"><IconButton size="small" onClick={() => handleEmail(cliente)} sx={{ color: '#9c27b0' }} aria-label={`Enviar email a ${cliente.nombre}`}><FiMail size={16} /></IconButton></Tooltip>
                       <Tooltip title="Enviar mensaje"><IconButton size="small" onClick={() => handleMessage(cliente)} sx={{ color: '#00bcd4' }} aria-label={`Enviar mensaje a ${cliente.nombre}`}><FiMessageSquare size={16} /></IconButton></Tooltip>
                       <Tooltip title="Ver historial"><IconButton size="small" onClick={() => handleHistory(cliente)} sx={{ color: '#607d8b' }} aria-label={`Ver historial de ${cliente.nombre}`}><FiFileText size={16} /></IconButton></Tooltip>

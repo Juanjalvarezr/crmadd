@@ -40,30 +40,30 @@ export const StatCard: React.FC<StatCardProps> = ({
   return (
     <Paper 
       sx={{ 
-        p: { xs: 1.5, sm: 2 },
+        p: { xs: 0.75, sm: 1 },
         height: "100%",
-        borderRadius: 2,
+        borderRadius: 1.5,
         border: '1px solid',
         borderColor: 'divider',
         bgcolor: 'background.paper',
-        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        transition: 'all 0.15s ease',
         '&:hover': {
-          transform: { xs: 'none', sm: 'translateY(-2px)' },
-          boxShadow: { xs: 1, sm: 4 },
+          transform: { xs: 'none', sm: 'translateY(-1px)' },
+          boxShadow: { xs: 0, sm: 1 },
           borderColor: colorConfig.bg
         }
       }}
     >
-      <Box sx={{ display: "flex", alignItems: { xs: 'flex-start', sm: 'center' }, justifyContent: "space-between", mb: { xs: 1, sm: 1.5 } }}>
+      <Box sx={{ display: "flex", alignItems: { xs: 'center', sm: 'center' }, justifyContent: "space-between", mb: { xs: 0.25, sm: 0.5 } }}>
         <Box sx={{ flex: 1, minWidth: 0 }}>
-          <Typography variant="caption" color="text.secondary" sx={{ mb: 0.25, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.5, fontSize: '0.7rem' }}>
+          <Typography variant="caption" color="text.secondary" sx={{ mb: 0.15, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, fontSize: { xs: '0.55rem', sm: '0.65rem' } }}>
             {title}
           </Typography>
-          <Typography variant="h5" sx={{ fontWeight: 800, mb: 0.25, fontSize: { xs: '1.4rem', sm: '1.75rem' } }}>
+          <Typography variant="h5" sx={{ fontWeight: 800, mb: 0.15, lineHeight: { xs: 1, sm: 1.2 }, fontSize: { xs: '0.95rem', sm: '1.25rem' } }}>
             {value}
           </Typography>
           {subtitle && (
-            <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
+            <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.55rem', sm: '0.65rem' } }}>
               {subtitle}
             </Typography>
           )}
@@ -71,14 +71,14 @@ export const StatCard: React.FC<StatCardProps> = ({
         {icon && (
           <Box 
             sx={{ 
-              p: { xs: 1, sm: 1.5 }, 
-              borderRadius: 2.5, 
+              p: { xs: 0.5, sm: 0.75 }, 
+              borderRadius: 1.5, 
               bgcolor: `${color}.light`,
               color: `${color}.dark`,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              ml: 1
+              ml: 0.5
             }}
           >
             {icon}
@@ -87,19 +87,19 @@ export const StatCard: React.FC<StatCardProps> = ({
       </Box>
       
       {trend && (
-        <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, mt: 1 }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.25, mt: 0.25 }}>
           <TrendIcon 
-            size={16} 
+            size={12} 
             color={trend.isPositive ? "success.main" : "error.main"} 
           />
           <Typography 
-            variant="body2" 
+            variant="caption"
             color={trend.isPositive ? "success.main" : "error.main"}
-            sx={{ fontWeight: 700 }} 
+            sx={{ fontWeight: 700, fontSize: { xs: '0.55rem', sm: '0.65rem' } }} 
           >
             {trend.isPositive ? "+" : ""}{trend.value}%
           </Typography>
-          <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
+          <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.5rem', sm: '0.6rem' } }}>
             vs mes anterior
           </Typography>
         </Box>

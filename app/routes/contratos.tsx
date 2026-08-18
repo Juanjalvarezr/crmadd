@@ -72,29 +72,29 @@ export default function Contratos() { const loadContratos = () => { if (typeof w
         </Box>
       </Box>
 
-      <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 2 }}>
+      <Box sx={{ display: "flex", flexWrap: "wrap", gap: { xs: 0.5, sm: 0.75 }, mb: { xs: 0.75, sm: 1 } }}>
         <Chip label={`${contratos.length} contratos`} size="small" />
       </Box>
 
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      {error && <Alert severity="error" sx={{ mb: { xs: 1, sm: 1.5 } }}>{error}</Alert>}
 
       {loading ? (
-        <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}><CircularProgress /></Box>
+        <Box sx={{ display: "flex", justifyContent: "center", p: { xs: 2, sm: 3 } }}><CircularProgress /></Box>
       ) : contratos.length === 0 ? (
-        <Paper sx={{ p: 4, borderRadius: 2, textAlign: "center" }}><Typography color="text.secondary">No hay contratos registrados.</Typography></Paper>
+        <Paper sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2, textAlign: "center" }}><Typography color="text.secondary" variant="body2">No hay contratos registrados.</Typography></Paper>
       ) : (
-        <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+        <Box sx={{ display: "flex", flexDirection: "column", gap: { xs: 0.75, sm: 1 } }}>
           {contratos.slice(0, 20).map((c: any) => (
-            <Paper key={c.id} sx={{ p: { xs: 1.5, sm: 2 }, borderRadius: 2, display: "flex", alignItems: "center", gap: 1.5, flexWrap: "wrap" }}>
+            <Paper key={c.id} sx={{ p: { xs: 1, sm: 1.25 }, borderRadius: 1.5, display: "flex", alignItems: "center", gap: { xs: 0.75, sm: 1 }, flexWrap: "wrap", border: '1px solid', borderColor: 'divider' }}>
               <Box sx={{ flex: 1, minWidth: 0 }}>
-                <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>Contrato #{c.id}</Typography>
-                <Typography variant="caption" color="text.secondary">{c.fecha_inicio ? new Date(c.fecha_inicio).toLocaleDateString() : ""}</Typography>
+                <Typography variant="subtitle2" sx={{ fontWeight: 700, fontSize: { xs: '0.8rem', sm: '0.85rem' } }}>Contrato #{c.id}</Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' } }}>{c.fecha_inicio ? new Date(c.fecha_inicio).toLocaleDateString() : ""}</Typography>
               </Box>
-              <Chip size="small" label={c.estado || "Activo"} />
-              <Typography variant="body2" sx={{ fontWeight: "bold" }}>${Number(c.valor || 0).toFixed(0)}</Typography>
-              <Box sx={{ display: "flex", gap: 0.5 }}>
-                <Button size="small" onClick={() => openEdit(c)}>Editar</Button>
-                <Button size="small" color="error" onClick={() => handleDelete(c)}>Eliminar</Button>
+              <Chip size="small" label={c.estado || "Activo"} sx={{ height: { xs: 22, sm: 24 } }} />
+              <Typography variant="body2" sx={{ fontWeight: 700, fontSize: { xs: '0.8rem', sm: '0.85rem' } }}>${Number(c.valor || 0).toFixed(0)}</Typography>
+              <Box sx={{ display: "flex", gap: { xs: 0.5, sm: 0.75 } }}>
+                <Button size="small" onClick={() => openEdit(c)} sx={{ fontSize: { xs: '0.75rem', sm: '0.8rem' } }}>Editar</Button>
+                <Button size="small" color="error" onClick={() => handleDelete(c)} sx={{ fontSize: { xs: '0.75rem', sm: '0.8rem' } }}>Eliminar</Button>
               </Box>
             </Paper>
           ))}

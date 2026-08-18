@@ -14,6 +14,7 @@ import {
 } from "react-icons/fi";
 import { configuracionService, reglasAIService, conocimientoService, promptsAIService, supabase, testConnection } from "../services/supabase";
 import { useNotificationStore } from "../store/useNotificationStore";
+import { BRAND } from "../theme";
 import { EmpresaTab } from "../services/EmpresaTab";
 import { CerebroAITab } from "../services/CerebroAITab";
 
@@ -899,8 +900,8 @@ export default function Configuracion() {
       onClick={() => setActiveTab(id)}
       sx={{ 
         borderRadius: 2,
-        backgroundColor: activeTab === id ? "#e91e63" : "transparent",
-        borderColor: activeTab === id ? "#e91e63" : "#e0e0e0",
+        backgroundColor: activeTab === id ? BRAND.secondary : "transparent",
+        borderColor: activeTab === id ? BRAND.secondary : "#e0e0e0",
         color: activeTab === id ? "white" : "#666",
         "&:hover": {
           backgroundColor: activeTab === id ? "#c2185b" : "#f5f5f5"
@@ -1168,7 +1169,7 @@ export default function Configuracion() {
                   variant="contained"
                   startIcon={<FiSave />}
                   onClick={handleSavePreferencias}
-                  sx={{ backgroundColor: "#e91e63", '&:hover': { backgroundColor: "#c2185b" } }}
+                  sx={{ backgroundColor: BRAND.secondary, '&:hover': { backgroundColor: "#c2185b" } }}
                 >
                   Guardar Preferencias
                 </Button>
@@ -1238,7 +1239,7 @@ export default function Configuracion() {
                                 variant="contained"
                                 startIcon={<FiCheck />}
                                 onClick={handleCambioPassword}
-                                sx={{ backgroundColor: "#4caf50", '&:hover': { backgroundColor: "#388e3c" } }}
+                                sx={{ backgroundColor: BRAND.success, '&:hover': { backgroundColor: "#388e3c" } }}
                               >
                                 Actualizar Contraseña
                               </Button>
@@ -1540,7 +1541,7 @@ export default function Configuracion() {
                   <Card>
                     <CardContent>
                       <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
-                        <FiDownload size={24} color="#4caf50" />
+                        <FiDownload size={24} color={BRAND.success} />
                         <Typography variant="h6" sx={{ fontWeight: "bold" }}>Crear Backup</Typography>
                       </Box>
                       
@@ -1552,7 +1553,7 @@ export default function Configuracion() {
                         variant="contained"
                         startIcon={<FiDownload />}
                         onClick={() => setOpenBackupDialog(true)}
-                        sx={{ backgroundColor: "#4caf50", '&:hover': { backgroundColor: "#388e3c" } }}
+                        sx={{ backgroundColor: BRAND.success, '&:hover': { backgroundColor: "#388e3c" } }}
                       >
                         Descargar Backup
                       </Button>
@@ -1642,7 +1643,7 @@ export default function Configuracion() {
                 startIcon={<FiRefreshCw />}
                 onClick={handleSeedRealData}
                 sx={{ 
-                  backgroundColor: "#e91e63", 
+                  backgroundColor: BRAND.secondary, 
                   '&:hover': { backgroundColor: "#c2185b" },
                   py: 1.5,
                   px: 4,
@@ -1680,7 +1681,7 @@ export default function Configuracion() {
           <Button 
             onClick={handleBackup}
             variant="contained"
-            sx={{ backgroundColor: "#4caf50", '&:hover': { backgroundColor: "#388e3c" } }}
+            sx={{ backgroundColor: BRAND.success, '&:hover': { backgroundColor: "#388e3c" } }}
           >
             Crear Backup
           </Button>

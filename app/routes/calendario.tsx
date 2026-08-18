@@ -153,7 +153,7 @@ export default function Calendario() {
         </Tooltip>
       </Box>
 
-      <Paper sx={{ p: { xs: 1, sm: 2 }, height: '100%', minHeight: { xs: 360, sm: 480 }, borderRadius: 2, overflow: 'hidden' }}>
+      <Paper sx={{ p: { xs: 0.75, sm: 1 }, height: '100%', minHeight: { xs: 320, sm: 420 }, borderRadius: 1.5, overflow: 'hidden', border: '1px solid', borderColor: 'divider' }}>
         <Calendar
           localizer={localizer}
           events={events}
