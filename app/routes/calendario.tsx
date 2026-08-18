@@ -3,13 +3,14 @@ import {
   Box, Typography, Paper, Button, IconButton, Tooltip, CircularProgress,
   Dialog, DialogTitle, DialogContent, DialogActions
 } from "@mui/material";
-import { FiCalendar, FiInfo } from "react-icons/fi";
+import { FiCalendar, FiInfo, FiCreditCard } from "react-icons/fi";
 import { Calendar, dateFnsLocalizer, Views } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay } from "date-fns";
 import { es } from "date-fns/locale/es";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useNotificationStore } from "../store/useNotificationStore";
 import { useCRMStore } from "../store/useCRMStore";
+import { facturasService, pagosService } from "../services/supabase";
 
 const locales = {
   "es": es,
@@ -39,6 +40,7 @@ interface CalEvent {
   type: 'tarea' | 'venta';
   color: string;
   desc?: string;
+  facturaId?: number;
 }
 
 export default function Calendario() {
@@ -98,7 +100,6 @@ export default function Calendario() {
 
     // Mapear Oportunidades (Cierres proyectados)
     ventas.forEach((v: any) => {
-      // Simulamos que el created_at + 15 días es la fecha de cierre si no hay otra
       const date = new Date(v.created_at);
       date.setDate(date.getDate() + 15);
       
@@ -117,9 +118,65 @@ export default function Calendario() {
     setEvents(calendarEvents);
   }, [tareas.length, oportunidades.length, clientes.length]);
 
+  // Sincronizar vencimientos de facturas al calendario
+  useEffect(() => {
+    let cancelled = false;
+    const syncFacturas = async () => {
+      try {
+        const data = await facturasService.getAll();
+        if (cancelled) return;
+        const facturasList = data || [];
+        const vencimientos = facturasList
+          .filter((f: any) => f.fecha_vencimiento)
+          .map((f: any) => {
+            const date = new Date(f.fecha_vencimiento);
+            return {
+              id: `factura-vencimiento-${f.id}`,
+              title: `[Vencimiento] Factura #${f.numero_factura || f.id}`,
+              start: date,
+              end: date,
+              allDay: true,
+              type: 'tarea',
+              color: f.estado === "Pagada" ? '#4caf50' : f.estado === "Vencida" ? '#f44336' : '#ff9800',
+              facturaId: f.id,
+              desc: `Cliente: ${f.cliente?.nombre || `Cliente #${f.cliente_id}`} - Total: $${Number(f.total || 0).toFixed(0)} - Estado: ${f.estado || "Sin estado"}`
+            } as any;
+          });
+        setEvents(prev => {
+          const filtered = prev.filter(e => !String(e.id).startsWith("factura-vencimiento-"));
+          return [...filtered, ...vencimientos];
+        });
+      } catch {}
+    };
+    syncFacturas();
+    return () => { cancelled = true; };
+  }, []);
+
   const handleSelectEvent = (event: CalEvent) => {
     setSelectedEvent(event);
     setIsModalOpen(true);
+  };
+
+  const handleQuickPay = async () => {
+    if (!selectedEvent?.facturaId) return;
+    try {
+      const facturasList = await facturasService.getAll();
+      const factura = (facturasList || []).find((f: any) => f.id === selectedEvent.facturaId);
+      if (!factura) { showNotification("Factura no encontrada", "warning"); return; }
+      const total = Number(factura.total || 0);
+      const pagosList = await pagosService.getByFactura(factura.id);
+      const pagado = (pagosList || []).reduce((a, b) => a + Number(b.monto || 0), 0);
+      const saldo = Math.max(total - pagado, 0);
+      const telefono = factura.cliente?.telefono || "";
+      const clienteNombre = factura.cliente?.nombre || `Cliente #${factura.cliente_id}`;
+      const texto = encodeURIComponent(`Hola ${clienteNombre}, te compartimos tu factura #${factura.numero_factura || factura.id} por $${total.toFixed(0)}. Saldo pendiente: $${saldo.toFixed(0)}. Estado: ${factura.estado || "Borrador"}. Fecha vencimiento: ${factura.fecha_vencimiento || "Sin definir"}. Ante cualquier duda respondé este mensaje.`);
+      if (telefono) {
+        if (typeof window !== "undefined") window.open(`https://wa.me/${telefono}?text=${texto}`, "_blank");
+        showNotification("Abriendo WhatsApp...", "info");
+      } else {
+        showNotification("El cliente no tiene teléfono cargado", "warning");
+      }
+    } catch (err: any) { showNotification(err.message || "Error", "error"); }
   };
 
   const eventStyleGetter = (event: CalEvent) => {
@@ -196,6 +253,7 @@ export default function Calendario() {
               </Box>
             </DialogContent>
             <DialogActions>
+              {selectedEvent.facturaId && <Button size="small" variant="contained" startIcon={<FiCreditCard size={14} />} onClick={handleQuickPay}>Cobrar por WhatsApp</Button>}
               <Button onClick={() => setIsModalOpen(false)}>Cerrar</Button>
             </DialogActions>
           </>
