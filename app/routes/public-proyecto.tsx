@@ -159,7 +159,7 @@ export default function PublicProyecto() {
             border: "1px solid rgba(255, 255, 255, 0.05)",
             borderRadius: 4
           }}>
-            <Grid container spacing={3} alignItems="center">
+            <Grid container spacing={{ xs: 1, sm: 2 }} alignItems="center">
               <Grid item xs={12} md={8}>
                 <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 2 }}>
                   <Chip 
@@ -182,7 +182,7 @@ export default function PublicProyecto() {
                   {proyecto.descripcion || "Tu estrategia de posicionamiento digital y marketing estratégico."}
                 </Typography>
 
-                <Stack direction={{ xs: "column", sm: "row" }} spacing={3} color="text.secondary" fontSize="0.9rem">
+                <Stack direction={{ xs: "column", sm: "row" }} spacing={{ xs: 1, sm: 2 }} color="text.secondary" fontSize="0.9rem">
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     <FiBriefcase color="#E91E63" />
                     <strong>Cliente:</strong> {proyecto.clienteNombre}

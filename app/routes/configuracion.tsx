@@ -998,7 +998,7 @@ export default function Configuracion() {
                 Preferencias de Usuario
               </Typography>
               
-              <Grid container spacing={3}>
+              <Grid container spacing={{ xs: 1, sm: 2 }}>
                 <Grid item xs={12} md={6}>
                   <FormControl fullWidth>
                     <InputLabel>Tema</InputLabel>
@@ -1183,7 +1183,7 @@ export default function Configuracion() {
                 Seguridad de la Cuenta
               </Typography>
               
-              <Grid container spacing={3}>
+              <Grid container spacing={{ xs: 1, sm: 2 }}>
                 <Grid item xs={12}>
                   <Card sx={{ mb: 2 }}>
                     <CardContent>
@@ -1340,7 +1340,7 @@ export default function Configuracion() {
 
               <Grid container spacing={2}>
                 {plantillas.map((p) => (
-                  <Grid item xs={12} md={4} key={p.id}>
+                  <Grid item xs={6} sm={6} md={4} key={p.id}>
                     <Card variant="outlined">
                       <CardContent>
                         <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#e91e63' }}>{p.servicio}</Typography>
@@ -1446,7 +1446,7 @@ export default function Configuracion() {
                 <Button variant="contained" onClick={handleAddItem} startIcon={<FiPlus />} sx={{ backgroundColor: '#e91e63', '&:hover': { backgroundColor: '#c2185b' } }}>Añadir Item</Button>
               </Box>
 
-              <Grid container spacing={3}>
+              <Grid container spacing={{ xs: 1, sm: 2 }}>
                 {/* Estados de Cliente */}
                 <Grid item xs={12} md={4}>
                   <Card variant="outlined" sx={{ height: '100%', border: '1px solid rgba(0,0,0,0.08)' }}>
@@ -1535,7 +1535,7 @@ export default function Configuracion() {
                 Backup y Restauración
               </Typography>
               
-              <Grid container spacing={3}>
+              <Grid container spacing={{ xs: 1, sm: 2 }}>
                 <Grid item xs={12} md={6}>
                   <Card>
                     <CardContent>

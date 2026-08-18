@@ -493,7 +493,7 @@ export default function Reportes() {
           </Grid>
 
           {/* Gráficos */}
-          <Grid container spacing={3}>
+          <Grid container spacing={{ xs: 1, sm: 2 }}>
             {/* Gráfico de Ingresos */}
             <Grid item xs={12} md={8}>
               <Card sx={{ borderRadius: 2 }}>
