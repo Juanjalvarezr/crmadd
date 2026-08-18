@@ -8,6 +8,7 @@ import { FiRefreshCw, FiPlus, FiFileText, FiX } from "react-icons/fi";
 import { facturasService, emailService } from "../services/supabase";
 import { useCRMStore } from "../store/useCRMStore";
 import { useNotificationStore } from "../store/useNotificationStore";
+import { StatCard } from "../components/StatCard";
 
 export function meta() {
   return [{ title: "Facturación | CRM Agencia" }];
@@ -132,7 +133,18 @@ export default function Facturacion() {
       </Box>
 
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: { xs: 0.5, sm: 1 }, mb: { xs: 1, sm: 1.5 } }}>
-        <Chip label={`${facturas.length} facturas`} size="small" sx={{ height: { xs: 24, sm: 28 } }} />
+        <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}>
+          <StatCard title="Total" value={loading ? "..." : facturas.length} subtitle="Facturas" color="primary" />
+        </Box>
+        <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}>
+          <StatCard title="Pagadas" value={facturas.filter((f: any) => f.estado === "Pagada").length} subtitle="Pagadas" color="success" />
+        </Box>
+        <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}>
+          <StatCard title="Vencidas" value={facturas.filter((f: any) => f.estado === "Vencida").length} subtitle="Vencidas" color="error" />
+        </Box>
+        <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}>
+          <StatCard title="Total $" value={Number(facturas.reduce((a: number, b: any) => a + Number(b.total || 0), 0)).toFixed(0)} subtitle="Monto" color="warning" />
+        </Box>
       </Box>
 
       {error && <Alert severity="error" sx={{ mb: { xs: 1, sm: 1.5 } }}>{error}</Alert>}
