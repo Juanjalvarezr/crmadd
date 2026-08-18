@@ -5,7 +5,7 @@ import {
   TextField, FormControl, InputLabel, Select, MenuItem, Divider
 } from "@mui/material";
 import { FiRefreshCw, FiPlus, FiFileText, FiX } from "react-icons/fi";
-import { facturasService, emailService } from "../services/supabase";
+import { facturasService, emailService, plantillasDocumentosService, pagosService, documentosService } from "../services/supabase";
 import { useCRMStore } from "../store/useCRMStore";
 import { useNotificationStore } from "../store/useNotificationStore";
 import { StatCard } from "../components/StatCard";
@@ -25,8 +25,12 @@ export default function Facturacion() {
   const [editing, setEditing] = useState<any | null>(null);
   const [selected, setSelected] = useState<any | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
-  const [form, setForm] = useState({ numero_factura: "", estado: "Borrador", total: "", proyecto_id: "", cliente_id: "", fecha_vencimiento: "" });
+  const [form, setForm] = useState({ numero_factura: "", estado: "Borrador", total: "", proyecto_id: "", cliente_id: "", fecha_vencimiento: "", subtotal: "", iva: "", descuento: "", metodo_pago: "", notas: "" });
   const [saving, setSaving] = useState(false);
+  const [pagos, setPagos] = useState<any[]>([]);
+  const [pagoForm, setPagoForm] = useState({ monto: "", metodo_pago: "transferencia", referencia: "", comprobante_url: "" });
+  const [plantilla, setPlantilla] = useState<any>(null);
+  const [documentoGenerado, setDocumentoGenerado] = useState<string | null>(null);
   const { showNotification } = useNotificationStore();
 
   const load = async () => {
@@ -52,26 +56,39 @@ export default function Facturacion() {
 
   const openCreate = () => {
     setEditing(null);
-    setForm({ numero_factura: "", estado: "Borrador", total: "", proyecto_id: "", cliente_id: "", fecha_vencimiento: "" });
+    setForm({ numero_factura: "", estado: "Borrador", total: "", proyecto_id: "", cliente_id: "", fecha_vencimiento: "", subtotal: "", iva: "", descuento: "", metodo_pago: "", notas: "" });
     setOpenModal(true);
   };
 
-  const openEdit = (row: any) => {
+  const openEdit = async (row: any) => {
     setEditing(row);
-    setForm({ numero_factura: row.numero_factura || "", estado: row.estado || "Borrador", total: String(row.total ?? ""), proyecto_id: row.proyecto_id || "", cliente_id: row.cliente_id ? String(row.cliente_id) : "", fecha_vencimiento: row.fecha_vencimiento || "" });
+    setForm({ numero_factura: row.numero_factura || "", estado: row.estado || "Borrador", total: String(row.total ?? ""), proyecto_id: row.proyecto_id || "", cliente_id: row.cliente_id ? String(row.cliente_id) : "", fecha_vencimiento: row.fecha_vencimiento || "", subtotal: String(row.subtotal ?? ""), iva: String(row.iva ?? ""), descuento: String(row.descuento ?? ""), metodo_pago: row.metodo_pago || "", notas: row.notas || "" });
     setOpenModal(true);
+    try { const data = await pagosService.getByFactura(row.id); setPagos(data || []); } catch { setPagos([]); }
+    try { const tpl = await plantillasDocumentosService.getByTipo("factura"); setPlantilla(tpl || null); } catch { setPlantilla(null); }
   };
 
   const openDetail = (row: any) => {
     setSelected(row);
     setDetailOpen(true);
+    pagosService.getByFactura(row.id).then(data => setPagos(data || [])).catch(() => setPagos([]));
+    plantillasDocumentosService.getByTipo("factura").then(tpl => setPlantilla(tpl || null)).catch(() => setPlantilla(null));
+  };
+
+  const calcTotales = () => {
+    const subtotal = Number(form.subtotal || 0);
+    const iva = Number(form.iva || 0);
+    const descuento = Number(form.descuento || 0);
+    const total = Math.max(subtotal + iva - descuento, 0);
+    return { subtotal, iva, descuento, total };
   };
 
   const handleSave = async () => {
     setSaving(true);
     try {
       const { cliente_id, proyecto_id, fecha_vencimiento, ...rest } = form;
-      const payload: any = { ...rest, total: Number(rest.total || 0) };
+      const { subtotal, iva, descuento, total } = calcTotales();
+      const payload: any = { ...rest, subtotal, iva, descuento, total };
       if (cliente_id) payload.cliente_id = Number(cliente_id);
       if (proyecto_id) payload.proyecto_id = proyecto_id;
       if (fecha_vencimiento) payload.fecha_vencimiento = fecha_vencimiento;
@@ -97,12 +114,9 @@ export default function Facturacion() {
   const sendWhatsApp = async (row: any) => {
     const cliente = getClienteNombre(row.cliente_id);
     const telefono = row.cliente?.telefono || "";
-    if (!telefono) {
-      showNotification("El cliente no tiene teléfono cargado", "warning");
-      return;
-    }
+    if (!telefono) { showNotification("El cliente no tiene teléfono cargado", "warning"); return; }
     const texto = encodeURIComponent(`Hola ${cliente}, te compartimos tu factura #${row.numero_factura || row.id} por $${Number(row.total || 0).toFixed(0)}. Estado: ${row.estado || "Borrador"}. Fecha vencimiento: ${row.fecha_vencimiento || "Sin definir"}. Ante cualquier duda respondé este mensaje.`);
-    if (typeof window !== "undefined") if (typeof window !== "undefined") window.open(`https://wa.me/${telefono}?text=${texto}`, "_blank");
+    if (typeof window !== "undefined") window.open(`https://wa.me/${telefono}?text=${texto}`, "_blank");
     showNotification("Abriendo WhatsApp...", "info");
   };
 
@@ -110,17 +124,54 @@ export default function Facturacion() {
     try {
       const cliente = getClienteNombre(row.cliente_id);
       const to = row.cliente?.email || "";
-      if (!to) {
-        showNotification("El cliente no tiene email cargado", "warning");
-        return;
-      }
+      if (!to) { showNotification("El cliente no tiene email cargado", "warning"); return; }
       const subject = `Factura #${row.numero_factura || row.id} - DESEO DIGITAL`;
       const html = `<p>Hola ${cliente},</p><p>Adjuntamos tu factura <strong>#${row.numero_factura || row.id}</strong> por <strong>$${Number(row.total || 0).toFixed(0)}</strong>.</p><p>Estado: ${row.estado || "Borrador"}<br>Vencimiento: ${row.fecha_vencimiento || "Sin definir"}</p><p>Saludos,<br>DESEO DIGITAL</p>`;
       const res = await emailService.sendRealEmail([to], subject, html);
       showNotification(res?.message || "Factura enviada por email", "success");
-    } catch (err: any) {
-      showNotification(err.message || "Error enviando factura por email", "error");
-    }
+    } catch (err: any) { showNotification(err.message || "Error enviando factura por email", "error"); }
+  };
+
+  const generarDocumento = async (row: any) => {
+    try {
+      const tpl = plantilla || await plantillasDocumentosService.getByTipo("factura");
+      if (!tpl) { showNotification("Creá una plantilla de factura en Configuración primero", "warning"); return; }
+      const cliente = clientes.find((x: any) => Number(x.id) === Number(row.cliente_id));
+      const { subtotal, iva, descuento, total } = { subtotal: Number(row.subtotal || row.total || 0), iva: Number(row.iva || 0), descuento: Number(row.descuento || 0), total: Number(row.total || 0) };
+      const ctx = {
+        empresa: { nombre: "DESEO DIGITAL", email: "contacto@deseodigital.com", telefono: "320 369 8476", direccion: "Calle Principal #123-45", ciudad: "Bogotá", pais: "Colombia" },
+        cliente: { nombre: cliente?.nombre || "Cliente", email: cliente?.email || "", telefono: cliente?.telefono || "", empresa: cliente?.empresa || "", nicho: cliente?.nicho || "" },
+        proyecto: { nombre: "", id: row.proyecto_id || "", servicios: [] },
+        factura: { numero: row.numero_factura || String(row.id), fecha_emision: row.fecha_emision || new Date().toISOString(), fecha_vencimiento: row.fecha_vencimiento || "", estado: row.estado || "Borrador", subtotal, iva, descuento, total },
+        pagos: { realizados: pagos.reduce((a, b) => a + Number(b.monto || 0), 0), saldo: Math.max(total - pagos.reduce((a, b) => a + Number(b.monto || 0), 0), 0) },
+        fecha: new Date().toLocaleDateString("es-CO"),
+      };
+      let html = tpl.contenido || "";
+      Object.entries(ctx).forEach(([section, values]: any) => {
+        Object.entries(values).forEach(([key, value]) => {
+          html = html.split(`{{${section}.${key}}`).join(String(value ?? ""));
+        });
+      });
+      setDocumentoGenerado(html);
+      try {
+        const doc = await documentosService.create({ titulo: `Factura #${row.numero_factura || row.id}`, tipo: "factura", url: "", descripcion: `Generada automáticamente. Total: $${total}`, proyecto_id: row.proyecto_id || null, cliente_id: row.cliente_id || null });
+        showNotification(`Documento vinculado #${doc.id}`, "success");
+      } catch {}
+    } catch (err: any) { showNotification(err.message || "Error generando documento", "error"); }
+  };
+
+  const handleRegistrarPago = async () => {
+    if (!selected || !pagoForm.monto) { showNotification("Monto requerido", "warning"); return; }
+    try {
+      const monto = Number(pagoForm.monto);
+      const payload: any = { factura_id: selected.id, monto, metodo_pago: pagoForm.metodo_pago, referencia: pagoForm.referencia, comprobante_url: pagoForm.comprobante_url };
+      await pagosService.create(payload);
+      const data = await pagosService.getByFactura(selected.id); setPagos(data || []);
+      setPagoForm({ monto: "", metodo_pago: "transferencia", referencia: "", comprobante_url: "" });
+      showNotification("Pago registrado", "success");
+      const saldo = Number(selected.total || 0) - data.reduce((a, b) => a + Number(b.monto || 0), 0);
+      if (saldo <= 0) { await facturasService.update(selected.id, { estado: "Pagada" }); await load(); }
+    } catch (err: any) { showNotification(err.message || "Error registrando pago", "error"); }
   };
 
   return (
@@ -169,6 +220,7 @@ export default function Facturacion() {
               <Box sx={{ display: "flex", gap: { xs: 0.25, sm: 0.5 }, flexWrap: "wrap" }}>
                 <Button size="small" variant="text" onClick={() => openDetail(f)} sx={{ minHeight: { xs: 28, sm: 32 } }}>Ver</Button>
                 <Button size="small" variant="text" onClick={() => openEdit(f)} sx={{ minHeight: { xs: 28, sm: 32 } }}>Editar</Button>
+                <Button size="small" variant="text" onClick={() => generarDocumento(f)} sx={{ minHeight: { xs: 28, sm: 32 } }}>Generar</Button>
                 <Button size="small" color="error" variant="text" onClick={() => handleDelete(f)} sx={{ minHeight: { xs: 28, sm: 32 } }}>Eliminar</Button>
                 <Button size="small" variant="text" onClick={() => sendWhatsApp(f)} sx={{ minHeight: { xs: 28, sm: 32 } }}>WhatsApp</Button>
                 <Button size="small" variant="text" onClick={() => sendEmail(f)} sx={{ minHeight: { xs: 28, sm: 32 } }}>Email</Button>
@@ -216,13 +268,56 @@ export default function Facturacion() {
               <Typography variant="body2">Vencimiento: {selected.fecha_vencimiento || "Sin definir"}</Typography>
               <Divider />
               <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+                <Button size="small" variant="outlined" onClick={() => generarDocumento(selected)}>Generar documento</Button>
                 <Button size="small" variant="outlined" onClick={() => sendWhatsApp(selected)}>WhatsApp</Button>
                 <Button size="small" variant="outlined" onClick={() => sendEmail(selected)}>Email</Button>
+              </Box>
+              <Divider />
+              <Typography variant="subtitle2">Pagos</Typography>
+              <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", alignItems: "center" }}>
+                <TextField label="Monto" size="small" type="number" value={pagoForm.monto} onChange={(e) => setPagoForm({ ...pagoForm, monto: e.target.value })} />
+                <FormControl size="small" sx={{ minWidth: 120 }}>
+                  <InputLabel>Método</InputLabel>
+                  <Select value={pagoForm.metodo_pago} label="Método" onChange={(e) => setPagoForm({ ...pagoForm, metodo_pago: e.target.value })}>
+                    <MenuItem value="transferencia">Transferencia</MenuItem>
+                    <MenuItem value="nequi">Nequi</MenuItem>
+                    <MenuItem value="daviplata">Daviplata</MenuItem>
+                    <MenuItem value="efectivo">Efectivo</MenuItem>
+                  </Select>
+                </FormControl>
+                <TextField label="Referencia" size="small" value={pagoForm.referencia} onChange={(e) => setPagoForm({ ...pagoForm, referencia: e.target.value })} />
+                <Button size="small" variant="contained" onClick={handleRegistrarPago}>Registrar pago</Button>
+              </Box>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                {pagos.map((p) => (
+                  <Paper key={p.id} variant="outlined" sx={{ p: 1.2, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <Box>
+                      <Typography variant="caption" sx={{ fontWeight: "bold" }}>${Number(p.monto || 0).toFixed(0)}</Typography>
+                      <Typography variant="caption" color="text.secondary" sx={{ display: "block" }}>{p.metodo_pago || ""} {p.referencia ? `• ${p.referencia}` : ""}</Typography>
+                    </Box>
+                    <Typography variant="caption" color="text.secondary">{p.fecha_pago ? new Date(p.fecha_pago).toLocaleDateString("es-CO") : ""}</Typography>
+                  </Paper>
+                ))}
+                {pagos.length === 0 && <Typography variant="body2" color="text.secondary">Sin pagos registrados</Typography>}
               </Box>
             </Box>
           )}
         </DialogContent>
       </Dialog>
+
+      <Dialog open={!!documentoGenerado} onClose={() => setDocumentoGenerado(null)} maxWidth="md" fullWidth>
+        <DialogTitle>Documento generado<IconButton onClick={() => setDocumentoGenerado(null)} size="small" sx={{ float: "right" }}><FiX /></IconButton></DialogTitle>
+        <DialogContent dividers>
+          <Box sx={{ bgcolor: "background.default", p: 1.5, borderRadius: 1, border: "1px solid", borderColor: "divider", maxHeight: 500, overflow: "auto" }}>
+            <div dangerouslySetInnerHTML={{ __html: documentoGenerado || "" }} />
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => setDocumentoGenerado(null)}>Cerrar</Button>
+          <Button variant="contained" onClick={() => { if (documentoGenerado) { window.print(); } }}>Imprimir / Guardar PDF</Button>
+        </DialogActions>
+      </Dialog>
+
     </Box>
   );
 }
