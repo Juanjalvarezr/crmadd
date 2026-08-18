@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Paper, Button, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, FormControl, InputLabel, Select, MenuItem, Chip, CircularProgress, Alert } from "@mui/material";
-import { FiFileText, FiPlus, FiX, FiEye, FiDownload, FiUpload } from "react-icons/fi";
+import { Box, Typography, Paper, Button, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, FormControl, InputLabel, Select, MenuItem, CircularProgress, Alert } from "@mui/material";
+import { FiPlus, FiX, FiDownload, FiUpload } from "react-icons/fi";
 import { documentosService } from "../services/supabase";
 import { useNotificationStore } from "../store/useNotificationStore";
 

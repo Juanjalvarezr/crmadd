@@ -899,7 +899,7 @@ export const documentosService = {
 
 export const promptsAIService = {
   async getBySlug(slug: string) {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from('prompts_ai')
       .select('*')
       .eq('slug', slug)

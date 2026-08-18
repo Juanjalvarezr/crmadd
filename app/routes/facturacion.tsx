@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Box, Typography, Chip, Alert, CircularProgress,
   Paper, Button, IconButton, Dialog, DialogTitle, DialogContent, DialogActions,
   TextField, FormControl, InputLabel, Select, MenuItem, Divider
 } from "@mui/material";
-import { FiRefreshCw, FiPlus, FiFileText, FiX, FiEye, FiSend } from "react-icons/fi";
+import { FiRefreshCw, FiPlus, FiFileText, FiX } from "react-icons/fi";
 import { facturasService, emailService } from "../services/supabase";
 import { useCRMStore } from "../store/useCRMStore";
 import { useNotificationStore } from "../store/useNotificationStore";
@@ -24,7 +24,6 @@ export default function Facturacion() {
   const [editing, setEditing] = useState<any | null>(null);
   const [selected, setSelected] = useState<any | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
-  const [sending, setSending] = useState(false);
   const [form, setForm] = useState({ numero_factura: "", estado: "Borrador", total: "", proyecto_id: "", cliente_id: "", fecha_vencimiento: "" });
   const [saving, setSaving] = useState(false);
   const { showNotification } = useNotificationStore();
@@ -70,7 +69,11 @@ export default function Facturacion() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const payload = { ...form, total: Number(form.total || 0), cliente_id: form.cliente_id ? Number(form.cliente_id) : null, proyecto_id: form.proyecto_id || null, fecha_vencimiento: form.fecha_vencimiento || null };
+      const { cliente_id, proyecto_id, fecha_vencimiento, ...rest } = form;
+      const payload: any = { ...rest, total: Number(rest.total || 0) };
+      if (cliente_id) payload.cliente_id = Number(cliente_id);
+      if (proyecto_id) payload.proyecto_id = proyecto_id;
+      if (fecha_vencimiento) payload.fecha_vencimiento = fecha_vencimiento;
       if (editing) { await facturasService.update(editing.id, payload); showNotification("Factura actualizada", "success"); }
       else { await facturasService.create(payload); showNotification("Factura creada", "success"); }
       setOpenModal(false); await load();
@@ -103,7 +106,6 @@ export default function Facturacion() {
   };
 
   const sendEmail = async (row: any) => {
-    setSending(true);
     try {
       const cliente = getClienteNombre(row.cliente_id);
       const to = row.cliente?.email || "";
@@ -117,8 +119,6 @@ export default function Facturacion() {
       showNotification(res?.message || "Factura enviada por email", "success");
     } catch (err: any) {
       showNotification(err.message || "Error enviando factura por email", "error");
-    } finally {
-      setSending(false);
     }
   };
 

@@ -1,17 +1,15 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import * as z from "zod";
 import { motion, AnimatePresence } from "framer-motion";
-import type { Route } from "./+types/email-marketing";
 import Grid from "@mui/material/Grid";
-import { 
+import {
   Box, Typography, Paper, Button, TextField, FormControl, InputLabel, Select, MenuItem,
   Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Alert, Snackbar, CircularProgress,
-  Card, CardContent, CardActions, Chip, List, ListItem, ListItemText, ListItemIcon,
-  ListItemSecondaryAction, Divider, Switch, FormControlLabel
+  Card, CardContent, CardActions, Chip, Switch, FormControlLabel
 } from "@mui/material";
 import {
-  Mail, Send, Edit2, Trash2, Plus, Users, Calendar, BarChart2, Eye,
-  X, RefreshCw, Check, AlertCircle, Clock, Target, TrendingUp
+  Mail, Send, Edit2, Trash2, Plus, Eye, BarChart2, Target,
+  X, TrendingUp
 } from "lucide-react";
 import { format } from "date-fns";
 import { emailService, clientesService } from "../services/supabase";
@@ -75,7 +73,6 @@ export default function EmailMarketing() {
   
   // Estados para modales
   const [openCampanaModal, setOpenCampanaModal] = useState(false);
-  const [openPlantillaModal, setOpenPlantillaModal] = useState(false);
   const [editingCampana, setEditingCampana] = useState<CampanaEmail | null>(null);
   const [sending, setSending] = useState(false);
   const [formData, setFormData] = useState<z.infer<typeof campanaSchema>>({
@@ -160,20 +157,20 @@ export default function EmailMarketing() {
     setOpenCampanaModal(true);
   };
 
-  const handleSavePlantilla = async (plantilla: Partial<PlantillaEmail>) => {
-    try {
-      // Lógica para guardar en Supabase
-      const nueva = await emailService.createPlantilla(plantilla);
-      setPlantillas(prev => [...prev, nueva as any]);
-      setSnackbar({ open: true, message: "Plantilla guardada", severity: "success" });
-    } catch (err: any) {
-      setSnackbar({ 
-        open: true, 
-        message: "Error al guardar plantilla: " + err.message, 
-        severity: "error" 
-      });
-    }
-  };
+  // const handleSavePlantilla = async (_plantilla: Partial<PlantillaEmail>) => {
+  //   try {
+  //     // Lógica para guardar en Supabase
+  //     const nueva = await emailService.createPlantilla(_plantilla);
+  //     setPlantillas(prev => [...prev, nueva as any]);
+  //     setSnackbar({ open: true, message: "Plantilla guardada", severity: "success" });
+  //   } catch (err: any) {
+  //     setSnackbar({ 
+  //       open: true, 
+  //       message: "Error al guardar plantilla: " + err.message, 
+  //       severity: "error" 
+  //     });
+  //   }
+  // };
 
   const handleCloseCampanaModal = () => {
     setOpenCampanaModal(false);
@@ -259,7 +256,7 @@ export default function EmailMarketing() {
     }
   };
 
-  const handleSendTestEmail = async (campana: CampanaEmail) => {
+  const handleSendTestEmail = async (_campana: CampanaEmail) => {
     try {
       setSnackbar({ 
         open: true, 

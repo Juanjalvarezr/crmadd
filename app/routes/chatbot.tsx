@@ -1,5 +1,3 @@
-import React from "react";
-import type { Route } from "./+types/chatbot";
 import ChatbotWhatsApp from "../components/ChatbotWhatsApp";
 
 export function meta() {

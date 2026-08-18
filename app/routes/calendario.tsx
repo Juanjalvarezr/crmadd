@@ -1,18 +1,13 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Box, Typography, Paper, Button, IconButton, Tooltip, CircularProgress,
-  Dialog, DialogTitle, DialogContent, DialogActions, TextField, Chip
+  Dialog, DialogTitle, DialogContent, DialogActions
 } from "@mui/material";
-import { FiCalendar, FiPlus, FiArrowLeft, FiArrowRight, FiInfo } from "react-icons/fi";
+import { FiCalendar, FiInfo } from "react-icons/fi";
 import { Calendar, dateFnsLocalizer, Views } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay } from "date-fns";
 import { es } from "date-fns/locale/es";
-import "react-big-calendar/lib/css/react-big-calendar.css"; // Estilos de react-big-calendar
-import {
-  tareasService, 
-  clientesService, 
-  oportunidadesService 
-} from "../services/supabase"; // Corregido el typo "Serrvices"
+import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useNotificationStore } from "../store/useNotificationStore";
 import { useCRMStore } from "../store/useCRMStore";
 

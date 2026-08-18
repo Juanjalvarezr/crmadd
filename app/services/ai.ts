@@ -12,7 +12,7 @@ import {
   clientesService,
   oportunidadesService
 } from "../services/supabase";
-import type { Proyecto, Tarea } from "../types/crm";
+import type { Proyecto } from "../types/crm";
 
 // Inicializamos el SDK de Gemini. 
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
@@ -249,7 +249,7 @@ export const ejecutarAccionSincrona = async (pregunta: string, respuestaIA: stri
         prioridad,
         estado: "Pendiente",
         tipo: "Tarea",
-        cliente_id: datos.cliente_id && !isNaN(Number(datos.cliente_id)) ? Number(datos.cliente_id) : null,
+        cliente_id: datos.cliente_id && !isNaN(Number(datos.cliente_id)) ? Number(datos.cliente_id) : undefined,
         fecha: new Date().toISOString().split('T')[0]
       });
       return infoAccion.confirmacion;

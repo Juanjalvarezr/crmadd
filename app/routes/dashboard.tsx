@@ -1,15 +1,13 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Box,
   Typography,
   Grid,
   Card,
   CardContent,
-  CircularProgress,
   Chip,
   Alert,
   Button,
-  useTheme,
 } from "@mui/material";
 import {
   FiRefreshCw,
@@ -20,7 +18,6 @@ import {
   FiTarget,
   FiActivity,
 } from "react-icons/fi";
-import { proyectosService, clientesService, oportunidadesService, tareasService } from "../services/supabase";
 import { StatCard } from "../components/StatCard";
 import { useCRMStore } from "../store/useCRMStore";
 
@@ -28,6 +25,7 @@ const initialState = {
   proyectos: [],
   clientes: [],
   oportunidades: [],
+  tareas: [],
   isUsingMockData: false,
 };
 
@@ -52,9 +50,6 @@ export default function Dashboard() {
   });
   const [resumenAI] = useState<string>("");
   const [presentationMode, setPresentationMode] = useState(false);
-  const [syncDialog, setSyncDialog] = useState(false);
-  const [syncObservation, setSyncObservation] = useState("");
-  const [syncAnchorEl, setSyncAnchorEl] = useState<null | HTMLElement>(null);
   const [ready, setReady] = useState(false);
   const todayLabel = new Date().toLocaleDateString("es-CO", {
     weekday: "long",
@@ -62,8 +57,6 @@ export default function Dashboard() {
     month: "long",
     year: "numeric",
   });
-
-  const theme = useTheme();
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -76,7 +69,7 @@ export default function Dashboard() {
     return () => window.removeEventListener("presentation-mode-changed", handler);
   }, []);
 
-  const timeoutRef = React.useRef<number | null>(null);
+  const timeoutRef = useRef<number | null>(null);
   useEffect(() => {
     timeoutRef.current = window.setTimeout(() => setReady(true), 8000);
     return () => {
@@ -96,12 +89,9 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    let cancelled = false;
     (async () => {
       await retryWithTimeout();
-      return () => { cancelled = true; };
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchDashboardData]);
 
   useEffect(() => {
@@ -139,19 +129,14 @@ export default function Dashboard() {
   }, [storeIsLoading, data]);
 
   const refreshMetrics = async () => {
-    setSyncAnchorEl(null);
+    setReady(false);
+    if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
+    timeoutRef.current = window.setTimeout(() => setReady(true), 8000);
     try {
-      await fetchDashboardData(true);
-    } catch (refreshError) {
-          }
-  };
-
-  const handleOpenSyncDialog = () => setSyncDialog(true);
-  const handleCloseSyncDialog = () => setSyncDialog(false);
-
-  const submitSyncObservation = () => {
-        setSyncDialog(false);
-    setSyncObservation("");
+      await fetchDashboardData();
+    } catch (networkError) {
+      setError("No fue posible sincronizar con el backend. Intenta nuevamente.");
+    }
   };
 
   const formatCurrency = (value: number) =>

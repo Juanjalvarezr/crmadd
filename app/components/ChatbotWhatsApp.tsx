@@ -1,24 +1,16 @@
-import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { 
-  Box, TextField, Button, Paper, Typography, IconButton, 
-  Dialog, DialogTitle, DialogContent, DialogActions,
+  Box, TextField, Paper, Typography, IconButton, 
   Avatar, Chip, CircularProgress, Tooltip, Snackbar, Alert
 } from "@mui/material"; //
 import { 
-  FiSend, FiMessageSquare, FiX, FiZap, FiUserCheck, FiMic, FiCalendar, FiMail, FiMapPin, FiPhone, FiAlertTriangle
+  FiSend, FiMessageSquare, FiX, FiZap, FiUserCheck, FiMic
 } from "react-icons/fi"; //
 import { aiService } from "../services/ai";
 import { supabase } from "../services/supabase";
 import DOMPurify from "dompurify";
 import { useChatStore } from "../store/useChatStore";
 import { motion, AnimatePresence } from "framer-motion";
-
-interface OpcionRapida {
-  id: string;
-  texto: string;
-  icono: React.ReactNode;
-  accion: () => void;
-}
 
 export default function ChatbotWhatsApp() {
   // Store Global
@@ -34,8 +26,8 @@ export default function ChatbotWhatsApp() {
   
   // Estados locales de UI
   const [mensajeActual, setMensajeActual] = useState("");
-  const [qrVisible, setQrVisible] = useState(true);
-  const [conectado, setConectado] = useState(false); //
+  const [qrVisible] = useState(true);
+  const [conectado] = useState(false); //
   const [isProcessingAIResponse, setIsProcessingAIResponse] = useState(false); //
   const [chatAbierto, setChatAbierto] = useState(false);
   const [escuchando, setEscuchando] = useState(false);
@@ -140,46 +132,6 @@ export default function ChatbotWhatsApp() {
     recognition.start();
   };
 
-  // Opciones rápidas predefinidas
-  const opcionesRapidas: OpcionRapida[] = useMemo(() => [
-    {
-      id: "servicios",
-      texto: "¿Qué servicios ofrecen?",
-      icono: <FiMessageSquare />,
-      accion: () => setMensajeActual("Hola, me gustaría conocer los servicios que ofrecen para mi negocio.")
-    },
-    {
-      id: "precios",
-      texto: "¿Cuáles son los precios?",
-      icono: <FiMail />,
-      accion: () => setMensajeActual("¿Podrían enviarme su lista de precios por favor?")
-    },
-    {
-      id: "cita",
-      texto: "Agendar una cita",
-      icono: <FiCalendar />,
-      accion: () => setMensajeActual("Me gustaría agendar una cita para hablar sobre sus servicios. ¿Qué fechas tienen disponibles?")
-    },
-    {
-      id: "ubicacion",
-      texto: "¿Dónde están ubicados?",
-      icono: <FiMapPin />,
-      accion: () => setMensajeActual("¿Podrían compartir su dirección para visitarlos? Quisiera conocer más sobre su ubicación.")
-    },
-    {
-      id: "contacto",
-      texto: "Hablar con un humano",
-      icono: <FiPhone />,
-      accion: () => setMensajeActual("¿Podría hablar con un representante humano por favor? Tengo una consulta específica.")
-    },
-    {
-      id: "reportar",
-      texto: "Reportar un fallo",
-      icono: <FiAlertTriangle />,
-      accion: () => setMensajeActual("Hola IA, quiero reportar que falta una funcionalidad o hay un error en esta pantalla: ")
-    }
-  ], []);
-
   // Función para enviar mensaje
   const processMessageSubmission = useCallback(async (overrideText?: string) => {
     const textToSend = overrideText || mensajeActual;
@@ -231,28 +183,6 @@ export default function ChatbotWhatsApp() {
     addMensaje(`Cambiando de frecuencia... Ahora hablas con el **${label}**. ¿En qué puedo ayudarte bajo este rol?`, "bot");
     setSnackbar({ open: true, message: `Agente: ${label} activo`, severity: "info" });
   }, [addMensaje]);
-
-  // Función para manejar opción rápida
-  const handleOpcionRapida = useCallback((opcion: OpcionRapida) => {
-    void processMessageSubmission(opcion.texto);
-  }, [processMessageSubmission]);
-
-  // Función para conectar WhatsApp
-  const handleConectarWhatsApp = useCallback(() => {
-    setConectado(true);
-    setQrVisible(false);
-    setChatAbierto(true);
-    
-    // Si el usuario ya escribió algo antes de conectar, lo llevamos a WA con ese mensaje
-    if (mensajeActual.trim()) {
-      const url = aiService.prepararEnlaceWhatsApp(numeroWhatsApp, mensajeActual);
-      window.open(url, '_blank');
-      return;
-    }
-
-    // Si no, simplemente abrimos el chat vacío
-    window.open(`https://web.whatsapp.com/send?phone=${encodeURIComponent(numeroWhatsApp)}`, '_blank');
-  }, [mensajeActual, numeroWhatsApp]);
 
   // Función para formatear hora
   const formatearHora = React.useCallback((timestamp: string | number | Date) => {
@@ -391,7 +321,7 @@ export default function ChatbotWhatsApp() {
                 backgroundColor: "#fafafa",
                 borderRadius: 1
               }}>
-                {mensajes.map((mensaje, index) => (
+                {mensajes.map((mensaje) => (
                   <Box key={mensaje.id} sx={{ mb: 2 }}>
                     <Box sx={{ 
                       display: "flex", 

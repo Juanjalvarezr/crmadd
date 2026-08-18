@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Box, Typography, Paper, Button, TextField, InputAdornment, FormControl, InputLabel, Select, MenuItem,
-  Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Alert, CircularProgress, Chip, Skeleton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow
+  Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Alert, Chip, Skeleton
 } from "@mui/material";
 import { FiPlus, FiEdit, FiTrash2, FiCheck, FiSearch, FiRefreshCw, FiCheckSquare, FiX } from "react-icons/fi";
-import { tareasService, clientesService } from "../services/supabase";
+import { tareasService } from "../services/supabase";
 import { useNotificationStore } from "../store/useNotificationStore";
 import { useCRMStore } from "../store/useCRMStore";
 import { format, startOfDay, isBefore } from "date-fns";
@@ -37,7 +37,7 @@ const getEstadoColor = (e: string) => {
   return map[e] || "default";
 };
 
-export default function Tareas() { const openCreate = () => { if (typeof window !== "undefined") { alert("Crear nueva tarea..."); } };
+export default function Tareas() {
   const [isMobile, setIsMobile] = useState(false);
   const tareas = useCRMStore((s) => s.tareas);
   const clientes = useCRMStore((s) => s.clientes);
@@ -96,7 +96,6 @@ export default function Tareas() { const openCreate = () => { if (typeof window 
   const enProgreso = filtered.filter(t => t.estado === "En progreso").length;
   const completadas = filtered.filter(t => t.estado === "Completada").length;
   const altaPrioridad = filtered.filter(t => t.prioridad === "Alta").length;
-  const vencidas = filtered.filter(t => isBefore(new Date(t.fecha), today) && t.estado !== "Completada").length;
 
   const formatDate = (d: string) => {
     try { return format(new Date(d), "dd/MM/yyyy"); } catch { return d; }

@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import {
   Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, Typography, LinearProgress,
-  TextField, IconButton, Chip, Stack, Alert
+  TextField, Chip, Stack, Alert
 } from '@mui/material';
 import { FiCamera, FiUpload, FiX, FiCheck } from 'react-icons/fi';
 import { scanCardFromImage, type ExtractedCard } from '../services/ocrService';
@@ -15,7 +15,6 @@ interface Props {
 export default function ScannerTarjetas({ open, onClose, onSave }: Props) {
   const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [progress, setProgress] = useState(0);
   const [data, setData] = useState<ExtractedCard | null>(null);
   const [error, setError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
@@ -24,7 +23,6 @@ export default function ScannerTarjetas({ open, onClose, onSave }: Props) {
     setLoading(true);
     setError(null);
     setData(null);
-    setProgress(0);
 
     const reader = new FileReader();
     reader.onload = async () => {
@@ -53,7 +51,6 @@ export default function ScannerTarjetas({ open, onClose, onSave }: Props) {
   const handleClose = () => {
     setPreview(null);
     setData(null);
-    setProgress(0);
     setError(null);
     onClose();
   };

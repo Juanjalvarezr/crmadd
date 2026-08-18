@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { 
   Box, IconButton, Paper, Typography, TextField, Button, 
   Fade, Tooltip, Select, MenuItem, Skeleton,
@@ -46,7 +46,7 @@ export const FloatingAIAssistant = () => {
   });
 
   // Lista simulada de servicios para el dropdown
-  const serviciosDisponibles = React.useMemo(() => [
+  const serviciosDisponibles = useMemo(() => [
     "SEO Local", "Posicionamiento Orgánico", "Diseño Web Corporativo", 
     "E-commerce", "Gestión de Redes Sociales", "Pauta Digital (Ads)"
   ], []);

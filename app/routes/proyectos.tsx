@@ -1,23 +1,22 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import type { Route } from "./+types/proyectos";
 import Grid from "@mui/material/Grid";
 import { 
   Box, Typography, Paper, Button, TextField, FormControl, InputLabel, Select, MenuItem, Tabs, Tab,
-  Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Alert, Snackbar, CircularProgress,
+  Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Alert, CircularProgress,
   Card, CardContent, CardActions, Chip, List, ListItem, ListItemText, ListItemIcon, Stack,
-  ListItemSecondaryAction, Divider, LinearProgress, Avatar, Tooltip, Checkbox, FormControlLabel, InputAdornment
+  ListItemSecondaryAction, Divider, LinearProgress, Tooltip, Checkbox, FormControlLabel, InputAdornment
 } from "@mui/material";
 import {
-  Folder, Plus, Edit2, Trash2, Calendar, Users, CheckCircle, Clock,
-  Play, Pause, X, Eye, DollarSign, Target, Activity, RefreshCw, ExternalLink, FileText, Layout, 
+  Folder, Edit2, Trash2, Calendar, Users, CheckCircle,
+  Play, Pause, X, Eye, ExternalLink, FileText, Layout, 
   Video, Camera, Zap, Award, FileCheck, Share2, Mail, Send
 } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
-import { emailService, subagentesService as equipoService, logsService, clientesService, proyectosService } from "../services/supabase";
+import { emailService, subagentesService as equipoService, logsService, proyectosService } from "../services/supabase";
 import type { Proyecto, TareaProyecto, RecursoProyecto, PlanItem } from "../types/crm";
 import { aiService } from "../services/ai";
 import { useNotificationStore } from "../store/useNotificationStore";
@@ -49,7 +48,6 @@ export default function Proyectos() {
   const clientes = useCRMStore((s) => s.clientes);
   const fetchClientes = useCRMStore((s) => s.fetchClientes);
   const fetchProyectos = useCRMStore((s) => s.fetchProyectos);
-  const setProyectos = useCRMStore((s) => s.setProyectos);
   const { showNotification } = useNotificationStore();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -77,16 +75,6 @@ export default function Proyectos() {
   const [openPreviewEmailModal, setOpenPreviewEmailModal] = useState(false);
   const [previewEmailContent, setPreviewEmailContent] = useState<{asunto: string, cuerpo: string} | null>(null);
   const [sendingEmail, setSendingEmail] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const updateMobile = () => setIsMobile(window.innerWidth <= 600);
-    updateMobile();
-    window.addEventListener("resize", updateMobile);
-    return () => window.removeEventListener("resize", updateMobile);
-  }, []);
-
   const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm({
     resolver: zodResolver(proyectoSchema),
     defaultValues: {
@@ -322,7 +310,7 @@ export default function Proyectos() {
 
       if (editingProyecto) {
         await proyectosService.update(editingProyecto.id, nuevoProyecto);
-        setProyectos(prev => prev.map(p => p.id === editingProyecto.id ? nuevoProyecto : p));
+        useCRMStore.setState((state) => ({ proyectos: state.proyectos.map((p: any) => p.id === editingProyecto.id ? nuevoProyecto : p) }));
         showNotification("Proyecto actualizado correctamente", "success");
 
         await logsService.create({
@@ -338,7 +326,7 @@ export default function Proyectos() {
         }
       } else {
         await proyectosService.create(nuevoProyecto);
-        setProyectos(prev => [...prev, nuevoProyecto]);
+        useCRMStore.setState((state) => ({ proyectos: [...state.proyectos, nuevoProyecto] }));
         showNotification("Proyecto creado correctamente", "success");
       }
 
@@ -352,7 +340,7 @@ export default function Proyectos() {
     if (typeof window !== "undefined" && confirm(`¿Estás seguro de eliminar el proyecto "${proyecto.nombre}"?`)) {
       try {
         await proyectosService.delete(proyecto.id);
-        setProyectos(prev => prev.filter((p: Proyecto) => p.id !== proyecto.id));
+        useCRMStore.setState((state) => ({ proyectos: state.proyectos.filter((p: any) => p.id !== proyecto.id) }));
         showNotification("Proyecto eliminado correctamente", "success");
       } catch (err: any) {
         showNotification("Error al eliminar proyecto: " + err.message, "error");
@@ -360,90 +348,11 @@ export default function Proyectos() {
     }
   };
 
-  const handleAddTarea = async (nombre: string) => {
-    if (!selectedProyecto || !nombre.trim()) return;
-    
-    const nueva: TareaProyecto = {
-      id: Date.now().toString(),
-      nombre: nombre,
-      completada: false,
-      responsable: "Por asignar",
-      fechaLimite: new Date().toISOString().split('T')[0]
-    };
+  // handleAddTarea removed: unused
 
-    const tareasActualizadas = [...(selectedProyecto.tareas || []), nueva];
-    const totalTareas = tareasActualizadas.length;
-    const tareasCompletadas = tareasActualizadas.filter(t => t.completada).length;
-    const nuevoProgreso = totalTareas > 0 ? Math.round((tareasCompletadas / totalTareas) * 100) : 0;
 
-    // Lógica de cambio automático de estado
-    let nuevoEstado = selectedProyecto.estado;
-    if (nuevoProgreso === 100) {
-      nuevoEstado = "completado";
-    } else if (selectedProyecto.estado === "completado" && nuevoProgreso < 100) {
-      nuevoEstado = "en_progreso";
-    }
+  // handleToggleTarea removed: unused
 
-    try {
-      const proyectoActualizado = await proyectosService.update(selectedProyecto.id, { 
-        tareas: tareasActualizadas,
-        progreso: nuevoProgreso,
-        estado: nuevoEstado
-      });
-      setProyectos(prev => prev.map(p => p.id === selectedProyecto.id ? proyectoActualizado : p));
-      setSelectedProyecto(proyectoActualizado);
-    } catch (err: any) {
-      showNotification("Error al añadir tarea", "error");
-    }
-  };
-
-  const handleToggleTarea = async (tareaId: string) => {
-    if (!selectedProyecto) return;
-    
-    // --- REGLA DE ORO FINANCIERA (DESEO DIGITAL) ---
-    const anticipoConfirmado = selectedProyecto.onboardingChecklist?.anticipo_50;
-    if (!anticipoConfirmado) {
-      showNotification(
-        "⚠️ ALERTA: Confirma el cobro del anticipo (50%) en Onboarding antes de marcar tareas como hechas.", 
-        "warning"
-      );
-      return;
-    }
-
-    const tareasActualizadas = selectedProyecto.tareas.map((t: TareaProyecto) => 
-      t.id === tareaId ? { ...t, completada: !t.completada } : t
-    );
-
-    const totalTareas = tareasActualizadas.length;
-    const tareasCompletadas = tareasActualizadas.filter((t: TareaProyecto) => t.completada).length;
-    const nuevoProgreso = totalTareas > 0 ? Math.round((tareasCompletadas / totalTareas) * 100) : 0;
-
-    // Lógica de cambio automático de estado
-    let nuevoEstado = selectedProyecto.estado;
-    if (nuevoProgreso === 100) {
-      nuevoEstado = "completado";
-    } else if (selectedProyecto.estado === "completado" && nuevoProgreso < 100) {
-      nuevoEstado = "en_progreso";
-    }
-
-    try {
-      const proyectoActualizado = await proyectosService.update(selectedProyecto.id, { 
-        tareas: tareasActualizadas,
-        progreso: nuevoProgreso,
-        estado: nuevoEstado
-      });
-
-      if (nuevoProgreso === 100 && selectedProyecto.progreso < 100) {
-        dispararCelebracion();
-        prepararPreviewEmailCierre(proyectoActualizado);
-      }
-
-      setProyectos(prev => prev.map(p => p.id === selectedProyecto.id ? proyectoActualizado : p));
-      setSelectedProyecto(proyectoActualizado);
-    } catch (err: any) {
-      showNotification("Error al actualizar tarea", "error");
-    }
-  };
 
   const handleExportProjectToCSV = (proyecto: Proyecto) => {
     const headers = [
@@ -485,8 +394,8 @@ export default function Proyectos() {
     ].join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    let link: HTMLAnchorElement | null = null; if (typeof document !== "undefined") { link = document.createElement('a'); document.body.appendChild(link); link.click(); document.body.removeChild(link); }
     const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
     link.setAttribute('href', url);
     link.setAttribute('download', `proyecto_${proyecto.nombre.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.csv`);
     link.style.visibility = 'hidden';
@@ -497,45 +406,7 @@ export default function Proyectos() {
     showNotification(`Datos del proyecto "${proyecto.nombre}" exportados a CSV.`, "success");
   };
 
-  const handleDeleteTarea = async (tareaId: string) => {
-    if (!selectedProyecto) return;
-    
-    // --- REGLA DE ORO DE DESEO DIGITAL ---
-    // No permitir avanzar tareas si no hay anticipo confirmado
-    const anticipoConfirmado = selectedProyecto.onboardingChecklist?.anticipo_50;
-    if (!anticipoConfirmado) {
-      showNotification(
-        "⚠️ ALERTA FINANCIERA: No se pueden completar tareas hasta que se confirme el pago del 50% inicial.", 
-        "warning"
-      );
-      return;
-    }
-
-    const tareasActualizadas = selectedProyecto.tareas.filter(t => t.id !== tareaId);
-    const totalTareas = tareasActualizadas.length;
-    const tareasCompletadas = tareasActualizadas.filter(t => t.completada).length;
-    const nuevoProgreso = totalTareas > 0 ? Math.round((tareasCompletadas / totalTareas) * 100) : 0;
-
-    // Lógica de cambio automático de estado
-    let nuevoEstado = selectedProyecto.estado;
-    if (nuevoProgreso === 100 && totalTareas > 0) {
-      nuevoEstado = "completado";
-    } else if (selectedProyecto.estado === "completado" && nuevoProgreso < 100) {
-      nuevoEstado = "en_progreso";
-    }
-
-    try {
-      const proyectoActualizado = await proyectosService.update(selectedProyecto.id, { 
-        tareas: tareasActualizadas,
-        progreso: nuevoProgreso,
-        estado: nuevoEstado
-      });
-      setProyectos(prev => prev.map(p => p.id === selectedProyecto.id ? proyectoActualizado : p));
-      setSelectedProyecto(proyectoActualizado);
-    } catch (err: any) {
-      showNotification("Error al eliminar tarea", "error");
-    }
-  };
+  // handleDeleteTarea removed: unused
 
   const handleAddRecurso = async (tipo: RecursoProyecto["tipo"]) => {
     if (!selectedProyecto || !nuevoRecursoUrl.trim()) return;
@@ -550,7 +421,7 @@ export default function Proyectos() {
     const recursosActualizados = [...(selectedProyecto.recursos || []), nuevo];
     try {
       const proyectoActualizado = await proyectosService.update(selectedProyecto.id, { recursos: recursosActualizados });
-      setProyectos(prev => prev.map(p => p.id === selectedProyecto.id ? proyectoActualizado : p));
+      useCRMStore.setState((state) => ({ proyectos: state.proyectos.map((p: any) => p.id === selectedProyecto.id ? proyectoActualizado : p) }));
       setSelectedProyecto(proyectoActualizado);
       setNuevoRecursoNombre("");
       setNuevoRecursoUrl("");
@@ -565,7 +436,7 @@ export default function Proyectos() {
     const recursosActualizados = selectedProyecto.recursos.filter(r => r.id !== recursoId);
     try {
       const proyectoActualizado = await proyectosService.update(selectedProyecto.id, { recursos: recursosActualizados });
-      setProyectos(prev => prev.map(p => p.id === selectedProyecto.id ? proyectoActualizado : p));
+      useCRMStore.setState((state) => ({ proyectos: state.proyectos.map((p: any) => p.id === selectedProyecto.id ? proyectoActualizado : p) }));
       setSelectedProyecto(proyectoActualizado);
     } catch (err: any) {
       showNotification("Error al eliminar recurso", "error");
@@ -611,7 +482,7 @@ export default function Proyectos() {
         planContenido: formattedPlan 
       });
       
-      setProyectos(prev => prev.map(p => p.id === selectedProyecto.id ? proyectoActualizado : p));
+      useCRMStore.setState((state) => ({ proyectos: state.proyectos.map((p: any) => p.id === selectedProyecto.id ? proyectoActualizado : p) }));
       setSelectedProyecto(proyectoActualizado);
       showNotification("¡Plan de contenido generado con éxito! ✨", "success");
     } catch (err: any) {
@@ -640,7 +511,7 @@ export default function Proyectos() {
       const proyectoActualizado = await proyectosService.update(selectedProyecto.id, { 
         planContenido: nuevoPlan 
       });
-      setProyectos(prev => prev.map(p => p.id === selectedProyecto.id ? proyectoActualizado : p));
+      useCRMStore.setState((state) => ({ proyectos: state.proyectos.map((p: any) => p.id === selectedProyecto.id ? proyectoActualizado : p) }));
       setSelectedProyecto(proyectoActualizado);
     } catch (err: any) {
             showNotification("Error al actualizar item del plan", "error");
@@ -657,7 +528,7 @@ export default function Proyectos() {
       const proyectoActualizado = await proyectosService.update(proyecto.id, { 
         onboardingChecklist: nuevaChecklist 
       });
-      setProyectos(prev => prev.map(p => p.id === proyecto.id ? proyectoActualizado : p));
+      useCRMStore.setState((state) => ({ proyectos: state.proyectos.map((p: any) => p.id === proyecto.id ? proyectoActualizado : p) }));
       setSelectedProyecto(proyectoActualizado);
     } catch (err: any) {
       showNotification("Error al actualizar checklist", "error");
@@ -677,7 +548,7 @@ export default function Proyectos() {
         estadoPago: nuevoEstadoPago
       });
       
-      setProyectos(prev => prev.map(p => p.id === proyecto.id ? proyectoActualizado : p));
+      useCRMStore.setState((state) => ({ proyectos: state.proyectos.map((p: any) => p.id === proyecto.id ? proyectoActualizado : p) }));
       setSelectedProyecto(proyectoActualizado);
       showNotification("Pago actualizado ✓", "success");
     } catch (err: any) {
@@ -693,7 +564,7 @@ export default function Proyectos() {
         actualizadoEn 
       });
       
-      setProyectos(prev => prev.map(p => p.id === proyecto.id ? proyectoActualizado : p));
+      useCRMStore.setState((state) => ({ proyectos: state.proyectos.map((p: any) => p.id === proyecto.id ? proyectoActualizado : p) }));
       setSelectedProyecto(proyectoActualizado);
       showNotification(
         `Fase de proyecto actualizada a ${nuevaFase.toUpperCase()}`, 
@@ -728,13 +599,7 @@ export default function Proyectos() {
       const actualizadoEn = new Date().toISOString();
       await proyectosService.update(proyecto.id, { estado: nuevoEstado, actualizadoEn });
       
-      setProyectos((prev) =>
-        prev.map((p: Proyecto) =>
-          p.id === proyecto.id
-            ? { ...p, estado: nuevoEstado, actualizadoEn }
-            : p
-        )
-      );
+      useCRMStore.setState((state) => ({ proyectos: state.proyectos.map((p: any) => p.id === proyecto.id ? { ...p, estado: nuevoEstado, actualizadoEn } : p) }));
 
       if (nuevoEstado === "completado") {
         dispararCelebracion();
@@ -786,7 +651,7 @@ export default function Proyectos() {
     if (!proyecto || proyecto.estado === nuevoEstado) return;
 
     const prev = proyectos.map(p => p.id === Number(proyectoId) ? { ...p, estado: nuevoEstado } : p);
-    setProyectos(prev);
+    useCRMStore.setState({ proyectos: prev });
     try {
       const actualizadoEn = new Date().toISOString();
       await proyectosService.update(proyecto.id, { estado: nuevoEstado, actualizadoEn });
@@ -838,8 +703,8 @@ export default function Proyectos() {
       <Box sx={{ mb: { xs: 1.5, sm: 2 } }}>
         <Typography variant="h6" sx={{ fontWeight: "bold", fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>Proyectos</Typography>
         <Box sx={{ display: "flex", gap: 1, mt: 1, flexWrap: "wrap" }}>
-          <Button size="small" startIcon={<RefreshCw size={14} />} onClick={loadData} disabled={loading}>Recargar</Button>
-          <Button size="small" variant="contained" startIcon={<Plus />} onClick={handleOpenProyectoModal}>Nuevo</Button>
+          <Button size="small" onClick={loadData} disabled={loading}>Recargar</Button>
+          <Button variant="contained" onClick={() => handleOpenProyectoModal()}>Nuevo</Button>
         </Box>
       </Box>
 
@@ -964,7 +829,7 @@ export default function Proyectos() {
                         Cliente: {proyecto.clienteNombre}
                       </Typography>
                       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                        {(proyecto.servicios || []).map((servicio, index) => (
+                        {(proyecto.servicios || []).map((servicio: string, index: number) => (
                           <Chip
                             key={index}
                             label={servicio}
@@ -1074,7 +939,7 @@ export default function Proyectos() {
       {!loading && !error && proyectosFiltrados.length > 0 && (
         <DragDropContext onDragEnd={onDragEndProject}>
           <Box sx={{ display: 'flex', gap: 2, overflowX: 'auto', pb: 2, minHeight: 400 }}>
-            {["planificacion", "en_progreso", "pausado", "completado", "cancelado"].map(col => {
+            {(["planificacion", "en_progreso", "pausado", "completado", "cancelado"] as const).map(col => {
               const proyectosCol = proyectosFiltrados.filter(p => p.estado === col);
               return (
                 <Paper key={col} sx={{ minWidth: 300, flex: 1, p: 2, bgcolor: '#f8f9fa', borderTop: `4px solid ${getEstadoColor(col)}` }}>
@@ -1295,7 +1160,7 @@ export default function Proyectos() {
                 </Box>
                 <IconButton onClick={() => setSelectedProyecto(null)}><X /></IconButton>
               </Box>
-              <Tabs value={activeProjectTab} onChange={(_, v) => setActiveProjectTab(v)} textColor="primary" indicatorColor="primary" variant="scrollable" scrollButtons="auto" size="small" sx={{ mt: 1, minHeight: 28, '& .MuiTab-root': { minHeight: 28, py: 0.25, fontSize: { xs: '0.7rem', sm: '0.75rem' }, minWidth: 0, padding: '0 6px' } }}>
+              <Tabs value={activeProjectTab} onChange={(_, v) => setActiveProjectTab(v)} textColor="primary" indicatorColor="primary" variant="scrollable" scrollButtons="auto" sx={{ mt: 1, minHeight: 28, '& .MuiTab-root': { minHeight: 28, py: 0.25, fontSize: { xs: '0.7rem', sm: '0.75rem' }, minWidth: 0, padding: '0 6px' } }}>
                 <Tab label="Información General" />
                 <Tab label={`Tareas (${selectedProyecto.tareas?.length || 0})`} />
                 <Tab label={`Recursos (${selectedProyecto.recursos?.length || 0})`} />
