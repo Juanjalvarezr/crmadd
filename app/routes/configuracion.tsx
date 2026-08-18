@@ -10,9 +10,9 @@ import {
   FiSettings, FiSave, FiRefreshCw, FiUser, FiMail, FiGlobe,
   FiBell, FiShield, FiDatabase, FiDownload, FiUpload, FiX,
   FiMoon, FiSun, FiLock, FiTrash2, FiCheck, FiAlertCircle, FiZap,
-  FiPackage, FiPlus, FiList
+  FiPackage, FiPlus, FiList, FiEdit
 } from "react-icons/fi";
-import { configuracionService, reglasAIService, conocimientoService, promptsAIService, supabase, testConnection } from "../services/supabase";
+import { configuracionService, reglasAIService, conocimientoService, promptsAIService, supabase, testConnection, plantillasDocumentosService } from "../services/supabase";
 import { useNotificationStore } from "../store/useNotificationStore";
 import { BRAND } from "../theme";
 import { EmpresaTab } from "../services/EmpresaTab";
@@ -97,26 +97,6 @@ export default function Configuracion() {
   const [nuevoConocimiento, setNuevoConocimiento] = useState({ titulo: "", contenido: "", categoria: "operaciones" });
   const [openConocimientoModal, setOpenConocimientoModal] = useState(false);
 
-  // Estado para Plantillas de Proyecto
-  const [plantillas, setPlantillas] = useState<any[]>([
-    { 
-      id: 1, 
-      servicio: "SEO", 
-      tareas: ["Auditoría Técnica", "Keyword Research", "Optimización On-Page", "Estrategia de Backlinks", "Reporte Mensual"] 
-    },
-    { 
-      id: 2, 
-      servicio: "Social Media", 
-      tareas: ["Guionización de Contenido", "Grabación con Cliente", "Edición Reels (Jessica López)", "Publicación y Copywriting", "Análisis de Métricas"] 
-    },
-    { 
-      id: 3, 
-      servicio: "Diseño Web", 
-      tareas: ["Arquitectura de Información", "Diseño Wireframes", "Desarrollo y Programación", "Optimización de Carga", "Lanzamiento y QA"] 
-    }
-  ]);
-  const [nuevaPlantilla, setNuevaPlantilla] = useState({ servicio: "", tareas: "" });
-
   // Estado Manual SOP
   const [sops, setSops] = useState<any[]>([]);
   const [nuevoSop, setNuevoSop] = useState({ titulo: "", descripcion: "", categoria: "operaciones" });
@@ -172,17 +152,27 @@ export default function Configuracion() {
     handleSaveCatalogos(updated);
   };
 
-  const handleAddPlantilla = () => {
-    if (!nuevaPlantilla.servicio || !nuevaPlantilla.tareas) return;
-    const nueva = {
-      id: Date.now(),
-      servicio: nuevaPlantilla.servicio,
-      tareas: nuevaPlantilla.tareas.split(",").map(t => t.trim())
-    };
-    setPlantillas([...plantillas, nueva]);
-    setNuevaPlantilla({ servicio: "", tareas: "" });
-    showNotification("Plantilla de servicio guardada", "success");
+  // Estado Plantillas de Documentos
+  const [plantillasDocs, setPlantillasDocs] = useState<any[]>([]);
+  const [docTemplateForm, setDocTemplateForm] = useState({ tipo: "cotizacion", nombre: "", contenido: "", iva_porcentaje: 19, color_primario: "#1976d2", color_secundario: "#e91e63", logo_url: "", activo: true as boolean | undefined });
+  const [editingDocTemplateId, setEditingDocTemplateId] = useState<number | null>(null);
+  const [openDocTemplateModal, setOpenDocTemplateModal] = useState(false);
+
+  const handleSaveDocTemplate = async () => {
+    if (!docTemplateForm.nombre.trim() || !docTemplateForm.contenido.trim()) { showNotification("Nombre y contenido obligatorios", "warning"); return; }
+    try {
+      const saved = await plantillasDocumentosService.upsert(docTemplateForm as any);
+      if (editingDocTemplateId) setPlantillasDocs(plantillasDocs.map((x: any) => x.id === saved.id ? saved : x)); else setPlantillasDocs([...plantillasDocs, saved]);
+      setOpenDocTemplateModal(false); showNotification("Plantilla guardada", "success");
+    } catch (err: any) { showNotification(err.message || "Error guardando plantilla", "error"); }
   };
+
+  useEffect(() => {
+    const loadTemplates = async () => {
+      try { const data = await plantillasDocumentosService.getAll(); setPlantillasDocs(data || []); } catch {}
+    };
+    loadTemplates();
+  }, []);
 
   // Cargar datos reales
   useEffect(() => {
@@ -1314,46 +1304,39 @@ export default function Configuracion() {
             />
           )}
 
-          {/* Configuración de Plantillas de Proyecto */}
+          {/* Configuración de Plantillas */}
           {activeTab === "plantillas" && (
             <Paper sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2 }}>
-              <Typography variant="h6" sx={{ mb: 1, fontWeight: "bold" }}>📦 Plantillas de Tareas por Servicio</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                Define las tareas automáticas que se cargarán al iniciar un proyecto según el servicio contratado.
-              </Typography>
-
-              <Box sx={{ display: 'flex', gap: 2, mb: 4, flexDirection: { xs: 'column', sm: 'row' } }}>
-                <TextField 
-                  label="Nombre del Servicio" 
-                  size="small"
-                  value={nuevaPlantilla.servicio}
-                  onChange={(e) => setNuevaPlantilla({...nuevaPlantilla, servicio: e.target.value})}
-                />
-                <TextField 
-                  fullWidth 
-                  size="small" 
-                  placeholder="Tareas separadas por coma (ej: Tarea 1, Tarea 2...)" 
-                  value={nuevaPlantilla.tareas}
-                  onChange={(e) => setNuevaPlantilla({...nuevaPlantilla, tareas: e.target.value})}
-                />
-                <Button variant="contained" onClick={handleAddPlantilla} startIcon={<FiPlus />}>Guardar</Button>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+                <Typography variant="h6" sx={{ fontWeight: "bold" }}>Plantillas</Typography>
+                <Box sx={{ ml: "auto", display: "flex", gap: 1 }}>
+                  <Button size="small" variant="outlined" onClick={() => { setEditingDocTemplateId(null); setDocTemplateForm({ tipo: "cotizacion", nombre: "", contenido: "", iva_porcentaje: 19, color_primario: "#1976d2", color_secundario: "#e91e63", logo_url: "", activo: true }); setOpenDocTemplateModal(true); }} startIcon={<FiPlus size={14} />}>Nueva plantilla</Button>
+                </Box>
               </Box>
 
               <Grid container spacing={2}>
-                {plantillas.map((p) => (
-                  <Grid item xs={6} sm={6} md={4} key={p.id}>
-                    <Card variant="outlined">
+                {plantillasDocs.map((p) => (
+                  <Grid item xs={6} md={4} key={p.id}>
+                    <Card variant="outlined" sx={{ height: "100%" }}>
                       <CardContent>
-                        <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#e91e63' }}>{p.servicio}</Typography>
-                        <List dense>
-                          {p.tareas.map((t: string, i: number) => (
-                            <ListItem key={i}><ListItemText primary={`• ${t}`} primaryTypographyProps={{ fontSize: '0.8rem' }} /></ListItem>
-                          ))}
-                        </List>
+                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+                          <Chip size="small" label={p.tipo} sx={{ height: 22, fontSize: "0.7rem" }} />
+                          <Box sx={{ display: "flex", gap: 0.5 }}>
+                            <IconButton size="small" onClick={() => { setEditingDocTemplateId(p.id); setDocTemplateForm({ tipo: p.tipo, nombre: p.nombre, contenido: p.contenido, iva_porcentaje: Number(p.iva_porcentaje || 19), color_primario: p.color_primario || "#1976d2", color_secundario: p.color_secundario || "#e91e63", logo_url: p.logo_url || "", activo: !!p.activo }); setOpenDocTemplateModal(true); }}><FiEdit size={14} /></IconButton>
+                            <IconButton size="small" color="error" onClick={async () => { if (!confirm(`¿Eliminar plantilla #${p.id}?`)) return; await plantillasDocumentosService.remove(p.id); setPlantillasDocs(plantillasDocs.filter((x: any) => x.id !== p.id)); showNotification("Plantilla eliminada", "success"); }}><FiX size={14} /></IconButton>
+                          </Box>
+                        </Box>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>{p.nombre}</Typography>
+                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>IVA: {p.iva_porcentaje ?? 19}%</Typography>
                       </CardContent>
                     </Card>
                   </Grid>
                 ))}
+                {plantillasDocs.length === 0 && (
+                  <Grid item xs={12}>
+                    <Typography variant="body2" color="text.secondary">Sin plantillas. Creá una para cotizaciones/facturas/contratos/recibos.</Typography>
+                  </Grid>
+                )}
               </Grid>
             </Paper>
           )}
@@ -1806,6 +1789,48 @@ export default function Configuracion() {
           >
             Guardar y Actualizar Cerebro
           </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Modal Plantillas de Documentos */}
+      <Dialog open={openDocTemplateModal} onClose={() => setOpenDocTemplateModal(false)} maxWidth="md" fullWidth>
+        <DialogTitle>{editingDocTemplateId ? "Editar plantilla" : "Nueva plantilla"}</DialogTitle>
+        <DialogContent dividers>
+          <Grid container spacing={2} sx={{ mt: 1 }}>
+            <Grid item xs={12} md={6}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Tipo</InputLabel>
+                <Select value={docTemplateForm.tipo} label="Tipo" onChange={(e) => setDocTemplateForm({ ...docTemplateForm, tipo: e.target.value as any })}>
+                  <MenuItem value="cotizacion">Cotización</MenuItem>
+                  <MenuItem value="factura">Factura</MenuItem>
+                  <MenuItem value="contrato">Contrato</MenuItem>
+                  <MenuItem value="recibo">Recibo</MenuItem>
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <TextField label="Nombre" size="small" fullWidth value={docTemplateForm.nombre} onChange={(e) => setDocTemplateForm({ ...docTemplateForm, nombre: e.target.value })} />
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <TextField label="IVA %" size="small" fullWidth type="number" value={docTemplateForm.iva_porcentaje} onChange={(e) => setDocTemplateForm({ ...docTemplateForm, iva_porcentaje: Number(e.target.value || 0) })} />
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <TextField label="Color primario" size="small" fullWidth value={docTemplateForm.color_primario} onChange={(e) => setDocTemplateForm({ ...docTemplateForm, color_primario: e.target.value })} />
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <TextField label="Color secundario" size="small" fullWidth value={docTemplateForm.color_secundario} onChange={(e) => setDocTemplateForm({ ...docTemplateForm, color_secundario: e.target.value })} />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField label="Logo URL (opcional)" size="small" fullWidth value={docTemplateForm.logo_url} onChange={(e) => setDocTemplateForm({ ...docTemplateForm, logo_url: e.target.value })} />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField label="Contenido" size="small" fullWidth multiline minRows={8} value={docTemplateForm.contenido} onChange={(e) => setDocTemplateForm({ ...docTemplateForm, contenido: e.target.value })} helperText="Variables permitidas: {{cliente.nombre}}, {{factura.numero}}, {{factura.total}}, {{empresa.nombre}}, {{fecha}}." />
+            </Grid>
+          </Grid>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => setOpenDocTemplateModal(false)}>Cancelar</Button>
+          <Button variant="contained" onClick={handleSaveDocTemplate}>Guardar plantilla</Button>
         </DialogActions>
       </Dialog>
 
