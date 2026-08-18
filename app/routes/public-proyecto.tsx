@@ -1,14 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { useParams, Link } from "react-router";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router";
 import { 
   Box, Typography, Container, Paper, Grid, LinearProgress, 
-  Chip, Card, CardContent, CircularProgress, Alert, Stack, 
+  Chip, Card, CardContent, CircularProgress, Stack, 
   Divider, Button, List, ListItem, ListItemIcon, ListItemText,
   ThemeProvider, createTheme, CssBaseline
 } from "@mui/material";
 import { 
   FiBriefcase, FiCheckCircle, FiClock, FiLayers, FiLink, 
-  FiCalendar, FiPlay, FiSmartphone, FiTrendingUp, FiActivity, FiStar 
+  FiSmartphone, FiActivity 
 } from "react-icons/fi";
 import { proyectosService } from "../services/supabase";
 import type { Proyecto } from "../types/crm";

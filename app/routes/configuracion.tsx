@@ -1,21 +1,19 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import Grid from "@mui/material/Grid";
 import { 
   Box, Typography, Paper, Button, TextField, FormControl, InputLabel, Select, MenuItem,
-  IconButton, Alert, Snackbar, CircularProgress, Card, CardContent, CardActions,
-  Switch, FormControlLabel, Divider, Chip, Avatar, List, ListItem, ListItemText,
+  IconButton, Alert, CircularProgress, Card, CardContent,
+  Switch, FormControlLabel, Divider, Chip, List, ListItem, ListItemText,
   ListItemIcon, ListItemSecondaryAction, Dialog, DialogTitle, DialogContent, DialogActions
 } from "@mui/material";
 import { 
-  FiSettings, FiSave, FiRefreshCw, FiUser, FiMail, FiPhone, FiMapPin, FiGlobe,
-  FiBell, FiShield, FiDatabase, FiDownload, FiUpload, FiEdit, FiCamera, FiX,
-  FiMoon, FiSun, FiLock, FiKey, FiTrash2, FiCheck, FiAlertCircle, FiZap,
-  FiPackage, FiShare2, FiPlus, FiList
+  FiSettings, FiSave, FiRefreshCw, FiUser, FiMail, FiGlobe,
+  FiBell, FiShield, FiDatabase, FiDownload, FiUpload, FiX,
+  FiMoon, FiSun, FiLock, FiTrash2, FiCheck, FiAlertCircle, FiZap,
+  FiPackage, FiPlus, FiList
 } from "react-icons/fi";
 import { configuracionService, reglasAIService, conocimientoService, promptsAIService, supabase, testConnection } from "../services/supabase";
 import { useNotificationStore } from "../store/useNotificationStore";
-import { aiService } from "../services/ai";
-import KnowledgeFileUploader from "../services/KnowledgeFileUploader";
 import { EmpresaTab } from "../services/EmpresaTab";
 import { CerebroAITab } from "../services/CerebroAITab";
 
@@ -63,7 +61,6 @@ export function meta() {
 export default function Configuracion() {
   // Estados principales
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("empresa"); // Mantener activeTab local
   
   const { showNotification } = useNotificationStore();

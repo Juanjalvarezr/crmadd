@@ -7,9 +7,7 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Box,
   useTheme,
-  useMediaQuery,
   TableProps,
 } from "@mui/material";
 
@@ -38,7 +36,6 @@ export function CompactTable<T>({
   ...tableProps
 }: CompactTableProps<T>) {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const content = loading ? (
     <TableRow>
@@ -54,7 +51,7 @@ export function CompactTable<T>({
     </TableRow>
   ) : (
     rows.map((row) => (
-      <TableRow key={getRowId(row)} hover size="small">
+      <TableRow key={getRowId(row)} hover>
         {columns.map((column) => (
           <TableCell
             key={column.key}
@@ -78,7 +75,7 @@ export function CompactTable<T>({
 
   return (
     <TableContainer component={Paper} sx={{ borderRadius: 2, overflowX: "auto", maxHeight }}>
-      <Table size="small" stickyHeader {...tableProps}>
+      <Table stickyHeader {...tableProps}>
         <TableHead>
           <TableRow>
             {columns.map((column) => (

@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { StatCard, VentasIcon } from "../components/StatCard";
-import { 
-  Box, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, 
-  Grid, Button, Chip, LinearProgress, TextField, InputAdornment, FormControl, InputLabel, Select, MenuItem,
-  Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Alert, Snackbar, Slider, CircularProgress, Tooltip, Skeleton, keyframes
+import {
+  Box, Typography, Paper, Grid, Button, Chip, TextField, InputAdornment, FormControl, InputLabel, Select, MenuItem,
+  Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Alert, Slider, CircularProgress, Tooltip, Skeleton, keyframes
 } from "@mui/material";
 
 // Animación de pulso con colores de la agencia
@@ -82,9 +81,7 @@ export default function Ventas() {
 
   // Estado para Propuesta IA
   const [openPropuestaModal, setOpenPropuestaModal] = useState(false);
-  const [openPdfModal, setOpenPdfModal] = useState(false);
-  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
-  const [propuestaGenerada, setPropuestaPropuesta] = useState("");
+  const [propuestaGenerada, setPropuestaGenerada] = useState("");
   const [resumenWhatsApp, setResumenWhatsApp] = useState("");
   const [loadingPropuesta, setLoadingPropuesta] = useState(false);
 
@@ -248,7 +245,7 @@ export default function Ventas() {
         servicios: opp.servicios_interes || ["Servicios Digitales 360"],
         notasAdicionales: `Valor: ${formatCOP(opp.valor)}. Etapa: ${opp.etapa}`
       });
-      setPropuestaPropuesta(propuesta);
+      setPropuestaGenerada(propuesta);
       
       const whatsapp = await aiService.prepararPropuestaWhatsApp(propuesta);
       setResumenWhatsApp(whatsapp);
@@ -518,7 +515,7 @@ export default function Ventas() {
                                       <IconButton size="small" onClick={() => handleEdit(opp)} sx={{ color: 'text.secondary' }}><FiEdit size={14}/></IconButton>
                                       <IconButton size="small" onClick={() => handleDelete(opp)} color="error"><FiTrash2 size={14}/></IconButton>
                                       <IconButton size="small" onClick={() => handleGenerarPropuestaAI(opp)} sx={{ color: '#daa520' }}><FiZap size={14}/></IconButton>
-                                      <IconButton size="small" onClick={() => handleOpenPropuestaModal(opp)} sx={{ color: '#1976d2' }}><FiFileText size={14}/></IconButton>
+                                      <IconButton size="small" onClick={() => setOpenPropuestaModal(true)} sx={{ color: '#1976d2' }}><FiFileText size={14}/></IconButton>
                                     </Box>
                                   </Paper>
                                 </Box>

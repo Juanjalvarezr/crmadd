@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router";
-import { Box, Snackbar, Alert, CircularProgress, ThemeProvider, CssBaseline, createTheme, Typography } from "@mui/material";
+import { Box, Snackbar, Alert, ThemeProvider, CssBaseline, createTheme, Typography } from "@mui/material";
 import { useNotificationStore } from "./store/useNotificationStore";
 import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";

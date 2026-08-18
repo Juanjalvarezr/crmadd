@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useMemo, memo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { StatCard, ClientesIcon } from "../components/StatCard";
 import {
-  Box, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Grid,
+  Box, Typography, Paper, Grid,
   Button, Chip, TextField, InputAdornment, FormControl, InputLabel, Select, MenuItem, Pagination, Checkbox,
-  Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Alert, Snackbar, CircularProgress, Tooltip, keyframes,
+  Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Alert, Snackbar, Tooltip, keyframes,
   Card, CardContent, Drawer, Divider, useTheme, useMediaQuery, Skeleton, Tabs, Tab, Stack
 } from "@mui/material"; // Importaciones de Material-UI
 
@@ -20,9 +20,8 @@ const skeletonAgencyStyle = {
   border: '1px solid rgba(233, 30, 99, 0.05)'
 };
 import DOMPurify from 'dompurify';
-import { FiSearch, FiPlus, FiEdit, FiTrash2, FiFilter, FiCalendar, FiX, FiUsers, FiRefreshCw, FiPhone, FiMail, FiFileText, FiDownload, FiEye, FiMessageSquare, FiStar, FiBriefcase, FiTarget, FiAlertCircle } from "react-icons/fi";
+import { FiSearch, FiPlus, FiEdit, FiTrash2, FiFilter, FiCalendar, FiX, FiUsers, FiPhone, FiMail, FiFileText, FiDownload, FiEye, FiMessageSquare, FiStar, FiBriefcase, FiTarget } from "react-icons/fi";
 import { clientesService } from "../services/supabase";
-import { proyectosService, oportunidadesService, tareasService } from "../services/supabase";
 import { useCRMStore } from "../store/useCRMStore";
 import { SupabaseStatus } from "../components/SupabaseTest";
 import { format } from "date-fns";
@@ -45,7 +44,7 @@ export function meta() {
   ];
 }
 
-export default function Clientes() { const exportCSV = () => { if (typeof window !== "undefined") { alert("Exportando clientes a CSV..."); } }; const openCreate = () => { if (typeof window !== "undefined") { alert("Crear nuevo cliente..."); } };
+export default function Clientes() {
   const clientes = useCRMStore((s) => s.clientes);
   const fetchClientes = useCRMStore((s) => s.fetchClientes);
   const fetchProyectos = useCRMStore((s) => s.fetchProyectos);
@@ -81,9 +80,6 @@ export default function Clientes() { const exportCSV = () => { if (typeof window
   const [openModal, setOpenModal] = useState(false);
   const [editingClient, setEditingClient] = useState<Cliente | null>(null);
   const [saving, setSaving] = useState(false);
-
-  // Estado escáner de tarjetas
-  const [openScanner, setOpenScanner] = useState(false);
 
   // Estado del formulario
   const [formData, setFormData] = useState({
@@ -139,14 +135,6 @@ export default function Clientes() { const exportCSV = () => { if (typeof window
     });
   }, [clientes, searchTerm, estadoFilter, industriaFilter]);
 
-  const handleSelectAll = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.checked) {
-      setSelectedIds(paginatedClientes.map(c => c.id));
-    } else {
-      setSelectedIds([]);
-    }
-  };
-
   const handleSelectOne = (id: number) => {
     setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
   };
@@ -182,7 +170,7 @@ export default function Clientes() { const exportCSV = () => { if (typeof window
     }
   };
 
-  const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
+  const handlePageChange = (_event: React.ChangeEvent<unknown>, value: number) => {
     setPage(value);
   };
   
@@ -329,28 +317,6 @@ export default function Clientes() { const exportCSV = () => { if (typeof window
     setSnackbar({ ...snackbar, open: false });
   };
 
-  // Función para manejar datos extraídos del escáner
-  const handleDatosEscaneados = (datos: any) => {
-    // Crear nuevo cliente con datos del escáner
-    const nuevoCliente = {
-      nombre: datos.nombre || "",
-      email: datos.email || "",
-      telefono: datos.telefono || "",
-      empresa: datos.empresa || "",
-      nicho: "",
-      origen: "Escaneo Tarjeta",
-      dolores: "",
-      necesidades: "",
-      intereses: "",
-      estado: "Activo" as "Activo" | "Inactivo",
-      ultimaInteraccion: new Date().toISOString().split('T')[0]
-    };
-
-    setFormData(nuevoCliente);
-    setOpenModal(true);
-  };
-
-  // Funciones para las nuevas acciones
   const handleViewDetails = async (cliente: Cliente) => {
     setSelectedClient(cliente);
     setDetailTab(0);
@@ -410,8 +376,6 @@ export default function Clientes() { const exportCSV = () => { if (typeof window
   const handleToggleFavorite = async (cliente: Cliente) => {
     const updatedFav = !cliente.favorito;
     
-    // Optimistic UI update
-    setClientes((prev) => prev.map((c) => c.id === cliente.id ? { ...c, favorito: updatedFav } : c));
     setSnackbar({ 
       open: true, 
       message: updatedFav ? 'Agregado a favoritos ⭐' : 'Eliminado de favoritos', 
@@ -420,9 +384,9 @@ export default function Clientes() { const exportCSV = () => { if (typeof window
 
     try {
       await clientesService.update(cliente.id, { favorito: updatedFav });
+      const current = useCRMStore.getState().clientes;
+      useCRMStore.setState({ clientes: current.map((c: any) => c.id === cliente.id ? { ...c, favorito: updatedFav } : c) });
     } catch (err: any) {
-      // Revert if failed
-      setClientes((prev) => prev.map((c) => c.id === cliente.id ? { ...c, favorito: cliente.favorito } : c));
       setSnackbar({ 
         open: true, 
         message: 'Error al actualizar favoritos: ' + err.message, 
@@ -460,31 +424,6 @@ export default function Clientes() { const exportCSV = () => { if (typeof window
       message: 'Clientes exportados a CSV. Abre Google Sheets, ve a Archivo > Importar > Subir y selecciona el archivo CSV.',
       severity: "success"
     });
-  };
-
-  const handleImportCSV = () => { // Esta función no está completamente implementada, pero es un placeholder.
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.csv';
-    input.onchange = async (e: any) => {
-      const file = e.target.files[0];
-      if (file) {
-        setSnackbar({ 
-          open: true, 
-          message: 'Importando CSV...', 
-          severity: "info" 
-        });
-        // Aquí iría la lógica de importación
-        setTimeout(() => {
-          setSnackbar({ 
-            open: true, 
-            message: 'Importación completada', 
-            severity: "success" 
-          });
-        }, 2000);
-      }
-    };
-    input.click();
   };
 
   return (
@@ -786,7 +725,7 @@ export default function Clientes() { const exportCSV = () => { if (typeof window
                   label: "Estado",
                   align: "center",
                   render: (cliente) => (
-                    <Chip label={cliente.estado} color={getEstadoColor(cliente.estado)} size="small" sx={{ height: 20, fontSize: "0.75rem" }} />
+                    <Chip label={cliente.estado} color={getEstadoColor(cliente.estado)} sx={{ height: 20, fontSize: "0.75rem" }} />
                   ),
                 },
                 {
@@ -1007,7 +946,7 @@ export default function Clientes() { const exportCSV = () => { if (typeof window
           </Box>
           {selectedClient && (
             <Box sx={{ mt: 1 }}>
-              <Tabs value={detailTab} onChange={(_, v) => setDetailTab(v)} variant="scrollable" scrollButtons="auto" size="small" sx={{ minHeight: 32, '& .MuiTab-root': { minHeight: 32, py: 0.5, fontSize: { xs: '0.75rem', sm: '0.8rem' }, minWidth: 0, padding: '0 8px' } }}>
+              <Tabs value={detailTab} onChange={(_, v) => setDetailTab(v)} variant="scrollable" scrollButtons="auto" sx={{ minHeight: 32, '& .MuiTab-root': { minHeight: 32, py: 0.5, fontSize: { xs: '0.75rem', sm: '0.8rem' }, minWidth: 0, padding: '0 8px' } }}>
                 <Tab label="Datos" />
                 <Tab label="Proyectos" />
                 <Tab label="Oportunidades" />

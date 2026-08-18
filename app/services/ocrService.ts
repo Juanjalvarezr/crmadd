@@ -12,8 +12,7 @@ export interface ExtractedCard {
 
 const PHONE_PATTERN = /(?:\+?\d{1,3}[\s-]?)?(?:\(?\d{2,4}\)?[\s-]?)?[\d\s-]{6,15}/g;
 const EMAIL_PATTERN = /[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}/g;
-const WEB_PATTERN = /(?:https?:\/\/)?(?:www\.)?[-A-Za-z0-9@:%._+~#=]{1,256}\.[a-zA-Z]{2,}(?:\/[^\s]*)?/gi;
-const SOCIAL_PATTERN = /(?:instagram|facebook|linkedin|x\.com|twitter|tiktok|youtube)[^\s]*/i;
+const SOCIAL_PATTERN = /@[\w]+/g;
 
 function clean(arr: string[]) {
   return arr
@@ -24,7 +23,6 @@ function clean(arr: string[]) {
 function extractCardData(text: string): ExtractedCard {
   const phones = clean(text.match(PHONE_PATTERN) || []);
   const emails = clean(text.match(EMAIL_PATTERN) || []);
-  const webs = clean(text.match(WEB_PATTERN) || []);
   const redes = clean(text.match(SOCIAL_PATTERN) || []) || [];
 
   // Heurística simple: primera línea significativa como nombre

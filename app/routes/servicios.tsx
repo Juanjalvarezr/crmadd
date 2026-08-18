@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { 
   Box, Typography, Paper, Grid, Button, Card, CardContent, CardActions,
   Chip, Dialog, DialogTitle, DialogContent, DialogActions, TextField,
@@ -6,7 +6,7 @@ import {
   CircularProgress, Divider, List, ListItem, ListItemText, ListItemSecondaryAction
 } from "@mui/material";
 import { 
-  FiPackage, FiPlus, FiEdit, FiTrash2, FiStar, FiClock, FiCheck, FiX, FiPlusCircle 
+  FiPackage, FiPlus, FiEdit, FiTrash2, FiStar, FiClock, FiX, FiPlusCircle 
 } from "react-icons/fi";
 import { serviciosService } from "../services/supabase";
 

@@ -1,16 +1,14 @@
-import React, { useState, useEffect } from "react";
-import type { Route } from "./+types/reportes";
+import { useState, useEffect } from "react";
 import Grid from "@mui/material/Grid";
 import { 
-  Box, Typography, Paper, Button, TextField, InputAdornment, FormControl, InputLabel, Select, MenuItem,
-  IconButton, Alert, Snackbar, CircularProgress, Card, CardContent, Divider, Chip
+  Box, Typography, Paper, Button, TextField, FormControl, InputLabel, Select, MenuItem,
+  IconButton, Alert, Snackbar, CircularProgress, Card, CardContent, Chip
 } from "@mui/material";
 import { 
-  FiDownload, FiRefreshCw, FiFilter, FiBarChart, FiTrendingUp, FiDollarSign, FiUsers, FiCalendar,
-  FiPieChart, FiActivity, FiTarget, FiFileText, FiX, FiClock, FiCheckCircle, FiAlertCircle
+  FiDownload, FiRefreshCw, FiFilter, FiBarChart, FiTrendingUp, FiDollarSign, FiUsers,
+  FiActivity, FiTarget, FiFileText, FiClock, FiCheckCircle, FiAlertCircle
 } from "react-icons/fi";
-import { format, startOfMonth, endOfMonth, subMonths, startOfYear, endOfYear, getMonth, getYear } from "date-fns";
-import { es } from 'date-fns/locale';
+import { format, startOfMonth, endOfMonth, startOfYear, endOfYear } from "date-fns";
 import { tareasService, clientesService, oportunidadesService } from "../services/supabase";
 
 // Tipos para reportes
@@ -207,7 +205,7 @@ export default function Reportes() {
     setSnackbar({ 
       open: true, 
       message: `Exportando reporte en formato ${formato.toUpperCase()}...`, 
-      severity: "info" 
+      severity: "success" 
     });
     
     // Simulación de exportación
@@ -225,10 +223,9 @@ export default function Reportes() {
     setError(null);
     const loadReportes = async () => {
       try {
-        const [clientes, oportunidades, tareas] = await Promise.all([
+        const [clientes, oportunidades] = await Promise.all([
           clientesService.getAll(),
           oportunidadesService.getAll(),
-          tareasService.getAll(),
         ]);
         const inicio = new Date(fechaInicio + "T00:00:00");
         const fin = new Date(fechaFin + "T23:59:59");
@@ -273,7 +270,7 @@ export default function Reportes() {
     
     return (
       <Box sx={{ display: "flex", alignItems: "flex-end", height: chartHeight, gap: 2, px: 2 }}>
-        {reporteData.map((data, index) => (
+        {reporteData.map((data) => (
           <Box key={data.periodo} sx={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center" }}>
             <Box 
               sx={{ 
@@ -430,7 +427,7 @@ export default function Reportes() {
               <Button 
                 variant="outlined"
                 startIcon={<FiFilter />}
-                onClick={() => setSnackbar({ open: true, message: "Filtros avanzados en desarrollo", severity: "info" })}
+                onClick={() => setSnackbar({ open: true, message: "Filtros avanzados en desarrollo", severity: "success" })}
               >
                 Filtros
               </Button>
@@ -600,7 +597,7 @@ export default function Reportes() {
                         </Box>
                       </thead>
                       <tbody>
-                        {reporteData.map((data, index) => (
+                        {reporteData.map((data) => (
                           <Box component="tr" key={data.periodo} sx={{ borderBottom: "1px solid #f0f0f0" }}>
                             <Box component="td" sx={{ padding: "12px" }}>{data.periodo}</Box>
                             <Box component="td" sx={{ padding: "12px", textAlign: "right", fontWeight: "bold" }}>

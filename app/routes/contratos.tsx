@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Box, Typography, Chip, Alert, CircularProgress,
   Paper, Button, IconButton, Dialog, DialogTitle, DialogContent, DialogActions,
   TextField, FormControl, InputLabel, Select, MenuItem
 } from "@mui/material";
-import { FiRefreshCw, FiPlus, FiFileText, FiX } from "react-icons/fi";
+import { FiRefreshCw, FiPlus, FiX } from "react-icons/fi";
 import { contratosService } from "../services/supabase";
 import { useCRMStore } from "../store/useCRMStore";
 import { useNotificationStore } from "../store/useNotificationStore";
@@ -47,7 +47,7 @@ export default function Contratos() { const loadContratos = () => { if (typeof w
   const handleSave = async () => {
     setSaving(true);
     try {
-      const payload = { ...form, valor: Number(form.valor || 0), cliente_id: form.cliente_id ? Number(form.cliente_id) : null, proyecto_id: form.proyecto_id || null, factura_id: form.factura_id ? Number(form.factura_id) : null, fecha_inicio: form.fecha_inicio || null, fecha_fin: form.fecha_fin || null };
+      const payload = { ...form, valor: Number(form.valor || 0), cliente_id: form.cliente_id ? Number(form.cliente_id) : undefined, proyecto_id: form.proyecto_id || undefined, factura_id: form.factura_id ? Number(form.factura_id) : undefined, fecha_inicio: form.fecha_inicio || undefined, fecha_fin: form.fecha_fin || undefined };
       if (editing) { await contratosService.update(editing.id, payload); showNotification("Contrato actualizado", "success"); }
       else { await contratosService.create(payload); showNotification("Contrato creado", "success"); }
       setOpenModal(false); await load();

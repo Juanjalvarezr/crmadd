@@ -198,15 +198,16 @@ export const oportunidadesService = {
     tasaConversion: number;
   }> => {
     try {
-      const oportunidades = await this.getAll();
-      
-      if (!oportunidades || oportunidades.length === 0) {
+      const result = (await oportunidadesService.getAll()) as Oportunidad[];
+      const rawOportunidades = Array.isArray(result) ? result : [];
+
+      if (rawOportunidades.length === 0) {
         return { total: 0, valorTotal: 0, cerradas: 0, tasaConversion: 0 };
       }
       
-      const total = oportunidades.length;
-      const valorTotal = oportunidades.reduce((acc: number, opp: Oportunidad) => acc + (opp.valor || 0), 0);
-      const cerradas = oportunidades.filter((opp: Oportunidad) => opp.etapa === 'Cierre').length;
+      const total = rawOportunidades.length;
+      const valorTotal = rawOportunidades.reduce((acc: number, opp: Oportunidad) => acc + (opp.valor || 0), 0);
+      const cerradas = rawOportunidades.filter((opp: Oportunidad) => opp.etapa === 'Cierre').length;
       const tasaConversion = total > 0 ? Math.round((cerradas / total) * 100) : 0;
 
       return { total, valorTotal, cerradas, tasaConversion };
