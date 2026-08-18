@@ -356,7 +356,7 @@ export default function Reportes() {
       {/* Controles de filtro */}
       <Paper sx={{ p: { xs: 1, sm: 1.5 }, mb: { xs: 1.5, sm: 2 }, borderRadius: 1.5, border: '1px solid', borderColor: 'divider' }}>
         <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} md={3}>
+          <Grid item xs={6} md={3}>
             <FormControl fullWidth>
               <InputLabel>Período</InputLabel>
               <Select
@@ -376,7 +376,7 @@ export default function Reportes() {
           
           {periodo === "personalizado" && (
             <>
-              <Grid item xs={12} md={3}>
+              <Grid item xs={6} md={3}>
                 <TextField
                   label="Fecha Inicio"
                   type="date"
@@ -385,7 +385,7 @@ export default function Reportes() {
                   onChange={(e: any) => setFechaInicio(e.target.value)}
                 />
               </Grid>
-              <Grid item xs={12} md={3}>
+              <Grid item xs={6} md={3}>
                 <TextField
                   label="Fecha Fin"
                   type="date"
@@ -397,7 +397,7 @@ export default function Reportes() {
             </>
           )}
           
-          <Grid item xs={12} md={3}>
+          <Grid item xs={6} md={3}>
             <FormControl fullWidth>
               <InputLabel>Tipo de Reporte</InputLabel>
               <Select
@@ -414,7 +414,7 @@ export default function Reportes() {
             </FormControl>
           </Grid>
           
-          <Grid item xs={12} md={3}>
+          <Grid item xs={6} md={3}>
             <Box sx={{ display: "flex", gap: 1 }}>
               <Button 
                 variant="contained"
