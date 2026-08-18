@@ -700,8 +700,8 @@ export default function Proyectos() {
     <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
       {/* Header compacto */}
       {/* Header compacto mobile */}
-      <Box sx={{ mb: { xs: 1.5, sm: 2 } }}>
-        <Typography variant="h6" sx={{ fontWeight: "bold", fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>Proyectos</Typography>
+      <Box sx={{ mb: { xs: 2.5, sm: 3 } }}>
+        <Typography variant="h6" sx={{ fontSize: { xs: '1rem', sm: '1.15rem' } }}>Proyectos</Typography>
         <Box sx={{ display: "flex", gap: 1, mt: 1, flexWrap: "wrap" }}>
           <Button size="small" onClick={loadData} disabled={loading}>Recargar</Button>
           <Button variant="contained" onClick={() => handleOpenProyectoModal()}>Nuevo</Button>
@@ -773,19 +773,18 @@ export default function Proyectos() {
       {!loading && !error && proyectosFiltrados.length > 0 && (
         <Grid container spacing={{ xs: 1, sm: 1.5 }}>
           {proyectosFiltrados.map((proyecto) => (
-            <Grid item xs={12} md={6} lg={4} key={proyecto.id}>
+            <Grid item xs={6} sm={6} md={6} lg={4} key={proyecto.id}>
               <Card sx={{ 
                 height: "100%", 
                 display: "flex", 
-                flexDirection: { xs: "row", md: "column" },
+                flexDirection: { xs: "column", sm: "row", md: "column" },
                 borderRadius: 2
               }}>
                 <CardContent sx={{ 
                   flexGrow: 1, 
                   '&:last-child': { pb: { xs: 1, sm: 2 } }, 
-                  p: { xs: 1.5, sm: 2 },
-                  width: { xs: 'auto', md: '100%' },
-                  flex: { xs: '1 1 auto', md: '1 1 auto' }
+                  p: { xs: 1, sm: 1.5, md: 2 },
+                  width: '100%'
                 }}>
                   <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: { xs: 0.5, sm: 1.5 }, gap: 1, flexWrap: "wrap" }}>
                     <Typography variant="subtitle2" sx={{ fontWeight: "bold", lineHeight: 1.2, fontSize: { xs: '0.85rem', sm: '1rem' } }}>
@@ -1160,7 +1159,28 @@ export default function Proyectos() {
                 </Box>
                 <IconButton onClick={() => setSelectedProyecto(null)}><X /></IconButton>
               </Box>
-              <Tabs value={activeProjectTab} onChange={(_, v) => setActiveProjectTab(v)} textColor="primary" indicatorColor="primary" variant="scrollable" scrollButtons="auto" sx={{ mt: 1, minHeight: 28, '& .MuiTab-root': { minHeight: 28, py: 0.25, fontSize: { xs: '0.7rem', sm: '0.75rem' }, minWidth: 0, padding: '0 6px' } }}>
+              <Tabs 
+                value={activeProjectTab} 
+                onChange={(_, v) => setActiveProjectTab(v)} 
+                textColor="primary" 
+                indicatorColor="primary" 
+                variant="scrollable" 
+                scrollButtons="auto"
+                allowScrollButtonsMobile
+                sx={{ 
+                  mt: 1, 
+                  minHeight: { xs: 32, sm: 36 }, 
+                  '& .MuiTab-root': { 
+                    minHeight: { xs: 32, sm: 36 }, 
+                    py: { xs: 0.25, sm: 0.5 }, 
+                    fontSize: { xs: '0.65rem', sm: '0.75rem' }, 
+                    minWidth: 0, 
+                    padding: { xs: '0 5px', sm: '0 8px' },
+                    textTransform: 'none',
+                    whiteSpace: 'nowrap'
+                  } 
+                }}
+              >
                 <Tab label="Información General" />
                 <Tab label={`Tareas (${selectedProyecto.tareas?.length || 0})`} />
                 <Tab label={`Recursos (${selectedProyecto.recursos?.length || 0})`} />
