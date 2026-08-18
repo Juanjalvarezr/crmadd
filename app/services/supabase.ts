@@ -199,12 +199,42 @@ export type Tables = {
     numero_factura?: string;
     proyecto_id?: string;
     cliente_id?: number;
-    estado: string;
+    estado: "Borrador" | "Enviada" | "Pagada" | "Vencida" | "Anulada";
     total: number;
+    subtotal?: number;
+    iva?: number;
+    descuento?: number;
+    metodo_pago?: "nequi" | "daviplata" | "transferencia" | "efectivo";
+    notas?: string;
     fecha_emision?: string;
     fecha_vencimiento?: string;
     created_at: string;
     updated_at: string;
+  };
+  plantillas_documentos: {
+    id: number;
+    tipo: "cotizacion" | "factura" | "contrato" | "recibo";
+    nombre: string;
+    contenido: string;
+    logo_url?: string;
+    color_primario?: string;
+    color_secundario?: string;
+    iva_porcentaje?: number;
+    valores_por_defecto?: any;
+    activo?: boolean;
+    created_at?: string;
+    updated_at?: string;
+  };
+  pagos: {
+    id: number;
+    factura_id: number;
+    monto: number;
+    fecha_pago?: string;
+    metodo_pago?: "nequi" | "daviplata" | "transferencia" | "efectivo";
+    referencia?: string;
+    comprobante_url?: string;
+    created_at?: string;
+    updated_at?: string;
   };
   contratos: {
     id: number;
@@ -1015,6 +1045,79 @@ export const facturasService = {
   },
   async delete(id: number) {
     const { error } = await supabase.from('facturas').delete().eq('id', id);
+    if (error) throw error;
+    return true;
+  },
+};
+
+// --- Servicio de Plantillas de Documentos ---
+export const plantillasDocumentosService = {
+  async getAll() {
+    const { data, error } = await supabase
+      .from('plantillas_documentos')
+      .select('*')
+      .order('tipo', { ascending: true });
+    if (error) throw error;
+    return data || [];
+  },
+  async getByTipo(tipo: Tables['plantillas_documentos']['tipo']) {
+    const { data, error } = await supabase
+      .from('plantillas_documentos')
+      .select('*')
+      .eq('tipo', tipo)
+      .maybeSingle();
+    if (error) throw error;
+    return data;
+  },
+  async upsert(template: Omit<Tables['plantillas_documentos'], 'id' | 'created_at' | 'updated_at'> & { id?: number }) {
+    const payload = { ...template, updated_at: new Date().toISOString() };
+    const { data, error } = await supabase
+      .from('plantillas_documentos')
+      .upsert([payload])
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+  async remove(id: number) {
+    const { error } = await supabase.from('plantillas_documentos').delete().eq('id', id);
+    if (error) throw error;
+    return true;
+  },
+};
+
+// --- Servicio de Pagos ---
+export const pagosService = {
+  async getByFactura(factura_id: number) {
+    const { data, error } = await supabase
+      .from('pagos')
+      .select('*')
+      .eq('factura_id', factura_id)
+      .order('fecha_pago', { ascending: false });
+    if (error) throw error;
+    return (data || []).map((p: any) => ({ ...p, monto: Number(p.monto || 0) }));
+  },
+  async create(pago: Omit<Tables['pagos'], 'id' | 'created_at' | 'updated_at'>) {
+    const { data, error } = await supabase
+      .from('pagos')
+      .insert([{ ...pago, created_at: new Date().toISOString(), updated_at: new Date().toISOString() }])
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+  async update(id: number, updates: Partial<Tables['pagos']>) {
+    const { data, error } = await supabase
+      .from('pagos')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+  async delete(id: number) {
+    const { error } = await supabase.from('pagos').delete().eq('id', id);
     if (error) throw error;
     return true;
   },
