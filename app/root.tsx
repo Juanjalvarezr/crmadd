@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router";
-import { Box, Snackbar, Alert, ThemeProvider, CssBaseline, createTheme, Typography } from "@mui/material";
+import { Box, Snackbar, Alert, ThemeProvider, CssBaseline, Typography } from "@mui/material";
 import { useNotificationStore } from "./store/useNotificationStore";
 import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
 import { MobileFab } from "./components/MobileFab";
 import GlobalSearch from "./components/GlobalSearch";
+import { darkTheme, lightTheme } from "./theme";
 
 const DRAWER_WIDTH = 260;
 
@@ -55,23 +56,7 @@ export default function Root() {
     return "dark";
   });
 
-  const theme = React.useMemo(() => createTheme({
-    palette: {
-      mode: themeMode,
-      primary: {
-        main: '#1976d2',
-        light: '#42a5f5',
-        dark: '#1565c0',
-      },
-    },
-    typography: {
-      fontSize: 13.5,
-      fontFamily: 'Inter, Roboto, Helvetica, Arial, sans-serif',
-      h6: { fontSize: '1.1rem' },
-      body2: { fontSize: '0.85rem' },
-      caption: { fontSize: '0.75rem' },
-    },
-  }), [themeMode]);
+  const theme = themeMode === "dark" ? darkTheme : lightTheme;
 
   useEffect(() => {
     const stored =

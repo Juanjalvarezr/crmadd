@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import Grid from "@mui/material/Grid";
+import { STATUS } from "../theme";
 import { 
   Box, Typography, Paper, Button, TextField, FormControl, InputLabel, Select, MenuItem, Tabs, Tab,
   Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Alert, CircularProgress,
@@ -664,25 +665,25 @@ export default function Proyectos() {
 
   // Funciones de utilidad
   const getEstadoColor = (estado: Proyecto["estado"]) => {
-    const colors = {
-      planificacion: "#ff9800",
-      en_progreso: "#2196f3",
+    const map: Record<string, string> = {
+      planificacion: STATUS.planificacion,
+      en_progreso: STATUS.enProgreso,
       pausado: "#9e9e9e",
-      completado: "#4caf50",
-      cancelado: "#f44336",
-      renovacion: "#e91e63"
+      completado: STATUS.completado,
+      cancelado: STATUS.cancelado,
+      renovacion: STATUS.urgente,
     };
-    return colors[estado] || "#666";
+    return map[estado] || "#9e9e9e";
   };
 
   const getPrioridadColor = (prioridad: Proyecto["prioridad"]) => {
-    const colors = {
-      baja: "#4caf50",
-      media: "#ff9800",
-      alta: "#f44336",
-      urgente: "#9c27b0"
+    const map: Record<string, string> = {
+      baja: STATUS.baja,
+      media: STATUS.media,
+      alta: STATUS.alta,
+      urgente: STATUS.urgente,
     };
-    return colors[prioridad] || "#666";
+    return map[prioridad] || "#9e9e9e";
   };
 
   const formatCOP = (value: number) => {
