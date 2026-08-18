@@ -191,7 +191,7 @@ export default function Servicios() {
       ) : (
         <Grid container spacing={{ xs: 1, sm: 1.5 }}>
           {servicios.map((servicio) => (
-            <Grid item xs={12} sm={6} md={4} key={servicio.id}>
+            <Grid item xs={6} sm={6} md={4} key={servicio.id}>
               <Card sx={{ 
                 height: '100%', 
                 display: 'flex', 

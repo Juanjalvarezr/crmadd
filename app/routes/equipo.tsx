@@ -99,7 +99,7 @@ export default function Equipo() {
 
       <Grid container spacing={{ xs: 1, sm: 1.5 }}>
         {miembros.map((miembro) => (
-          <Grid item xs={12} sm={6} md={4} key={miembro.id}>
+          <Grid item xs={6} sm={6} md={4} key={miembro.id}>
             <Card sx={{ borderRadius: 2, transition: "0.2s", '&:hover': { boxShadow: 3, transform: 'translateY(-2px)' } }}>
               <CardContent sx={{ p: { xs: 1.5, sm: 2 }, '&:last-child': { pb: { xs: 1.5, sm: 2 } } }}>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5 }}>

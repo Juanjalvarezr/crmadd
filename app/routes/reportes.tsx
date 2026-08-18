@@ -336,25 +336,25 @@ export default function Reportes() {
     <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
       {/* Header */}
       <Paper sx={{ 
-        p: { xs: 2, sm: 3 }, 
-        mb: { xs: 2, sm: 3 }, 
+        p: { xs: 1, sm: 1.5 }, 
+        mb: { xs: 1.5, sm: 2 }, 
         backgroundColor: "#e3f2fd", 
-        borderLeft: "5px solid #2196f3",
-        borderRadius: 2
+        borderLeft: "4px solid #2196f3",
+        borderRadius: 1.5
       }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
-          <FiBarChart size={24} color="#1976d2" />
-          <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1976d2", fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+          <FiBarChart size={20} color="#1976d2" />
+          <Typography variant="h6" sx={{ fontWeight: 700, color: "#1976d2", fontSize: { xs: '1rem', sm: '1.15rem' } }}>
             Reportes y Analytics
           </Typography>
         </Box>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+        <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
           Métricas en tiempo real del rendimiento de DESEO DIGITAL. Analiza ingresos, clientes y crecimiento.
         </Typography>
       </Paper>
 
       {/* Controles de filtro */}
-      <Paper sx={{ p: { xs: 2, sm: 3 }, mb: 3, borderRadius: 2 }}>
+      <Paper sx={{ p: { xs: 1, sm: 1.5 }, mb: { xs: 1.5, sm: 2 }, borderRadius: 1.5, border: '1px solid', borderColor: 'divider' }}>
         <Grid container spacing={2} alignItems="center">
           <Grid item xs={12} md={3}>
             <FormControl fullWidth>
@@ -451,9 +451,9 @@ export default function Reportes() {
       {!loading && !error && (
         <>
           {/* Métricas principales */}
-          <Grid container spacing={3} sx={{ mb: 4 }}>
+          <Grid container spacing={{ xs: 1, sm: 2 }} sx={{ mb: 3 }}>
             {metricas.map((metrica, index) => (
-              <Grid item xs={12} sm={6} md={3} key={index}>
+              <Grid item xs={6} sm={6} md={3} key={index}>
                 <Card sx={{ 
                   background: `linear-gradient(135deg, ${metrica.color}15, ${metrica.color}05)`,
                   border: `1px solid ${metrica.color}30`,
