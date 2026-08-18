@@ -29,7 +29,9 @@ const base: ThemeOptions = {
       defaultProps: { elevation: 0 },
     },
     MuiChip: {
-      styleOverrides: { root: { height: 24, fontSize: "0.7rem", fontWeight: 600 } },
+      styleOverrides: {
+        root: { height: 24, fontSize: "0.7rem", fontWeight: 600, "&.MuiChip-sizeSmall": { height: 22, fontSize: "0.65rem" } },
+      },
       defaultProps: { size: "small" },
     },
     MuiButton: {
@@ -41,7 +43,10 @@ const base: ThemeOptions = {
       styleOverrides: { root: { backgroundImage: "none" } },
     },
     MuiTabs: {
-      styleOverrides: { indicator: { height: 2 } },
+      styleOverrides: {
+        indicator: { height: 2 },
+        root: { minHeight: 36 },
+      },
     },
   },
 };
