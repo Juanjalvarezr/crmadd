@@ -336,11 +336,11 @@ export default function EmailMarketing() {
         mb: { xs: 2, sm: 3 }, 
         backgroundColor: "#e3f2fd", 
         borderLeft: "5px solid #2196f3",
-        borderRadius: 2
-      }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
-          <Mail size={24} color="#1976d2" />
-          <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1976d2", fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>
+        }}>
+
+          <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 1, sm: 1.5 }, mb: { xs: 1, sm: 1.5 } }}>
+            <Mail size={20} color="#1976d2" />
+            <Typography variant="h6" sx={{ fontWeight: 700, color: "#1976d2", fontSize: { xs: '1rem', sm: '1.15rem' } }}>
             Email Marketing
           </Typography>
         </Box>
@@ -437,10 +437,10 @@ export default function EmailMarketing() {
                 </Button>
               </Box>
 
-              <Grid container spacing={3}>
+              <Grid container spacing={{ xs: 1, sm: 2 }}>
                 <AnimatePresence>
                 {campanas.map((campana) => (
-                  <Grid item xs={12} md={6} lg={4} key={campana.id}>
+                  <Grid item xs={6} sm={6} md={6} lg={4} key={campana.id}>
                     <motion.div
                       layout
                       initial={{ opacity: 0, y: 20 }}
@@ -550,9 +550,9 @@ export default function EmailMarketing() {
                 </Button>
               </Box>
 
-              <Grid container spacing={3}>
+              <Grid container spacing={{ xs: 1, sm: 2 }}>
                 {plantillas.map((plantilla) => (
-                  <Grid item xs={12} md={6} lg={4} key={plantilla.id}>
+                  <Grid item xs={6} sm={6} md={6} lg={4} key={plantilla.id}>
                     <Card>
                       <CardContent>
                         <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
