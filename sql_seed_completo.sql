@@ -74,18 +74,18 @@ WHERE c.email = 'juanjosealvarez@gmail.com'
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO tareas (titulo, descripcion, fecha, prioridad, estado, tipo, proyecto_id, cliente_id, responsable_id)
-SELECT 'Definir alcance CRM', 'Reunir requisitos y cierre de propuesta', CURRENT_DATE + 2, 'Alta', 'Pendiente', 'Tarea', 'PROJ-001', c.id, 1
-FROM clientes c
+SELECT 'Definir alcance CRM', 'Reunir requisitos y cierre de propuesta', CURRENT_DATE + 2, 'Alta', 'Pendiente', 'Tarea', 'PROJ-001', c.id, e.id
+FROM clientes c, (SELECT id FROM equipo WHERE email = 'juan@deseodigital.com') e
 WHERE c.email = 'juanjosealvarez@gmail.com';
 
 INSERT INTO tareas (titulo, descripcion, fecha, prioridad, estado, tipo, proyecto_id, cliente_id, responsable_id)
-SELECT 'Diseño UI/UX', 'Prototipos y pruebas de contraste', CURRENT_DATE + 5, 'Media', 'En progreso', 'Tarea', 'PROJ-001', c.id, 2
-FROM clientes c
+SELECT 'Diseño UI/UX', 'Prototipos y pruebas de contraste', CURRENT_DATE + 5, 'Media', 'En progreso', 'Tarea', 'PROJ-001', c.id, e.id
+FROM clientes c, (SELECT id FROM equipo WHERE email = 'jessica@deseodigital.com') e
 WHERE c.email = 'juanjosealvarez@gmail.com';
 
 INSERT INTO tareas (titulo, descripcion, fecha, prioridad, estado, tipo, proyecto_id, cliente_id, responsable_id)
-SELECT 'Entrega cliente', 'Demo funcional y capacitación', CURRENT_DATE + 10, 'Alta', 'Pendiente', 'Cita', 'PROJ-001', c.id, 1
-FROM clientes c
+SELECT 'Entrega cliente', 'Demo funcional y capacitación', CURRENT_DATE + 10, 'Alta', 'Pendiente', 'Cita', 'PROJ-001', c.id, e.id
+FROM clientes c, (SELECT id FROM equipo WHERE email = 'juan@deseodigital.com') e
 WHERE c.email = 'juanjosealvarez@gmail.com';
 
 -- 7) Factura + Pagos + Contrato + Transacciones
