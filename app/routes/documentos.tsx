@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Box, Typography, Paper, Button, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, FormControl, InputLabel, Select, MenuItem, CircularProgress, Alert } from "@mui/material";
-import { FiPlus, FiX, FiDownload, FiUpload, FiFileText } from "react-icons/fi";
+import { FiPlus, FiX, FiDownload, FiUpload, FiFileText, FiRefreshCw } from "react-icons/fi";
 import { documentosService } from "../services/supabase";
 import { useNotificationStore } from "../store/useNotificationStore";
+import { clientesService, facturasService, proyectosService } from "../services/supabase";
 import { StatCard } from "../components/StatCard";
 
 export function meta() {
@@ -45,38 +46,35 @@ export default function Documentos() {
   const loadOptions = async () => {
     try {
       const [pRes, cRes, fRes] = await Promise.allSettled([
-        fetch("/api/proyectos").then(r => r.json()).catch(() => []),
-        fetch("/api/clientes").then(r => r.json()).catch(() => []),
-        fetch("/api/facturas").then(r => r.json()).catch(() => []),
+        proyectosService.getAll(),
+        clientesService.getAll(),
+        facturasService.getAll(),
       ]);
-      setProyectos(pRes.status === "fulfilled" ? pRes.value || [] : []);
-      setClientes(cRes.status === "fulfilled" ? cRes.value || [] : []);
-      setFacturas(fRes.status === "fulfilled" ? fRes.value || [] : []);
-    } catch {}
+      setProyectos(pRes.status === "fulfilled" ? (pRes.value || []) : []);
+      setClientes(cRes.status === "fulfilled" ? (cRes.value || []) : []);
+      setFacturas(fRes.status === "fulfilled" ? (fRes.value || []) : []);
+    } catch (err: any) {
+      console.warn("Error cargando opciones de documentos:", err?.message);
+    }
   };
 
   useEffect(() => {
-    let cancelled = false;
     const seed = async () => {
       try {
-        await load();
-        await loadOptions();
-        if (!cancelled && items.length === 0) {
-          setItems([
-            { id: 1, titulo: "Contrato Tiendas Hogar City", tipo: "contrato", url: "https://docs.google.com/document/d/1", descripcion: "Contrato base mensual" },
-            { id: 2, titulo: "Brief Identidad Ecopark", tipo: "brief", url: "", descripcion: "Branding y paleta" },
-            { id: 3, titulo: "Propuesta Social Media", tipo: "propuesta", url: "", descripcion: "Propuesta mensual redes" }
-          ]);
-        }
+        await Promise.all([load(), loadOptions()]);
       } catch { }
     };
     seed();
-    return () => { cancelled = true; };
   }, [load]);
 
   const openCreate = () => {
     setForm({ titulo: "", tipo: "propuesta", proyecto_id: "", cliente_id: "", factura_id: "", url: "", descripcion: "" });
     setOpen(true);
+  };
+
+  const refreshOptions = async () => {
+    await loadOptions();
+    showNotification("Opciones actualizadas", "info");
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -121,7 +119,10 @@ export default function Documentos() {
     <Box sx={{ p: { xs: 1, sm: 1.5, md: 2 } }}>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: { xs: 1, sm: 1.5 } }}>
         <Typography variant="h6" sx={{ fontSize: { xs: '1rem', sm: '1.1rem' } }}>Documentos</Typography>
-        <Button variant="contained" size="small" startIcon={<FiPlus size={16} />} onClick={openCreate}>Nuevo</Button>
+        <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+          <IconButton size="small" onClick={refreshOptions}><FiRefreshCw size={16}/></IconButton>
+          <Button variant="contained" size="small" startIcon={<FiPlus size={16} />} onClick={openCreate}>Nuevo</Button>
+        </Box>
       </Box>
 
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: { xs: 0.5, sm: 1 }, mb: { xs: 1, sm: 1.5 } }}>
