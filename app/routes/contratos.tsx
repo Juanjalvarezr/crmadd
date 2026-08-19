@@ -90,28 +90,45 @@ export default function Contratos() { const loadContratos = () => { if (typeof w
       {loading ? (
         <Box sx={{ display: "flex", justifyContent: "center", p: { xs: 2, sm: 3 } }}><CircularProgress /></Box>
       ) : contratos.length === 0 ? (
-        <Paper sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2, textAlign: "center" }}><Typography color="text.secondary" variant="body2">No hay contratos registrados.</Typography></Paper>
+        <Paper sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2, textAlign: "center", border: "1px dashed", borderColor: "divider" }}>
+          <Typography color="text.secondary" variant="body2">No hay contratos registrados.</Typography>
+          <Button size="small" variant="text" onClick={openCreate}>Crear el primero</Button>
+        </Paper>
       ) : (
         <Box sx={{ display: "flex", flexDirection: "column", gap: { xs: 0.75, sm: 1 } }}>
-          {contratos.slice(0, 20).map((c: any) => (
-            <Paper key={c.id} sx={{ p: { xs: 1, sm: 1.25 }, borderRadius: 1.5, display: "flex", alignItems: "center", gap: { xs: 0.75, sm: 1 }, flexWrap: "wrap", border: '1px solid', borderColor: 'divider' }}>
+          {contratos.slice(0, 20).map((c: any) => {
+            const estado = c.estado || "Activo";
+            const estadoColor = estado === "Activo" ? "success" : estado === "Finalizado" ? "info" : estado === "Cancelado" ? "error" : "default";
+            return (
+            <Paper key={c.id} sx={{ 
+              p: { xs: 1, sm: 1.25 }, 
+              borderRadius: 1.75, 
+              display: "flex", 
+              alignItems: "center", 
+              gap: { xs: 0.75, sm: 1 }, 
+              flexWrap: "wrap",
+              border: '1px solid',
+              borderColor: 'divider',
+              bgcolor: 'background.paper'
+            }}>
               <Box sx={{ flex: 1, minWidth: 0 }}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 700, fontSize: { xs: '0.8rem', sm: '0.85rem' } }}>Contrato #{c.id}</Typography>
-                <Typography variant="caption" color="text.secondary" sx={{ fontSize: { xs: '0.7rem', sm: '0.75rem' } }}>{c.fecha_inicio ? new Date(c.fecha_inicio).toLocaleDateString() : ""}</Typography>
+                <Typography variant="caption" sx={{ fontWeight: "bold", fontSize: { xs: '0.8rem', sm: '0.85rem' } }}>Contrato #{c.id}</Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontSize: { xs: '0.7rem', sm: '0.75rem' } }}>{c.fecha_inicio ? new Date(c.fecha_inicio).toLocaleDateString() : ""}</Typography>
               </Box>
-              <Chip size="small" label={c.estado || "Activo"} sx={{ height: { xs: 22, sm: 24 } }} />
-              <Typography variant="body2" sx={{ fontWeight: 700, fontSize: { xs: '0.8rem', sm: '0.85rem' } }}>${Number(c.valor || 0).toFixed(0)}</Typography>
+              <Chip size="small" label={estado} color={estadoColor as any} sx={{ height: { xs: 22, sm: 26 }, fontSize: { xs: '0.65rem', sm: '0.7rem' } }} />
+              <Typography variant="caption" sx={{ fontWeight: "bold", fontSize: { xs: '0.8rem', sm: '0.85rem' } }}>${Number(c.valor || 0).toFixed(0)}</Typography>
               {c.url && (
                 <Typography variant="caption" sx={{ display: 'block', width: '100%' }}>
                   <a href={c.url} target="_blank" rel="noreferrer">Ver documento</a>
                 </Typography>
               )}
-              <Box sx={{ display: "flex", gap: { xs: 0.5, sm: 0.75 } }}>
-                <Button size="small" onClick={() => openEdit(c)} sx={{ fontSize: { xs: '0.75rem', sm: '0.8rem' } }}>Editar</Button>
-                <Button size="small" color="error" onClick={() => handleDelete(c)} sx={{ fontSize: { xs: '0.75rem', sm: '0.8rem' } }}>Eliminar</Button>
+              <Box sx={{ display: "flex", gap: { xs: 0.25, sm: 0.5 }, flexWrap: "wrap" }}>
+                <IconButton size="small" onClick={() => openEdit(c)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiEdit size={16}/></IconButton>
+                <IconButton size="small" color="error" onClick={() => handleDelete(c)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiTrash2 size={16}/></IconButton>
               </Box>
             </Paper>
-          ))}
+            );
+          })}
         </Box>
       )}
 

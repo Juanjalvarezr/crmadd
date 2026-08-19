@@ -51,7 +51,7 @@ export default function Reportes() {
   const [reporteData, setReporteData] = useState<ReporteData[]>([]);
   const { showNotification } = useNotificationStore();
 
-  const handleCloseSnackbar = () => setSnackbar({ ...snackbar, open: false });
+  const handleCloseSnackbar = () => setSnackbar((s) => ({ ...s, open: false }));
 
   // Cargar datos de reportes (simulado - conectar con Supabase después)
   useEffect(() => {
@@ -246,18 +246,20 @@ export default function Reportes() {
       return;
     }
 
-    setSnackbar({
+    setSnackbar((s) => ({
+      ...s,
       open: true,
       message: `Exportando reporte en formato ${formato.toUpperCase()}...`,
-      severity: "success"
-    });
+      severity: "success",
+    }));
 
     setTimeout(() => {
-      setSnackbar({
+      setSnackbar((s) => ({
+        ...s,
         open: true,
         message: `Reporte exportado correctamente en ${formato.toUpperCase()}`,
-        severity: "success"
-      });
+        severity: "success",
+      }));
     }, 2000);
   };
 
@@ -470,7 +472,7 @@ export default function Reportes() {
               <Button 
                 variant="outlined"
                 startIcon={<FiFilter />}
-                onClick={() => setSnackbar({ open: true, message: "Filtros avanzados en desarrollo", severity: "success" })}
+                onClick={() => setSnackbar((s) => ({ ...s, open: true, message: "Filtros avanzados en desarrollo", severity: "success" }))}
               >
                 Filtros
               </Button>
