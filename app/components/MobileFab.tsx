@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { SpeedDial, SpeedDialAction, SpeedDialIcon, SpeedDialTooltip, Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, Typography, TextField, FormControl, InputLabel, Select, MenuItem, Chip, Snackbar, Alert, IconButton, Stack } from '@mui/material';
+import { SpeedDial, SpeedDialAction, SpeedDialIcon, Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, TextField, FormControl, InputLabel, Select, MenuItem, IconButton, Stack } from '@mui/material';
 import { FiUsers, FiCheckSquare, FiTrendingUp, FiPlus, FiX, FiMessageSquare, FiSave } from 'react-icons/fi';
-import { useNavigate, useLocation } from 'react-router';
+import { useNavigate } from 'react-router';
 import { tareasService, oportunidadesService, interaccionesService } from '../services/supabase';
-import { clientesService } from '../services/supabase';
 import { useCRMStore } from '../store/useCRMStore';
 import { useNotificationStore } from '../store/useNotificationStore';
 
@@ -21,7 +20,6 @@ export const MobileFab: React.FC = () => {
   const [tipo, setTipo] = useState('Tarea');
   const [guardando, setGuardando] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
   const clientesStore = useCRMStore((s) => s.clientes);
   const fetchClientes = useCRMStore((s) => s.fetchClientes);
   const { showNotification } = useNotificationStore();
@@ -106,7 +104,7 @@ export const MobileFab: React.FC = () => {
         }
         await interaccionesService.create({
           cliente_id: clienteId,
-          tipo: tipo === 'Cita' ? 'Cita' : tipo === 'Llamada' ? 'Llamada' : 'Nota',
+          tipo: ['Cita','Email','WhatsApp','Nota'].includes(tipo) ? (tipo as "Cita" | "Email" | "WhatsApp" | "Nota") : 'Nota',
           asunto: titulo.trim() || 'Gestión',
           contenido: descripcion.trim(),
           usuario: 'Asistente IA',
