@@ -256,28 +256,20 @@ export default function EmailMarketing() {
     }
   };
 
-  const handleSendTestEmail = async (_campana: CampanaEmail) => {
+  const handleSendTestEmail = async (campana: CampanaEmail) => {
     try {
-      setSnackbar({ 
-        open: true, 
-        message: "Enviando email de prueba...", 
-        severity: "info" 
-      });
-      
-      // Simulación de envío
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      setSnackbar({ 
-        open: true, 
-        message: "Email de prueba enviado a contacto@deseodigital.com", 
-        severity: "success" 
-      });
+      setSending(true);
+      const to = campana.destinatarios.length > 0 ? campana.destinatarios : [import.meta.env.VITE_CONTACT_EMAIL || "contacto@deseodigital.com"];
+      const res = await emailService.sendRealEmail(to, campana.asunto, campana.contenido);
+      setSnackbar({ open: true, message: res?.message || "Email enviado correctamente", severity: "success" });
+      if (campana.id && emailService.updateCampana) {
+        await emailService.updateCampana(campana.id, { ...campana, estado: "enviado", estadisticas: { ...campana.estadisticas, enviados: to.length } });
+        setCampanas(prev => prev.map(c => c.id === campana.id ? { ...c, estado: "enviado", estadisticas: { ...c.estadisticas, enviados: to.length } } : c));
+      }
     } catch (err: any) {
-      setSnackbar({ 
-        open: true, 
-        message: "Error al enviar email de prueba: " + err.message, 
-        severity: "error" 
-      });
+      setSnackbar({ open: true, message: "Error enviando email de prueba: " + err.message, severity: "error" });
+    } finally {
+      setSending(false);
     }
   };
 
