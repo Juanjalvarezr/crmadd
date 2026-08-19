@@ -9,7 +9,7 @@ import {
   FiActivity, FiTarget, FiFileText, FiClock, FiCheckCircle, FiAlertCircle
 } from "react-icons/fi";
 import { format, startOfMonth, endOfMonth, startOfYear, endOfYear } from "date-fns";
-import { tareasService, clientesService, oportunidadesService } from "../services/supabase";
+import { tareasService, clientesService, oportunidadesService, proyectosService, facturasService, pagosService } from "../services/supabase";
 import { useNotificationStore } from "../store/useNotificationStore";
 
 // Tipos para reportes
@@ -53,17 +53,19 @@ export default function Reportes() {
 
   const handleCloseSnackbar = () => setSnackbar((s) => ({ ...s, open: false }));
 
-  // Cargar datos de reportes (simulado - conectar con Supabase después)
+  // Cargar datos de reportes conectados a Supabase
   useEffect(() => {
     const loadReportes = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        const [clientes, oportunidades, tareas] = await Promise.all([
+        const [clientes, oportunidades, tareas, proyectos, facturas] = await Promise.all([
           clientesService.getAll(),
           oportunidadesService.getAll(),
           tareasService.getAll(),
+          proyectosService.getAll(),
+          facturasService.getAll(),
         ]);
 
         const inicio = new Date(fechaInicio + "T00:00:00");
@@ -84,66 +86,72 @@ export default function Reportes() {
           return fechaTarea >= inicio && fechaTarea <= fin;
         });
 
-        const totalIngresos = oportunidadesFiltradas.reduce((sum: number, o: any) => sum + (o.valor || 0), 0);
-        const clientesActivos = (clientes || []).filter((c: any) => c.estado === "Activo").length;
-        const cerradas = (oportunidadesFiltradas || []).filter((o: any) => o.etapa === "Cierre").length;
+        const proyectosFiltrados = (proyectos || []).filter((p: any) => {
+          const created = new Date(p.creado_en || p.actualizado_en);
+          return created >= inicio && created <= fin;
+        });
+
+        const facturasFiltradas = (facturas || []).filter((f: any) => {
+          const created = new Date(f.created_at);
+          return created >= inicio && created <= fin;
+        });
+
+        const ingresosOportunidades = oportunidadesFiltradas.reduce((sum: number, o: any) => sum + (Number(o.valor) || 0), 0);
+        const ingresosFacturas = facturasFiltradas.reduce((sum: number, f: any) => sum + (Number(f.total) || 0), 0);
+        const ingresosProyectos = proyectosFiltrados.reduce((sum: number, p: any) => sum + (Number(p.presupuesto) || 0), 0);
+
+        const clientesActivos = clientesFiltrados.filter((c: any) => c.estado === "Activo").length;
+        const cerradas = oportunidadesFiltradas.filter((o: any) => o.etapa === "Cierre" || o.estado === "Cerrada").length;
         const tasaConversion = oportunidadesFiltradas.length > 0
           ? Math.round((cerradas / oportunidadesFiltradas.length) * 100 * 10) / 10
           : 0;
-        const proyectosActivos = (oportunidadesFiltradas || []).filter((o: any) => o.etapa !== "Cierre").length;
+        const proyectosActivos = proyectosFiltrados.filter((p: any) => p.estado === "en_progreso" || p.estado === "planificacion").length;
+        const tareasPendientes = tareasFiltradas.filter((t: any) => t.estado === "Pendiente" || t.estado === "En progreso").length;
 
         const metricasReales: Metrica[] = [
           {
-            titulo: "Ingresos Totales",
-            valor: formatCOP(totalIngresos),
-            cambio: clientesFiltrados.length || 0,
+            titulo: "Ingresos Proyectados",
+            valor: formatCOP(ingresosProyectos),
+            cambio: Math.round((tareasPendientes / Math.max(tareasFiltradas.length, 1)) * 100),
             icono: <FiDollarSign size={24} />,
             color: "#4caf50"
           },
           {
             titulo: "Clientes Activos",
             valor: clientesActivos,
-            cambio: cerradas,
+            cambio: clientesFiltrados.length || 0,
             icono: <FiUsers size={24} />,
             color: "#2196f3"
           },
           {
             titulo: "Tasa Conversión",
             valor: `${tasaConversion}%`,
-            cambio: tasaConversion - 5,
+            cambio: Math.round(tasaConversion - 5 * 10) / 10,
             icono: <FiTarget size={24} />,
             color: "#ff9800"
           },
           {
             titulo: "Proyectos Activos",
             valor: proyectosActivos,
-            cambio: tareasFiltradas.length || 0,
+            cambio: tareasPendientes || 0,
             icono: <FiActivity size={24} />,
             color: "#9c27b0"
           }
         ];
 
         const meses: Record<string, ReporteData> = {};
-        oportunidadesFiltradas.forEach((o: any) => {
-          const periodoTexto = format(new Date(o.created_at), "MMM");
+        proyectosFiltrados.forEach((p: any) => {
+          const periodoTexto = format(new Date(p.creado_en || p.actualizado_en || fechaInicio), "MMM");
           if (!meses[periodoTexto]) {
-            meses[periodoTexto] = {
-              periodo: periodoTexto,
-              ingresos: 0,
-              nuevosClientes: 0,
-              proyectosCompletados: 0,
-              tasaConversion: 0,
-            };
+            meses[periodoTexto] = { periodo: periodoTexto, ingresos: 0, nuevosClientes: 0, proyectosCompletados: 0, tasaConversion: 0 };
           }
-          meses[periodoTexto].ingresos += o.valor || 0;
-          if (o.etapa === "Cierre") meses[periodoTexto].proyectosCompletados += 1;
-          meses[periodoTexto].tasaConversion = oportunidadesFiltradas.length > 0
-            ? Math.round((cerradas / oportunidadesFiltradas.length) * 100 * 10) / 10
-            : 0;
+          meses[periodoTexto].ingresos += Number(p.presupuesto) || 0;
         });
 
         Object.values(meses).forEach((mes) => {
           mes.nuevosClientes = clientesFiltrados.filter((c: any) => format(new Date(c.created_at), "MMM") === mes.periodo).length;
+          mes.proyectosCompletados = proyectosFiltrados.filter((p: any) => (p.estado === "finalizado" || p.estado === "entregado") && format(new Date(p.creado_en || p.actualizado_en || fechaInicio), "MMM") === mes.periodo).length;
+          mes.tasaConversion = oportunidadesFiltradas.length > 0 ? Math.round((cerradas / oportunidadesFiltradas.length) * 100 * 10) / 10 : 0;
         });
 
         setMetricas(metricasReales);
