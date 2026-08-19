@@ -4,8 +4,9 @@ import {
   Paper, Button, IconButton, Dialog, DialogTitle, DialogContent, DialogActions,
   TextField, FormControl, InputLabel, Select, MenuItem, Divider
 } from "@mui/material";
-import { FiRefreshCw, FiPlus, FiFileText, FiX } from "react-icons/fi";
+import { FiRefreshCw, FiPlus, FiFileText, FiX, FiUpload } from "react-icons/fi";
 import { facturasService, emailService, plantillasDocumentosService, pagosService, documentosService } from "../services/supabase";
+import { storageHelper } from "../services/supabase";
 import { useCRMStore } from "../store/useCRMStore";
 import { useNotificationStore } from "../store/useNotificationStore";
 import { StatCard } from "../components/StatCard";
@@ -31,6 +32,8 @@ export default function Facturacion() {
   const [pagoForm, setPagoForm] = useState({ monto: "", metodo_pago: "transferencia", referencia: "", comprobante_url: "" });
   const [plantilla, setPlantilla] = useState<any>(null);
   const [documentoGenerado, setDocumentoGenerado] = useState<string | null>(null);
+  const [uploadingPayment, setUploadingPayment] = useState(false);
+  const [paymentFile, setPaymentFile] = useState<File | null>(null);
   const { showNotification } = useNotificationStore();
 
   const load = async () => {
@@ -182,15 +185,23 @@ export default function Facturacion() {
   const handleRegistrarPago = async () => {
     if (!selected || !pagoForm.monto) { showNotification("Monto requerido", "warning"); return; }
     try {
+      setUploadingPayment(true);
       const monto = Number(pagoForm.monto);
-      const payload: any = { factura_id: selected.id, monto, metodo_pago: pagoForm.metodo_pago, referencia: pagoForm.referencia, comprobante_url: pagoForm.comprobante_url };
+      let comprobante_url = pagoForm.comprobante_url;
+      if (paymentFile) {
+        const fileName = `payment-${Date.now()}.${paymentFile.name.split('.').pop()}`;
+        comprobante_url = await storageHelper.upload('crm-documents', `payments/${fileName}`, paymentFile);
+      }
+      const payload: any = { factura_id: selected.id, monto, metodo_pago: pagoForm.metodo_pago, referencia: pagoForm.referencia, comprobante_url };
       await pagosService.create(payload);
       const data = await pagosService.getByFactura(selected.id); setPagos(data || []);
       setPagoForm({ monto: "", metodo_pago: "transferencia", referencia: "", comprobante_url: "" });
+      setPaymentFile(null);
       showNotification("Pago registrado", "success");
       const saldo = Number(selected.total || 0) - data.reduce((a, b) => a + Number(b.monto || 0), 0);
       if (saldo <= 0) { await facturasService.update(selected.id, { estado: "Pagada" }); await load(); }
     } catch (err: any) { showNotification(err.message || "Error registrando pago", "error"); }
+    finally { setUploadingPayment(false); }
   };
 
   return (
@@ -305,7 +316,13 @@ export default function Facturacion() {
                   </Select>
                 </FormControl>
                 <TextField label="Referencia" size="small" value={pagoForm.referencia} onChange={(e) => setPagoForm({ ...pagoForm, referencia: e.target.value })} />
-                <Button size="small" variant="contained" onClick={handleRegistrarPago}>Registrar pago</Button>
+                <Button size="small" variant="outlined" component="label" startIcon={<FiUpload size={14} />} disabled={uploadingPayment}>
+                  {paymentFile ? paymentFile.name : "Comprobante"}
+                  <input type="file" hidden onChange={(e) => setPaymentFile(e.target.files?.[0] || null)} />
+                </Button>
+                <Button size="small" variant="contained" onClick={handleRegistrarPago} disabled={uploadingPayment}>
+                  {uploadingPayment ? "Guardando..." : "Registrar pago"}
+                </Button>
               </Box>
               <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
                 {pagos.map((p) => (

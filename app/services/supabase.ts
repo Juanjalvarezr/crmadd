@@ -245,6 +245,7 @@ export type Tables = {
     fecha_inicio?: string;
     fecha_fin?: string;
     valor: number;
+    url?: string;
     created_at: string;
     updated_at: string;
   };
@@ -835,20 +836,27 @@ export const configuracionService = {
     const fileExt = file.name.split('.').pop();
     const fileName = `logo-${Date.now()}.${fileExt}`;
     const filePath = `agency-logos/${fileName}`;
+    return await storageUpload('config', filePath, file);
+  }
+};
 
-    // El nombre del bucket debe ser exactamente 'config' en el dashboard de Supabase
-    const { error: uploadError } = await supabase.storage
-      .from('config')
-      .upload(filePath, file);
+const storageUpload = async (bucket: string, path: string, file: File) => {
+  const { error: uploadError } = await supabase.storage
+    .from(bucket)
+    .upload(path, file);
 
-    if (uploadError) throw uploadError;
+  if (uploadError) throw uploadError;
 
-    // Obtener la URL pública
-    const { data } = supabase.storage
-      .from('config')
-      .getPublicUrl(filePath);
+  const { data } = supabase.storage
+    .from(bucket)
+    .getPublicUrl(path);
 
-    return data.publicUrl;
+  return data.publicUrl;
+};
+
+export const storageHelper = {
+  async upload(bucket: string, path: string, file: File) {
+    return await storageUpload(bucket, path, file);
   }
 };
 
@@ -912,18 +920,7 @@ export const documentosService = {
     const fileExt = file.name.split('.').pop();
     const fileName = `doc-${Date.now()}.${fileExt}`;
     const filePath = `crm-documents/${fileName}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from('crm-documents')
-      .upload(filePath, file);
-
-    if (uploadError) throw uploadError;
-
-    const { data } = supabase.storage
-      .from('crm-documents')
-      .getPublicUrl(filePath);
-
-    return data.publicUrl;
+    return await storageUpload('crm-documents', filePath, file);
   }
 };
 
