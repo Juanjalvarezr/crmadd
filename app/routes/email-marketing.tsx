@@ -590,7 +590,7 @@ export default function EmailMarketing() {
                     <CardContent sx={{ textAlign: "center" }}>
                       <Mail size={32} color="#e91e63" />
                       <Typography variant="h4" sx={{ fontWeight: "bold", mt: 1 }}>
-                        1,234
+                        {campanas.reduce((a, c) => a + (c.estadisticas?.enviados || 0), 0).toLocaleString('es-CO')}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
                         Emails Enviados
@@ -603,10 +603,10 @@ export default function EmailMarketing() {
                     <CardContent sx={{ textAlign: "center" }}>
                       <Eye size={32} color="#4caf50" />
                       <Typography variant="h4" sx={{ fontWeight: "bold", mt: 1 }}>
-                        687
+                        {campanas.length > 0 ? Math.round(campanas.reduce((a, c) => a + getTasaApertura(c.estadisticas || { enviados: 0, abiertos: 0, clics: 0, rebotes: 0, cancelaciones: 0 }), 0) / campanas.length) : 0}%
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        Tasa Apertura (55.7%)
+                        Tasa Apertura
                       </Typography>
                     </CardContent>
                   </Card>
@@ -614,12 +614,12 @@ export default function EmailMarketing() {
                 <Grid item xs={6} sm={6} md={3}>
                   <Card>
                     <CardContent sx={{ textAlign: "center" }}>
-                      <Target size={32} color="#2196f3" />
+                      <Target size={32} color="#2196d3" />
                       <Typography variant="h4" sx={{ fontWeight: "bold", mt: 1 }}>
-                        234
+                        {campanas.length > 0 ? Math.round(campanas.reduce((a, c) => a + getTasaClics(c.estadisticas || { enviados: 0, abiertos: 0, clics: 0, rebotes: 0, cancelaciones: 0 }), 0) / campanas.length) : 0}%
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        Tasa Clics (34.1%)
+                        Tasa Clics
                       </Typography>
                     </CardContent>
                   </Card>
@@ -629,7 +629,7 @@ export default function EmailMarketing() {
                     <CardContent sx={{ textAlign: "center" }}>
                       <TrendingUp size={32} color="#ff9800" />
                       <Typography variant="h4" sx={{ fontWeight: "bold", mt: 1 }}>
-                        +12.5%
+                        {campanas.length > 0 ? `+${Math.max(0, Math.round((campanas.filter(c => c.estado === 'enviado').length / Math.max(campanas.length, 1)) * 100))}%` : '0%'}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
                         Crecimiento Mensual
@@ -638,6 +638,24 @@ export default function EmailMarketing() {
                   </Card>
                 </Grid>
               </Grid>
+
+              <Paper sx={{ p: { xs: 1.5, sm: 2 }, borderRadius: 1.5, border: '1px solid', borderColor: 'divider' }}>
+                <Typography variant="subtitle2" sx={{ mb: 1 }}>Resumen adicional</Typography>
+                <Grid container spacing={{ xs: 1, sm: 2 }}>
+                  <Grid item xs={6} md={3}>
+                    <Typography variant="body2">Enviados: {campanas.reduce((a, c) => a + (c.estadisticas?.enviados || 0), 0).toLocaleString('es-CO')}</Typography>
+                  </Grid>
+                  <Grid item xs={6} md={3}>
+                    <Typography variant="body2">Abiertos: {campanas.reduce((a, c) => a + (c.estadisticas?.abiertos || 0), 0).toLocaleString('es-CO')}</Typography>
+                  </Grid>
+                  <Grid item xs={6} md={3}>
+                    <Typography variant="body2">Clics: {campanas.reduce((a, c) => a + (c.estadisticas?.clics || 0), 0).toLocaleString('es-CO')}</Typography>
+                  </Grid>
+                  <Grid item xs={6} md={3}>
+                    <Typography variant="body2">Rebotes: {campanas.reduce((a, c) => a + (c.estadisticas?.rebotes || 0), 0).toLocaleString('es-CO')}</Typography>
+                  </Grid>
+                </Grid>
+              </Paper>
             </Box>
           )}
         </>
