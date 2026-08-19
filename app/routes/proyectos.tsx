@@ -15,9 +15,11 @@ import {
   Play, Pause, X, Eye, ExternalLink, FileText, Layout, 
   Video, Camera, Zap, Award, FileCheck, Share2, Mail, Send
 } from "lucide-react";
+import { FiFileText } from "react-icons/fi";
 import { format, formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 import { emailService, subagentesService as equipoService, logsService, proyectosService } from "../services/supabase";
+import { documentosService, facturasService } from "../services/supabase";
 import type { Proyecto, TareaProyecto, RecursoProyecto, PlanItem } from "../types/crm";
 import { aiService } from "../services/ai";
 import { useNotificationStore } from "../store/useNotificationStore";
@@ -59,6 +61,9 @@ export default function Proyectos() {
   const [selectedProyecto, setSelectedProyecto] = useState<Proyecto | null>(null);
   const [activeProjectTab, setActiveProjectTab] = useState(0);
   const [generatingPlan, setGeneratingPlan] = useState(false);
+  const [relatedDocs, setRelatedDocs] = useState<any[]>([]);
+  const [relatedFacturas, setRelatedFacturas] = useState<any[]>([]);
+  const [loadingRelated, setLoadingRelated] = useState(false);
 
   // Simulación de rol (En el futuro esto vendrá de tu sistema de Auth/Supabase)
   const [isAdmin] = useState(true);
@@ -216,6 +221,30 @@ export default function Proyectos() {
     setOpenProyectoModal(false);
     setEditingProyecto(null);
   };
+
+  const loadRelatedForSelected = async () => {
+    if (!selectedProyecto?.id) { setRelatedDocs([]); setRelatedFacturas([]); return; }
+    try {
+      setLoadingRelated(true);
+      const [docsRes, facRes] = await Promise.allSettled([
+        documentosService.getAll(),
+        facturasService.getAll()
+      ]);
+      const docs = (docsRes.status === 'fulfilled' ? docsRes.value : []) as any[];
+      const facs = (facRes.status === 'fulfilled' ? facRes.value : []) as any[];
+      const pid = String(selectedProyecto.id);
+      setRelatedDocs(docs.filter((d: any) => String(d.proyecto_id) === pid));
+      setRelatedFacturas(facs.filter((f: any) => String(f.proyecto_id) === pid));
+    } catch (err: any) {
+      console.warn('Error cargando relacionados:', err?.message);
+    } finally {
+      setLoadingRelated(false);
+    }
+  };
+
+  useEffect(() => {
+    loadRelatedForSelected();
+  }, [selectedProyecto?.id]);
 
   const handleSaveProyecto = async (data: z.infer<typeof proyectoSchema>) => {
     try {
@@ -1184,6 +1213,8 @@ export default function Proyectos() {
               >
                 <Tab label="Información General" />
                 <Tab label={`Tareas (${selectedProyecto.tareas?.length || 0})`} />
+                <Tab label={`Documentos (${relatedDocs.length})`} />
+                <Tab label={`Facturas (${relatedFacturas.length})`} />
                 <Tab label={`Recursos (${selectedProyecto.recursos?.length || 0})`} />
                 <Tab label="Estrategia y Contenido" />
               </Tabs>
@@ -1254,7 +1285,61 @@ export default function Proyectos() {
                     Selecciona una fase administrativa para ver el detalle.
                   </Typography>
                 </Box>
+              ) : activeProjectTab === 2 ? (
+                <Box sx={{ py: 1 }}>
+                  {loadingRelated ? (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}><CircularProgress size={24} /></Box>
+                  ) : relatedDocs.length === 0 ? (
+                    <Alert severity="info">Sin documentos vinculados a este proyecto.</Alert>
+                  ) : (
+                    <List dense>
+                      {relatedDocs.map((doc) => (
+                        <ListItem key={doc.id} divider sx={{ border: '1px solid #eee', borderRadius: 2, mb: 1 }}>
+                          <ListItemIcon sx={{ minWidth: 36 }}>
+                            <FiFileText size={18} color="#1976d2" />
+                          </ListItemIcon>
+                          <ListItemText
+                            primary={<Typography variant="body2" sx={{ fontWeight: 'bold' }}>{doc.titulo}</Typography>}
+                            secondary={<Typography variant="caption">{doc.tipo} {doc.url ? `• <a href="${doc.url}" target="_blank" rel="noreferrer">Ver</a>` : ''}</Typography>}
+                          />
+                          {doc.url && (
+                            <IconButton size="small" href={doc.url} target="_blank" rel="noreferrer">
+                              <ExternalLink size={16} />
+                            </IconButton>
+                          )}
+                        </ListItem>
+                      ))}
+                    </List>
+                  )}
+                </Box>
               ) : activeProjectTab === 3 ? (
+                <Box sx={{ py: 1 }}>
+                  {loadingRelated ? (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}><CircularProgress size={24} /></Box>
+                  ) : relatedFacturas.length === 0 ? (
+                    <Alert severity="info">Sin facturas vinculadas a este proyecto.</Alert>
+                  ) : (
+                    <List dense>
+                      {relatedFacturas.map((fac) => (
+                        <ListItem key={fac.id} divider sx={{ border: '1px solid #eee', borderRadius: 2, mb: 1 }}>
+                          <ListItemIcon sx={{ minWidth: 36 }}>
+                            <FiFileText size={18} color="#4caf50" />
+                          </ListItemIcon>
+                          <ListItemText
+                            primary={<Typography variant="body2" sx={{ fontWeight: 'bold' }}>#{fac.numero_factura || fac.id}</Typography>}
+                            secondary={
+                              <Typography variant="caption">
+                                {`Total: $${Number(fac.total || 0).toFixed(0)} • Estado: ${fac.estado || 'Sin estado'} • Vencimiento: ${fac.fecha_vencimiento || 'Sin definir'}`}
+                              </Typography>
+                            }
+                          />
+                          <Chip size="small" label={fac.estado || 'Borrador'} color={fac.estado === 'Pagada' ? 'success' : fac.estado === 'Vencida' ? 'error' : 'warning'} />
+                        </ListItem>
+                      ))}
+                    </List>
+                  )}
+                </Box>
+              ) : activeProjectTab === 4 ? (
                 <Box sx={{ py: 1 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                     <Typography variant="subtitle2" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
