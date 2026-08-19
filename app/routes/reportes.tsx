@@ -225,6 +225,27 @@ export default function Reportes() {
       return;
     }
 
+    if (formato === "excel") {
+      try {
+        const headers = ["Periodo", "Ingresos", "Nuevos Clientes", "Proyectos Completados", "Tasa Conversion"];
+        const rows = reporteData.map((d) => [d.periodo, d.ingresos, d.nuevosClientes, d.proyectosCompletados, `${d.tasaConversion}%`]);
+        const csvContent = [headers, ...rows].map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
+        const blob = new Blob(["\uFEFF" + csvContent], { type: "application/vnd.ms-excel;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `reporte_${periodo}_${fechaInicio}_a_${fechaFin}.xls`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        showNotification("Reporte Excel descargado", "success");
+      } catch (err: any) {
+        showNotification(err.message || "Error exportando Excel", "error");
+      }
+      return;
+    }
+
     setSnackbar({
       open: true,
       message: `Exportando reporte en formato ${formato.toUpperCase()}...`,
