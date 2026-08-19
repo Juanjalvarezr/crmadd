@@ -144,22 +144,23 @@ export default function Facturacion() {
   };
 
   const sendWhatsApp = async (row: any) => {
-    const cliente = resolveCliente(row);
-    const telefono = cliente?.telefono || "";
-    if (!telefono) { showNotification("El cliente no tiene teléfono cargado", "warning"); return; }
-    const link = documentoUrl ? `\nDocumento: ${documentoUrl}` : "";
-    const texto = encodeURIComponent(`Hola ${cliente.nombre || "cliente"}, te compartimos tu factura #${row.numero_factura || row.id} por $${Number(row.total || 0).toFixed(0)}. Estado: ${row.estado || "Borrador"}. Fecha vencimiento: ${row.fecha_vencimiento || "Sin definir"}.${link} Ante cualquier duda respondé este mensaje.`);
+    const cliente = getClienteNombre(row.cliente_id);
+    const clienteObj = clientes.find((x: any) => Number(x.id) === Number(row.cliente_id));
+    const telefono = clienteObj?.telefono || "";
+    if (!telefono) { showNotification(`El cliente "${cliente}" no tiene teléfono cargado`, "warning"); return; }
+    const texto = encodeURIComponent(`Hola ${cliente}, te compartimos tu factura #${row.numero_factura || row.id} por $${Number(row.total || 0).toFixed(0)}. Estado: ${row.estado || "Borrador"}. Fecha vencimiento: ${row.fecha_vencimiento || "Sin definir"}. Ante cualquier duda respondé este mensaje.`);
     if (typeof window !== "undefined") window.open(`https://wa.me/${telefono}?text=${texto}`, "_blank");
     showNotification("Abriendo WhatsApp...", "info");
   };
 
   const sendEmail = async (row: any) => {
     try {
-      const cliente = resolveCliente(row);
-      const to = cliente?.email || "";
-      if (!to) { showNotification("El cliente no tiene email cargado", "warning"); return; }
+      const cliente = getClienteNombre(row.cliente_id);
+      const clienteObj = clientes.find((x: any) => Number(x.id) === Number(row.cliente_id));
+      const to = clienteObj?.email || "";
+      if (!to) { showNotification(`El cliente "${cliente}" no tiene email cargado`, "warning"); return; }
       const subject = `Factura #${row.numero_factura || row.id} - DESEO DIGITAL`;
-      const html = `<p>Hola ${cliente.nombre || "cliente"},</p><p>Adjuntamos tu factura <strong>#${row.numero_factura || row.id}</strong> por <strong>$${Number(row.total || 0).toFixed(0)}</strong>.</p><p>Estado: ${row.estado || "Borrador"}<br>Vencimiento: ${row.fecha_vencimiento || "Sin definir"}</p><p>Saludos,<br>DESEO DIGITAL</p>`;
+      const html = `<p>Hola ${cliente},</p><p>Adjuntamos tu factura <strong>#${row.numero_factura || row.id}</strong> por <strong>$${Number(row.total || 0).toFixed(0)}</strong>.</p><p>Estado: ${row.estado || "Borrador"}<br>Vencimiento: ${row.fecha_vencimiento || "Sin definir"}</p><p>Saludos,<br>DESEO DIGITAL</p>`;
       const res = await emailService.sendRealEmail([to], subject, html);
       showNotification(res?.message || "Factura enviada por email", "success");
     } catch (err: any) { showNotification(err.message || "Error enviando factura por email", "error"); }
