@@ -4,7 +4,7 @@ import {
   Paper, Button, IconButton, Dialog, DialogTitle, DialogContent, DialogActions,
   TextField, FormControl, InputLabel, Select, MenuItem
 } from "@mui/material";
-import { FiRefreshCw, FiPlus, FiX, FiUpload, FiFileText } from "react-icons/fi";
+import { FiRefreshCw, FiPlus, FiX, FiUpload, FiFileText, FiEdit, FiTrash2 } from "react-icons/fi";
 import { contratosService } from "../services/supabase";
 import { storageHelper } from "../services/supabase";
 import { useCRMStore } from "../store/useCRMStore";
