@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import {
-  Box, Typography, Paper, Button, IconButton, Tooltip, CircularProgress,
+  Box, Typography, Paper, Button, CircularProgress,
   Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputLabel, Select, MenuItem, Chip, TextField
 } from "@mui/material";
-import { FiCalendar, FiInfo, FiCreditCard, FiPlus, FiTrash2, FiEdit2 } from "react-icons/fi";
+import { FiCalendar, FiCreditCard, FiPlus, FiTrash2, FiEdit2 } from "react-icons/fi";
 import { Calendar, dateFnsLocalizer, Views } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay } from "date-fns";
 import { es } from "date-fns/locale/es";
@@ -255,26 +255,36 @@ export default function Calendario() {
   }
 
   return (
-    <Box sx={{ p: { xs: 1, sm: 1.5, md: 2 }, height: { xs: 'calc(100vh - 100px)', sm: 'calc(100vh - 80px)' } }}>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1, flexWrap: "wrap" }}>
-        <FiCalendar size={20} color="#1976d2" />
-        <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1976d2", flex: 1, fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>Calendario</Typography>
-        <Tooltip title="Sincroniza tus tareas y proyecciones de ventas en un solo lugar.">
-          <IconButton color="primary" size="small"><FiInfo /></IconButton>
-        </Tooltip>
-        <Button size="small" variant="contained" startIcon={<FiPlus size={14} />} onClick={handleOpenCreateEvent}>Nuevo</Button>
-      </Box>
-
-      <Box sx={{ display: "flex", gap: 1, mb: 1, flexWrap: "wrap", alignItems: "center" }}>
-        <FormControl size="small" sx={{ minWidth: 130 }}>
-          <InputLabel>Filtrar</InputLabel>
-          <Select value={filterType} label="Filtrar" onChange={(e) => setFilterType(e.target.value)}>
-            <MenuItem value="">Todos</MenuItem>
-            <MenuItem value="tarea">Tareas</MenuItem>
-            <MenuItem value="venta">Cierres</MenuItem>
-            <MenuItem value="factura">Vencimientos</MenuItem>
-          </Select>
-        </FormControl>
+    <Box sx={{ 
+      p: { xs: 1, sm: 1.5, md: 2 }, 
+      height: { xs: 'calc(100vh - 120px)', sm: 'calc(100vh - 100px)', md: 'calc(100vh - 80px)' },
+      display: 'flex',
+      flexDirection: 'column',
+      gap: { xs: 1, sm: 1.5 }
+    }}>
+      <Box sx={{ 
+        display: "flex", 
+        alignItems: "center", 
+        gap: { xs: 1, sm: 1.5 }, 
+        flexWrap: "wrap",
+        justifyContent: "space-between"
+      }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+          <FiCalendar size={20} color="#1976d2" />
+          <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1976d2", fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>Calendario</Typography>
+        </Box>
+        <Box sx={{ display: "flex", gap: 1, alignItems: "center", flexWrap: "wrap" }}>
+          <FormControl size="small" sx={{ minWidth: { xs: 100, sm: 130 } }}>
+            <InputLabel>Filtrar</InputLabel>
+            <Select value={filterType} label="Filtrar" onChange={(e) => setFilterType(e.target.value)}>
+              <MenuItem value="">Todos</MenuItem>
+              <MenuItem value="tarea">Tareas</MenuItem>
+              <MenuItem value="venta">Cierres</MenuItem>
+              <MenuItem value="factura">Vencimientos</MenuItem>
+            </Select>
+          </FormControl>
+          <Button size="small" variant="contained" startIcon={<FiPlus size={14} />} onClick={handleOpenCreateEvent}>Nuevo</Button>
+        </Box>
       </Box>
 
       <Paper sx={{ p: { xs: 0.75, sm: 1 }, height: '100%', minHeight: { xs: 320, sm: 420 }, borderRadius: 1.5, overflow: 'hidden', border: '1px solid', borderColor: 'divider' }}>
