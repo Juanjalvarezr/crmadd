@@ -32,7 +32,6 @@ export default function Facturacion() {
   const [pagoForm, setPagoForm] = useState({ monto: "", metodo_pago: "transferencia", referencia: "", comprobante_url: "" });
   const [plantilla, setPlantilla] = useState<any>(null);
   const [documentoGenerado, setDocumentoGenerado] = useState<string | null>(null);
-  const [documentoUrl, setDocumentoUrl] = useState<string | null>(null);
   const [uploadingPayment, setUploadingPayment] = useState(false);
   const [paymentFile, setPaymentFile] = useState<File | null>(null);
   const { showNotification } = useNotificationStore();
@@ -134,15 +133,6 @@ export default function Facturacion() {
     return c ? (c.nombre || c.email || `Cliente #${clienteId}`) : `Cliente #${clienteId}`;
   };
 
-  const resolveCliente = (row: any) => {
-    const clienteId = row.cliente_id;
-    if (!clienteId) return null;
-    const fromJoin = row.cliente && (row.cliente.nombre || row.cliente.email || row.cliente.telefono) ? row.cliente : null;
-    const fromStore = clientes.find((x: any) => Number(x.id) === Number(clienteId)) || null;
-    const base = fromJoin || fromStore || {};
-    return { ...base, id: clienteId, nombre: base.nombre || getClienteNombre(clienteId) };
-  };
-
   const sendWhatsApp = async (row: any) => {
     const cliente = getClienteNombre(row.cliente_id);
     const clienteObj = clientes.find((x: any) => Number(x.id) === Number(row.cliente_id));
@@ -197,7 +187,6 @@ export default function Facturacion() {
       } catch {}
 
       setDocumentoGenerado(fullHtml);
-      setDocumentoUrl(url);
       showNotification("Factura generada", "success");
       if (typeof window !== "undefined") {
         const win = window.open();
