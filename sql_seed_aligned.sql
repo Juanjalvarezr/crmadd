@@ -46,9 +46,12 @@ SELECT 'branding', 'Usar solo la paleta de colores oficial de la agencia'
 WHERE NOT EXISTS (SELECT 1 FROM reglas_ai WHERE categoria = 'branding');
 
 INSERT INTO prompts_ai (id, slug, system_prompt, user_prompt_template)
-VALUES ('prompt_001', 'director_estrategico', 'Eres el Director Estratégico Senior de DESEO DIGITAL.', 'Redacta una propuesta persuasiva para {{clienteNombre}}. Servicios: {{servicios}}. Enfócate en el ROI y el anticipo del 50%.'),
-       ('prompt_002', 'cfo_agencia', 'Eres el CFO de DESEO DIGITAL.', 'Analiza el flujo de caja. Anticipos recaudados: {{montoPagado}}. Presupuesto total: {{presupuesto}}.')
-ON CONFLICT (id) DO NOTHING;
+SELECT 'prompt_001', 'director_estrategico', 'Eres el Director Estratégico Senior de DESEO DIGITAL.', 'Redacta una propuesta persuasiva para {{clienteNombre}}. Servicios: {{servicios}}. Enfócate en el ROI y el anticipo del 50%.'
+WHERE NOT EXISTS (SELECT 1 FROM prompts_ai WHERE id = 'prompt_001');
+
+INSERT INTO prompts_ai (id, slug, system_prompt, user_prompt_template)
+SELECT 'prompt_002', 'cfo_agencia', 'Eres el CFO de DESEO DIGITAL.', 'Analiza el flujo de caja. Anticipos recaudados: {{montoPagado}}. Presupuesto total: {{presupuesto}}.'
+WHERE NOT EXISTS (SELECT 1 FROM prompts_ai WHERE id = 'prompt_002');
 
 INSERT INTO conocimiento_agencia (titulo, contenido, categoria)
 SELECT 'Onboarding cliente', 'Pasos: contrato, acceso a Drive, calendar, chat IA.', 'operaciones'
@@ -72,7 +75,7 @@ INSERT INTO proyectos (id, nombre, descripcion, cliente_id, cliente_nombre, serv
 SELECT 'PROJ-001', 'Agencia Deseo Digital', 'Proyecto interno CRM', id, 'DESEO DIGITAL', ARRAY['Diseño Web Profesional'], 'en_progreso', 'alta', '2026-06-01', '2026-12-31', 30, 15000000, 4500000, 'parcial', 'operacion'
 FROM clientes
 WHERE email = 'juanjosealvarez@gmail.com'
-ON CONFLICT (id) DO NOTHING;
+  AND NOT EXISTS (SELECT 1 FROM proyectos WHERE id = 'PROJ-001');
 
 INSERT INTO tareas (titulo, descripcion, fecha, prioridad, estado, tipo, proyecto_id, cliente_id, responsable_id)
 SELECT 'Definir alcance CRM', 'Reunir requisitos y cierre de propuesta', CURRENT_DATE + 2, 'Alta', 'Pendiente', 'Tarea', 'PROJ-001', c.id, e.id
