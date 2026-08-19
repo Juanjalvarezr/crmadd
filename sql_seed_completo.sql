@@ -4,7 +4,6 @@
 
 -- 1) Unicidades y limpieza mínima
 CREATE UNIQUE INDEX IF NOT EXISTS idx_equipo_email_unique ON equipo(email);
-CREATE UNIQUE INDEX IF NOT EXISTS idx_facturas_numero_unique ON facturas(numero_factura);
 
 -- Limpiar duplicados en equipo, dejar solo 3 válidos
 DELETE FROM equipo
@@ -90,15 +89,14 @@ FROM clientes c
 WHERE c.email = 'juanjosealvarez@gmail.com';
 
 -- 7) Factura + Pagos + Contrato + Transacciones
-INSERT INTO facturas (numero_factura, proyecto_id, cliente_id, estado, total, subtotal, iva, descuento, metodo_pago, fecha_emision, fecha_vencimiento)
-SELECT 'FAC-001', 'PROJ-001', c.id, 'Enviada', 15000000, 12500000, 2500000, 0, 'transferencia', CURRENT_DATE - 10, CURRENT_DATE + 20
+INSERT INTO facturas (proyecto_id, cliente_id, estado, total, subtotal, iva, descuento, metodo_pago, fecha_emision, fecha_vencimiento)
+SELECT 'PROJ-001', c.id, 'Enviada', 15000000, 12500000, 2500000, 0, 'transferencia', CURRENT_DATE - 10, CURRENT_DATE + 20
 FROM clientes c
-WHERE c.email = 'juanjosealvarez@gmail.com'
-ON CONFLICT (numero_factura) DO NOTHING;
+WHERE c.email = 'juanjosealvarez@gmail.com';
 
 INSERT INTO pagos (factura_id, monto, metodo_pago, referencia, fecha_pago)
 SELECT 1, 4500000, 'transferencia', 'REF-001', CURRENT_DATE - 8
-WHERE EXISTS (SELECT 1 FROM facturas WHERE numero_factura = 'FAC-001');
+WHERE EXISTS (SELECT 1 FROM facturas WHERE id = 1);
 
 INSERT INTO contratos (proyecto_id, cliente_id, estado, valor, fecha_inicio, fecha_fin)
 SELECT 'PROJ-001', c.id, 'Activo', 15000000, CURRENT_DATE - 10, CURRENT_DATE + 120
