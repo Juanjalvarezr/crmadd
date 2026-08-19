@@ -216,7 +216,8 @@ export default function Calendario() {
           events={events}
           startAccessor="start"
           endAccessor="end"
-          style={{ height: '100%', minHeight: '100%' }}
+          style={{ height: '100%' }}
+          height={typeof window !== 'undefined' ? window.innerHeight - 180 : 700}
           culture="es"
           onSelectEvent={handleSelectEvent}
           eventPropGetter={eventStyleGetter}
