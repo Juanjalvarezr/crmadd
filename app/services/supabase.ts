@@ -1235,3 +1235,46 @@ export const sopsService = {
     return data as SopItem;
   },
 };
+
+// --- Servicio de Eventos de Calendario ---
+export const calendarEventsService = {
+  async getAll() {
+    const { data, error } = await supabase
+      .from('calendar_events')
+      .select('*')
+      .order('start', { ascending: true });
+    if (error) throw error;
+    return (data || []).map((e: any) => ({
+      ...e,
+      start: new Date(e.start),
+      end: e.end ? new Date(e.end) : new Date(e.start),
+    }));
+  },
+  async create(event: any) {
+    const { data, error } = await supabase
+      .from('calendar_events')
+      .insert([event])
+      .select()
+      .single();
+    if (error) throw error;
+    return { ...data, start: new Date(data.start), end: data.end ? new Date(data.end) : new Date(data.start) };
+  },
+  async update(id: string | number, updates: any) {
+    const { data, error } = await supabase
+      .from('calendar_events')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+    return { ...data, start: new Date(data.start), end: data.end ? new Date(data.end) : new Date(data.start) };
+  },
+  async delete(id: string | number) {
+    const { error } = await supabase
+      .from('calendar_events')
+      .delete()
+      .eq('id', id);
+    if (error) throw error;
+    return true;
+  },
+};
