@@ -92,9 +92,28 @@ export default function Facturacion() {
       if (cliente_id) payload.cliente_id = Number(cliente_id);
       if (proyecto_id) payload.proyecto_id = proyecto_id;
       if (fecha_vencimiento) payload.fecha_vencimiento = fecha_vencimiento;
-      if (editing) { await facturasService.update(editing.id, payload); showNotification("Factura actualizada", "success"); }
-      else { await facturasService.create(payload); showNotification("Factura creada", "success"); }
-      setOpenModal(false); await load();
+
+      if (editing) {
+        const allowed = ["Borrador", "Enviada", "Pagada", "Vencida", "Anulada"];
+        const nextEstado = payload.estado || editing.estado;
+        if (!allowed.includes(nextEstado)) {
+          showNotification("Estado no válido", "warning");
+          setSaving(false);
+          return;
+        }
+        await facturasService.update(editing.id, payload);
+        showNotification("Factura actualizada", "success");
+      } else {
+        if (!payload.numero_factura || !String(payload.numero_factura).includes('-')) {
+          showNotification("Usá formato 001-001-101 para numeración", "warning");
+          setSaving(false);
+          return;
+        }
+        await facturasService.create(payload);
+        showNotification("Factura creada", "success");
+      }
+      setOpenModal(false);
+      await load();
     } catch (err: any) { showNotification(err.message || "Error guardando factura", "error"); }
     finally { setSaving(false); }
   };
