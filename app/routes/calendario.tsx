@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Box, Typography, Paper, Button, CircularProgress,
-  Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputLabel, Select, MenuItem, Chip, TextField
+  Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputLabel, Select, MenuItem, Chip, TextField, ToggleButtonGroup, ToggleButton
 } from "@mui/material";
 import { FiCalendar, FiCreditCard, FiPlus, FiTrash2, FiEdit2 } from "react-icons/fi";
 import { Calendar, dateFnsLocalizer, Views } from "react-big-calendar";
@@ -12,9 +12,7 @@ import { useNotificationStore } from "../store/useNotificationStore";
 import { useCRMStore } from "../store/useCRMStore";
 import { facturasService, pagosService, calendarEventsService } from "../services/supabase";
 
-const locales = {
-  "es": es,
-};
+const locales = { es };
 
 const localizer = dateFnsLocalizer({
   format,
@@ -37,7 +35,7 @@ interface CalEvent {
   start: Date;
   end: Date;
   allDay?: boolean;
-  type: 'tarea' | 'venta';
+  type: "tarea" | "venta" | "factura";
   color: string;
   desc?: string;
   facturaId?: number;
@@ -51,8 +49,9 @@ export default function Calendario() {
   const [events, setEvents] = useState<CalEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState<string>("");
-  
-  // Estados para el Modal de Detalles
+  const [view, setView] = useState<string>(Views.MONTH);
+  const [date, setDate] = useState<Date>(new Date());
+
   const [selectedEvent, setSelectedEvent] = useState<CalEvent | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [eventModalOpen, setEventModalOpen] = useState(false);
@@ -60,66 +59,88 @@ export default function Calendario() {
   const [eventForm, setEventForm] = useState({ title: "", start: "", end: "", allDay: true, type: "tarea" as CalEvent["type"], color: "#2196f3", desc: "" });
 
   const { showNotification } = useNotificationStore();
+
   useEffect(() => {
     loadEvents();
   }, []);
+
+  const mapTareas = useMemo(() => {
+    const list: CalEvent[] = [];
+    (tareas || []).forEach((t: any) => {
+      if (!t.fecha) return;
+      const d = new Date(t.fecha);
+      const cliente = t.cliente_id ? (clientes || []).find((c: any) => String(c.id) === String(t.cliente_id)) : null;
+      const info = cliente ? ` (${cliente.nombre}${cliente.nicho ? ` - ${cliente.nicho}` : ""})` : "";
+      list.push({
+        id: `tarea-${t.id}`,
+        title: `[Tarea] ${t.titulo}${info}`,
+        start: d,
+        end: d,
+        allDay: true,
+        type: "tarea",
+        color: t.estado === "Completada" ? "#4caf50" : "#2196f3",
+        desc: t.descripcion,
+      });
+    });
+    return list;
+  }, [tareas, clientes]);
+
+  const mapVentas = useMemo(() => {
+    const list: CalEvent[] = [];
+    (oportunidades || []).forEach((v: any) => {
+      const d = new Date(v.created_at);
+      d.setDate(d.getDate() + 15);
+      list.push({
+        id: `venta-${v.id}`,
+        title: `[Cierre] ${v.nombre}`,
+        start: d,
+        end: d,
+        allDay: true,
+        type: "venta",
+        color: "#e91e63",
+        desc: `Oportunidad: ${v.cliente_nombre} - ${new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP" }).format(v.valor)}`,
+      });
+    });
+    return list;
+  }, [oportunidades]);
+
+  const mapFacturasVencimientos = useMemo(() => {
+    const list: CalEvent[] = [];
+    (events || []).forEach((ev) => {
+      if (String(ev.id).startsWith("factura-vencimiento-")) list.push(ev);
+    });
+    return list;
+  }, [events]);
+
+  const derivedEvents = useMemo(() => {
+    const base = events.filter((e) => !String(e.id).startsWith("factura-vencimiento-"));
+    return [...base, ...mapTareas, ...mapVentas, ...mapFacturasVencimientos];
+  }, [events, mapTareas, mapVentas, mapFacturasVencimientos]);
+
+  const filteredEvents = useMemo(() => {
+    const set = new Set(derivedEvents.map((e) => e.id));
+    const merged = derivedEvents.filter((e, idx) => set.has(e.id) && derivedEvents.indexOf(e) === idx);
+    if (!filterType) return merged;
+    return merged.filter((e) => e.type === filterType);
+  }, [derivedEvents, filterType]);
 
   const loadEvents = async () => {
     try {
       setLoading(true);
       await fetchDashboardData();
-      const persisted = await calendarEventsService.getAll();
+      const persisted = (await calendarEventsService.getAll()) || [];
       const mapped = persisted.map((e: any): CalEvent => ({
         id: String(e.id),
         title: e.title,
         start: new Date(e.start),
         end: e.end ? new Date(e.end) : new Date(e.start),
         allDay: e.all_day || false,
-        type: e.type || 'tarea',
-        color: e.color || '#2196f3',
-        desc: e.desc || '',
+        type: e.type || "tarea",
+        color: e.color || "#2196f3",
+        desc: e.desc || "",
         facturaId: e.factura_id || undefined,
       }));
-      const tareasLocal = tareas || [];
-      const ventas = oportunidades || [];
-      const clientesLocal = clientes || [];
-      const calendarEvents: CalEvent[] = [];
-      tareasLocal.forEach((t: any) => {
-        if (t.fecha) {
-          const date = new Date(t.fecha);
-          const cliente = t.cliente_id ? clientesLocal.find((c: any) => String(c.id) === String(t.cliente_id)) : null;
-          const clienteInfo = cliente ? ` (${cliente.nombre}${cliente.nicho ? ` - ${cliente.nicho}` : ''})` : '';
-          calendarEvents.push({
-            id: `tarea-${t.id}`,
-            title: `[Tarea] ${t.titulo}${clienteInfo}`,
-            start: date,
-            end: date,
-            allDay: true,
-            type: 'tarea',
-            color: t.estado === 'Completada' ? '#4caf50' : '#2196f3',
-            desc: t.descripcion
-          });
-        }
-      });
-      ventas.forEach((v: any) => {
-        const date = new Date(v.created_at);
-        date.setDate(date.getDate() + 15);
-        calendarEvents.push({
-          id: `venta-${v.id}`,
-          title: `[Cierre] ${v.nombre}`,
-          start: date,
-          end: date,
-          allDay: true,
-          type: 'venta',
-          color: '#e91e63',
-          desc: `Oportunidad: ${v.cliente_nombre} - ${new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP" }).format(v.valor)}`
-        } as CalEvent);
-      });
-      const merged = [...mapped];
-      calendarEvents.forEach((evt) => {
-        if (!merged.some((m) => m.id === evt.id)) merged.push(evt);
-      });
-      setEvents(merged);
+      setEvents(mapped);
     } catch (error) {
       showNotification("Error al cargar eventos del calendario.", "error");
     } finally {
@@ -127,62 +148,13 @@ export default function Calendario() {
     }
   };
 
-  useEffect(() => {
-    const tareasLocal = tareas || [];
-    const ventas = oportunidades || [];
-    const clientesLocal = clientes || [];
-
-    const calendarEvents: CalEvent[] = [];
-
-    // Mapear Tareas al calendario
-    tareasLocal.forEach((t: any) => {
-      if (t.fecha) {
-        const date = new Date(t.fecha);
-        const cliente = t.cliente_id ? clientesLocal.find((c: any) => String(c.id) === String(t.cliente_id)) : null;
-        const clienteInfo = cliente ? ` (${cliente.nombre}${cliente.nicho ? ` - ${cliente.nicho}` : ''})` : '';
-
-        calendarEvents.push({
-          id: `tarea-${t.id}`,
-          title: `[Tarea] ${t.titulo}${clienteInfo}`,
-          start: date,
-          end: date,
-          allDay: true,
-          type: 'tarea',
-          color: t.estado === 'Completada' ? '#4caf50' : '#2196f3',
-          desc: t.descripcion
-        });
-      }
-    });
-
-    // Mapear Oportunidades (Cierres proyectados)
-    ventas.forEach((v: any) => {
-      const date = new Date(v.created_at);
-      date.setDate(date.getDate() + 15);
-      
-      calendarEvents.push({
-        id: `venta-${v.id}`,
-        title: `[Cierre] ${v.nombre}`,
-        start: date,
-        end: date,
-        allDay: true,
-        type: 'venta',
-        color: '#e91e63',
-        desc: `Oportunidad: ${v.cliente_nombre} - ${new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP" }).format(v.valor)}`
-      });
-    });
-
-    setEvents(calendarEvents);
-  }, [tareas.length, oportunidades.length, clientes.length]);
-
-  // Sincronizar vencimientos de facturas al calendario
+  // Sincronizar vencimientos de facturas sin sobrescribir eventos manuales
   useEffect(() => {
     let cancelled = false;
     const syncFacturas = async () => {
       try {
-        const data = await facturasService.getAll();
-        if (cancelled) return;
-        const facturasList = data || [];
-        const vencimientos = facturasList
+        const data = (await facturasService.getAll()) || [];
+        const vencimientos = data
           .filter((f: any) => f.fecha_vencimiento)
           .map((f: any) => {
             const date = new Date(f.fecha_vencimiento);
@@ -192,15 +164,16 @@ export default function Calendario() {
               start: date,
               end: date,
               allDay: true,
-              type: 'tarea',
-              color: f.estado === "Pagada" ? '#4caf50' : f.estado === "Vencida" ? '#f44336' : '#ff9800',
+              type: "tarea",
+              color: f.estado === "Pagada" ? "#4caf50" : f.estado === "Vencida" ? "#f44336" : "#ff9800",
               facturaId: f.id,
-              desc: `Cliente: ${f.cliente?.nombre || `Cliente #${f.cliente_id}`} - Total: $${Number(f.total || 0).toFixed(0)} - Estado: ${f.estado || "Sin estado"}`
-            } as any;
+              desc: `Cliente: ${f.cliente?.nombre || `Cliente #${f.cliente_id}`} - Total: $${Number(f.total || 0).toFixed(0)} - Estado: ${f.estado || "Sin estado"}`,
+            } as CalEvent;
           });
-        setEvents(prev => {
-          const filtered = prev.filter(e => !String(e.id).startsWith("factura-vencimiento-"));
-          return [...filtered, ...vencimientos];
+        if (cancelled) return;
+        setEvents((prev) => {
+          const manual = prev.filter((e) => !String(e.id).startsWith("factura-vencimiento-"));
+          return [...manual, ...vencimientos];
         });
       } catch {}
     };
@@ -274,8 +247,6 @@ export default function Calendario() {
     }
   };
 
-  const filteredEvents = filterType ? events.filter(e => e.type === filterType) : events;
-
   const handleQuickPay = async () => {
     if (!selectedEvent?.facturaId) return;
     try {
@@ -339,6 +310,16 @@ export default function Calendario() {
           <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1976d2", fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>Calendario</Typography>
         </Box>
         <Box sx={{ display: "flex", gap: 1, alignItems: "center", flexWrap: "wrap" }}>
+          <ToggleButtonGroup
+            size="small"
+            exclusive
+            value={view}
+            onChange={(_, next) => next && setView(next)}
+          >
+            <ToggleButton value={Views.MONTH}>Mes</ToggleButton>
+            <ToggleButton value={Views.WEEK}>Semana</ToggleButton>
+            <ToggleButton value={Views.DAY}>Día</ToggleButton>
+          </ToggleButtonGroup>
           <FormControl size="small" sx={{ minWidth: { xs: 100, sm: 130 } }}>
             <InputLabel>Filtrar</InputLabel>
             <Select value={filterType} label="Filtrar" onChange={(e) => setFilterType(e.target.value)}>
@@ -352,19 +333,25 @@ export default function Calendario() {
         </Box>
       </Box>
 
-      <Paper sx={{ p: { xs: 0.75, sm: 1 }, height: '100%', minHeight: { xs: 320, sm: 420 }, borderRadius: 1.5, overflow: 'hidden', border: '1px solid', borderColor: 'divider' }}>
+      <Paper sx={{ p: { xs: 0.75, sm: 1 }, height: '100%', minHeight: { xs: 320, sm: 420 }, borderRadius: 1.5, overflow: 'hidden', border: '1px solid', borderColor: 'divider', display: 'flex', flexDirection: 'column' }}>
         <Calendar
           localizer={localizer}
           events={filteredEvents}
           startAccessor="start"
           endAccessor="end"
           style={{ height: '100%' }}
-          height={typeof window !== 'undefined' ? window.innerHeight - 220 : 700}
+          height={typeof window !== 'undefined' ? window.innerHeight - 260 : 700}
           culture="es"
+          view={view}
+          onView={setView}
+          date={date}
+          onNavigate={setDate}
           onSelectEvent={handleSelectEvent}
           eventPropGetter={eventStyleGetter}
-          views={['month', 'week', 'day']}
-          defaultView={Views.MONTH}
+          views={[Views.MONTH, Views.WEEK, Views.DAY]}
+          components={{
+            toolbar: () => null
+          }}
           messages={{
             next: "Siguiente",
             previous: "Anterior",
