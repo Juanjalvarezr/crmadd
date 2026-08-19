@@ -10,6 +10,7 @@ import {
 } from "react-icons/fi";
 import { format, startOfMonth, endOfMonth, startOfYear, endOfYear } from "date-fns";
 import { tareasService, clientesService, oportunidadesService } from "../services/supabase";
+import { useNotificationStore } from "../store/useNotificationStore";
 
 // Tipos para reportes
 interface Metrica {
@@ -48,6 +49,7 @@ export default function Reportes() {
   // Estados de datos
   const [metricas, setMetricas] = useState<Metrica[]>([]);
   const [reporteData, setReporteData] = useState<ReporteData[]>([]);
+  const { showNotification } = useNotificationStore();
 
   const handleCloseSnackbar = () => setSnackbar({ ...snackbar, open: false });
 
@@ -202,18 +204,38 @@ export default function Reportes() {
   };
 
   const handleExportReport = (formato: "pdf" | "excel" | "csv") => {
-    setSnackbar({ 
-      open: true, 
-      message: `Exportando reporte en formato ${formato.toUpperCase()}...`, 
-      severity: "success" 
+    if (formato === "csv") {
+      try {
+        const headers = ["Periodo", "Ingresos", "Nuevos Clientes", "Proyectos Completados", "Tasa Conversion"];
+        const rows = reporteData.map((d) => [d.periodo, d.ingresos, d.nuevosClientes, d.proyectosCompletados, `${d.tasaConversion}%`]);
+        const csvContent = [headers, ...rows].map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `reporte_${periodo}_${fechaInicio}_a_${fechaFin}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        showNotification("Reporte CSV descargado", "success");
+      } catch (err: any) {
+        showNotification(err.message || "Error exportando CSV", "error");
+      }
+      return;
+    }
+
+    setSnackbar({
+      open: true,
+      message: `Exportando reporte en formato ${formato.toUpperCase()}...`,
+      severity: "success"
     });
-    
-    // Simulación de exportación
+
     setTimeout(() => {
-      setSnackbar({ 
-        open: true, 
-        message: `Reporte exportado correctamente en ${formato.toUpperCase()}`, 
-        severity: "success" 
+      setSnackbar({
+        open: true,
+        message: `Reporte exportado correctamente en ${formato.toUpperCase()}`,
+        severity: "success"
       });
     }, 2000);
   };
