@@ -32,6 +32,7 @@ export default function Facturacion() {
   const [pagoForm, setPagoForm] = useState({ monto: "", metodo_pago: "transferencia", referencia: "", comprobante_url: "" });
   const [plantilla, setPlantilla] = useState<any>(null);
   const [documentoGenerado, setDocumentoGenerado] = useState<string | null>(null);
+  const [documentoUrl, setDocumentoUrl] = useState<string | null>(null);
   const [uploadingPayment, setUploadingPayment] = useState(false);
   const [paymentFile, setPaymentFile] = useState<File | null>(null);
   const { showNotification } = useNotificationStore();
@@ -133,22 +134,32 @@ export default function Facturacion() {
     return c ? (c.nombre || c.email || `Cliente #${clienteId}`) : `Cliente #${clienteId}`;
   };
 
+  const resolveCliente = (row: any) => {
+    const clienteId = row.cliente_id;
+    if (!clienteId) return null;
+    const fromJoin = row.cliente && (row.cliente.nombre || row.cliente.email || row.cliente.telefono) ? row.cliente : null;
+    const fromStore = clientes.find((x: any) => Number(x.id) === Number(clienteId)) || null;
+    const base = fromJoin || fromStore || {};
+    return { ...base, id: clienteId, nombre: base.nombre || getClienteNombre(clienteId) };
+  };
+
   const sendWhatsApp = async (row: any) => {
-    const cliente = getClienteNombre(row.cliente_id);
-    const telefono = row.cliente?.telefono || "";
+    const cliente = resolveCliente(row);
+    const telefono = cliente?.telefono || "";
     if (!telefono) { showNotification("El cliente no tiene teléfono cargado", "warning"); return; }
-    const texto = encodeURIComponent(`Hola ${cliente}, te compartimos tu factura #${row.numero_factura || row.id} por $${Number(row.total || 0).toFixed(0)}. Estado: ${row.estado || "Borrador"}. Fecha vencimiento: ${row.fecha_vencimiento || "Sin definir"}. Ante cualquier duda respondé este mensaje.`);
+    const link = documentoUrl ? `\nDocumento: ${documentoUrl}` : "";
+    const texto = encodeURIComponent(`Hola ${cliente.nombre || "cliente"}, te compartimos tu factura #${row.numero_factura || row.id} por $${Number(row.total || 0).toFixed(0)}. Estado: ${row.estado || "Borrador"}. Fecha vencimiento: ${row.fecha_vencimiento || "Sin definir"}.${link} Ante cualquier duda respondé este mensaje.`);
     if (typeof window !== "undefined") window.open(`https://wa.me/${telefono}?text=${texto}`, "_blank");
     showNotification("Abriendo WhatsApp...", "info");
   };
 
   const sendEmail = async (row: any) => {
     try {
-      const cliente = getClienteNombre(row.cliente_id);
-      const to = row.cliente?.email || "";
+      const cliente = resolveCliente(row);
+      const to = cliente?.email || "";
       if (!to) { showNotification("El cliente no tiene email cargado", "warning"); return; }
       const subject = `Factura #${row.numero_factura || row.id} - DESEO DIGITAL`;
-      const html = `<p>Hola ${cliente},</p><p>Adjuntamos tu factura <strong>#${row.numero_factura || row.id}</strong> por <strong>$${Number(row.total || 0).toFixed(0)}</strong>.</p><p>Estado: ${row.estado || "Borrador"}<br>Vencimiento: ${row.fecha_vencimiento || "Sin definir"}</p><p>Saludos,<br>DESEO DIGITAL</p>`;
+      const html = `<p>Hola ${cliente.nombre || "cliente"},</p><p>Adjuntamos tu factura <strong>#${row.numero_factura || row.id}</strong> por <strong>$${Number(row.total || 0).toFixed(0)}</strong>.</p><p>Estado: ${row.estado || "Borrador"}<br>Vencimiento: ${row.fecha_vencimiento || "Sin definir"}</p><p>Saludos,<br>DESEO DIGITAL</p>`;
       const res = await emailService.sendRealEmail([to], subject, html);
       showNotification(res?.message || "Factura enviada por email", "success");
     } catch (err: any) { showNotification(err.message || "Error enviando factura por email", "error"); }
@@ -174,11 +185,26 @@ export default function Facturacion() {
           html = html.split(`{{${section}.${key}}`).join(String(value ?? ""));
         });
       });
-      setDocumentoGenerado(html);
+
+      const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"/><title>Factura #${row.numero_factura || row.id}</title><style>body{font-family:Arial,sans-serif;padding:24px;color:#222} .muted{color:#666} .right{text-align:right} table{width:100%;border-collapse:collapse;margin-top:12px} th,td{border:1px solid #ddd;padding:8px;text-align:left} th{background:#f7f7f7}</style></head><body>${html}</body></html>`;
+      const fileName = `factura-${row.numero_factura || row.id}-${Date.now()}.html`;
+      const file = new Blob([fullHtml], { type: "text/html" });
+      const url = await storageHelper.upload("crm-documents", `facturas/${fileName}`, file as any);
+
       try {
-        const doc = await documentosService.create({ titulo: `Factura #${row.numero_factura || row.id}`, tipo: "factura", url: "", descripcion: `Generada automáticamente. Total: $${total}`, proyecto_id: row.proyecto_id || null, cliente_id: row.cliente_id || null });
-        showNotification(`Documento vinculado #${doc.id}`, "success");
+        await documentosService.create({ titulo: `Factura #${row.numero_factura || row.id}`, tipo: "factura", url, descripcion: `Generada automáticamente. Total: $${total}`, proyecto_id: row.proyecto_id || null, cliente_id: row.cliente_id || null, factura_id: row.id || null });
       } catch {}
+
+      setDocumentoGenerado(fullHtml);
+      setDocumentoUrl(url);
+      showNotification("Factura generada", "success");
+      if (typeof window !== "undefined") {
+        const win = window.open();
+        if (win) {
+          win.document.write(fullHtml);
+          win.document.close();
+        }
+      }
     } catch (err: any) { showNotification(err.message || "Error generando documento", "error"); }
   };
 
