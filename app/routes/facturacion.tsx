@@ -4,7 +4,7 @@ import {
   Paper, Button, IconButton, Dialog, DialogTitle, DialogContent, DialogActions,
   TextField, FormControl, InputLabel, Select, MenuItem, Divider
 } from "@mui/material";
-import { FiRefreshCw, FiPlus, FiFileText, FiX, FiUpload } from "react-icons/fi";
+import { FiRefreshCw, FiPlus, FiFileText, FiX, FiUpload, FiEye, FiEdit, FiTrash2, FiMessageSquare, FiMail } from "react-icons/fi";
 import { facturasService, emailService, plantillasDocumentosService, pagosService, documentosService } from "../services/supabase";
 import { storageHelper } from "../services/supabase";
 import { useCRMStore } from "../store/useCRMStore";
@@ -255,24 +255,38 @@ export default function Facturacion() {
         </Paper>
       ) : (
         <Box sx={{ display: "flex", flexDirection: "column", gap: { xs: 0.5, sm: 1 } }}>
-          {facturas.slice(0, 20).map((f: any) => (
-            <Paper key={f.id} sx={{ p: { xs: 1, sm: 1.5 }, borderRadius: 2, display: "flex", alignItems: "center", gap: { xs: 0.5, sm: 1 }, flexWrap: "wrap" }}>
+          {facturas.slice(0, 20).map((f: any) => {
+            const estado = f.estado || "Borrador";
+            const estadoColor = estado === "Pagada" ? "success" : estado === "Vencida" ? "error" : estado === "Enviada" ? "info" : estado === "Borrador" ? "default" : "warning";
+            return (
+            <Paper key={f.id} sx={{ 
+              p: { xs: 1, sm: 1.25 }, 
+              borderRadius: 1.75, 
+              display: "flex", 
+              alignItems: "center", 
+              gap: { xs: 0.75, sm: 1 }, 
+              flexWrap: "wrap",
+              border: '1px solid',
+              borderColor: 'divider',
+              bgcolor: 'background.paper'
+            }}>
               <Box sx={{ flex: 1, minWidth: 0 }}>
-                <Typography variant="caption" sx={{ fontWeight: "bold", fontSize: { xs: '0.85rem', sm: '0.9rem' } }}>Factura #{f.id}</Typography>
-                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontSize: { xs: '0.75rem', sm: '0.8rem' } }}>{f.numero_factura || ""}</Typography>
+                <Typography variant="caption" sx={{ fontWeight: "bold", fontSize: { xs: '0.8rem', sm: '0.85rem' } }}>{f.numero_factura || `#${f.id}`}</Typography>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontSize: { xs: '0.7rem', sm: '0.75rem' } }}>{getClienteNombre(f.cliente_id)}</Typography>
               </Box>
-              <Chip size="small" label={f.estado || "Borrador"} sx={{ height: { xs: 20, sm: 24 }, fontSize: { xs: '0.7rem', sm: '0.75rem' } }} />
-              <Typography variant="caption" sx={{ fontWeight: "bold", fontSize: { xs: '0.85rem', sm: '0.9rem' } }}>${Number(f.total || 0).toFixed(0)}</Typography>
+              <Chip size="small" label={estado} color={estadoColor as any} sx={{ height: { xs: 22, sm: 26 }, fontSize: { xs: '0.65rem', sm: '0.7rem' } }} />
+              <Typography variant="caption" sx={{ fontWeight: "bold", fontSize: { xs: '0.8rem', sm: '0.85rem' } }}>${Number(f.total || 0).toFixed(0)}</Typography>
               <Box sx={{ display: "flex", gap: { xs: 0.25, sm: 0.5 }, flexWrap: "wrap" }}>
-                <Button size="small" variant="text" onClick={() => openDetail(f)} sx={{ minHeight: { xs: 28, sm: 32 } }}>Ver</Button>
-                <Button size="small" variant="text" onClick={() => openEdit(f)} sx={{ minHeight: { xs: 28, sm: 32 } }}>Editar</Button>
-                <Button size="small" variant="text" onClick={() => generarDocumento(f)} sx={{ minHeight: { xs: 28, sm: 32 } }}>Generar</Button>
-                <Button size="small" color="error" variant="text" onClick={() => handleDelete(f)} sx={{ minHeight: { xs: 28, sm: 32 } }}>Eliminar</Button>
-                <Button size="small" variant="text" onClick={() => sendWhatsApp(f)} sx={{ minHeight: { xs: 28, sm: 32 } }}>WhatsApp</Button>
-                <Button size="small" variant="text" onClick={() => sendEmail(f)} sx={{ minHeight: { xs: 28, sm: 32 } }}>Email</Button>
+                <IconButton size="small" onClick={() => openDetail(f)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiEye size={16}/></IconButton>
+                <IconButton size="small" onClick={() => openEdit(f)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiEdit size={16}/></IconButton>
+                <IconButton size="small" onClick={() => generarDocumento(f)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiFileText size={16}/></IconButton>
+                <IconButton size="small" color="error" onClick={() => handleDelete(f)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiTrash2 size={16}/></IconButton>
+                <IconButton size="small" color="success" onClick={() => sendWhatsApp(f)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiMessageSquare size={16}/></IconButton>
+                <IconButton size="small" color="primary" onClick={() => sendEmail(f)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiMail size={16}/></IconButton>
               </Box>
             </Paper>
-          ))}
+            );
+          })}
         </Box>
       )}
 

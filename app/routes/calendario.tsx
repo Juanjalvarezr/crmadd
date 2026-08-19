@@ -293,7 +293,8 @@ export default function Calendario() {
   return (
     <Box sx={{ 
       p: { xs: 1, sm: 1.5, md: 2 }, 
-      height: { xs: 'calc(100vh - 120px)', sm: 'calc(100vh - 100px)', md: 'calc(100vh - 80px)' },
+      height: '100%',
+      minHeight: { xs: 580, sm: 640 },
       display: 'flex',
       flexDirection: 'column',
       gap: { xs: 1, sm: 1.5 }
@@ -333,35 +334,46 @@ export default function Calendario() {
         </Box>
       </Box>
 
-      <Paper sx={{ p: { xs: 0.75, sm: 1 }, height: '100%', minHeight: { xs: 320, sm: 420 }, borderRadius: 1.5, overflow: 'hidden', border: '1px solid', borderColor: 'divider', display: 'flex', flexDirection: 'column' }}>
-        <Calendar
-          localizer={localizer}
-          events={filteredEvents}
-          startAccessor="start"
-          endAccessor="end"
-          style={{ height: '100%' }}
-          height={typeof window !== 'undefined' ? window.innerHeight - 260 : 700}
-          culture="es"
-          view={view}
-          onView={setView}
-          date={date}
-          onNavigate={setDate}
-          onSelectEvent={handleSelectEvent}
-          eventPropGetter={eventStyleGetter}
-          views={[Views.MONTH, Views.WEEK, Views.DAY]}
-          components={{
-            toolbar: () => null
-          }}
-          messages={{
-            next: "Siguiente",
-            previous: "Anterior",
-            today: "Hoy",
-            month: "Mes",
-            week: "Semana",
-            day: "Día",
-            noEventsInRange: "No hay eventos en este rango."
-          }}
-        />
+      <Paper sx={{ 
+        p: { xs: 0.75, sm: 1 }, 
+        flex: 1, 
+        minHeight: { xs: 420, sm: 520 }, 
+        borderRadius: 1.5, 
+        overflow: 'hidden', 
+        border: '1px solid', 
+        borderColor: 'divider', 
+        display: 'flex', 
+        flexDirection: 'column' 
+      }}>
+        <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+          <Calendar
+            localizer={localizer}
+            events={filteredEvents}
+            startAccessor="start"
+            endAccessor="end"
+            style={{ height: '100%' }}
+            culture="es"
+            view={view}
+            onView={setView}
+            date={date}
+            onNavigate={setDate}
+            onSelectEvent={handleSelectEvent}
+            eventPropGetter={eventStyleGetter}
+            views={[Views.MONTH, Views.WEEK, Views.DAY]}
+            components={{
+              toolbar: () => null
+            }}
+            messages={{
+              next: "Siguiente",
+              previous: "Anterior",
+              today: "Hoy",
+              month: "Mes",
+              week: "Semana",
+              day: "Día",
+              noEventsInRange: "No hay eventos en este rango."
+            }}
+          />
+        </Box>
       </Paper>
 
       {/* Modal de Detalle de Evento */}
