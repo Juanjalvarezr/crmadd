@@ -10,7 +10,7 @@ import { es } from "date-fns/locale/es";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useNotificationStore } from "../store/useNotificationStore";
 import { useCRMStore } from "../store/useCRMStore";
-import { facturasService, pagosService } from "../services/supabase";
+import { facturasService, pagosService, calendarEventsService } from "../services/supabase";
 
 const locales = {
   "es": es,
@@ -68,8 +68,60 @@ export default function Calendario() {
     try {
       setLoading(true);
       await fetchDashboardData();
+      const persisted = await calendarEventsService.getAll();
+      const mapped = persisted.map((e: any): CalEvent => ({
+        id: String(e.id),
+        title: e.title,
+        start: new Date(e.start),
+        end: e.end ? new Date(e.end) : new Date(e.start),
+        allDay: e.all_day || false,
+        type: e.type || 'tarea',
+        color: e.color || '#2196f3',
+        desc: e.desc || '',
+        facturaId: e.factura_id || undefined,
+      }));
+      const tareasLocal = tareas || [];
+      const ventas = oportunidades || [];
+      const clientesLocal = clientes || [];
+      const calendarEvents: CalEvent[] = [];
+      tareasLocal.forEach((t: any) => {
+        if (t.fecha) {
+          const date = new Date(t.fecha);
+          const cliente = t.cliente_id ? clientesLocal.find((c: any) => String(c.id) === String(t.cliente_id)) : null;
+          const clienteInfo = cliente ? ` (${cliente.nombre}${cliente.nicho ? ` - ${cliente.nicho}` : ''})` : '';
+          calendarEvents.push({
+            id: `tarea-${t.id}`,
+            title: `[Tarea] ${t.titulo}${clienteInfo}`,
+            start: date,
+            end: date,
+            allDay: true,
+            type: 'tarea',
+            color: t.estado === 'Completada' ? '#4caf50' : '#2196f3',
+            desc: t.descripcion
+          });
+        }
+      });
+      ventas.forEach((v: any) => {
+        const date = new Date(v.created_at);
+        date.setDate(date.getDate() + 15);
+        calendarEvents.push({
+          id: `venta-${v.id}`,
+          title: `[Cierre] ${v.nombre}`,
+          start: date,
+          end: date,
+          allDay: true,
+          type: 'venta',
+          color: '#e91e63',
+          desc: `Oportunidad: ${v.cliente_nombre} - ${new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP" }).format(v.valor)}`
+        } as CalEvent);
+      });
+      const merged = [...mapped];
+      calendarEvents.forEach((evt) => {
+        if (!merged.some((m) => m.id === evt.id)) merged.push(evt);
+      });
+      setEvents(merged);
     } catch (error) {
-            showNotification("Error al cargar eventos del calendario.", "error");
+      showNotification("Error al cargar eventos del calendario.", "error");
     } finally {
       setLoading(false);
     }
@@ -184,19 +236,26 @@ export default function Calendario() {
       const end = eventForm.end ? new Date(eventForm.end) : start;
       const title = eventForm.type === "tarea" ? `[Tarea] ${eventForm.title}` : eventForm.type === "venta" ? `[Cierre] ${eventForm.title}` : eventForm.title;
       const color = eventForm.type === "tarea" ? "#2196f3" : eventForm.type === "venta" ? "#e91e63" : eventForm.color;
-      const newEvent: CalEvent = {
-        id: editingEvent ? editingEvent.id : `cal-${Date.now()}`,
+      const payload = {
         title,
-        start,
-        end,
-        allDay: eventForm.allDay,
+        start: start.toISOString(),
+        end: end.toISOString(),
+        all_day: eventForm.allDay,
         type: eventForm.type,
         color,
-        desc: eventForm.desc
+        desc: eventForm.desc,
+        factura_id: editingEvent?.facturaId || null,
       };
-      setEvents(prev => editingEvent ? prev.map(e => e.id === editingEvent.id ? newEvent : e) : [...prev, newEvent]);
+      if (editingEvent) {
+        const updated = await calendarEventsService.update(editingEvent.id, payload);
+        setEvents(prev => prev.map(e => e.id === editingEvent.id ? { ...e, ...(updated as any) } : e));
+        showNotification("Evento actualizado", "success");
+      } else {
+        const created = await calendarEventsService.create(payload);
+        setEvents(prev => [...prev, created as any]);
+        showNotification("Evento creado", "success");
+      }
       setEventModalOpen(false);
-      showNotification(editingEvent ? "Evento actualizado" : "Evento creado", "success");
     } catch (err: any) {
       showNotification(err.message || "Error guardando evento", "error");
     }
@@ -204,9 +263,15 @@ export default function Calendario() {
 
   const handleDeleteEvent = async (evt: CalEvent) => {
     if (!confirm(`¿Eliminar evento "${evt.title}"?`)) return;
-    setEvents(prev => prev.filter(e => e.id !== evt.id));
-    setIsModalOpen(false);
-    showNotification("Evento eliminado", "success");
+    try {
+      const id = typeof evt.id === 'string' && evt.id.startsWith('cal-') ? Number(evt.id.replace('cal-', '')) : evt.id;
+      await calendarEventsService.delete(id);
+      setEvents(prev => prev.filter(e => e.id !== evt.id));
+      setIsModalOpen(false);
+      showNotification("Evento eliminado", "success");
+    } catch (err: any) {
+      showNotification(err.message || "Error eliminando evento", "error");
+    }
   };
 
   const filteredEvents = filterType ? events.filter(e => e.type === filterType) : events;
