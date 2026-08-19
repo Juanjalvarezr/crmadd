@@ -5,6 +5,8 @@ import {
 } from '@mui/material';
 import { FiCamera, FiUpload, FiX, FiCheck } from 'react-icons/fi';
 import { scanCardFromImage, type ExtractedCard } from '../services/ocrService';
+import { clientesService, interaccionesService } from '../services/supabase';
+import { useNotificationStore } from '../store/useNotificationStore';
 
 interface Props {
   open: boolean;
@@ -13,6 +15,7 @@ interface Props {
 }
 
 export default function ScannerTarjetas({ open, onClose, onSave }: Props) {
+  const { showNotification } = useNotificationStore();
   const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<ExtractedCard | null>(null);
@@ -44,8 +47,33 @@ export default function ScannerTarjetas({ open, onClose, onSave }: Props) {
     if (file) process(file);
   };
 
-  const handleSave = () => {
-    if (data) onSave(data);
+  const handleSave = async () => {
+    if (!data) return;
+    try {
+      const cliente = await clientesService.create({
+        nombre: data.nombre || 'Sin nombre',
+        email: data.email || '',
+        telefono: data.telefono || '',
+        empresa: data.empresa || '',
+        estado: 'Activo',
+      });
+
+      if (cliente?.id) {
+        await interaccionesService.create({
+          cliente_id: cliente.id,
+          tipo: 'Nota',
+          asunto: 'OCR - Tarjeta escaneada',
+          contenido: `Datos extraídos: ${data.texto || ''}`,
+          usuario: 'Asistente IA',
+        });
+      }
+
+      showNotification('Cliente guardado desde OCR', 'success');
+      onSave(data);
+      handleClose();
+    } catch (e: any) {
+      showNotification(e?.message || 'Error guardando cliente OCR', 'error');
+    }
   };
 
   const handleClose = () => {
