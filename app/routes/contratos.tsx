@@ -4,8 +4,9 @@ import {
   Paper, Button, IconButton, Dialog, DialogTitle, DialogContent, DialogActions,
   TextField, FormControl, InputLabel, Select, MenuItem
 } from "@mui/material";
-import { FiRefreshCw, FiPlus, FiX } from "react-icons/fi";
+import { FiRefreshCw, FiPlus, FiX, FiUpload, FiFileText } from "react-icons/fi";
 import { contratosService } from "../services/supabase";
+import { storageHelper } from "../services/supabase";
 import { useCRMStore } from "../store/useCRMStore";
 import { useNotificationStore } from "../store/useNotificationStore";
 
@@ -20,8 +21,9 @@ export default function Contratos() { const loadContratos = () => { if (typeof w
   const [error, setError] = useState<string | null>(null);
   const [openModal, setOpenModal] = useState(false);
   const [editing, setEditing] = useState<any | null>(null);
-  const [form, setForm] = useState({ estado: "Activo", valor: "", proyecto_id: "", cliente_id: "", factura_id: "", fecha_inicio: "", fecha_fin: "" });
+  const [form, setForm] = useState({ estado: "Activo", valor: "", proyecto_id: "", cliente_id: "", factura_id: "", fecha_inicio: "", fecha_fin: "", url: "" });
   const [saving, setSaving] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
   const { showNotification } = useNotificationStore();
 
   const load = async () => {
@@ -34,20 +36,27 @@ export default function Contratos() { const loadContratos = () => { if (typeof w
 
   const openCreate = () => {
     setEditing(null);
-    setForm({ estado: "Activo", valor: "", proyecto_id: "", cliente_id: "", factura_id: "", fecha_inicio: "", fecha_fin: "" });
+    setForm({ estado: "Activo", valor: "", proyecto_id: "", cliente_id: "", factura_id: "", fecha_inicio: "", fecha_fin: "", url: "" });
+    setFile(null);
     setOpenModal(true);
   };
 
   const openEdit = (row: any) => {
     setEditing(row);
-    setForm({ estado: row.estado || "Activo", valor: String(row.valor ?? ""), proyecto_id: row.proyecto_id || "", cliente_id: row.cliente_id ? String(row.cliente_id) : "", factura_id: row.factura_id ? String(row.factura_id) : "", fecha_inicio: row.fecha_inicio || "", fecha_fin: row.fecha_fin || "" });
+    setForm({ estado: row.estado || "Activo", valor: String(row.valor ?? ""), proyecto_id: row.proyecto_id || "", cliente_id: row.cliente_id ? String(row.cliente_id) : "", factura_id: row.factura_id ? String(row.factura_id) : "", fecha_inicio: row.fecha_inicio || "", fecha_fin: row.fecha_fin || "", url: row.url || "" });
+    setFile(null);
     setOpenModal(true);
   };
 
   const handleSave = async () => {
     setSaving(true);
     try {
-      const payload = { ...form, valor: Number(form.valor || 0), cliente_id: form.cliente_id ? Number(form.cliente_id) : undefined, proyecto_id: form.proyecto_id || undefined, factura_id: form.factura_id ? Number(form.factura_id) : undefined, fecha_inicio: form.fecha_inicio || undefined, fecha_fin: form.fecha_fin || undefined };
+      let url = form.url;
+      if (file) {
+        const fileName = `contract-${Date.now()}.${file.name.split('.').pop()}`;
+        url = await storageHelper.upload('crm-documents', `contracts/${fileName}`, file);
+      }
+      const payload = { ...form, valor: Number(form.valor || 0), cliente_id: form.cliente_id ? Number(form.cliente_id) : undefined, proyecto_id: form.proyecto_id || undefined, factura_id: form.factura_id ? Number(form.factura_id) : undefined, fecha_inicio: form.fecha_inicio || undefined, fecha_fin: form.fecha_fin || undefined, url };
       if (editing) { await contratosService.update(editing.id, payload); showNotification("Contrato actualizado", "success"); }
       else { await contratosService.create(payload); showNotification("Contrato creado", "success"); }
       setOpenModal(false); await load();
@@ -92,6 +101,11 @@ export default function Contratos() { const loadContratos = () => { if (typeof w
               </Box>
               <Chip size="small" label={c.estado || "Activo"} sx={{ height: { xs: 22, sm: 24 } }} />
               <Typography variant="body2" sx={{ fontWeight: 700, fontSize: { xs: '0.8rem', sm: '0.85rem' } }}>${Number(c.valor || 0).toFixed(0)}</Typography>
+              {c.url && (
+                <Typography variant="caption" sx={{ display: 'block', width: '100%' }}>
+                  <a href={c.url} target="_blank" rel="noreferrer">Ver documento</a>
+                </Typography>
+              )}
               <Box sx={{ display: "flex", gap: { xs: 0.5, sm: 0.75 } }}>
                 <Button size="small" onClick={() => openEdit(c)} sx={{ fontSize: { xs: '0.75rem', sm: '0.8rem' } }}>Editar</Button>
                 <Button size="small" color="error" onClick={() => handleDelete(c)} sx={{ fontSize: { xs: '0.75rem', sm: '0.8rem' } }}>Eliminar</Button>
@@ -119,6 +133,16 @@ export default function Contratos() { const loadContratos = () => { if (typeof w
             <TextField label="Factura ID" fullWidth value={form.factura_id} onChange={(e) => setForm({ ...form, factura_id: e.target.value })} />
             <TextField label="Fecha inicio" type="date" fullWidth value={form.fecha_inicio} onChange={(e) => setForm({ ...form, fecha_inicio: e.target.value })} InputLabelProps={{ shrink: true }} />
             <TextField label="Fecha fin" type="date" fullWidth value={form.fecha_fin} onChange={(e) => setForm({ ...form, fecha_fin: e.target.value })} InputLabelProps={{ shrink: true }} />
+            <Button variant="outlined" size="small" component="label" startIcon={<FiUpload size={14} />}>
+              {file ? file.name : "Subir contrato"}
+              <input type="file" hidden onChange={(e) => setFile(e.target.files?.[0] || null)} />
+            </Button>
+            {form.url && (
+              <Typography variant="caption" sx={{ wordBreak: 'break-all' }}>
+                <FiFileText size={12} style={{ marginRight: 4 }} />
+                <a href={form.url} target="_blank" rel="noreferrer">Ver documento</a>
+              </Typography>
+            )}
           </Box>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
