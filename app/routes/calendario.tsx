@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import {
   Box, Typography, Paper, Button, IconButton, Tooltip, CircularProgress,
-  Dialog, DialogTitle, DialogContent, DialogActions
+  Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputLabel, Select, MenuItem, Chip, TextField
 } from "@mui/material";
-import { FiCalendar, FiInfo, FiCreditCard } from "react-icons/fi";
+import { FiCalendar, FiInfo, FiCreditCard, FiPlus, FiTrash2, FiEdit2 } from "react-icons/fi";
 import { Calendar, dateFnsLocalizer, Views } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay } from "date-fns";
 import { es } from "date-fns/locale/es";
@@ -50,10 +50,14 @@ export default function Calendario() {
   const fetchDashboardData = useCRMStore((s) => s.fetchDashboardData);
   const [events, setEvents] = useState<CalEvent[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filterType, setFilterType] = useState<string>("");
   
   // Estados para el Modal de Detalles
   const [selectedEvent, setSelectedEvent] = useState<CalEvent | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [eventModalOpen, setEventModalOpen] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<CalEvent | null>(null);
+  const [eventForm, setEventForm] = useState({ title: "", start: "", end: "", allDay: true, type: "tarea" as CalEvent["type"], color: "#2196f3", desc: "" });
 
   const { showNotification } = useNotificationStore();
   useEffect(() => {
@@ -157,6 +161,56 @@ export default function Calendario() {
     setIsModalOpen(true);
   };
 
+  const handleOpenCreateEvent = () => {
+    setEditingEvent(null);
+    setEventForm({ title: "", start: "", end: "", allDay: true, type: "tarea", color: "#2196f3", desc: "" });
+    setEventModalOpen(true);
+  };
+
+  const handleOpenEditEvent = (evt: CalEvent) => {
+    setEditingEvent(evt);
+    const toLocalDate = (d: Date) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    setEventForm({ title: evt.title, start: toLocalDate(new Date(evt.start)), end: toLocalDate(new Date(evt.end)), allDay: evt.allDay || false, type: evt.type, color: evt.color, desc: evt.desc || "" });
+    setEventModalOpen(true);
+  };
+
+  const handleSaveEvent = async () => {
+    try {
+      if (!eventForm.title || !eventForm.start) {
+        showNotification("Título y fecha requeridos", "warning");
+        return;
+      }
+      const start = new Date(eventForm.start);
+      const end = eventForm.end ? new Date(eventForm.end) : start;
+      const title = eventForm.type === "tarea" ? `[Tarea] ${eventForm.title}` : eventForm.type === "venta" ? `[Cierre] ${eventForm.title}` : eventForm.title;
+      const color = eventForm.type === "tarea" ? "#2196f3" : eventForm.type === "venta" ? "#e91e63" : eventForm.color;
+      const newEvent: CalEvent = {
+        id: editingEvent ? editingEvent.id : `cal-${Date.now()}`,
+        title,
+        start,
+        end,
+        allDay: eventForm.allDay,
+        type: eventForm.type,
+        color,
+        desc: eventForm.desc
+      };
+      setEvents(prev => editingEvent ? prev.map(e => e.id === editingEvent.id ? newEvent : e) : [...prev, newEvent]);
+      setEventModalOpen(false);
+      showNotification(editingEvent ? "Evento actualizado" : "Evento creado", "success");
+    } catch (err: any) {
+      showNotification(err.message || "Error guardando evento", "error");
+    }
+  };
+
+  const handleDeleteEvent = async (evt: CalEvent) => {
+    if (!confirm(`¿Eliminar evento "${evt.title}"?`)) return;
+    setEvents(prev => prev.filter(e => e.id !== evt.id));
+    setIsModalOpen(false);
+    showNotification("Evento eliminado", "success");
+  };
+
+  const filteredEvents = filterType ? events.filter(e => e.type === filterType) : events;
+
   const handleQuickPay = async () => {
     if (!selectedEvent?.facturaId) return;
     try {
@@ -208,16 +262,29 @@ export default function Calendario() {
         <Tooltip title="Sincroniza tus tareas y proyecciones de ventas en un solo lugar.">
           <IconButton color="primary" size="small"><FiInfo /></IconButton>
         </Tooltip>
+        <Button size="small" variant="contained" startIcon={<FiPlus size={14} />} onClick={handleOpenCreateEvent}>Nuevo</Button>
+      </Box>
+
+      <Box sx={{ display: "flex", gap: 1, mb: 1, flexWrap: "wrap", alignItems: "center" }}>
+        <FormControl size="small" sx={{ minWidth: 130 }}>
+          <InputLabel>Filtrar</InputLabel>
+          <Select value={filterType} label="Filtrar" onChange={(e) => setFilterType(e.target.value)}>
+            <MenuItem value="">Todos</MenuItem>
+            <MenuItem value="tarea">Tareas</MenuItem>
+            <MenuItem value="venta">Cierres</MenuItem>
+            <MenuItem value="factura">Vencimientos</MenuItem>
+          </Select>
+        </FormControl>
       </Box>
 
       <Paper sx={{ p: { xs: 0.75, sm: 1 }, height: '100%', minHeight: { xs: 320, sm: 420 }, borderRadius: 1.5, overflow: 'hidden', border: '1px solid', borderColor: 'divider' }}>
         <Calendar
           localizer={localizer}
-          events={events}
+          events={filteredEvents}
           startAccessor="start"
           endAccessor="end"
           style={{ height: '100%' }}
-          height={typeof window !== 'undefined' ? window.innerHeight - 180 : 700}
+          height={typeof window !== 'undefined' ? window.innerHeight - 220 : 700}
           culture="es"
           onSelectEvent={handleSelectEvent}
           eventPropGetter={eventStyleGetter}
@@ -251,14 +318,44 @@ export default function Calendario() {
                 <Typography variant="body2">
                   <strong>Fecha:</strong> {format(selectedEvent.start, "dd 'de' MMMM, yyyy", { locale: es })}
                 </Typography>
+                <Chip size="small" label={selectedEvent.type} />
               </Box>
             </DialogContent>
             <DialogActions>
-              {selectedEvent.facturaId && <Button size="small" variant="contained" startIcon={<FiCreditCard size={14} />} onClick={handleQuickPay}>Cobrar por WhatsApp</Button>}
+              <Button startIcon={<FiEdit2 size={14} />} onClick={() => handleOpenEditEvent(selectedEvent)}>Editar</Button>
+              <Button startIcon={<FiTrash2 size={14} />} color="error" onClick={() => handleDeleteEvent(selectedEvent)}>Eliminar</Button>
+              {selectedEvent.facturaId && <Button startIcon={<FiCreditCard size={14} />} onClick={handleQuickPay}>Cobrar por WhatsApp</Button>}
               <Button onClick={() => setIsModalOpen(false)}>Cerrar</Button>
             </DialogActions>
           </>
         )}
+      </Dialog>
+
+      {/* Modal Crear/Editar Evento */}
+      <Dialog open={eventModalOpen} onClose={() => setEventModalOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>{editingEvent ? "Editar evento" : "Nuevo evento"}</DialogTitle>
+        <DialogContent dividers>
+          <Box sx={{ display: "grid", gap: 2, mt: 1 }}>
+            <TextField label="Título" size="small" value={eventForm.title} onChange={(e) => setEventForm({ ...eventForm, title: e.target.value })} fullWidth />
+            <Box sx={{ display: "grid", gap: 2, gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" } }}>
+              <TextField label="Inicio" size="small" type="datetime-local" value={eventForm.start} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEventForm({ ...eventForm, start: e.target.value })} fullWidth InputLabelProps={{ shrink: true }} />
+              <TextField label="Fin" size="small" type="datetime-local" value={eventForm.end} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEventForm({ ...eventForm, end: e.target.value })} fullWidth InputLabelProps={{ shrink: true }} />
+            </Box>
+            <FormControl size="small" fullWidth>
+              <InputLabel>Tipo</InputLabel>
+              <Select value={eventForm.type} label="Tipo" onChange={(e) => setEventForm({ ...eventForm, type: e.target.value as CalEvent["type"] })}>
+                <MenuItem value="tarea">Tarea</MenuItem>
+                <MenuItem value="venta">Cierre</MenuItem>
+                <MenuItem value="factura">Vencimiento</MenuItem>
+              </Select>
+            </FormControl>
+            <TextField label="Descripción" size="small" value={eventForm.desc} onChange={(e) => setEventForm({ ...eventForm, desc: e.target.value })} fullWidth multiline minRows={3} />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEventModalOpen(false)}>Cancelar</Button>
+          <Button variant="contained" onClick={handleSaveEvent}>Guardar</Button>
+        </DialogActions>
       </Dialog>
     </Box>
   );
