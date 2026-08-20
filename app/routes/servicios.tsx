@@ -42,17 +42,13 @@ export default function Servicios() {
   const loadServicios = async () => {
     try {
       setLoading(true);
+      setError(null);
       const data = await serviciosService.getAll();
-      const seen = new Set<string>();
-      const uniq = (Array.isArray(data) ? data : []).filter((s: any) => {
-        const key = String(s?.nombre ?? '').toLowerCase().trim();
-        if (!key || seen.has(key)) return false;
-        seen.add(key);
-        return true;
-      });
-      setServicios(uniq);
+      const unique = (Array.isArray(data) ? data : []).filter((x: any, idx: number, arr: any[]) => arr.findIndex((y: any) => y.nombre === x.nombre) === idx);
+      setServicios(unique);
     } catch (err: any) {
-      setError(err.message);
+      setError(err?.message || "Error al cargar servicios");
+      setServicios([]);
     } finally {
       setLoading(false);
     }
