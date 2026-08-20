@@ -120,10 +120,13 @@ END $$;
 
 -- Proyecto
 DO $$
+DECLARE
+  v_proyecto_id uuid;
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'proyectos') THEN
+    SELECT gen_random_uuid() INTO v_proyecto_id;
     INSERT INTO proyectos (id, nombre, descripcion, cliente_id, cliente_nombre, servicios, estado, prioridad, fecha_inicio, fecha_fin, progreso, presupuesto, costo_actual, estado_pago, fase_administrativa)
-    SELECT gen_random_uuid(), 'Agencia Deseo Digital', 'Proyecto interno CRM', c.id, 'DESEO DIGITAL', ARRAY['Diseño Web Profesional'], 'en_progreso', 'alta', '2026-06-01', '2026-12-31', 30, 15000000, 4500000, 'parcial', 'operacion'
+    SELECT v_proyecto_id, 'Agencia Deseo Digital', 'Proyecto interno CRM', c.id, 'DESEO DIGITAL', ARRAY['Diseño Web Profesional'], 'en_progreso', 'alta', '2026-06-01', '2026-12-31', 30, 15000000, 4500000, 'parcial', 'operacion'
     FROM clientes c
     WHERE c.email = 'juanjosealvarez@gmail.com'
       AND NOT EXISTS (SELECT 1 FROM proyectos WHERE nombre = 'Agencia Deseo Digital');
@@ -159,7 +162,7 @@ DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'facturas') THEN
     INSERT INTO facturas (proyecto_id, cliente_id, estado, total, subtotal, iva, numero, tipo, moneda, estado_pago, fecha_emision, fecha_vencimiento)
-    SELECT 'PROJ-001', c.id, 'Enviada', 15000000, 12500000, 2500000, 'FAC-001', 'factura', 'COP', 'Pendiente', CURRENT_DATE - 10, CURRENT_DATE + 20
+    SELECT (SELECT id FROM proyectos WHERE nombre = 'Agencia Deseo Digital' LIMIT 1), c.id, 'Enviada', 15000000, 12500000, 2500000, 'FAC-001', 'factura', 'COP', 'Pendiente', CURRENT_DATE - 10, CURRENT_DATE + 20
     FROM clientes c
     WHERE c.email = 'juanjosealvarez@gmail.com'
       AND NOT EXISTS (SELECT 1 FROM facturas WHERE numero = 'FAC-001');
@@ -181,7 +184,7 @@ DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'contratos') THEN
     INSERT INTO contratos (cliente_id, proyecto_id, estado, valor, fecha_inicio, fecha_fin)
-    SELECT c.id, 'PROJ-001', 'Activo', 15000000, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '120 days'
+    SELECT c.id, (SELECT id FROM proyectos WHERE nombre = 'Agencia Deseo Digital' LIMIT 1), 'Activo', 15000000, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '120 days'
     FROM clientes c
     WHERE c.email = 'juanjosealvarez@gmail.com';
   END IF;
@@ -192,12 +195,12 @@ DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'transacciones') THEN
     INSERT INTO transacciones (proyecto_id, cliente_id, tipo, monto, categoria, moneda, forma_pago, fecha)
-    SELECT 'PROJ-001', c.id, 'ingreso', 4500000, 'ingreso', 'COP', 'transferencia', CURRENT_DATE - 8
+    SELECT (SELECT id FROM proyectos WHERE nombre = 'Agencia Deseo Digital' LIMIT 1), c.id, 'ingreso', 4500000, 'ingreso', 'COP', 'transferencia', CURRENT_DATE - 8
     FROM clientes c
     WHERE c.email = 'juanjosealvarez@gmail.com';
 
     INSERT INTO transacciones (proyecto_id, cliente_id, tipo, monto, categoria, moneda, forma_pago, fecha)
-    SELECT 'PROJ-001', c.id, 'egreso', 1200000, 'egreso', 'COP', 'transferencia', CURRENT_DATE - 5
+    SELECT (SELECT id FROM proyectos WHERE nombre = 'Agencia Deseo Digital' LIMIT 1), c.id, 'egreso', 1200000, 'egreso', 'COP', 'transferencia', CURRENT_DATE - 5
     FROM clientes c
     WHERE c.email = 'juanjosealvarez@gmail.com';
   END IF;
