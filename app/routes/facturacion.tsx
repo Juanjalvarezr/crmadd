@@ -137,8 +137,19 @@ export default function Facturacion() {
     const clienteObj = clientes.find((x: any) => Number(x.id) === Number(row.cliente_id));
     const telefono = clienteObj?.telefono || "";
     if (!telefono) { showNotification(`El cliente "${cliente}" no tiene teléfono cargado`, "warning"); return; }
-    const texto = encodeURIComponent(`Hola ${cliente}, te compartimos tu factura #${row.numero_factura || row.id} por $${Number(row.total || 0).toFixed(0)}. Estado: ${row.estado || "Borrador"}. Fecha vencimiento: ${row.fecha_vencimiento || "Sin definir"}. Ante cualquier duda respondé este mensaje.`);
-    if (typeof window !== "undefined") window.open(`https://wa.me/${telefono}?text=${texto}`, "_blank");
+    let texto = `Hola ${cliente}, te compartimos tu factura #${row.numero_factura || row.id} por $${Number(row.total || 0).toFixed(0)}. Estado: ${row.estado || "Borrador"}. Vencimiento: ${row.fecha_vencimiento || "Sin definir"}. Ante cualquier duda respondé este mensaje.`;
+    if (documentoGenerado) {
+      const blob = new Blob([documentoGenerado], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `factura_${row.numero_factura || row.id}.html`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showNotification("Documento descargado. Adjuntalo manualmente en WhatsApp.", "info");
+    }
+    const encoded = encodeURIComponent(texto);
+    if (typeof window !== "undefined") window.open(`https://wa.me/${telefono}?text=${encoded}`, "_blank");
     showNotification("Abriendo WhatsApp...", "info");
   };
 

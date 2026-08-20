@@ -18,6 +18,7 @@ export default [
 	route("/configuracion", "routes/configuracion.tsx"),
 	route("/equipo", "routes/equipo.tsx"),
 	route("/facturacion", "routes/facturacion.tsx"),
+	route("/cotizaciones", "routes/cotizaciones.tsx"),
 	route("/contratos", "routes/contratos.tsx"),
 	route("/documentos", "routes/documentos.tsx"),
 	route("/public/proyecto/:id", "routes/public-proyecto.tsx"),
