@@ -1278,3 +1278,38 @@ export const calendarEventsService = {
     return true;
   },
 };
+
+export const transaccionesService = {
+  async getAll() {
+    const { data, error } = await supabase
+      .from('transacciones')
+      .select('*')
+      .order('fecha', { ascending: false });
+    if (error) throw error;
+    return (data || []).map((t: any) => ({ ...t, monto: Number(t.monto || 0) }));
+  },
+  async create(transaccion: any) {
+    const { data, error } = await supabase
+      .from('transacciones')
+      .insert([{ ...transaccion, updated_at: new Date().toISOString() }])
+      .select()
+      .single();
+    if (error) throw error;
+    return { ...data, monto: Number(data.monto || 0) };
+  },
+  async update(id: number, updates: any) {
+    const { data, error } = await supabase
+      .from('transacciones')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+    return { ...data, monto: Number(data.monto || 0) };
+  },
+  async delete(id: number) {
+    const { error } = await supabase.from('transacciones').delete().eq('id', id);
+    if (error) throw error;
+    return true;
+  },
+};
