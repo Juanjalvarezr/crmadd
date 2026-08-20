@@ -1016,7 +1016,7 @@ export const facturasService = {
   async getAll() {
     const { data, error } = await supabase
       .from('facturas')
-      .select('*, cliente:clientes(nombre,email,telefono)')
+      .select('*')
       .order('fecha_emision', { ascending: false });
     if (error) throw error;
     return (data || []).map((f: any) => ({ ...f, total: Number(f.total || 0) }));
