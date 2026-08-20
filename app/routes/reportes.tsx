@@ -1,4 +1,3 @@
-import { usePagination, PaginationBar } from "../utils/pagination";
 import { globalSnack } from "../components/GlobalSnackbar";
 import { useState, useEffect } from "react";
 import Grid from "@mui/material/Grid";
