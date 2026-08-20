@@ -17,7 +17,7 @@ export function meta() {
 export default function Cotizaciones() {
   const [items, setItems] = useState<any[]>([]);
   const [clientes, setClientes] = useState<any[]>([]);
-  const [proyectos, setProyectos] = useState<any[]>([]);
+  
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
