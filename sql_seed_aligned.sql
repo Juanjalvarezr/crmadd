@@ -153,8 +153,8 @@ END $$;
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'facturas') THEN
-    INSERT INTO facturas (proyecto_id, cliente_id, estado, total, subtotal, iva, metodo_pago, fecha_emision, fecha_vencimiento)
-    SELECT 'PROJ-001', c.id, 'Enviada', 15000000, 12500000, 2500000, 'transferencia', CURRENT_DATE - 10, CURRENT_DATE + 20
+    INSERT INTO facturas (proyecto_id, cliente_id, estado, total, subtotal, iva, fecha_emision, fecha_vencimiento)
+    SELECT 'PROJ-001', c.id, 'Enviada', 15000000, 12500000, 2500000, CURRENT_DATE - 10, CURRENT_DATE + 20
     FROM clientes c
     WHERE c.email = 'juanjosealvarez@gmail.com';
   END IF;
