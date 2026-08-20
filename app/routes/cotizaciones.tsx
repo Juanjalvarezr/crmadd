@@ -4,7 +4,7 @@ import {
   Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Alert, CircularProgress, Chip, Tooltip
 } from "@mui/material";
 import { FiPlus, FiEdit, FiTrash2, FiFileText, FiRefreshCw, FiMessageSquare, FiX } from "react-icons/fi";
-import { cotizacionesService, clientesService, proyectosService, documentosService } from "../services/supabase";
+import { cotizacionesService, clientesService, documentosService } from "../services/supabase";
 import { plantillasDocumentosService } from "../services/supabase";
 import { storageHelper } from "../services/supabase";
 import { useNotificationStore } from "../store/useNotificationStore";
