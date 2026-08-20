@@ -254,6 +254,8 @@ export default function Documentos() {
             <Box sx={{ bgcolor: "background.default", p: 1.5, borderRadius: 1, border: "1px solid", borderColor: "divider", maxHeight: 500, overflow: "auto" }}>
               {preview.match(/\.(pdf|PDF)$/) ? (
                 <iframe src={preview} title="preview" style={{ width: "100%", height: 450, border: 0 }} />
+              ) : preview.match(/\.(html|HTML)$/) || preview.includes("text/html") ? (
+                <iframe src={preview} title="preview" style={{ width: "100%", height: 450, border: 0 }} />
               ) : (
                 <img src={preview} alt="preview" style={{ maxWidth: "100%", height: "auto" }} />
               )}
