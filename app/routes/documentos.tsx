@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Box, Typography, Paper, Button, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, FormControl, InputLabel, Select, MenuItem, CircularProgress, Alert } from "@mui/material";
 import { FiPlus, FiX, FiDownload, FiUpload, FiFileText, FiRefreshCw } from "react-icons/fi";
-import { documentosService } from "../services/supabase";
+import { documentosService, storageHelper } from "../services/supabase";
 import { useNotificationStore } from "../store/useNotificationStore";
 import { clientesService, facturasService, proyectosService } from "../services/supabase";
 import { StatCard } from "../components/StatCard";
@@ -91,7 +91,7 @@ export default function Documentos() {
       let url = form.url;
       if (file) {
         setUploading(true);
-        url = await documentosService.upload(file);
+        url = await storageHelper.upload('crm-documents', `doc-${Date.now()}.${file.name.split('.').pop() || 'bin'}`, file);
         setUploading(false);
       }
       const payload = { ...form, proyecto_id: form.proyecto_id ? Number(form.proyecto_id) : null, cliente_id: form.cliente_id ? Number(form.cliente_id) : null, factura_id: form.factura_id ? Number(form.factura_id) : null, url };
