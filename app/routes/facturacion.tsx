@@ -35,7 +35,7 @@ export default function Facturacion() {
   const [documentoGenerado, setDocumentoGenerado] = useState<string | null>(null);
   const [uploadingPayment, setUploadingPayment] = useState(false);
   const [paymentFile, setPaymentFile] = useState<File | null>(null);
-  const { showNotification } = useNotificationStore();
+  const notify = (...args: any[]) => globalSnack.show(...args);
 
   const load = async () => {
     try {
@@ -100,31 +100,33 @@ export default function Facturacion() {
         const allowed = ["Borrador", "Enviada", "Pagada", "Vencida", "Anulada"];
         const nextEstado = payload.estado || editing.estado;
         if (!allowed.includes(nextEstado)) {
-          showNotification("Estado no válido", "warning");
+          notify("Estado no válido", "warning");
           setSaving(false);
+          setFormError("Seleccioná un estado válido");
           return;
         }
         await facturasService.update(editing.id, payload);
-        showNotification("Factura actualizada", "success");
+        notify("Factura actualizada", "success");
       } else {
         if (!payload.numero_factura || !String(payload.numero_factura).includes('-')) {
-          showNotification("Usá formato 001-001-101 para numeración", "warning");
+          notify("Usá formato 001-001-101 para numeración", "warning");
           setSaving(false);
+          setFormError("Ingresá un número de factura válido");
           return;
         }
         await facturasService.create(payload);
-        showNotification("Factura creada", "success");
+        notify("Factura creada", "success");
       }
       setOpenModal(false);
       await load();
-    } catch (err: any) { showNotification(err.message || "Error guardando factura", "error"); }
+    } catch (err: any) { notify(err.message || "Error guardando factura", "error"); }
     finally { setSaving(false); }
   };
 
   const handleDelete = async (row: any) => {
     if (typeof window !== "undefined" && !confirm(`¿Eliminar factura #${row.id}?`)) return;
-    try { await facturasService.delete(row.id); await load(); showNotification("Factura eliminada", "success"); }
-    catch (err: any) { showNotification(err.message || "Error eliminando factura", "error"); }
+    try { await facturasService.delete(row.id); await load(); notify("Factura eliminada", "success"); }
+    catch (err: any) { notify(err.message || "Error eliminando factura", "error"); }
   };
 
   const getClienteNombre = (clienteId: number | string | null | undefined) => {
@@ -137,7 +139,7 @@ export default function Facturacion() {
     const cliente = getClienteNombre(row.cliente_id);
     const clienteObj = clientes.find((x: any) => Number(x.id) === Number(row.cliente_id));
     const telefono = clienteObj?.telefono || "";
-    if (!telefono) { showNotification(`El cliente "${cliente}" no tiene teléfono cargado`, "warning"); return; }
+    if (!telefono) { notify(`El cliente "${cliente}" no tiene teléfono cargado`, "warning"); return; }
     let texto = `Hola ${cliente}, te compartimos tu factura #${row.numero_factura || row.id} por $${Number(row.total || 0).toFixed(0)}. Estado: ${row.estado || "Borrador"}. Vencimiento: ${row.fecha_vencimiento || "Sin definir"}. Ante cualquier duda respondé este mensaje.`;
     if (documentoGenerado) {
       const blob = new Blob([documentoGenerado], { type: "text/html" });
@@ -147,11 +149,11 @@ export default function Facturacion() {
       a.download = `factura_${row.numero_factura || row.id}.html`;
       a.click();
       URL.revokeObjectURL(url);
-      showNotification("Documento descargado. Adjuntalo manualmente en WhatsApp.", "info");
+      notify("Documento descargado. Adjuntalo manualmente en WhatsApp.", "info");
     }
     const encoded = encodeURIComponent(texto);
     if (typeof window !== "undefined") window.open(`https://wa.me/${telefono}?text=${encoded}`, "_blank");
-    showNotification("Abriendo WhatsApp...", "info");
+    notify("Abriendo WhatsApp...", "info");
   };
 
   const sendEmail = async (row: any) => {
@@ -159,18 +161,18 @@ export default function Facturacion() {
       const cliente = getClienteNombre(row.cliente_id);
       const clienteObj = clientes.find((x: any) => Number(x.id) === Number(row.cliente_id));
       const to = clienteObj?.email || "";
-      if (!to) { showNotification(`El cliente "${cliente}" no tiene email cargado`, "warning"); return; }
+      if (!to) { notify(`El cliente "${cliente}" no tiene email cargado`, "warning"); return; }
       const subject = `Factura #${row.numero_factura || row.id} - DESEO DIGITAL`;
       const html = `<p>Hola ${cliente},</p><p>Adjuntamos tu factura <strong>#${row.numero_factura || row.id}</strong> por <strong>$${Number(row.total || 0).toFixed(0)}</strong>.</p><p>Estado: ${row.estado || "Borrador"}<br>Vencimiento: ${row.fecha_vencimiento || "Sin definir"}</p><p>Saludos,<br>DESEO DIGITAL</p>`;
       const res = await emailService.sendRealEmail([to], subject, html);
-      showNotification(res?.message || "Factura enviada por email", "success");
-    } catch (err: any) { showNotification(err.message || "Error enviando factura por email", "error"); }
+      notify(res?.message || "Factura enviada por email", "success");
+    } catch (err: any) { notify(err.message || "Error enviando factura por email", "error"); }
   };
 
   const generarDocumento = async (row: any) => {
     try {
       const tpl = plantilla || await plantillasDocumentosService.getByTipo("factura");
-      if (!tpl) { showNotification("Creá una plantilla de factura en Configuración primero", "warning"); return; }
+      if (!tpl) { notify("Creá una plantilla de factura en Configuración primero", "warning"); return; }
       const cliente = clientes.find((x: any) => Number(x.id) === Number(row.cliente_id));
       const { subtotal, iva, descuento, total } = { subtotal: Number(row.subtotal || row.total || 0), iva: Number(row.iva || 0), descuento: Number(row.descuento || 0), total: Number(row.total || 0) };
       const ctx = {
@@ -198,7 +200,7 @@ export default function Facturacion() {
       } catch {}
 
       setDocumentoGenerado(fullHtml);
-      showNotification("Factura generada", "success");
+      notify("Factura generada", "success");
       if (typeof window !== "undefined") {
         const win = window.open();
         if (win) {
@@ -206,11 +208,11 @@ export default function Facturacion() {
           win.document.close();
         }
       }
-    } catch (err: any) { showNotification(err.message || "Error generando documento", "error"); }
+    } catch (err: any) { notify(err.message || "Error generando documento", "error"); }
   };
 
   const handleRegistrarPago = async () => {
-    if (!selected || !pagoForm.monto) { showNotification("Monto requerido", "warning"); return; }
+    if (!selected || !pagoForm.monto) { notify("Monto requerido", "warning"); return; }
     try {
       setUploadingPayment(true);
       const monto = Number(pagoForm.monto);
@@ -224,10 +226,10 @@ export default function Facturacion() {
       const data = await pagosService.getByFactura(selected.id); setPagos(data || []);
       setPagoForm({ monto: "", metodo_pago: "transferencia", referencia: "", comprobante_url: "" });
       setPaymentFile(null);
-      showNotification("Pago registrado", "success");
+      notify("Pago registrado", "success");
       const saldo = Number(selected.total || 0) - data.reduce((a, b) => a + Number(b.monto || 0), 0);
       if (saldo <= 0) { await facturasService.update(selected.id, { estado: "Pagada" }); await load(); }
-    } catch (err: any) { showNotification(err.message || "Error registrando pago", "error"); }
+    } catch (err: any) { notify(err.message || "Error registrando pago", "error"); }
     finally { setUploadingPayment(false); }
   };
 
@@ -409,7 +411,7 @@ export default function Facturacion() {
         <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setDocumentoGenerado(null)}>Cerrar</Button>
           <Button variant="contained" onClick={() => { if (documentoGenerado) { window.print(); } }}>Imprimir / Guardar PDF</Button>
-          <Button variant="outlined" onClick={() => { if (documentoGenerado) { const blob = new Blob([documentoGenerado], { type: 'text/html' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `factura_${selected?.numero_factura || 'documento'}.html`; a.click(); URL.revokeObjectURL(url); showNotification('Documento descargado', 'success'); } }}>Descargar HTML</Button>
+          <Button variant="outlined" onClick={() => { if (documentoGenerado) { const blob = new Blob([documentoGenerado], { type: 'text/html' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `factura_${selected?.numero_factura || 'documento'}.html`; a.click(); URL.revokeObjectURL(url); notify('Documento descargado', 'success'); } }}>Descargar HTML</Button>
         </DialogActions>
       </Dialog>
 

@@ -24,7 +24,7 @@ export default function Documentos() {
   const [proyectos, setProyectos] = useState<any[]>([]);
   const [clientes, setClientes] = useState<any[]>([]);
   const [facturas, setFacturas] = useState<any[]>([]);
-  const { showNotification } = useNotificationStore();
+  const notify = (...args: any[]) => globalSnack.show(...args);
 
   const load = async () => {
     try {
@@ -74,7 +74,7 @@ export default function Documentos() {
 
   const refreshOptions = async () => {
     await loadOptions();
-    showNotification("Opciones actualizadas", "info");
+    notify("Opciones actualizadas", "info");
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -96,13 +96,13 @@ export default function Documentos() {
       }
       const payload = { ...form, proyecto_id: form.proyecto_id ? Number(form.proyecto_id) : null, cliente_id: form.cliente_id ? Number(form.cliente_id) : null, factura_id: form.factura_id ? Number(form.factura_id) : null, url };
       await documentosService.create(payload);
-      showNotification("Documento creado", "success");
+      notify("Documento creado", "success");
       setOpen(false);
       setFile(null);
       setForm({ titulo: "", tipo: "propuesta", proyecto_id: "", cliente_id: "", factura_id: "", url: "", descripcion: "" });
       await load();
     } catch (err: any) {
-      showNotification(err.message || "Error guardando documento", "error");
+      notify(err.message || "Error guardando documento", "error");
     } finally {
       setSaving(false);
       setUploading(false);
@@ -111,8 +111,8 @@ export default function Documentos() {
   
   const handleDelete = async (row: any) => {
     if (typeof window !== "undefined" && !confirm(`¿Eliminar documento #${row.id}?`)) return;
-    try { await documentosService.delete(row.id); await load(); showNotification("Documento eliminado", "success"); }
-    catch (err: any) { showNotification(err.message || "Error eliminando documento", "error"); }
+    try { await documentosService.delete(row.id); await load(); notify("Documento eliminado", "success"); }
+    catch (err: any) { notify(err.message || "Error eliminando documento", "error"); }
   };
 
   return (

@@ -50,7 +50,7 @@ export default function Reportes() {
   // Estados de datos
   const [metricas, setMetricas] = useState<Metrica[]>([]);
   const [reporteData, setReporteData] = useState<ReporteData[]>([]);
-  const { showNotification } = useNotificationStore();
+  const notify = (...args: any[]) => globalSnack.show(...args);
 
   const handleCloseSnackbar = () => setSnackbar((s) => ({ ...s, open: false }));
 
@@ -227,9 +227,9 @@ export default function Reportes() {
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
-        showNotification("Reporte CSV descargado", "success");
+        notify("Reporte CSV descargado", "success");
       } catch (err: any) {
-        showNotification(err.message || "Error exportando CSV", "error");
+        notify(err.message || "Error exportando CSV", "error");
       }
       return;
     }
@@ -248,9 +248,9 @@ export default function Reportes() {
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
-        showNotification("Reporte Excel descargado", "success");
+        notify("Reporte Excel descargado", "success");
       } catch (err: any) {
-        showNotification(err.message || "Error exportando Excel", "error");
+        notify(err.message || "Error exportando Excel", "error");
       }
       return;
     }

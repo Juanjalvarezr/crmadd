@@ -64,7 +64,7 @@ export default function Configuracion() {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("empresa"); // Mantener activeTab local
   
-  const { showNotification } = useNotificationStore();
+  const notify = (...args: any[]) => globalSnack.show(...args);
   
   // Punto 2 y Testigo de Conexión
   const [dbStatus, setDbStatus] = useState<{ success: boolean; message: string } | null>(null);
@@ -126,14 +126,14 @@ export default function Configuracion() {
     if (typeof window !== "undefined") {
       if (typeof window !== "undefined") if (typeof window !== "undefined") localStorage.setItem("crm_custom_catalogs", JSON.stringify(newCatalogos));
     }
-    showNotification("Campos y Estados actualizados en caché global", "success");
+    notify("Campos y Estados actualizados en caché global", "success");
   };
 
   const handleAddItem = () => {
     if (!nuevoItem.valor.trim()) return;
     const tipo = nuevoItem.tipo as keyof typeof catalogos;
     if (catalogos[tipo].includes(nuevoItem.valor.trim())) {
-      showNotification("Este valor ya existe", "warning");
+      notify("Este valor ya existe", "warning");
       return;
     }
     const updated = {
@@ -159,12 +159,12 @@ export default function Configuracion() {
   const [openDocTemplateModal, setOpenDocTemplateModal] = useState(false);
 
   const handleSaveDocTemplate = async () => {
-    if (!docTemplateForm.nombre.trim() || !docTemplateForm.contenido.trim()) { showNotification("Nombre y contenido obligatorios", "warning"); return; }
+    if (!docTemplateForm.nombre.trim() || !docTemplateForm.contenido.trim()) { notify("Nombre y contenido obligatorios", "warning"); return; }
     try {
       const saved = await plantillasDocumentosService.upsert(docTemplateForm as any);
       if (editingDocTemplateId) setPlantillasDocs(plantillasDocs.map((x: any) => x.id === saved.id ? saved : x)); else setPlantillasDocs([...plantillasDocs, saved]);
-      setOpenDocTemplateModal(false); showNotification("Plantilla guardada", "success");
-    } catch (err: any) { showNotification(err.message || "Error guardando plantilla", "error"); }
+      setOpenDocTemplateModal(false); notify("Plantilla guardada", "success");
+    } catch (err: any) { notify(err.message || "Error guardando plantilla", "error"); }
   };
 
   useEffect(() => {
@@ -241,9 +241,9 @@ export default function Configuracion() {
     try {
       await configuracionService.updateEmpresa(empresaConfig);
 
-      showNotification("Configuración de empresa guardada correctamente", "success");
+      notify("Configuración de empresa guardada correctamente", "success");
     } catch (err: any) {
-      showNotification("Error al guardar configuración: " + err.message, "error");
+      notify("Error al guardar configuración: " + err.message, "error");
     } finally {
       setLoading(false);
     }
@@ -254,7 +254,7 @@ export default function Configuracion() {
     if (file) {
       // Validar tamaño (máximo 2MB para no sobrecargar la DB)
       if (file.size > 2 * 1024 * 1024) {
-        showNotification("La imagen es demasiado grande. El límite es de 2MB.", "warning");
+        notify("La imagen es demasiado grande. El límite es de 2MB.", "warning");
         return;
       }
 
@@ -262,9 +262,9 @@ export default function Configuracion() {
       try {
         const publicUrl = await configuracionService.uploadLogo(file);
         setEmpresaConfig(prev => ({ ...prev, logo: publicUrl }));
-        showNotification("Logo subido correctamente", "success");
+        notify("Logo subido correctamente", "success");
       } catch (err: any) {
-        showNotification("Error al subir: " + err.message, "error");
+        notify("Error al subir: " + err.message, "error");
       } finally {
         setLoading(false);
       }
@@ -284,9 +284,9 @@ export default function Configuracion() {
       // Aquí iría la llamada a Supabase para guardar preferencias
       // await supabase.from('preferencias_usuario').upsert(preferenciasConfig);
 
-      showNotification("Preferencias guardadas correctamente", "success");
+      notify("Preferencias guardadas correctamente", "success");
     } catch (err: any) {
-      showNotification("Error al guardar preferencias: " + err.message, "error");
+      notify("Error al guardar preferencias: " + err.message, "error");
     } finally {
       setLoading(false);
     }
@@ -294,12 +294,12 @@ export default function Configuracion() {
 
   const handleCambioPassword = async () => {
     if (seguridadConfig.passwordNuevo !== seguridadConfig.passwordConfirmar) {
-      showNotification("Las contraseñas no coinciden", "error");
+      notify("Las contraseñas no coinciden", "error");
       return;
     }
 
     if (seguridadConfig.passwordNuevo.length < 8) {
-      showNotification("La contraseña debe tener al menos 8 caracteres", "error");
+      notify("La contraseña debe tener al menos 8 caracteres", "error");
       return;
     }
 
@@ -308,7 +308,7 @@ export default function Configuracion() {
       const { error } = await supabase.auth.updateUser({ password: seguridadConfig.passwordNuevo });
       if (error) throw error;
 
-      showNotification("Contraseña actualizada correctamente", "success");
+      notify("Contraseña actualizada correctamente", "success");
       
       // Limpiar formulario
       setSeguridadConfig({
@@ -319,7 +319,7 @@ export default function Configuracion() {
         passwordConfirmar: ""
       });
     } catch (err: any) {
-      showNotification("Error al actualizar contraseña: " + err.message, "error");
+      notify("Error al actualizar contraseña: " + err.message, "error");
     } finally {
       setLoading(false);
     }
@@ -345,9 +345,9 @@ export default function Configuracion() {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
-      showNotification("Backup descargado correctamente", "success");
+      notify("Backup descargado correctamente", "success");
     } catch (err: any) {
-      showNotification("Error al crear backup: " + err.message, "error");
+      notify("Error al crear backup: " + err.message, "error");
     } finally {
       setLoading(false);
       setOpenBackupDialog(false);
@@ -368,9 +368,9 @@ export default function Configuracion() {
         setPreferenciasConfig(backupData.preferencias);
       }
 
-      showNotification("Configuración restaurada correctamente", "success");
+      notify("Configuración restaurada correctamente", "success");
     } catch (err: any) {
-      showNotification("Error al restaurar backup: " + err.message, "error");
+      notify("Error al restaurar backup: " + err.message, "error");
     } finally {
       setLoading(false);
       setOpenRestoreDialog(false);
@@ -823,10 +823,10 @@ export default function Configuracion() {
       // Guardamos la configuración en LocalStorage para adaptar la UI
       if (esModoCompatibilidad) {
         if (typeof window !== "undefined") localStorage.setItem("crm_compat_mode", "true");
-        showNotification("⚠️ Datos cargados en Modo Compatibilidad (Base de datos simplificada detectada)", "warning");
+        notify("⚠️ Datos cargados en Modo Compatibilidad (Base de datos simplificada detectada)", "warning");
       } else {
         if (typeof window !== "undefined") localStorage.setItem("crm_compat_mode", "false");
-        showNotification("¡Datos reales inicializados con éxito con todas las 9 empresas reales!", "success");
+        notify("¡Datos reales inicializados con éxito con todas las 9 empresas reales!", "success");
       }
 
       // Eliminar el Snackbar local
@@ -836,7 +836,7 @@ export default function Configuracion() {
       }, 2500);
 
     } catch (err: any) {
-      showNotification("Error al inicializar datos reales: " + err.message, "error");
+      notify("Error al inicializar datos reales: " + err.message, "error");
     } finally {
       setLoading(false);
     }
@@ -861,9 +861,9 @@ export default function Configuracion() {
       await promptsAIService.update(editingPrompt.id, editingPrompt);
       setPromptsAI(promptsAI.map(p => p.id === editingPrompt.id ? editingPrompt : p));
       setOpenPromptModal(false);
-      showNotification("Personalidad de la IA actualizada", "success");
+      notify("Personalidad de la IA actualizada", "success");
     } catch (e: any) {
-      showNotification("Error: " + e.message, "error");
+      notify("Error: " + e.message, "error");
     } finally { setLoading(false); } // Eliminar el Snackbar local
   };
 
@@ -873,13 +873,13 @@ export default function Configuracion() {
     setConocimiento([...conocimiento, guardado]);
     setNuevoConocimiento({ titulo: "", contenido: "", categoria: "operaciones" });
     setOpenConocimientoModal(false); // Usar el Snackbar global
-    showNotification("Conocimiento agregado al cerebro de la IA", "success");
+    notify("Conocimiento agregado al cerebro de la IA", "success");
   };
 
   const handleDeleteConocimiento = async (id: number) => {
     await conocimientoService.delete(id);
     setConocimiento(conocimiento.filter(c => c.id !== id)); // Usar el Snackbar global
-    showNotification("Conocimiento eliminado", "info");
+    notify("Conocimiento eliminado", "info");
   };
 
   // Componente de pestaña
@@ -1274,7 +1274,7 @@ export default function Configuracion() {
                         <Button
                           variant="outlined"
                           startIcon={<FiRefreshCw />}
-                          onClick={() => showNotification("Gestión de sesiones en desarrollo", "info")}
+                          onClick={() => notify("Gestión de sesiones en desarrollo", "info")}
                         >
                           Gestionar
                         </Button>
@@ -1323,7 +1323,7 @@ export default function Configuracion() {
                           <Chip size="small" label={p.tipo} sx={{ height: 22, fontSize: "0.7rem" }} />
                           <Box sx={{ display: "flex", gap: 0.5 }}>
                             <IconButton size="small" onClick={() => { setEditingDocTemplateId(p.id); setDocTemplateForm({ tipo: p.tipo, nombre: p.nombre, contenido: p.contenido, iva_porcentaje: Number(p.iva_porcentaje || 19), color_primario: p.color_primario || "#1976d2", color_secundario: p.color_secundario || "#e91e63", logo_url: p.logo_url || "", activo: !!p.activo }); setOpenDocTemplateModal(true); }}><FiEdit size={14} /></IconButton>
-                            <IconButton size="small" color="error" onClick={async () => { if (!confirm(`¿Eliminar plantilla #${p.id}?`)) return; await plantillasDocumentosService.remove(p.id); setPlantillasDocs(plantillasDocs.filter((x: any) => x.id !== p.id)); showNotification("Plantilla eliminada", "success"); }}><FiX size={14} /></IconButton>
+                            <IconButton size="small" color="error" onClick={async () => { if (!confirm(`¿Eliminar plantilla #${p.id}?`)) return; await plantillasDocumentosService.remove(p.id); setPlantillasDocs(plantillasDocs.filter((x: any) => x.id !== p.id)); notify("Plantilla eliminada", "success"); }}><FiX size={14} /></IconButton>
                           </Box>
                         </Box>
                         <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>{p.nombre}</Typography>
