@@ -1,4 +1,3 @@
-import { usePagination, PaginationBar } from "../utils/pagination";
 import { globalSnack } from "../components/GlobalSnackbar";
 import React, { useState, useEffect } from "react";
 import { Box, Typography, Paper, Button, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, FormControl, InputLabel, Select, MenuItem, CircularProgress, Alert } from "@mui/material";
@@ -127,16 +126,16 @@ export default function Documentos() {
 
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: { xs: 0.5, sm: 1 }, mb: { xs: 1, sm: 1.5 } }}>
         <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}>
-          <StatCard title="Total" value={loading ? "..." : items.length} subtitle="Documentos" color="primary" />
+          <StatCard title="Total" value={loading ? "..." : documentos.length} subtitle="Documentos" color="primary" />
         </Box>
         <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}>
-          <StatCard title="Con URL" value={items.filter((i: any) => i.url).length} subtitle="Enlaces" color="success" />
+          <StatCard title="Con URL" value={documentos.filter((i: any) => i.url).length} subtitle="Enlaces" color="success" />
         </Box>
       </Box>
 
       {loading && <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}><CircularProgress size={24} /></Box>}
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-      {!loading && items.length === 0 && (
+      {!loading && documentos.length === 0 && (
         <Paper sx={{ p: { xs: 2, sm: 3 }, textAlign: "center", borderRadius: 2, border: "1px dashed", borderColor: "divider" }}>
           <Typography variant="body2" color="text.secondary">Sin documentos</Typography>
           <Button size="small" variant="text" onClick={openCreate}>Crear el primero</Button>
@@ -173,7 +172,7 @@ export default function Documentos() {
         </FormControl>
       </Box>
       <Box sx={{ display: "grid", gap: 1 }}>
-        {items.map((row) => (
+        {documentos.map((row) => (
           <Paper key={row.id} variant="outlined" sx={{ p: 1.5, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <Box>
               <Typography variant="subtitle2" sx={{ fontSize: "0.85rem" }}>{row.titulo}</Typography>
