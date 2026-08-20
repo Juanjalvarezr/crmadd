@@ -20,6 +20,7 @@ export default function Cotizaciones() {
   const [proyectos, setProyectos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
   const [openModal, setOpenModal] = useState(false);
   const [editing, setEditing] = useState<any | null>(null);
   const [form, setForm] = useState({ numero_cotizacion: "", estado: "Borrador", total: "", proyecto_id: "", cliente_id: "", fecha_vencimiento: "", subtotal: "", iva: "", notas: "" });
@@ -193,45 +194,29 @@ export default function Cotizaciones() {
         </Box>
       )}
 
-      <Dialog open={openModal} onClose={() => setOpenModal(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>{editing ? "Editar Cotización" : "Nueva Cotización"}<IconButton onClick={() => setOpenModal(false)} size="small" sx={{ float: "right" }}><FiX /></IconButton></DialogTitle>
+      <Dialog open={openModal} onClose={() => { setOpenModal(false); setFormError(null); }} maxWidth="sm" fullWidth>
+        <DialogTitle>{editing ? "Editar Cotización" : "Nueva Cotización"}<IconButton onClick={() => { setOpenModal(false); setFormError(null); }} size="small" sx={{ float: "right" }}><FiX /></IconButton></DialogTitle>
         <DialogContent>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}>
-            <TextField label="Número cotización" fullWidth value={form.numero_cotizacion} onChange={(e) => setForm({ ...form, numero_cotizacion: e.target.value })} />
-            <FormControl fullWidth>
-              <InputLabel>Estado</InputLabel>
-              <Select value={form.estado} label="Estado" onChange={(e) => setForm({ ...form, estado: e.target.value })}>
-                <MenuItem value="Borrador">Borrador</MenuItem>
-                <MenuItem value="Enviada">Enviada</MenuItem>
-                <MenuItem value="Aceptada">Aceptada</MenuItem>
-                <MenuItem value="Rechazada">Rechazada</MenuItem>
-                <MenuItem value="Vencida">Vencida</MenuItem>
-              </Select>
-            </FormControl>
-            <FormControl fullWidth>
-              <InputLabel>Cliente</InputLabel>
+            {formError && <Alert severity="error">{formError}</Alert>}
+            <TextField label="Número cotización *" fullWidth value={form.numero_cotizacion} onChange={(e) => setForm({ ...form, numero_cotizacion: e.target.value })} error={!form.numero_cotizacion} helperText={!form.numero_cotizacion ? "Requerido" : ""} />
+            <FormControl fullWidth error={!form.cliente_id}>
+              <InputLabel>Cliente *</InputLabel>
               <Select value={form.cliente_id} label="Cliente" onChange={(e) => setForm({ ...form, cliente_id: e.target.value })}>
                 <MenuItem value="">Sin cliente</MenuItem>
                 {clientes.map((c: any) => <MenuItem key={c.id} value={String(c.id)}>{c.nombre}</MenuItem>)}
               </Select>
             </FormControl>
-            <FormControl fullWidth>
-              <InputLabel>Proyecto</InputLabel>
-              <Select value={form.proyecto_id} label="Proyecto" onChange={(e) => setForm({ ...form, proyecto_id: e.target.value })}>
-                <MenuItem value="">Sin proyecto</MenuItem>
-                {proyectos.map((p: any) => <MenuItem key={p.id} value={String(p.id)}>{p.nombre}</MenuItem>)}
-              </Select>
-            </FormControl>
             <Box sx={{ display: "flex", gap: 1 }}>
-              <TextField label="Subtotal" type="number" sx={{ flex: 1 }} value={form.subtotal} onChange={(e) => setForm({ ...form, subtotal: e.target.value })} />
+              <TextField label="Subtotal *" type="number" sx={{ flex: 1 }} value={form.subtotal} onChange={(e) => setForm({ ...form, subtotal: e.target.value })} error={Number(form.subtotal || 0) < 0} helperText={Number(form.subtotal || 0) < 0 ? "Debe ser mayor a 0" : ""} />
               <TextField label="IVA" type="number" sx={{ flex: 1 }} value={form.iva} onChange={(e) => setForm({ ...form, iva: e.target.value })} />
             </Box>
-            <TextField label="Total" type="number" fullWidth value={form.total} onChange={(e) => setForm({ ...form, total: e.target.value })} />
+            <TextField label="Total *" type="number" fullWidth value={form.total} onChange={(e) => setForm({ ...form, total: e.target.value })} error={Number(form.total || 0) < 0} helperText={Number(form.total || 0) < 0 ? "Debe ser mayor a 0" : ""} />
             <TextField label="Fecha vencimiento" type="date" fullWidth value={form.fecha_vencimiento} onChange={(e) => setForm({ ...form, fecha_vencimiento: e.target.value })} InputLabelProps={{ shrink: true }} />
           </Box>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setOpenModal(false)} variant="outlined" disabled={saving}>Cancelar</Button>
+          <Button onClick={() => { setOpenModal(false); setFormError(null); }} variant="outlined" disabled={saving}>Cancelar</Button>
           <Button onClick={handleSave} variant="contained" disabled={saving}>{saving ? "Guardando..." : "Guardar"}</Button>
         </DialogActions>
       </Dialog>
