@@ -13,12 +13,13 @@ import {
 import {
   Folder, Edit2, Trash2, Calendar, Users, CheckCircle,
   Play, Pause, X, Eye, ExternalLink, FileText, Layout, 
-  Video, Camera, Zap, Award, FileCheck, Share2, Mail, Send
+  Video, Camera, Zap, Award, FileCheck, Share2, Mail, Send,
+  Plus, Circle
 } from "lucide-react";
 import { FiFileText } from "react-icons/fi";
 import { format, formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
-import { emailService, subagentesService as equipoService, logsService, proyectosService } from "../services/supabase";
+import { emailService, subagentesService as equipoService, logsService, proyectosService, tareasService } from "../services/supabase";
 import { documentosService, facturasService } from "../services/supabase";
 import type { Proyecto, TareaProyecto, RecursoProyecto, PlanItem } from "../types/crm";
 import { aiService } from "../services/ai";
@@ -49,8 +50,10 @@ export function meta() {
 export default function Proyectos() {
   const proyectos = useCRMStore((s) => s.proyectos);
   const clientes = useCRMStore((s) => s.clientes);
+  const tareas = useCRMStore((s) => s.tareas);
   const fetchClientes = useCRMStore((s) => s.fetchClientes);
   const fetchProyectos = useCRMStore((s) => s.fetchProyectos);
+  const fetchTareas = useCRMStore((s) => s.fetchTareas);
   const { showNotification } = useNotificationStore();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -100,13 +103,13 @@ export default function Proyectos() {
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
-      await Promise.all([fetchClientes(), fetchProyectos()]);
+      await Promise.all([fetchClientes(), fetchProyectos(), fetchTareas()]);
     } catch (err: any) {
       setError("Error al cargar datos: " + err.message);
     } finally {
       setLoading(false);
     }
-  }, [fetchClientes, fetchProyectos]);
+  }, [fetchClientes, fetchProyectos, fetchTareas]);
 
   useEffect(() => {
     let mounted = true;
@@ -726,6 +729,91 @@ export default function Proyectos() {
 
   const proyectosFiltrados = getProyectosPorTab();
 
+  const AddTaskMiniProyecto = ({ proyectoId, onCreated }: { proyectoId: string; onCreated?: () => void }) => {
+    const [open, setOpen] = useState(false);
+    const [titulo, setTitulo] = useState("");
+    const [fechaLimite, setFechaLimite] = useState("");
+    const { showNotification } = useNotificationStore();
+
+    const crear = async () => {
+      try {
+        const payload: any = {
+          titulo,
+          descripcion: 'Tarea desde proyecto',
+          fecha: fechaLimite || new Date().toISOString().split('T')[0],
+          prioridad: 'Media',
+          estado: 'Pendiente',
+          tipo: 'Tarea',
+          proyecto_id: Number(proyectoId)
+        };
+        await tareasService.create(payload);
+        showNotification('Tarea creada', 'success');
+        setOpen(false);
+        setTitulo('');
+        setFechaLimite('');
+        onCreated?.();
+      } catch (err: any) { showNotification(err.message || 'Error creando tarea', 'error'); }
+    };
+
+    return (
+      <>
+        <Button size="small" variant="outlined" startIcon={<Plus size={14} />} onClick={() => setOpen(true)}>Nueva</Button>
+        <Dialog open={open} onClose={() => setOpen(false)} maxWidth="xs" fullWidth>
+          <DialogTitle>Nueva tarea<IconButton onClick={() => setOpen(false)} size="small"><X /></IconButton></DialogTitle>
+          <DialogContent>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mt: 1 }}>
+              <TextField label="Título" fullWidth size="small" value={titulo} onChange={(e) => setTitulo(e.target.value)} />
+              <TextField label="Fecha límite" type="date" fullWidth size="small" InputLabelProps={{ shrink: true }} value={fechaLimite} onChange={(e) => setFechaLimite(e.target.value)} />
+            </Box>
+          </DialogContent>
+          <DialogActions sx={{ p: 1.5 }}>
+            <Button onClick={() => setOpen(false)} variant="outlined" size="small">Cancelar</Button>
+            <Button onClick={crear} variant="contained" size="small" disabled={!titulo.trim()}>Guardar</Button>
+          </DialogActions>
+        </Dialog>
+      </>
+    );
+  };
+
+  const TareasProyectoList = ({ proyectoId, tareas, fetchTareas }: { proyectoId: string; tareas: any[]; fetchTareas: () => Promise<void> }) => {
+    const { showNotification } = useNotificationStore();
+    const tareasProyecto = tareas.filter((t: any) => String(t.proyecto_id) === String(proyectoId));
+
+    const toggle = async (t: any) => {
+      try {
+        await tareasService.update(t.id, { estado: t.estado === 'Completada' ? 'Pendiente' : 'Completada' });
+        await fetchTareas();
+      } catch (err: any) { showNotification(err.message || 'Error', 'error'); }
+    };
+
+    const eliminar = async (t: any) => {
+      if (typeof window !== 'undefined' && !confirm(`¿Eliminar tarea "${t.titulo}"?`)) return;
+      try { await tareasService.delete(t.id); await fetchTareas(); showNotification('Tarea eliminada', 'success'); }
+      catch (err: any) { showNotification(err.message || 'Error', 'error'); }
+    };
+
+    if (tareasProyecto.length === 0) return <Alert severity="info" sx={{ mt: 1 }}>Sin tareas para este proyecto.</Alert>;
+
+    return (
+      <List dense sx={{ mt: 1 }}>
+        {tareasProyecto.map((t: any) => (
+          <ListItem key={t.id} divider sx={{ border: '1px solid #eee', borderRadius: 2, mb: 1, bgcolor: 'background.paper' }}>
+            <ListItemIcon sx={{ minWidth: 36 }}>
+              <IconButton size="small" onClick={() => toggle(t)}>
+                {t.estado === 'Completada' ? <CheckCircle size={18} color="#4caf50" /> : <Circle size={18} color="#9e9e9e" />}
+              </IconButton>
+            </ListItemIcon>
+            <ListItemText
+              primary={<Typography variant="body2" sx={{ textDecoration: t.estado === 'Completada' ? 'line-through' : 'none' }}>{t.titulo}</Typography>}
+              secondary={<Typography variant="caption">{t.prioridad || 'Media'} • {t.fecha ? new Date(t.fecha).toLocaleDateString('es-CO') : ''}</Typography>}
+            />
+            <IconButton size="small" color="error" onClick={() => eliminar(t)}><Trash2 size={16} /></IconButton>
+          </ListItem>
+        ))}
+      </List>
+    );
+  };
+
   return (
     <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
       {/* Header compacto */}
@@ -803,7 +891,7 @@ export default function Proyectos() {
       {!loading && !error && proyectosFiltrados.length > 0 && (
         <Grid container spacing={{ xs: 1, sm: 1.5 }}>
           {proyectosFiltrados.map((proyecto) => (
-            <Grid item xs={6} sm={6} md={6} lg={4} key={proyecto.id}>
+            <Grid item xs={12} sm={6} md={4} lg={3} key={proyecto.id}>
               <Card sx={{ 
                 height: "100%", 
                 display: "flex", 
@@ -1281,9 +1369,11 @@ export default function Proyectos() {
                 </Box>
               ) : activeProjectTab === 1 ? (
                 <Box sx={{ py: 1 }}>
-                  <Typography variant="body2" color="text.secondary">
-                    Selecciona una fase administrativa para ver el detalle.
-                  </Typography>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>Tareas</Typography>
+                    <AddTaskMiniProyecto proyectoId={selectedProyecto.id} onCreated={async () => { await fetchTareas(); }} />
+                  </Box>
+                  <TareasProyectoList proyectoId={selectedProyecto.id} tareas={tareas} fetchTareas={fetchTareas} />
                 </Box>
               ) : activeProjectTab === 2 ? (
                 <Box sx={{ py: 1 }}>
