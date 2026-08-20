@@ -136,24 +136,28 @@ END $$;
 -- Tareas
 DO $$
 BEGIN
-  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'tareas') THEN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'tareas')
+     AND EXISTS (SELECT 1 FROM proyectos WHERE nombre = 'Agencia Deseo Digital' LIMIT 1) THEN
     INSERT INTO tareas (titulo, descripcion, fecha, prioridad, estado, tipo, proyecto_id, cliente_id, responsable_id)
     SELECT 'Definir alcance CRM', 'Reunir requisitos y cierre de propuesta', CURRENT_DATE + 2, 'Alta', 'Pendiente', 'Tarea', (SELECT id FROM proyectos WHERE nombre = 'Agencia Deseo Digital' LIMIT 1), c.id, e.id
     FROM clientes c
     JOIN (SELECT id FROM equipo WHERE email = 'juan@deseodigital.com') e ON true
-    WHERE c.email = 'juanjosealvarez@gmail.com';
+    WHERE c.email = 'juanjosealvarez@gmail.com'
+      AND NOT EXISTS (SELECT 1 FROM tareas WHERE titulo = 'Definir alcance CRM' AND proyecto_id = (SELECT id FROM proyectos WHERE nombre = 'Agencia Deseo Digital' LIMIT 1));
 
     INSERT INTO tareas (titulo, descripcion, fecha, prioridad, estado, tipo, proyecto_id, cliente_id, responsable_id)
     SELECT 'Diseño UI/UX', 'Prototipos y pruebas de contraste', CURRENT_DATE + 5, 'Media', 'En progreso', 'Tarea', (SELECT id FROM proyectos WHERE nombre = 'Agencia Deseo Digital' LIMIT 1), c.id, e.id
     FROM clientes c
     JOIN (SELECT id FROM equipo WHERE email = 'jessica@deseodigital.com') e ON true
-    WHERE c.email = 'juanjosealvarez@gmail.com';
+    WHERE c.email = 'juanjosealvarez@gmail.com'
+      AND NOT EXISTS (SELECT 1 FROM tareas WHERE titulo = 'Diseño UI/UX' AND proyecto_id = (SELECT id FROM proyectos WHERE nombre = 'Agencia Deseo Digital' LIMIT 1));
 
     INSERT INTO tareas (titulo, descripcion, fecha, prioridad, estado, tipo, proyecto_id, cliente_id, responsable_id)
     SELECT 'Entrega cliente', 'Demo funcional y capacitación', CURRENT_DATE + 10, 'Alta', 'Pendiente', 'Cita', (SELECT id FROM proyectos WHERE nombre = 'Agencia Deseo Digital' LIMIT 1), c.id, e.id
     FROM clientes c
     JOIN (SELECT id FROM equipo WHERE email = 'juan@deseodigital.com') e ON true
-    WHERE c.email = 'juanjosealvarez@gmail.com';
+    WHERE c.email = 'juanjosealvarez@gmail.com'
+      AND NOT EXISTS (SELECT 1 FROM tareas WHERE titulo = 'Entrega cliente' AND proyecto_id = (SELECT id FROM proyectos WHERE nombre = 'Agencia Deseo Digital' LIMIT 1));
   END IF;
 END $$;
 
@@ -193,16 +197,19 @@ END $$;
 -- Transacciones
 DO $$
 BEGIN
-  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'transacciones') THEN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'transacciones')
+     AND EXISTS (SELECT 1 FROM proyectos WHERE nombre = 'Agencia Deseo Digital' LIMIT 1) THEN
     INSERT INTO transacciones (proyecto_id, cliente_id, tipo, monto, categoria, moneda, forma_pago, fecha)
     SELECT (SELECT id FROM proyectos WHERE nombre = 'Agencia Deseo Digital' LIMIT 1), c.id, 'ingreso', 4500000, 'ingreso', 'COP', 'transferencia', CURRENT_DATE - 8
     FROM clientes c
-    WHERE c.email = 'juanjosealvarez@gmail.com';
+    WHERE c.email = 'juanjosealvarez@gmail.com'
+      AND NOT EXISTS (SELECT 1 FROM transacciones WHERE tipo = 'ingreso' AND categoria = 'ingreso' AND proyecto_id = (SELECT id FROM proyectos WHERE nombre = 'Agencia Deseo Digital' LIMIT 1));
 
     INSERT INTO transacciones (proyecto_id, cliente_id, tipo, monto, categoria, moneda, forma_pago, fecha)
     SELECT (SELECT id FROM proyectos WHERE nombre = 'Agencia Deseo Digital' LIMIT 1), c.id, 'egreso', 1200000, 'egreso', 'COP', 'transferencia', CURRENT_DATE - 5
     FROM clientes c
-    WHERE c.email = 'juanjosealvarez@gmail.com';
+    WHERE c.email = 'juanjosealvarez@gmail.com'
+      AND NOT EXISTS (SELECT 1 FROM transacciones WHERE tipo = 'egreso' AND categoria = 'egreso' AND proyecto_id = (SELECT id FROM proyectos WHERE nombre = 'Agencia Deseo Digital' LIMIT 1));
   END IF;
 END $$;
 
