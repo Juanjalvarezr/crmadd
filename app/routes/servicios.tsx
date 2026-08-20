@@ -19,8 +19,8 @@ export function meta() {
 }
 
 export default function Servicios() {
-  const [, set] = useState<any[]>([]);
-  const [, set] = useState(true);
+  const [servicios, setServicios] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [openModal, setOpenModal] = useState(false);
   const [editingServicio, setEditingServicio] = useState<any | null>(null);

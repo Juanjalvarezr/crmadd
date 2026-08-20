@@ -57,8 +57,8 @@ const formatCOP = (value: number) => {
 export default function Ventas() {
   const [oportunidades, setOportunidades] = useState<Oportunidad[]>([]);
   const [clientes, setClientes] = useState<Cliente[]>([]);
-  const [, set] = useState<any[]>([]);
-  const [, set] = useState(true);
+  const [oportunidades, setOportunidades] = useState<Oportunidad[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [etapaFilter, setEtapaFilter] = useState("all");
