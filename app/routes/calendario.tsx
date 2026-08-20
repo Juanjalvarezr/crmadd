@@ -345,13 +345,13 @@ export default function Calendario() {
         display: 'flex', 
         flexDirection: 'column' 
       }}>
-        <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+        <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', minHeight: { xs: 520, sm: 600 } }}>
           <Calendar
             localizer={localizer}
             events={filteredEvents}
             startAccessor="start"
             endAccessor="end"
-            style={{ height: '100%' }}
+            style={{ height: '100%', minHeight: { xs: 420, sm: 520 } }}
             culture="es"
             view={view}
             onView={setView}
