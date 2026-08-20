@@ -906,7 +906,7 @@ export default function Proyectos() {
                       {proyecto.nombre}
                     </Typography>
                     <Typography variant="caption" sx={{ color: "text.secondary", display: "block", whiteSpace: 'nowrap', fontSize: { xs: '0.7rem', sm: '0.8rem' } }}>
-                      {proyecto.clienteNombre || proyecto.clienteId || "Sin asignar"}
+                      ID: {proyecto.id} • {proyecto.clienteNombre || proyecto.clienteId || "Sin asignar"}
                     </Typography>
                   </Box>
 
