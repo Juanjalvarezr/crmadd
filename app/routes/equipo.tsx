@@ -10,8 +10,8 @@ import { FiUserPlus, FiMail, FiEdit2, FiTrash2, FiRefreshCw } from "react-icons/
 import { subagentesService as equipoService } from '../services/supabase';
 
 export default function Equipo() {
-  const [, set] = useState<any[]>([]);
-  const [, set] = useState(true);
+  const [miembros, setMiembros] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [openModal, setOpenModal] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
