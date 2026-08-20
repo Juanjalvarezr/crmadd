@@ -118,22 +118,29 @@ BEGIN
   END IF;
 END $$;
 
--- Proyecto
+-- Proyecto y dependencias
 DO $$
 DECLARE
   v_proyecto_id uuid;
   v_proyecto_id_text text;
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'proyectos') THEN
-    SELECT gen_random_uuid() INTO v_proyecto_id;
-    v_proyecto_id_text := CAST(v_proyecto_id AS text);
+    -- Intentar insertar nuevo proyecto y obtener su id
     INSERT INTO proyectos (id, nombre, descripcion, cliente_id, cliente_nombre, servicios, estado, prioridad, fecha_inicio, fecha_fin, progreso, presupuesto, costo_actual, estado_pago, fase_administrativa)
-    SELECT v_proyecto_id, 'Agencia Deseo Digital', 'Proyecto interno CRM', c.id, 'DESEO DIGITAL', ARRAY['Diseño Web Profesional'], 'en_progreso', 'alta', '2026-06-01', '2026-12-31', 30, 15000000, 4500000, 'parcial', 'operacion'
+    SELECT gen_random_uuid(), 'Agencia Deseo Digital', 'Proyecto interno CRM', c.id, 'DESEO DIGITAL', ARRAY['Diseño Web Profesional'], 'en_progreso', 'alta', '2026-06-01', '2026-12-31', 30, 15000000, 4500000, 'parcial', 'operacion'
     FROM clientes c
     WHERE c.email = 'juanjosealvarez@gmail.com'
-      AND NOT EXISTS (SELECT 1 FROM proyectos WHERE nombre = 'Agencia Deseo Digital');
+      AND NOT EXISTS (SELECT 1 FROM proyectos WHERE nombre = 'Agencia Deseo Digital')
+    RETURNING id INTO v_proyecto_id;
 
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'tareas') THEN
+    -- Si no insertó, traer el id existente
+    IF v_proyecto_id IS NULL THEN
+      SELECT id INTO v_proyecto_id FROM proyectos WHERE nombre = 'Agencia Deseo Digital' LIMIT 1;
+    END IF;
+
+    v_proyecto_id_text := CAST(v_proyecto_id AS text);
+
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'tareas') AND v_proyecto_id IS NOT NULL THEN
       INSERT INTO tareas (titulo, descripcion, fecha, prioridad, estado, tipo, proyecto_id, cliente_id, responsable_id)
       SELECT 'Definir alcance CRM', 'Reunir requisitos y cierre de propuesta', CURRENT_DATE + 2, 'Alta', 'Pendiente', 'Tarea', v_proyecto_id, c.id, null
       FROM clientes c
@@ -153,7 +160,7 @@ BEGIN
         AND NOT EXISTS (SELECT 1 FROM tareas WHERE titulo = 'Entrega cliente' AND proyecto_id = v_proyecto_id_text);
     END IF;
 
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'facturas') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'facturas') AND v_proyecto_id IS NOT NULL THEN
       INSERT INTO facturas (proyecto_id, cliente_id, estado, total, subtotal, iva, numero, tipo, moneda, estado_pago, fecha_emision, fecha_vencimiento)
       SELECT v_proyecto_id_text, c.id, 'Enviada', 15000000, 12500000, 2500000, 'FAC-001', 'factura', 'COP', 'Pendiente', CURRENT_DATE - 10, CURRENT_DATE + 20
       FROM clientes c
@@ -161,14 +168,14 @@ BEGIN
         AND NOT EXISTS (SELECT 1 FROM facturas WHERE numero = 'FAC-001');
     END IF;
 
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'contratos') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'contratos') AND v_proyecto_id IS NOT NULL THEN
       INSERT INTO contratos (cliente_id, proyecto_id, tipo, titulo, contenido, estado, valor, fecha_inicio, fecha_fin)
       SELECT c.id, v_proyecto_id_text, 'prestacion_servicios', 'Contrato Agencia Deseo Digital', 'Contrato de prestación de servicios', 'activo', 15000000, CURRENT_DATE, CURRENT_DATE + INTERVAL '120 days'
       FROM clientes c
       WHERE c.email = 'juanjosealvarez@gmail.com';
     END IF;
 
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'transacciones') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'transacciones') AND v_proyecto_id IS NOT NULL THEN
       INSERT INTO transacciones (proyecto_id, cliente_id, tipo, monto, categoria, moneda, forma_pago, fecha)
       SELECT v_proyecto_id_text, c.id, 'ingreso', 4500000, 'ingreso', 'COP', 'transferencia', CURRENT_DATE - 8
       FROM clientes c
@@ -182,7 +189,7 @@ BEGIN
         AND NOT EXISTS (SELECT 1 FROM transacciones WHERE tipo = 'egreso' AND categoria = 'egreso' AND proyecto_id = v_proyecto_id_text);
     END IF;
 
-    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'pagos') THEN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'pagos') AND v_proyecto_id IS NOT NULL THEN
       INSERT INTO pagos (factura_id, monto, metodo_pago, referencia, fecha_pago)
       SELECT 1, 4500000, 'transferencia', 'REF-001', CURRENT_DATE - 8
       WHERE EXISTS (SELECT 1 FROM facturas WHERE id = 1);
