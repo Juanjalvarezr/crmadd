@@ -143,21 +143,21 @@ export default function Documentos() {
         </Paper>
       )}
       <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 1 }}>
-        <FormControl size="small" sx={{ minWidth: 140 }}>
+        <FormControl size="small" sx={{ minWidth: 160 }}>
           <InputLabel>Proyecto</InputLabel>
           <Select value={filters.proyecto_id} label="Proyecto" onChange={(e) => setFilters({ ...filters, proyecto_id: e.target.value })}>
             <MenuItem value="">Todos</MenuItem>
             {(proyectos || []).map((p: any) => <MenuItem key={p.id} value={Number(p.id)}>{p.nombre || `Proyecto #${p.id}`}</MenuItem>)}
           </Select>
         </FormControl>
-        <FormControl size="small" sx={{ minWidth: 140 }}>
+        <FormControl size="small" sx={{ minWidth: 160 }}>
           <InputLabel>Cliente</InputLabel>
           <Select value={filters.cliente_id} label="Cliente" onChange={(e) => setFilters({ ...filters, cliente_id: e.target.value })}>
             <MenuItem value="">Todos</MenuItem>
             {(clientes || []).map((c: any) => <MenuItem key={c.id} value={Number(c.id)}>{c.nombre || c.email || `Cliente #${c.id}`}</MenuItem>)}
           </Select>
         </FormControl>
-        <FormControl size="small" sx={{ minWidth: 120 }}>
+        <FormControl size="small" sx={{ minWidth: 130 }}>
           <InputLabel>Tipo</InputLabel>
           <Select value={filters.tipo} label="Tipo" onChange={(e) => setFilters({ ...filters, tipo: e.target.value })}>
             <MenuItem value="">Todos</MenuItem>
@@ -177,12 +177,17 @@ export default function Documentos() {
           <Paper key={row.id} variant="outlined" sx={{ p: 1.5, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <Box>
               <Typography variant="subtitle2" sx={{ fontSize: "0.85rem" }}>{row.titulo}</Typography>
-              <Typography variant="caption" color="text.secondary">{row.tipo} {row.url ? `• <a href="${row.url}" target="_blank" rel="noreferrer">Ver</a>` : ""}</Typography>
+              <Typography variant="caption" color="text.secondary">
+                {row.tipo}
+                {row.proyecto_id ? ` • Proyecto ${row.proyecto_id}` : ""}
+                {row.cliente_id ? ` • Cliente ${row.cliente_id}` : ""}
+                {row.url ? ` • <a href="${row.url}" target="_blank" rel="noreferrer">Ver</a>` : ""}
+              </Typography>
             </Box>
             <Box sx={{ display: "flex", gap: 0.5 }}>
-              {row.url && <IconButton size="small" href={row.url} target="_blank" rel="noreferrer"><FiDownload size={16} /></IconButton>}
-              {row.url && <IconButton size="small" onClick={() => setPreview(row.url)}><FiFileText size={16} /></IconButton>}
-              <IconButton size="small" color="error" onClick={() => handleDelete(row)}><FiX size={16} /></IconButton>
+              {row.url && <IconButton size="small" href={row.url} target="_blank" rel="noreferrer" title="Descargar"><FiDownload size={16} /></IconButton>}
+              {row.url && <IconButton size="small" onClick={() => setPreview(row.url)} title="Vista previa"><FiFileText size={16} /></IconButton>}
+              <IconButton size="small" color="error" onClick={() => handleDelete(row)} title="Eliminar"><FiX size={16} /></IconButton>
             </Box>
           </Paper>
         ))}
