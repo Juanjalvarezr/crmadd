@@ -182,13 +182,13 @@ END $$;
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'transacciones') THEN
-    INSERT INTO transacciones (proyecto_id, cliente_id, tipo, monto, categoria, moneda, metodo_pago, fecha)
-    SELECT 'PROJ-001', c.id, 'Ingreso', 4500000, 'Pago inicial', 'COP', 'transferencia', CURRENT_DATE - 8
+    INSERT INTO transacciones (proyecto_id, cliente_id, tipo, monto, categoria, moneda, fecha)
+    SELECT 'PROJ-001', c.id, 'Ingreso', 4500000, 'Pago inicial', 'COP', CURRENT_DATE - 8
     FROM clientes c
     WHERE c.email = 'juanjosealvarez@gmail.com';
 
-    INSERT INTO transacciones (proyecto_id, cliente_id, tipo, monto, categoria, moneda, metodo_pago, fecha)
-    SELECT 'PROJ-001', c.id, 'Egreso', 1200000, 'Hosting y dominio', 'COP', 'transferencia', CURRENT_DATE - 5
+    INSERT INTO transacciones (proyecto_id, cliente_id, tipo, monto, categoria, moneda, fecha)
+    SELECT 'PROJ-001', c.id, 'Egreso', 1200000, 'Hosting y dominio', 'COP', CURRENT_DATE - 5
     FROM clientes c
     WHERE c.email = 'juanjosealvarez@gmail.com';
   END IF;
