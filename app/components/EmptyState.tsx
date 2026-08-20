@@ -18,7 +18,8 @@ export function EmptyState({
 }) {
   return (
     <Box sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2, textAlign: "center", border: "1px dashed", borderColor: "divider" }}>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+      {icon && <Box sx={{ color: color || 'text.secondary', mb: 1 }}>{icon}</Box>}
+    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
         {title}
       </Typography>
       {description && (
