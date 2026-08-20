@@ -53,8 +53,7 @@ export default function Tareas() {
   const [editingTarea, setEditingTarea] = useState<Tarea | null>(null);
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Tarea | null>(null);
-  const notify = (...args: any[]) => globalSnack.show(...args);
-
+  
   const [formData, setFormData] = useState({
     titulo: "",
     descripcion: "",
@@ -118,21 +117,21 @@ export default function Tareas() {
   };
 
   const handleSave = async () => {
-    if (!formData.titulo) { notify("El título es obligatorio", "error"); return; }
+    if (!formData.titulo) { globalSnack.show("El título es obligatorio", "error"); return; }
     setSaving(true);
     const payload = { ...formData, cliente_id: formData.cliente_id === "" ? null : Number(formData.cliente_id) };
     try {
-      if (editingTarea) { await tareasService.update(editingTarea.id, payload as any); notify("Tarea actualizada ✓", "success"); }
-      else { await tareasService.create(payload as any); notify("Tarea creada ✓", "success"); }
+      if (editingTarea) { await tareasService.update(editingTarea.id, payload as any); globalSnack.show("Tarea actualizada ✓", "success"); }
+      else { await tareasService.create(payload as any); globalSnack.show("Tarea creada ✓", "success"); }
       await loadTareas();
       setOpenModal(false);
-    } catch (err: any) { notify("Error: " + err.message, "error"); }
+    } catch (err: any) { globalSnack.show("Error: " + err.message, "error"); }
     finally { setSaving(false); }
   };
 
   const handleComplete = async (tarea: Tarea) => {
-    try { await tareasService.update(tarea.id, { estado: "Completada" }); await loadTareas(); notify("¡Tarea completada! ✓", "success"); }
-    catch (err: any) { notify("Error: " + err.message, "error"); }
+    try { await tareasService.update(tarea.id, { estado: "Completada" }); await loadTareas(); globalSnack.show("¡Tarea completada! ✓", "success"); }
+    catch (err: any) { globalSnack.show("Error: " + err.message, "error"); }
   };
 
   const handleDelete = async (tarea: Tarea) => {
@@ -141,8 +140,8 @@ export default function Tareas() {
 
   const confirmDelete = async () => {
     if (!deleteTarget) return;
-    try { await tareasService.delete(deleteTarget.id); await loadTareas(); notify("Tarea eliminada", "success"); }
-    catch (err: any) { notify("Error: " + err.message, "error"); }
+    try { await tareasService.delete(deleteTarget.id); await loadTareas(); globalSnack.show("Tarea eliminada", "success"); }
+    catch (err: any) { globalSnack.show("Error: " + err.message, "error"); }
     finally { setDeleteTarget(null); }
   };
 

@@ -8,8 +8,8 @@ import { Calendar, dateFnsLocalizer, Views } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay } from "date-fns";
 import { es } from "date-fns/locale/es";
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import { useNotificationStore } from "../store/useNotificationStore";
 import { useCRMStore } from "../store/useCRMStore";
+import { globalSnack } from "../components/GlobalSnackbar";
 import { facturasService, pagosService, calendarEventsService } from "../services/supabase";
 
 const locales = { es };
@@ -58,8 +58,7 @@ export default function Calendario() {
   const [editingEvent, setEditingEvent] = useState<CalEvent | null>(null);
   const [eventForm, setEventForm] = useState({ title: "", start: "", end: "", allDay: true, type: "tarea" as CalEvent["type"], color: "#2196f3", desc: "" });
 
-  const notify = (...args: any[]) => globalSnack.show(...args);
-
+  
   useEffect(() => {
     loadEvents();
   }, []);
@@ -142,7 +141,7 @@ export default function Calendario() {
       }));
       setEvents(mapped);
     } catch (error) {
-      notify("Error al cargar eventos del calendario.", "error");
+      globalSnack.show("Error al cargar eventos del calendario.", "error");
     } finally {
       setLoading(false);
     }
@@ -202,7 +201,7 @@ export default function Calendario() {
   const handleSaveEvent = async () => {
     try {
       if (!eventForm.title || !eventForm.start) {
-        notify("Título y fecha requeridos", "warning");
+        globalSnack.show("Título y fecha requeridos", "warning");
         return;
       }
       const start = new Date(eventForm.start);
@@ -222,15 +221,15 @@ export default function Calendario() {
       if (editingEvent) {
         const updated = await calendarEventsService.update(editingEvent.id, payload);
         setEvents(prev => prev.map(e => e.id === editingEvent.id ? { ...e, ...(updated as any) } : e));
-        notify("Evento actualizado", "success");
+        globalSnack.show("Evento actualizado", "success");
       } else {
         const created = await calendarEventsService.create(payload);
         setEvents(prev => [...prev, created as any]);
-        notify("Evento creado", "success");
+        globalSnack.show("Evento creado", "success");
       }
       setEventModalOpen(false);
     } catch (err: any) {
-      notify(err.message || "Error guardando evento", "error");
+      globalSnack.show(err.message || "Error guardando evento", "error");
     }
   };
 
@@ -241,9 +240,9 @@ export default function Calendario() {
       await calendarEventsService.delete(id);
       setEvents(prev => prev.filter(e => e.id !== evt.id));
       setIsModalOpen(false);
-      notify("Evento eliminado", "success");
+      globalSnack.show("Evento eliminado", "success");
     } catch (err: any) {
-      notify(err.message || "Error eliminando evento", "error");
+      globalSnack.show(err.message || "Error eliminando evento", "error");
     }
   };
 
@@ -252,7 +251,7 @@ export default function Calendario() {
     try {
       const facturasList = await facturasService.getAll();
       const factura = (facturasList || []).find((f: any) => f.id === selectedEvent.facturaId);
-      if (!factura) { notify("Factura no encontrada", "warning"); return; }
+      if (!factura) { globalSnack.show("Factura no encontrada", "warning"); return; }
       const total = Number(factura.total || 0);
       const pagosList = await pagosService.getByFactura(factura.id);
       const pagado = (pagosList || []).reduce((a, b) => a + Number(b.monto || 0), 0);
@@ -262,11 +261,11 @@ export default function Calendario() {
       const texto = encodeURIComponent(`Hola ${clienteNombre}, te compartimos tu factura #${factura.numero_factura || factura.id} por $${total.toFixed(0)}. Saldo pendiente: $${saldo.toFixed(0)}. Estado: ${factura.estado || "Borrador"}. Fecha vencimiento: ${factura.fecha_vencimiento || "Sin definir"}. Ante cualquier duda respondé este mensaje.`);
       if (telefono) {
         if (typeof window !== "undefined") window.open(`https://wa.me/${telefono}?text=${texto}`, "_blank");
-        notify("Abriendo WhatsApp...", "info");
+        globalSnack.show("Abriendo WhatsApp...", "info");
       } else {
-        notify("El cliente no tiene teléfono cargado", "warning");
+        globalSnack.show("El cliente no tiene teléfono cargado", "warning");
       }
-    } catch (err: any) { notify(err.message || "Error", "error"); }
+    } catch (err: any) { globalSnack.show(err.message || "Error", "error"); }
   };
 
   const eventStyleGetter = (event: CalEvent) => {

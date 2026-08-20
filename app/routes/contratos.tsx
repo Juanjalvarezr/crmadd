@@ -8,7 +8,7 @@ import { FiRefreshCw, FiPlus, FiX, FiUpload, FiFileText, FiEdit, FiTrash2 } from
 import { contratosService } from "../services/supabase";
 import { storageHelper } from "../services/supabase";
 import { useCRMStore } from "../store/useCRMStore";
-import { useNotificationStore } from "../store/useNotificationStore";
+import { globalSnack } from "../components/GlobalSnackbar";
 
 export function meta() {
   return [{ title: "Contratos | CRM Agencia" }];
@@ -25,8 +25,7 @@ export default function Contratos() { const loadContratos = () => { if (typeof w
   const [form, setForm] = useState({ estado: "Activo", valor: "", proyecto_id: "", cliente_id: "", factura_id: "", fecha_inicio: "", fecha_fin: "", url: "" });
   const [saving, setSaving] = useState(false);
   const [file, setFile] = useState<File | null>(null);
-  const notify = (...args: any[]) => globalSnack.show(...args);
-
+  
   const load = async () => {
     try { setLoading(true); setError(null); await fetchContratos(); }
     catch (err: any) { setError(err.message || "Error al cargar contratos"); }
@@ -58,10 +57,10 @@ export default function Contratos() { const loadContratos = () => { if (typeof w
         url = await storageHelper.upload('crm-documents', `contracts/${fileName}`, file);
       }
       const payload = { ...form, valor: Number(form.valor || 0), cliente_id: form.cliente_id ? Number(form.cliente_id) : undefined, proyecto_id: form.proyecto_id || undefined, factura_id: form.factura_id ? Number(form.factura_id) : undefined, fecha_inicio: form.fecha_inicio || undefined, fecha_fin: form.fecha_fin || undefined, url };
-      if (editing) { await contratosService.update(editing.id, payload); notify("Contrato actualizado", "success"); }
-      else { await contratosService.create(payload); notify("Contrato creado", "success"); }
+      if (editing) { await contratosService.update(editing.id, payload); globalSnack.show("Contrato actualizado", "success"); }
+      else { await contratosService.create(payload); globalSnack.show("Contrato creado", "success"); }
       setOpenModal(false); await load();
-    } catch (err: any) { notify(err.message || "Error guardando contrato", "error"); }
+    } catch (err: any) { globalSnack.show(err.message || "Error guardando contrato", "error"); }
     finally { setSaving(false); }
   };
 
@@ -71,8 +70,8 @@ export default function Contratos() { const loadContratos = () => { if (typeof w
 
   const confirmDelete = async () => {
     if (!deleteTarget) return;
-    try { await contratosService.delete(deleteTarget.id); await load(); notify("Contrato eliminado", "success"); }
-    catch (err: any) { notify(err.message || "Error eliminando contrato", "error"); }
+    try { await contratosService.delete(deleteTarget.id); await load(); globalSnack.show("Contrato eliminado", "success"); }
+    catch (err: any) { globalSnack.show(err.message || "Error eliminando contrato", "error"); }
     finally { setDeleteTarget(null); }
   };
 
