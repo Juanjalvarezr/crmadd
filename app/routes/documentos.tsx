@@ -32,8 +32,8 @@ export default function Documentos() {
       setError(null);
       const data = await documentosService.getAll();
       let filtered = data || [];
-      if (filters.proyecto_id) filtered = filtered.filter((x: any) => x.proyecto_id === Number(filters.proyecto_id));
-      if (filters.cliente_id) filtered = filtered.filter((x: any) => x.cliente_id === Number(filters.cliente_id));
+      if (filters.proyecto_id) filtered = filtered.filter((x: any) => String(x.proyecto_id) === String(filters.proyecto_id));
+      if (filters.cliente_id) filtered = filtered.filter((x: any) => Number(x.cliente_id) === Number(filters.cliente_id));
       if (filters.tipo) filtered = filtered.filter((x: any) => x.tipo === filters.tipo);
       setItems(filtered);
     } catch (err: any) {

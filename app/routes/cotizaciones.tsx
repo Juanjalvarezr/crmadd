@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import {
   Box, Typography, Paper, Button, TextField, FormControl, InputLabel, Select, MenuItem,
-  Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Alert, CircularProgress, Chip
+  Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Alert, CircularProgress, Chip, Tooltip
 } from "@mui/material";
 import { FiPlus, FiEdit, FiTrash2, FiFileText, FiRefreshCw, FiMessageSquare, FiX } from "react-icons/fi";
 import { cotizacionesService, clientesService, proyectosService, documentosService } from "../services/supabase";
@@ -182,10 +182,10 @@ export default function Cotizaciones() {
                 <Chip size="small" label={estado} color={estadoColor as any} sx={{ height: { xs: 22, sm: 26 }, fontSize: { xs: '0.65rem', sm: '0.7rem' } }} />
                 <Typography variant="caption" sx={{ fontWeight: "bold", fontSize: { xs: '0.8rem', sm: '0.85rem' } }}>${Number(row.total || 0).toFixed(0)}</Typography>
                 <Box sx={{ display: "flex", gap: { xs: 0.25, sm: 0.5 }, flexWrap: "wrap" }}>
-                  <IconButton size="small" onClick={() => generarDocumento(row)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiFileText size={16}/></IconButton>
-                  <IconButton size="small" color="success" onClick={() => sendWhatsApp(row)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiMessageSquare size={16}/></IconButton>
-                  <IconButton size="small" onClick={() => openEdit(row)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiEdit size={16}/></IconButton>
-                  <IconButton size="small" color="error" onClick={() => handleDelete(row)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiTrash2 size={16}/></IconButton>
+                  <Tooltip title="Generar documento"><IconButton size="small" onClick={() => generarDocumento(row)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiFileText size={16}/></IconButton></Tooltip>
+                  <Tooltip title="Enviar por WhatsApp"><IconButton size="small" color="success" onClick={() => sendWhatsApp(row)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiMessageSquare size={16}/></IconButton></Tooltip>
+                  <Tooltip title="Editar"><IconButton size="small" onClick={() => openEdit(row)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiEdit size={16}/></IconButton></Tooltip>
+                  <Tooltip title="Eliminar"><IconButton size="small" color="error" onClick={() => handleDelete(row)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiTrash2 size={16}/></IconButton></Tooltip>
                 </Box>
               </Paper>
             );

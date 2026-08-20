@@ -7,6 +7,7 @@ import { Header } from "./components/Header";
 import { MobileFab } from "./components/MobileFab";
 import GlobalSearch from "./components/GlobalSearch";
 import { darkTheme, lightTheme } from "./theme";
+import GlobalSnackbar from "./components/GlobalSnackbar";
 
 const DRAWER_WIDTH = 260;
 
@@ -145,6 +146,7 @@ export default function Root() {
           </Box>
           <MobileFab />
           <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
+          <GlobalSnackbar />
         </Box>
       </Box>
       <Snackbar
