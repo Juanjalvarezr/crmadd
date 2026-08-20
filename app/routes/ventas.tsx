@@ -21,7 +21,7 @@ import { FiPlus, FiEdit, FiTrash2, FiSearch, FiX, FiRefreshCw, FiTrendingUp, FiM
 import { tareasService, serviciosService, clientesService, oportunidadesService, proyectosService } from "../services/supabase";
 
 import { aiService } from "../services/ai";
-import { useNotificationStore } from "../store/useNotificationStore";
+
 import { EmptyState } from "../components/EmptyState";
 import { useLocation } from "react-router";
 import type { Oportunidad, Cliente } from "../types/crm";

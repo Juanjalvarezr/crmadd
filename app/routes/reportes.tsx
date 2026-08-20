@@ -10,7 +10,7 @@ import {
 } from "react-icons/fi";
 import { format, startOfMonth, endOfMonth, startOfYear, endOfYear } from "date-fns";
 import { tareasService, clientesService, oportunidadesService, proyectosService, facturasService } from "../services/supabase";
-import { useNotificationStore } from "../store/useNotificationStore";
+
 
 // Tipos para reportes
 interface Metrica {

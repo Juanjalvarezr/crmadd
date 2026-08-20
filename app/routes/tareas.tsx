@@ -5,8 +5,9 @@ import {
 } from "@mui/material";
 import { FiPlus, FiEdit, FiTrash2, FiCheck, FiSearch, FiRefreshCw, FiCheckSquare, FiX } from "react-icons/fi";
 import { tareasService } from "../services/supabase";
-import { useNotificationStore } from "../store/useNotificationStore";
+
 import { useCRMStore } from "../store/useCRMStore";
+import { globalSnack } from "../components/GlobalSnackbar";
 import { format, startOfDay, isBefore } from "date-fns";
 import { EmptyState } from "../components/EmptyState";
 import { CompactTable } from "../components/CompactTable";

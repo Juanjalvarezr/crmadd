@@ -6,11 +6,15 @@ export function EmptyState({
   description,
   actionLabel,
   onAction,
+  icon,
+  color,
 }: {
   title: string;
   description?: string;
   actionLabel?: string;
   onAction?: () => void;
+  icon?: React.ReactNode;
+  color?: string;
 }) {
   return (
     <Box sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2, textAlign: "center", border: "1px dashed", borderColor: "divider" }}>
