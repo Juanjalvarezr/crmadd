@@ -183,8 +183,8 @@ END $$;
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'contratos') THEN
-    INSERT INTO contratos (cliente_id, proyecto_id, estado, valor, fecha_inicio, fecha_fin)
-    SELECT c.id, (SELECT id FROM proyectos WHERE nombre = 'Agencia Deseo Digital' LIMIT 1), 'activo', 15000000, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '120 days'
+    INSERT INTO contratos (cliente_id, proyecto_id, tipo, titulo, estado, valor, fecha_inicio, fecha_fin)
+    SELECT c.id, (SELECT id FROM proyectos WHERE nombre = 'Agencia Deseo Digital' LIMIT 1), 'prestacion_servicios', 'Contrato Agencia Deseo Digital', 'activo', 15000000, CURRENT_DATE, CURRENT_DATE + INTERVAL '120 days'
     FROM clientes c
     WHERE c.email = 'juanjosealvarez@gmail.com';
   END IF;
