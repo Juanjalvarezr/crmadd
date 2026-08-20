@@ -34,11 +34,11 @@ export default function Cotizaciones() {
       const [data, cRes, pRes] = await Promise.allSettled([
         cotizacionesService.getAll(),
         clientesService.getAll(),
-        proyectosService.getAll(),
+        
       ]);
       setItems(data.status === "fulfilled" ? (data.value || []) : []);
       setClientes(cRes.status === "fulfilled" ? (cRes.value || []) : []);
-      setProyectos(pRes.status === "fulfilled" ? (pRes.value || []) : []);
+      
     } catch (err: any) {
       setError(err?.message || "Error al cargar cotizaciones");
     } finally {
