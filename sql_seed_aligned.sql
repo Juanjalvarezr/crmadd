@@ -1,41 +1,45 @@
--- DESEO DIGITAL - Seed defensivo para Supabase
--- Ejecutar en SQL Editor. No rompe si falta una tabla/columna.
+-- DESEO DIGITAL - Seed CRM alineado a columnas reales confirmadas
+-- Ejecutar en SQL Editor de Supabase.
 
+-- Equipo
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'equipo') THEN
-    INSERT INTO equipo (nombre, email, rol, especialidad, estado)
-    SELECT 'Juan José Álvarez', 'juan@deseodigital.com', 'Admin', 'Estrategia', 'Activo'
+    INSERT INTO equipo (nombre, email, rol, especialidad, estado, created_at)
+    SELECT 'Juan José Álvarez', 'juan@deseodigital.com', 'Admin', 'Estrategia', 'Activo', CURRENT_DATE
     WHERE NOT EXISTS (SELECT 1 FROM equipo WHERE email = 'juan@deseodigital.com');
 
-    INSERT INTO equipo (nombre, email, rol, especialidad, estado)
-    SELECT 'Jessica López', 'jessica@deseodigital.com', 'Técnico', 'Desarrollo Web', 'Activo'
+    INSERT INTO equipo (nombre, email, rol, especialidad, estado, created_at)
+    SELECT 'Jessica López', 'jessica@deseodigital.com', 'Técnico', 'Desarrollo Web', 'Activo', CURRENT_DATE
     WHERE NOT EXISTS (SELECT 1 FROM equipo WHERE email = 'jessica@deseodigital.com');
 
-    INSERT INTO equipo (nombre, email, rol, especialidad, estado)
-    SELECT 'Pedro Ramírez', 'pedro@deseodigital.com', 'Creativo', 'Branding', 'Activo'
+    INSERT INTO equipo (nombre, email, rol, especialidad, estado, created_at)
+    SELECT 'Pedro Ramírez', 'pedro@deseodigital.com', 'Creativo', 'Branding', 'Activo', CURRENT_DATE
     WHERE NOT EXISTS (SELECT 1 FROM equipo WHERE email = 'pedro@deseodigital.com');
   END IF;
 END $$;
 
+-- Cliente base
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'clientes') THEN
-    INSERT INTO clientes (nombre, email, telefono, empresa, nicho, estado, favorito)
-    SELECT 'Juan Jose Alvarez', 'juanjosealvarez@gmail.com', '320 369 8476', 'DESEO DIGITAL', 'Tecnología', 'Activo', true
+    INSERT INTO clientes (nombre, email, telefono, empresa, nicho, estado, favorito, created_at)
+    SELECT 'Juan Jose Alvarez', 'juanjosealvarez@gmail.com', '320 369 8476', 'DESEO DIGITAL', 'Tecnología', 'Activo', true, CURRENT_DATE
     WHERE NOT EXISTS (SELECT 1 FROM clientes WHERE email = 'juanjosealvarez@gmail.com');
   END IF;
 END $$;
 
+-- Configuración empresa
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'configuracion_empresa') THEN
-    INSERT INTO configuracion_empresa (nombre_agencia, email_contacto, telefono, website, descripcion, direccion, ciudad, pais)
-    SELECT 'DESEO DIGITAL', 'contacto@deseodigital.com', '320 369 8476', 'https://deseodigital.com', 'Agencia especializada en Marketing Digital y SEO', 'Calle 10 #20-30', 'Medellín', 'Colombia'
+    INSERT INTO configuracion_empresa (nombre_agencia, email_contacto, telefono, website, descripcion, direccion, ciudad, pais, actualizado_en)
+    SELECT 'DESEO DIGITAL', 'contacto@deseodigital.com', '320 369 8476', 'https://deseodigital.com', 'Agencia especializada en Marketing Digital y SEO', 'Calle 10 #20-30', 'Medellín', 'Colombia', CURRENT_DATE
     WHERE NOT EXISTS (SELECT 1 FROM configuracion_empresa LIMIT 1);
   END IF;
 END $$;
 
+-- Servicios
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'servicios') THEN
@@ -114,7 +118,7 @@ BEGIN
   END IF;
 END $$;
 
--- Proyecto + Tareas
+-- Proyecto
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'proyectos') THEN
@@ -126,6 +130,7 @@ BEGIN
   END IF;
 END $$;
 
+-- Tareas
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'tareas') THEN
@@ -149,17 +154,19 @@ BEGIN
   END IF;
 END $$;
 
--- Factura / Pagos / Contratos / Transacciones
+-- Facturas (columnas reales: sin descuento, sin metodo_pago; tiene numero/estado_pago/moneda/etc.)
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'facturas') THEN
-    INSERT INTO facturas (proyecto_id, cliente_id, estado, total, subtotal, iva, fecha_emision, fecha_vencimiento)
-    SELECT 'PROJ-001', c.id, 'Enviada', 15000000, 12500000, 2500000, CURRENT_DATE - 10, CURRENT_DATE + 20
+    INSERT INTO facturas (proyecto_id, cliente_id, estado, total, subtotal, iva, numero, tipo, moneda, estado_pago, fecha_emision, fecha_vencimiento)
+    SELECT 'PROJ-001', c.id, 'Enviada', 15000000, 12500000, 2500000, 'FAC-001', 'factura', 'COP', 'Pendiente', CURRENT_DATE - 10, CURRENT_DATE + 20
     FROM clientes c
-    WHERE c.email = 'juanjosealvarez@gmail.com';
+    WHERE c.email = 'juanjosealvarez@gmail.com'
+      AND NOT EXISTS (SELECT 1 FROM facturas WHERE numero = 'FAC-001');
   END IF;
 END $$;
 
+-- Pagos
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'pagos') THEN
@@ -169,41 +176,35 @@ BEGIN
   END IF;
 END $$;
 
-DO $$
-BEGIN
-  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'contratos') THEN
-    INSERT INTO contratos (proyecto_id, cliente_id, estado, valor, fecha_inicio, fecha_fin)
-    SELECT 'PROJ-001', c.id, 'Activo', 15000000, CURRENT_DATE - 10, CURRENT_DATE + 120
-    FROM clientes c
-    WHERE c.email = 'juanjosealvarez@gmail.com';
-  END IF;
-END $$;
+-- Contratos omitidos temporalmente: requieren confirmar valores válidos de tipo/estado (enum).
 
+-- Transacciones
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'transacciones') THEN
-    INSERT INTO transacciones (proyecto_id, cliente_id, tipo, monto, concepto, fecha)
-    SELECT 'PROJ-001', c.id, 'Ingreso', 4500000, 'Pago inicial', CURRENT_DATE - 8
+    INSERT INTO transacciones (proyecto_id, cliente_id, tipo, monto, fecha)
+    SELECT 'PROJ-001', c.id, 'Ingreso', 4500000, CURRENT_DATE - 8
     FROM clientes c
     WHERE c.email = 'juanjosealvarez@gmail.com';
 
-    INSERT INTO transacciones (proyecto_id, cliente_id, tipo, monto, concepto, fecha)
-    SELECT 'PROJ-001', c.id, 'Egreso', 1200000, 'Hosting y dominio', CURRENT_DATE - 5
+    INSERT INTO transacciones (proyecto_id, cliente_id, tipo, monto, fecha)
+    SELECT 'PROJ-001', c.id, 'Egreso', 1200000, CURRENT_DATE - 5
     FROM clientes c
     WHERE c.email = 'juanjosealvarez@gmail.com';
   END IF;
 END $$;
 
--- Email marketing
+-- Campanas email
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'campanas_email') THEN
-    INSERT INTO campanas_email (nombre, asunto, estado, destinatarios)
-    SELECT 'Bienvenida DESEO', 'Bienvenido a DESEO DIGITAL', 'borrador', ARRAY['juanjosealvarez@gmail.com']
-    WHERE NOT EXISTS (SELECT 1 FROM campanas_email WHERE nombre = 'Bienvenida DESEO');
+    INSERT INTO campanas_email (id, nombre, asunto, estado, destinatarios, created_at)
+    SELECT 'camp_001', 'Bienvenida DESEO', 'Bienvenido a DESEO DIGITAL', 'borrador', ARRAY['juanjosealvarez@gmail.com'], CURRENT_DATE
+    WHERE NOT EXISTS (SELECT 1 FROM campanas_email WHERE id = 'camp_001');
   END IF;
 END $$;
 
+-- Plantillas email
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'plantillas_email') THEN
