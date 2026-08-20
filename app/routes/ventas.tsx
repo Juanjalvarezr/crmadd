@@ -94,7 +94,7 @@ export default function Ventas() {
     servicios_interes: [] as string[],
   });
 
-  const { showNotification } = useNotificationStore();
+  const notify = (...args: any[]) => globalSnack.show(...args);
   const location = useLocation();
 
   useEffect(() => {
@@ -158,7 +158,7 @@ export default function Ventas() {
       if (newEtapa === "Cierre") {
         if (oppObj) {
           // 1. Notificación de éxito (usando el store global)
-          showNotification(
+          notify(
             `Venta cerrada: "${oppObj.nombre}" para ${oppObj.cliente_nombre}`,
             'success',
             '¡Nueva Venta Cerrada! 🎉'
@@ -171,7 +171,7 @@ export default function Ventas() {
           );
 
           if (proyectoDuplicado) {
-                        showNotification(
+                        notify(
               `El proyecto para "${oppObj.nombre}" ya había sido creado anteriormente.`,
               'info',
               'Proyecto ya registrado 📁'
@@ -231,7 +231,7 @@ export default function Ventas() {
       setOportunidades(data as Oportunidad[]);
     } catch (err: any) {
       loadData(); // Revertir en caso de error
-      showNotification("Error al mover tarjeta: " + err.message, "error");
+      notify("Error al mover tarjeta: " + err.message, "error");
     }
   };
 
@@ -250,7 +250,7 @@ export default function Ventas() {
       const whatsapp = await aiService.prepararPropuestaWhatsApp(propuesta);
       setResumenWhatsApp(whatsapp);
     } catch (err) { // Usar el Snackbar global
-      showNotification("Error al generar propuesta", "error");
+      notify("Error al generar propuesta", "error");
     } finally {
       setLoadingPropuesta(false);
     }
@@ -280,16 +280,16 @@ export default function Ventas() {
 
   const handleSave = async () => {
     if (!formData.nombre || !formData.cliente_nombre || formData.cliente_nombre === "__otro__") {
-      showNotification("Debes asignar un cliente real a la oportunidad.", "error");
+      notify("Debes asignar un cliente real a la oportunidad.", "error");
       return;
     }
 
     if (formData.valor <= 0) {
-      showNotification("Asigna un valor estimado para proyectar tus ingresos.", "warning");
+      notify("Asigna un valor estimado para proyectar tus ingresos.", "warning");
     }
 
     if ((formData.etapa === "Negociación" || formData.etapa === "Cierre") && formData.valor <= 0) {
-      showNotification("Se requiere un valor mayor a 0 para esta etapa.", "error");
+      notify("Se requiere un valor mayor a 0 para esta etapa.", "error");
       return;
     }
 
@@ -308,15 +308,15 @@ export default function Ventas() {
       };
       if (editingOpp) {
         await oportunidadesService.update(editingOpp.id, payload);
-        showNotification("Oportunidad actualizada ✓", "success");
+        notify("Oportunidad actualizada ✓", "success");
       } else {
         await oportunidadesService.create(payload);
-        showNotification("Oportunidad creada ✓", "success");
+        notify("Oportunidad creada ✓", "success");
       }
       await loadData();
       setOpenModal(false);
     } catch (err: any) {
-      showNotification("Error al guardar: " + err.message, "error");
+      notify("Error al guardar: " + err.message, "error");
     } finally {
       setSaving(false);
     }
@@ -327,9 +327,9 @@ export default function Ventas() {
     try {
       await oportunidadesService.delete(opp.id);
       await loadData(); // Usar el Snackbar global
-      showNotification("Oportunidad eliminada", "success");
+      notify("Oportunidad eliminada", "success");
     } catch (err: any) {
-      showNotification("Error al eliminar: " + err.message, "error");
+      notify("Error al eliminar: " + err.message, "error");
     }
   };
 
@@ -654,7 +654,7 @@ export default function Ventas() {
                   sx={{ mt: 1 }}
                   onClick={() => { // Usar el Snackbar global
                     if (typeof navigator !== "undefined" && navigator.clipboard) if (typeof navigator !== "undefined" && navigator.clipboard) navigator.clipboard.writeText(propuestaGenerada);
-                    showNotification("Propuesta copiada al portapapeles", "success");
+                    notify("Propuesta copiada al portapapeles", "success");
                   }}
                 >
                   Copiar Propuesta Completa

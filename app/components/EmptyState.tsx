@@ -1,84 +1,32 @@
-import React from "react";
-import { Box, Typography, Button, Paper } from "@mui/material";
+import { Box, Typography, Button } from "@mui/material";
 import { FiPlus } from "react-icons/fi";
 
-interface EmptyStateProps {
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-  actionLabel?: string;
-  onAction?: () => void;
-  color?: string;
-}
-
-export const EmptyState: React.FC<EmptyStateProps> = ({
+export function EmptyState({
   title,
   description,
-  icon,
   actionLabel,
   onAction,
-  color = "#e91e63"
-}) => {
+}: {
+  title: string;
+  description?: string;
+  actionLabel?: string;
+  onAction?: () => void;
+}) {
   return (
-    <Paper
-      sx={{
-        p: 6,
-        textAlign: "center",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: 2,
-        borderRadius: 4,
-        border: "2px dashed #e0e0e0",
-        backgroundColor: "rgba(255, 255, 255, 0.5)",
-        minHeight: 300,
-        boxShadow: "none"
-      }}
-    >
-      <Box
-        sx={{
-          width: 80,
-          height: 80,
-          borderRadius: "50%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: `${color}15`,
-          color: color,
-          mb: 1
-        }}
-      >
-        {icon}
-      </Box>
-      <Typography variant="h6" sx={{ fontWeight: "bold", color: "#333" }}>
+    <Box sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2, textAlign: "center", border: "1px dashed", borderColor: "divider" }}>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
         {title}
       </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ maxWidth: 400, mb: 2 }}>
-        {description}
-      </Typography>
+      {description && (
+        <Typography variant="caption" color="text.secondary" sx={{ display: "block", mb: 1 }}>
+          {description}
+        </Typography>
+      )}
       {actionLabel && onAction && (
-        <Button
-          variant="contained"
-          startIcon={<FiPlus />}
-          onClick={onAction}
-          sx={{
-            backgroundColor: color,
-            borderRadius: 2,
-            px: 4,
-            py: 1,
-            fontWeight: "bold",
-            "&:hover": {
-              backgroundColor: color,
-              opacity: 0.9,
-              transform: "translateY(-2px)"
-            },
-            transition: "all 0.2s"
-          }}
-        >
+        <Button size="small" variant="text" startIcon={<FiPlus size={14} />} onClick={onAction}>
           {actionLabel}
         </Button>
       )}
-    </Paper>
+    </Box>
   );
-};
+}
