@@ -26,7 +26,7 @@ export default function Facturacion() {
   const [editing, setEditing] = useState<any | null>(null);
   const [selected, setSelected] = useState<any | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
-  const [form, setForm] = useState({ numero_factura: "", estado: "Borrador", total: "", proyecto_id: "", cliente_id: "", fecha_vencimiento: "", subtotal: "", iva: "", descuento: "", metodo_pago: "", notas: "" });
+  const [form, setForm] = useState({ numero_factura: "", estado: "Borrador", total: "", proyecto_id: "", cliente_id: "", fecha_vencimiento: "", subtotal: "", iva: "", notas: "" });
   const [saving, setSaving] = useState(false);
   const [pagos, setPagos] = useState<any[]>([]);
   const [pagoForm, setPagoForm] = useState({ monto: "", metodo_pago: "transferencia", referencia: "", comprobante_url: "" });
@@ -59,13 +59,13 @@ export default function Facturacion() {
 
   const openCreate = () => {
     setEditing(null);
-    setForm({ numero_factura: "", estado: "Borrador", total: "", proyecto_id: "", cliente_id: "", fecha_vencimiento: "", subtotal: "", iva: "", descuento: "", metodo_pago: "", notas: "" });
+    setForm({ numero_factura: "", estado: "Borrador", total: "", proyecto_id: "", cliente_id: "", fecha_vencimiento: "", subtotal: "", iva: "", notas: "" });
     setOpenModal(true);
   };
 
   const openEdit = async (row: any) => {
     setEditing(row);
-    setForm({ numero_factura: row.numero_factura || "", estado: row.estado || "Borrador", total: String(row.total ?? ""), proyecto_id: row.proyecto_id || "", cliente_id: row.cliente_id ? String(row.cliente_id) : "", fecha_vencimiento: row.fecha_vencimiento || "", subtotal: String(row.subtotal ?? ""), iva: String(row.iva ?? ""), descuento: String(row.descuento ?? ""), metodo_pago: row.metodo_pago || "", notas: row.notas || "" });
+    setForm({ numero_factura: row.numero_factura || "", estado: row.estado || "Borrador", total: String(row.total ?? ""), proyecto_id: row.proyecto_id || "", cliente_id: row.cliente_id ? String(row.cliente_id) : "", fecha_vencimiento: row.fecha_vencimiento || "", subtotal: String(row.subtotal ?? ""), iva: String(row.iva ?? ""), notas: row.notas || "" });
     setOpenModal(true);
     try { const data = await pagosService.getByFactura(row.id); setPagos(data || []); } catch { setPagos([]); }
     try { const tpl = await plantillasDocumentosService.getByTipo("factura"); setPlantilla(tpl || null); } catch { setPlantilla(null); }
@@ -81,17 +81,16 @@ export default function Facturacion() {
   const calcTotales = () => {
     const subtotal = Number(form.subtotal || 0);
     const iva = Number(form.iva || 0);
-    const descuento = Number(form.descuento || 0);
-    const total = Math.max(subtotal + iva - descuento, 0);
-    return { subtotal, iva, descuento, total };
+    const total = Math.max(subtotal + iva, 0);
+    return { subtotal, iva, total };
   };
 
   const handleSave = async () => {
     setSaving(true);
     try {
       const { cliente_id, proyecto_id, fecha_vencimiento, ...rest } = form;
-      const { subtotal, iva, descuento, total } = calcTotales();
-      const payload: any = { ...rest, subtotal, iva, descuento, total };
+      const { subtotal, iva, total } = calcTotales();
+      const payload: any = { ...rest, subtotal, iva, total };
       if (cliente_id) payload.cliente_id = Number(cliente_id);
       if (proyecto_id) payload.proyecto_id = proyecto_id;
       if (fecha_vencimiento) payload.fecha_vencimiento = fecha_vencimiento;
@@ -304,9 +303,25 @@ export default function Facturacion() {
                 <MenuItem value="Vencida">Vencida</MenuItem>
               </Select>
             </FormControl>
-            <TextField label="Total" fullWidth value={form.total} onChange={(e) => setForm({ ...form, total: e.target.value })} />
-            <TextField label="Cliente ID" fullWidth value={form.cliente_id} onChange={(e) => setForm({ ...form, cliente_id: e.target.value })} />
-            <TextField label="Proyecto ID" fullWidth value={form.proyecto_id} onChange={(e) => setForm({ ...form, proyecto_id: e.target.value })} />
+            <FormControl fullWidth>
+              <InputLabel>Cliente</InputLabel>
+              <Select value={form.cliente_id} label="Cliente" onChange={(e) => setForm({ ...form, cliente_id: e.target.value })}>
+                <MenuItem value="">Sin cliente</MenuItem>
+                {clientes.map((c: any) => <MenuItem key={c.id} value={String(c.id)}>{c.nombre}</MenuItem>)}
+              </Select>
+            </FormControl>
+            <FormControl fullWidth>
+              <InputLabel>Proyecto</InputLabel>
+              <Select value={form.proyecto_id} label="Proyecto" onChange={(e) => setForm({ ...form, proyecto_id: e.target.value })}>
+                <MenuItem value="">Sin proyecto</MenuItem>
+                {(useCRMStore.getState().proyectos || []).map((p: any) => <MenuItem key={p.id} value={String(p.id)}>{p.nombre}</MenuItem>)}
+              </Select>
+            </FormControl>
+            <Box sx={{ display: "flex", gap: 1 }}>
+              <TextField label="Subtotal" type="number" sx={{ flex: 1 }} value={form.subtotal} onChange={(e) => setForm({ ...form, subtotal: e.target.value })} />
+              <TextField label="IVA" type="number" sx={{ flex: 1 }} value={form.iva} onChange={(e) => setForm({ ...form, iva: e.target.value })} />
+            </Box>
+            <TextField label="Total" type="number" fullWidth value={form.total} onChange={(e) => setForm({ ...form, total: e.target.value })} />
             <TextField label="Fecha vencimiento" type="date" fullWidth value={form.fecha_vencimiento} onChange={(e) => setForm({ ...form, fecha_vencimiento: e.target.value })} InputLabelProps={{ shrink: true }} />
           </Box>
         </DialogContent>
