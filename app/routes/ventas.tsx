@@ -1,3 +1,4 @@
+import { usePagination, PaginationBar } from "../utils/pagination";
 import { globalSnack } from "../components/GlobalSnackbar";
 import { useState, useEffect } from "react";
 import { StatCard, VentasIcon } from "../components/StatCard";
@@ -56,8 +57,8 @@ const formatCOP = (value: number) => {
 export default function Ventas() {
   const [oportunidades, setOportunidades] = useState<Oportunidad[]>([]);
   const [clientes, setClientes] = useState<Cliente[]>([]);
-  const [serviciosDisponibles, setServiciosDisponibles] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [, set] = useState<any[]>([]);
+  const [, set] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [etapaFilter, setEtapaFilter] = useState("all");

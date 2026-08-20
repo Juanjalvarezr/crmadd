@@ -1,3 +1,4 @@
+import { usePagination, PaginationBar } from "../utils/pagination";
 import { globalSnack } from "../components/GlobalSnackbar";
 import React, { useState, useEffect } from "react";
 import { Box, Typography, Paper, Button, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, FormControl, InputLabel, Select, MenuItem, CircularProgress, Alert } from "@mui/material";
@@ -11,8 +12,8 @@ export function meta() {
 }
 
 export default function Documentos() {
-  const [items, setItems] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [, set] = useState<any[]>([]);
+  const [, set] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
