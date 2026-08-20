@@ -31,7 +31,7 @@ export default function Cotizaciones() {
     try {
       setLoading(true);
       setError(null);
-      const [data, cRes, pRes] = await Promise.allSettled([
+      const [data, cRes] = await Promise.allSettled([
         cotizacionesService.getAll(),
         clientesService.getAll(),
         
