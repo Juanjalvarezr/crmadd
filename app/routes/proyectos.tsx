@@ -16,15 +16,16 @@ import {
   Video, Camera, Zap, Award, FileCheck, Share2, Mail, Send,
   Plus, Circle
 } from "lucide-react";
-import { FiFileText, FiRefreshCw, FiPlus } from "react-icons/fi";
+import { FiFileText, FiRefreshCw, FiPlus, FiDownload } from "react-icons/fi";
 import { format, formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 import { emailService, subagentesService as equipoService, logsService, proyectosService, tareasService } from "../services/supabase";
 import { documentosService, facturasService } from "../services/supabase";
 import type { Proyecto, TareaProyecto, RecursoProyecto, PlanItem } from "../types/crm";
 import { aiService } from "../services/ai";
-import { useNotificationStore } from "../store/useNotificationStore";
 import { useCRMStore } from "../store/useCRMStore";
+import { useExportCsv } from "../utils/exportCsv";
+import { globalSnack } from "../components/GlobalSnackbar";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
 // Esquema de validación con Zod
@@ -54,7 +55,6 @@ export default function Proyectos() {
   const fetchClientes = useCRMStore((s) => s.fetchClientes);
   const fetchProyectos = useCRMStore((s) => s.fetchProyectos);
   const fetchTareas = useCRMStore((s) => s.fetchTareas);
-  const { showNotification } = useNotificationStore();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("activos");
@@ -130,7 +130,7 @@ export default function Proyectos() {
     
     if (typeof navigator !== "undefined" && navigator.clipboard) if (typeof navigator !== "undefined" && navigator.clipboard) navigator.clipboard.writeText(magicUrl);
     
-    showNotification("¡Magic Link copiado! El cliente ahora puede ver su avance sin loguearse.", "success");
+    globalSnack.show("¡Magic Link copiado! El cliente ahora puede ver su avance sin loguearse.", "success");
   };
 
   // Generar vista previa del email de cierre
@@ -142,7 +142,7 @@ export default function Proyectos() {
       setSelectedProyecto(proyecto);
       setOpenPreviewEmailModal(true);
     } catch (error) {
-      showNotification("Error al generar la vista previa del email", "error");
+      globalSnack.show("Error al generar la vista previa del email", "error");
     } finally {
       setLoading(false);
     }
@@ -163,10 +163,10 @@ export default function Proyectos() {
         previewEmailContent.cuerpo
       );
 
-      showNotification("¡Email de cierre enviado exitosamente! 📧", "success");
+      globalSnack.show("¡Email de cierre enviado exitosamente! 📧", "success");
       setOpenPreviewEmailModal(false);
     } catch (error) {
-      showNotification("Error al enviar el email", "error");
+      globalSnack.show("Error al enviar el email", "error");
     } finally {
       setSendingEmail(false);
     }
@@ -253,13 +253,13 @@ export default function Proyectos() {
         const pendientes = tareasActuales.filter((t: TareaProyecto) => !t.completada).length;
         
         if (pendientes > 0 && !isAdmin) {
-          showNotification(
+          globalSnack.show(
             `Acción bloqueada: No se puede completar el proyecto mientras existan ${pendientes} tareas pendientes.`, 
             "warning"
           );
           return;
         } else if (pendientes > 0 && isAdmin) {
-          showNotification(
+          globalSnack.show(
             `Proyecto forzado a completado por Administrador (${pendientes} pendientes ignoradas).`, 
             "info"
           );
@@ -268,7 +268,7 @@ export default function Proyectos() {
 
       const fase = (editingProyecto?.faseAdministrativa || data.estado === "completado" ? "operacion" : "operacion") as Proyecto["faseAdministrativa"];
       if (fase === "operacion" && !editingProyecto?.onboardingChecklist?.identidad_digital) {
-        showNotification(
+        globalSnack.show(
           "BLOQUEO_OPERATIVO: Falta Brief de Identidad aprobado antes de pasar a Operación.",
           "error"
         );
@@ -341,7 +341,7 @@ export default function Proyectos() {
       if (editingProyecto) {
         await proyectosService.update(editingProyecto.id, nuevoProyecto);
         useCRMStore.setState((state) => ({ proyectos: state.proyectos.map((p: any) => p.id === editingProyecto.id ? nuevoProyecto : p) }));
-        showNotification("Proyecto actualizado correctamente", "success");
+        globalSnack.show("Proyecto actualizado correctamente", "success");
 
         await logsService.create({
           accion: "Actualización de Proyecto",
@@ -357,12 +357,12 @@ export default function Proyectos() {
       } else {
         await proyectosService.create(nuevoProyecto);
         useCRMStore.setState((state) => ({ proyectos: [...state.proyectos, nuevoProyecto] }));
-        showNotification("Proyecto creado correctamente", "success");
+        globalSnack.show("Proyecto creado correctamente", "success");
       }
 
       handleCloseProyectoModal();
     } catch (err: any) {
-      showNotification("Error al guardar proyecto: " + err.message, "error");
+      globalSnack.show("Error al guardar proyecto: " + err.message, "error");
     }
   };
 
@@ -371,9 +371,9 @@ export default function Proyectos() {
       try {
         await proyectosService.delete(proyecto.id);
         useCRMStore.setState((state) => ({ proyectos: state.proyectos.filter((p: any) => p.id !== proyecto.id) }));
-        showNotification("Proyecto eliminado correctamente", "success");
+        globalSnack.show("Proyecto eliminado correctamente", "success");
       } catch (err: any) {
-        showNotification("Error al eliminar proyecto: " + err.message, "error");
+        globalSnack.show("Error al eliminar proyecto: " + err.message, "error");
       }
     }
   };
@@ -433,7 +433,7 @@ export default function Proyectos() {
     link.click();
     document.body.removeChild(link);
     
-    showNotification(`Datos del proyecto "${proyecto.nombre}" exportados a CSV.`, "success");
+    globalSnack.show(`Datos del proyecto "${proyecto.nombre}" exportados a CSV.`, "success");
   };
 
   // handleDeleteTarea removed: unused
@@ -456,7 +456,7 @@ export default function Proyectos() {
       setNuevoRecursoNombre("");
       setNuevoRecursoUrl("");
     } catch (err: any) {
-      showNotification("Error al añadir recurso", "error");
+      globalSnack.show("Error al añadir recurso", "error");
     }
   };
 
@@ -469,7 +469,7 @@ export default function Proyectos() {
       useCRMStore.setState((state) => ({ proyectos: state.proyectos.map((p: any) => p.id === selectedProyecto.id ? proyectoActualizado : p) }));
       setSelectedProyecto(proyectoActualizado);
     } catch (err: any) {
-      showNotification("Error al eliminar recurso", "error");
+      globalSnack.show("Error al eliminar recurso", "error");
     }
   };
 
@@ -514,9 +514,9 @@ export default function Proyectos() {
       
       useCRMStore.setState((state) => ({ proyectos: state.proyectos.map((p: any) => p.id === selectedProyecto.id ? proyectoActualizado : p) }));
       setSelectedProyecto(proyectoActualizado);
-      showNotification("¡Plan de contenido generado con éxito! ✨", "success");
+      globalSnack.show("¡Plan de contenido generado con éxito! ✨", "success");
     } catch (err: any) {
-            showNotification("Error al generar el plan con IA", "error");
+            globalSnack.show("Error al generar el plan con IA", "error");
     } finally {
       setGeneratingPlan(false);
     }
@@ -544,7 +544,7 @@ export default function Proyectos() {
       useCRMStore.setState((state) => ({ proyectos: state.proyectos.map((p: any) => p.id === selectedProyecto.id ? proyectoActualizado : p) }));
       setSelectedProyecto(proyectoActualizado);
     } catch (err: any) {
-            showNotification("Error al actualizar item del plan", "error");
+            globalSnack.show("Error al actualizar item del plan", "error");
     }
   };
 
@@ -561,7 +561,7 @@ export default function Proyectos() {
       useCRMStore.setState((state) => ({ proyectos: state.proyectos.map((p: any) => p.id === proyecto.id ? proyectoActualizado : p) }));
       setSelectedProyecto(proyectoActualizado);
     } catch (err: any) {
-      showNotification("Error al actualizar checklist", "error");
+      globalSnack.show("Error al actualizar checklist", "error");
     }
   };
 
@@ -580,9 +580,9 @@ export default function Proyectos() {
       
       useCRMStore.setState((state) => ({ proyectos: state.proyectos.map((p: any) => p.id === proyecto.id ? proyectoActualizado : p) }));
       setSelectedProyecto(proyectoActualizado);
-      showNotification("Pago actualizado ✓", "success");
+      globalSnack.show("Pago actualizado ✓", "success");
     } catch (err: any) {
-      showNotification("Error al actualizar pago", "error");
+      globalSnack.show("Error al actualizar pago", "error");
     }
   };
 
@@ -596,12 +596,12 @@ export default function Proyectos() {
       
       useCRMStore.setState((state) => ({ proyectos: state.proyectos.map((p: any) => p.id === proyecto.id ? proyectoActualizado : p) }));
       setSelectedProyecto(proyectoActualizado);
-      showNotification(
+      globalSnack.show(
         `Fase de proyecto actualizada a ${nuevaFase.toUpperCase()}`, 
         "success"
       );
     } catch (err: any) {
-      showNotification("Error al actualizar la fase del proyecto", "error");
+      globalSnack.show("Error al actualizar la fase del proyecto", "error");
     }
   };
 
@@ -612,14 +612,14 @@ export default function Proyectos() {
         const pendientes = proyecto.tareas?.filter(t => !t.completada).length || 0;
         
         if (pendientes > 0 && !isAdmin) {
-          showNotification(
+          globalSnack.show(
             `Control de Calidad: El proyecto tiene ${pendientes} tareas pendientes. Finalízalas todas antes de completar el proyecto.`, 
             "warning"
           );
           return;
         } else if (pendientes > 0 && isAdmin) {
           // Notificación de forzado
-          showNotification(
+          globalSnack.show(
             "Forzando cierre de proyecto (Rol Admin).", 
             "info"
           );
@@ -636,12 +636,12 @@ export default function Proyectos() {
         prepararPreviewEmailCierre(proyecto);
       }
 
-      showNotification(
+      globalSnack.show(
         `Estado del proyecto cambiado a "${nuevoEstado}"`, 
         "success"
       );
     } catch (err: any) {
-      showNotification("Error al cambiar estado: " + err.message, "error");
+      globalSnack.show("Error al cambiar estado: " + err.message, "error");
     }
   };
 
@@ -685,9 +685,9 @@ export default function Proyectos() {
     try {
       const actualizadoEn = new Date().toISOString();
       await proyectosService.update(proyecto.id, { estado: nuevoEstado, actualizadoEn });
-      showNotification(`Proyecto movido a ${nuevoEstado.replace("_", " ")}`, "success");
+      globalSnack.show(`Proyecto movido a ${nuevoEstado.replace("_", " ")}`, "success");
     } catch (err: any) {
-      showNotification("Error al mover proyecto: " + err.message, "error");
+      globalSnack.show("Error al mover proyecto: " + err.message, "error");
       loadData();
     }
   };
@@ -730,7 +730,7 @@ export default function Proyectos() {
     const [open, setOpen] = useState(false);
     const [titulo, setTitulo] = useState("");
     const [fechaLimite, setFechaLimite] = useState("");
-    const { showNotification } = useNotificationStore();
+    // migrated to globalSnack
 
     const crear = async () => {
       try {
@@ -744,12 +744,12 @@ export default function Proyectos() {
           proyecto_id: Number(proyectoId)
         };
         await tareasService.create(payload);
-        showNotification('Tarea creada', 'success');
+        globalSnack.show('Tarea creada', 'success');
         setOpen(false);
         setTitulo('');
         setFechaLimite('');
         onCreated?.();
-      } catch (err: any) { showNotification(err.message || 'Error creando tarea', 'error'); }
+      } catch (err: any) { globalSnack.show(err.message || 'Error creando tarea', 'error'); }
     };
 
     return (
@@ -773,20 +773,20 @@ export default function Proyectos() {
   };
 
   const TareasProyectoList = ({ proyectoId, tareas, fetchTareas }: { proyectoId: string; tareas: any[]; fetchTareas: () => Promise<void> }) => {
-    const { showNotification } = useNotificationStore();
+    // migrated to globalSnack
     const tareasProyecto = tareas.filter((t: any) => String(t.proyecto_id) === String(proyectoId));
 
     const toggle = async (t: any) => {
       try {
         await tareasService.update(t.id, { estado: t.estado === 'Completada' ? 'Pendiente' : 'Completada' });
         await fetchTareas();
-      } catch (err: any) { showNotification(err.message || 'Error', 'error'); }
+      } catch (err: any) { globalSnack.show(err.message || 'Error', 'error'); }
     };
 
     const eliminar = async (t: any) => {
       if (typeof window !== 'undefined' && !confirm(`¿Eliminar tarea "${t.titulo}"?`)) return;
-      try { await tareasService.delete(t.id); await fetchTareas(); showNotification('Tarea eliminada', 'success'); }
-      catch (err: any) { showNotification(err.message || 'Error', 'error'); }
+      try { await tareasService.delete(t.id); await fetchTareas(); globalSnack.show('Tarea eliminada', 'success'); }
+      catch (err: any) { globalSnack.show(err.message || 'Error', 'error'); }
     };
 
     if (tareasProyecto.length === 0) return <Alert severity="info" sx={{ mt: 1 }}>Sin tareas para este proyecto.</Alert>;
@@ -820,6 +820,7 @@ export default function Proyectos() {
           <Typography variant="h6" sx={{ fontSize: { xs: '1rem', sm: '1.15rem' } }}>Proyectos</Typography>
           <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
             <Button size="small" startIcon={<FiRefreshCw size={14} />} onClick={loadData} disabled={loading}>Recargar</Button>
+            <Button size="small" variant="contained" startIcon={<FiDownload size={14} />} onClick={() => { useExportCsv("proyectos", ["id","nombre","estado","prioridad","fechaInicio","fechaFin","presupuesto"], () => proyectos.map((p: any) => ({ id: p.id, nombre: p.nombre, estado: p.estado, prioridad: p.prioridad, fechaInicio: p.fechaInicio, fechaFin: p.fechaFin, presupuesto: p.presupuesto }))); globalSnack.show("Exportando proyectos a CSV", "info"); }}>CSV</Button>
             <Button size="small" variant="contained" startIcon={<FiPlus size={16} />} onClick={() => handleOpenProyectoModal()}>Nuevo</Button>
           </Box>
         </Box>

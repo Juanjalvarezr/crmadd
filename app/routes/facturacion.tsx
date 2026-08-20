@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import {
   Box, Typography, Chip, Alert, CircularProgress,
   Paper, Button, IconButton, Dialog, DialogTitle, DialogContent, DialogActions,
-  TextField, FormControl, InputLabel, Select, MenuItem, Divider
+  TextField, FormControl, InputLabel, Select, MenuItem, Divider, Tooltip
 } from "@mui/material";
 import { FiRefreshCw, FiPlus, FiFileText, FiX, FiUpload, FiEye, FiEdit, FiTrash2, FiMessageSquare, FiMail } from "react-icons/fi";
 import { facturasService, emailService, plantillasDocumentosService, pagosService, documentosService } from "../services/supabase";
@@ -287,12 +287,12 @@ export default function Facturacion() {
               <Chip size="small" label={estado} color={estadoColor as any} sx={{ height: { xs: 22, sm: 26 }, fontSize: { xs: '0.65rem', sm: '0.7rem' } }} />
               <Typography variant="caption" sx={{ fontWeight: "bold", fontSize: { xs: '0.8rem', sm: '0.85rem' } }}>${Number(f.total || 0).toFixed(0)}</Typography>
               <Box sx={{ display: "flex", gap: { xs: 0.25, sm: 0.5 }, flexWrap: "wrap" }}>
-                <IconButton size="small" onClick={() => openDetail(f)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiEye size={16}/></IconButton>
-                <IconButton size="small" onClick={() => openEdit(f)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiEdit size={16}/></IconButton>
-                <IconButton size="small" onClick={() => generarDocumento(f)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiFileText size={16}/></IconButton>
-                <IconButton size="small" color="error" onClick={() => handleDelete(f)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiTrash2 size={16}/></IconButton>
-                <IconButton size="small" color="success" onClick={() => sendWhatsApp(f)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiMessageSquare size={16}/></IconButton>
-                <IconButton size="small" color="primary" onClick={() => sendEmail(f)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiMail size={16}/></IconButton>
+                <Tooltip title="Ver detalle"><IconButton size="small" onClick={() => openDetail(f)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiEye size={16}/></IconButton></Tooltip>
+                <Tooltip title="Editar"><IconButton size="small" onClick={() => openEdit(f)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiEdit size={16}/></IconButton></Tooltip>
+                <Tooltip title="Generar documento"><IconButton size="small" onClick={() => generarDocumento(f)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiFileText size={16}/></IconButton></Tooltip>
+                <Tooltip title="Eliminar"><IconButton size="small" color="error" onClick={() => handleDelete(f)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiTrash2 size={16}/></IconButton></Tooltip>
+                <Tooltip title="Enviar por WhatsApp"><IconButton size="small" color="success" onClick={() => sendWhatsApp(f)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiMessageSquare size={16}/></IconButton></Tooltip>
+                <Tooltip title="Enviar por Email"><IconButton size="small" color="primary" onClick={() => sendEmail(f)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiMail size={16}/></IconButton></Tooltip>
               </Box>
             </Paper>
             );
