@@ -6,7 +6,7 @@ import {
   CircularProgress, Divider, List, ListItem, ListItemText, ListItemSecondaryAction
 } from "@mui/material";
 import { 
-  FiPackage, FiPlus, FiEdit, FiTrash2, FiStar, FiClock, FiX, FiPlusCircle 
+  FiPlus, FiEdit, FiTrash2, FiStar, FiClock, FiX, FiPlusCircle, FiRefreshCw 
 } from "react-icons/fi";
 import { serviciosService } from "../services/supabase";
 
@@ -151,34 +151,15 @@ export default function Servicios() {
 
   return (
     <Box sx={{ p: { xs: 1, sm: 1.5, md: 2 } }}>
-      <Paper sx={{ 
-        p: { xs: 1.5, sm: 2 }, 
-        mb: { xs: 1, sm: 1.5 }, 
-        backgroundColor: "#fce4ec", 
-        borderLeft: "5px solid #e91e63",
-        borderRadius: 2
-      }}>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 1 }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <FiPackage size={20} color="#e91e63" />
-            <Typography variant="subtitle2" sx={{ fontWeight: "bold", color: "#e91e63", fontSize: { xs: '0.95rem', sm: '1.1rem' } }}>
-              Portafolio de Servicios
-            </Typography>
+      <Box sx={{ mb: { xs: 2.5, sm: 3 } }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 1, mb: { xs: 1, sm: 1.5 } }}>
+          <Typography variant="h6" sx={{ fontSize: { xs: '1rem', sm: '1.15rem' } }}>Servicios</Typography>
+          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+            <Button size="small" startIcon={<FiRefreshCw size={14} />} onClick={loadServicios} disabled={loading}>Recargar</Button>
+            <Button size="small" variant="contained" startIcon={<FiPlus size={16} />} onClick={() => handleOpenModal()}>Nuevo</Button>
           </Box>
-          <Button
-            variant="contained"
-            size="small"
-            startIcon={<FiPlus size={14} />}
-            onClick={() => handleOpenModal()}
-            sx={{ backgroundColor: "#e91e63", '&:hover': { backgroundColor: "#c2185b" }, minHeight: 32 }}
-          >
-            Nuevo Servicio
-          </Button>
         </Box>
-        <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block" }}>
-          Gestiona los paquetes, precios y entregables de la agencia DESEO DIGITAL.
-        </Typography>
-      </Paper>
+      </Box>
 
       {loading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}><CircularProgress /></Box>
