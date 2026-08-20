@@ -3,7 +3,7 @@ import {
   Box, Typography, Paper, Grid, Card, CardContent,
   Avatar, Chip, Button, IconButton, Dialog, DialogTitle,
   DialogContent, DialogActions, TextField, Select, MenuItem,
-  InputLabel, FormControl, Divider
+  InputLabel, FormControl, Divider, Alert
 } from "@mui/material";
 import { FiUserPlus, FiMail, FiEdit2, FiTrash2 } from "react-icons/fi";
 import { subagentesService as equipoService } from '../services/supabase';
@@ -23,11 +23,14 @@ export default function Equipo() {
 
   const loadEquipo = async () => {
     setLoading(true);
+    setError(null);
     try {
       const data = await equipoService.getAll();
       setMiembros(data || []);
-    } catch (err) {
-          } finally {
+    } catch (err: any) {
+      setError(err?.message || "Error al cargar equipo");
+      setMiembros([]);
+    } finally {
       setLoading(false);
     }
   };
@@ -85,6 +88,7 @@ export default function Equipo() {
 
   return (
     <Box sx={{ p: { xs: 1, sm: 1.5, md: 2 } }}>
+      {error && <Alert severity="error" sx={{ mb: 1 }}>{error}</Alert>}
       <Paper sx={{ p: { xs: 1.5, sm: 2 }, mb: { xs: 1, sm: 1.5 }, backgroundColor: "#f0f7ff", borderLeft: "3px solid #2196f3" }}>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
           <Box>
