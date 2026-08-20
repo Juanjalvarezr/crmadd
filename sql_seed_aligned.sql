@@ -38,17 +38,17 @@ SELECT 'SEO Optimization', 'Marketing', 'Auditoría y optimización SEO', 120000
 WHERE NOT EXISTS (SELECT 1 FROM servicios WHERE nombre = 'SEO Optimization');
 
 -- 5) Reglas AI + Prompts + Conocimiento base
-INSERT INTO reglas_ai (categoria, instruccion)
+INSERT INTO reglas_negocio_ai (categoria, instruccion)
 SELECT 'ventas', 'Siempre mencionar el anticipo del 50% antes de empezar proyecto'
-WHERE NOT EXISTS (SELECT 1 FROM reglas_ai WHERE categoria = 'ventas');
+WHERE NOT EXISTS (SELECT 1 FROM reglas_negocio_ai WHERE categoria = 'ventas');
 
-INSERT INTO reglas_ai (categoria, instruccion)
+INSERT INTO reglas_negocio_ai (categoria, instruccion)
 SELECT 'operaciones', 'Validar disponibilidad de equipo antes de asignar tarea'
-WHERE NOT EXISTS (SELECT 1 FROM reglas_ai WHERE categoria = 'operaciones');
+WHERE NOT EXISTS (SELECT 1 FROM reglas_negocio_ai WHERE categoria = 'operaciones');
 
-INSERT INTO reglas_ai (categoria, instruccion)
+INSERT INTO reglas_negocio_ai (categoria, instruccion)
 SELECT 'branding', 'Usar solo la paleta de colores oficial de la agencia'
-WHERE NOT EXISTS (SELECT 1 FROM reglas_ai WHERE categoria = 'branding');
+WHERE NOT EXISTS (SELECT 1 FROM reglas_negocio_ai WHERE categoria = 'branding');
 
 INSERT INTO prompts_ai (id, slug, system_prompt, user_prompt_template)
 SELECT 'prompt_001', 'director_estrategico', 'Eres el Director Estratégico Senior de DESEO DIGITAL.', 'Redacta una propuesta persuasiva para {{clienteNombre}}. Servicios: {{servicios}}. Enfócate en el ROI y el anticipo del 50%.'
