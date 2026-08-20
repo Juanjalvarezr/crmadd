@@ -27,6 +27,7 @@ interface ReporteData {
   nuevosClientes: number;
   proyectosCompletados: number;
   tasaConversion: number;
+  transacciones?: number;
 }
 
 export function meta() { // Corregido: estaba como string en algunos lugares
@@ -60,13 +61,12 @@ export default function Reportes() {
         setLoading(true);
         setError(null);
 
-        const [clientes, oportunidades, tareas, proyectos, facturas, transacciones] = await Promise.all([
+        const [clientes, oportunidades, tareas, proyectos, facturas] = await Promise.all([
           clientesService.getAll(),
           oportunidadesService.getAll(),
           tareasService.getAll(),
           proyectosService.getAll(),
           facturasService.getAll(),
-          transaccionesService.getAll()
         ]);
 
         const inicio = new Date(fechaInicio + "T00:00:00");
