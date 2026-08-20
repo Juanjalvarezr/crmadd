@@ -135,23 +135,20 @@ BEGIN
 
     IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'tareas') THEN
       INSERT INTO tareas (titulo, descripcion, fecha, prioridad, estado, tipo, proyecto_id, cliente_id, responsable_id)
-      SELECT 'Definir alcance CRM', 'Reunir requisitos y cierre de propuesta', CURRENT_DATE + 2, 'Alta', 'Pendiente', 'Tarea', v_proyecto_id, c.id, e.id
+      SELECT 'Definir alcance CRM', 'Reunir requisitos y cierre de propuesta', CURRENT_DATE + 2, 'Alta', 'Pendiente', 'Tarea', v_proyecto_id, c.id, null
       FROM clientes c
-      JOIN (SELECT id FROM equipo WHERE email = 'juan@deseodigital.com') e ON true
       WHERE c.email = 'juanjosealvarez@gmail.com'
         AND NOT EXISTS (SELECT 1 FROM tareas WHERE titulo = 'Definir alcance CRM' AND proyecto_id = v_proyecto_id_text);
 
       INSERT INTO tareas (titulo, descripcion, fecha, prioridad, estado, tipo, proyecto_id, cliente_id, responsable_id)
-      SELECT 'Diseño UI/UX', 'Prototipos y pruebas de contraste', CURRENT_DATE + 5, 'Media', 'En progreso', 'Tarea', v_proyecto_id, c.id, e.id
+      SELECT 'Diseño UI/UX', 'Prototipos y pruebas de contraste', CURRENT_DATE + 5, 'Media', 'En progreso', 'Tarea', v_proyecto_id, c.id, null
       FROM clientes c
-      JOIN (SELECT id FROM equipo WHERE email = 'jessica@deseodigital.com') e ON true
       WHERE c.email = 'juanjosealvarez@gmail.com'
         AND NOT EXISTS (SELECT 1 FROM tareas WHERE titulo = 'Diseño UI/UX' AND proyecto_id = v_proyecto_id_text);
 
       INSERT INTO tareas (titulo, descripcion, fecha, prioridad, estado, tipo, proyecto_id, cliente_id, responsable_id)
-      SELECT 'Entrega cliente', 'Demo funcional y capacitación', CURRENT_DATE + 10, 'Alta', 'Pendiente', 'Cita', v_proyecto_id, c.id, e.id
+      SELECT 'Entrega cliente', 'Demo funcional y capacitación', CURRENT_DATE + 10, 'Alta', 'Pendiente', 'Cita', v_proyecto_id, c.id, null
       FROM clientes c
-      JOIN (SELECT id FROM equipo WHERE email = 'juan@deseodigital.com') e ON true
       WHERE c.email = 'juanjosealvarez@gmail.com'
         AND NOT EXISTS (SELECT 1 FROM tareas WHERE titulo = 'Entrega cliente' AND proyecto_id = v_proyecto_id_text);
     END IF;
