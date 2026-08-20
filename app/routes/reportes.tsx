@@ -1,3 +1,4 @@
+import { globalSnack } from "../components/GlobalSnackbar";
 import { useState, useEffect } from "react";
 import Grid from "@mui/material/Grid";
 import { 
@@ -50,8 +51,7 @@ export default function Reportes() {
   // Estados de datos
   const [metricas, setMetricas] = useState<Metrica[]>([]);
   const [reporteData, setReporteData] = useState<ReporteData[]>([]);
-  const notify = (...args: any[]) => globalSnack.show(...args);
-
+  
   const handleCloseSnackbar = () => setSnackbar((s) => ({ ...s, open: false }));
 
   // Cargar datos de reportes conectados a Supabase
@@ -227,9 +227,9 @@ export default function Reportes() {
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
-        notify("Reporte CSV descargado", "success");
+        globalSnack.show("Reporte CSV descargado", "success");
       } catch (err: any) {
-        notify(err.message || "Error exportando CSV", "error");
+        globalSnack.show(err.message || "Error exportando CSV", "error");
       }
       return;
     }
@@ -248,9 +248,9 @@ export default function Reportes() {
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
-        notify("Reporte Excel descargado", "success");
+        globalSnack.show("Reporte Excel descargado", "success");
       } catch (err: any) {
-        notify(err.message || "Error exportando Excel", "error");
+        globalSnack.show(err.message || "Error exportando Excel", "error");
       }
       return;
     }

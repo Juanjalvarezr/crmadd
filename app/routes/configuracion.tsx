@@ -1,3 +1,4 @@
+import { globalSnack } from "../components/GlobalSnackbar";
 import { useState, useEffect, useRef } from "react";
 import Grid from "@mui/material/Grid";
 import { 
@@ -13,7 +14,6 @@ import {
   FiPackage, FiPlus, FiList, FiEdit
 } from "react-icons/fi";
 import { configuracionService, reglasAIService, conocimientoService, promptsAIService, supabase, testConnection, plantillasDocumentosService } from "../services/supabase";
-import { useNotificationStore } from "../store/useNotificationStore";
 import { BRAND } from "../theme";
 import { EmpresaTab } from "../services/EmpresaTab";
 import { CerebroAITab } from "../services/CerebroAITab";
@@ -64,8 +64,7 @@ export default function Configuracion() {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("empresa"); // Mantener activeTab local
   
-  const notify = (...args: any[]) => globalSnack.show(...args);
-  
+    
   // Punto 2 y Testigo de Conexión
   const [dbStatus, setDbStatus] = useState<{ success: boolean; message: string } | null>(null);
   const [promptsAI, setPromptsAI] = useState<any[]>([]);
@@ -126,14 +125,14 @@ export default function Configuracion() {
     if (typeof window !== "undefined") {
       if (typeof window !== "undefined") if (typeof window !== "undefined") localStorage.setItem("crm_custom_catalogs", JSON.stringify(newCatalogos));
     }
-    notify("Campos y Estados actualizados en caché global", "success");
+    globalSnack.show("Campos y Estados actualizados en caché global", "success");
   };
 
   const handleAddItem = () => {
     if (!nuevoItem.valor.trim()) return;
     const tipo = nuevoItem.tipo as keyof typeof catalogos;
     if (catalogos[tipo].includes(nuevoItem.valor.trim())) {
-      notify("Este valor ya existe", "warning");
+      globalSnack.show("Este valor ya existe", "warning");
       return;
     }
     const updated = {
@@ -159,12 +158,12 @@ export default function Configuracion() {
   const [openDocTemplateModal, setOpenDocTemplateModal] = useState(false);
 
   const handleSaveDocTemplate = async () => {
-    if (!docTemplateForm.nombre.trim() || !docTemplateForm.contenido.trim()) { notify("Nombre y contenido obligatorios", "warning"); return; }
+    if (!docTemplateForm.nombre.trim() || !docTemplateForm.contenido.trim()) { globalSnack.show("Nombre y contenido obligatorios", "warning"); return; }
     try {
       const saved = await plantillasDocumentosService.upsert(docTemplateForm as any);
       if (editingDocTemplateId) setPlantillasDocs(plantillasDocs.map((x: any) => x.id === saved.id ? saved : x)); else setPlantillasDocs([...plantillasDocs, saved]);
-      setOpenDocTemplateModal(false); notify("Plantilla guardada", "success");
-    } catch (err: any) { notify(err.message || "Error guardando plantilla", "error"); }
+      setOpenDocTemplateModal(false); globalSnack.show("Plantilla guardada", "success");
+    } catch (err: any) { globalSnack.show(err.message || "Error guardando plantilla", "error"); }
   };
 
   useEffect(() => {
@@ -241,9 +240,9 @@ export default function Configuracion() {
     try {
       await configuracionService.updateEmpresa(empresaConfig);
 
-      notify("Configuración de empresa guardada correctamente", "success");
+      globalSnack.show("Configuración de empresa guardada correctamente", "success");
     } catch (err: any) {
-      notify("Error al guardar configuración: " + err.message, "error");
+      globalSnack.show("Error al guardar configuración: " + err.message, "error");
     } finally {
       setLoading(false);
     }
@@ -254,7 +253,7 @@ export default function Configuracion() {
     if (file) {
       // Validar tamaño (máximo 2MB para no sobrecargar la DB)
       if (file.size > 2 * 1024 * 1024) {
-        notify("La imagen es demasiado grande. El límite es de 2MB.", "warning");
+        globalSnack.show("La imagen es demasiado grande. El límite es de 2MB.", "warning");
         return;
       }
 
@@ -262,9 +261,9 @@ export default function Configuracion() {
       try {
         const publicUrl = await configuracionService.uploadLogo(file);
         setEmpresaConfig(prev => ({ ...prev, logo: publicUrl }));
-        notify("Logo subido correctamente", "success");
+        globalSnack.show("Logo subido correctamente", "success");
       } catch (err: any) {
-        notify("Error al subir: " + err.message, "error");
+        globalSnack.show("Error al subir: " + err.message, "error");
       } finally {
         setLoading(false);
       }
@@ -284,9 +283,9 @@ export default function Configuracion() {
       // Aquí iría la llamada a Supabase para guardar preferencias
       // await supabase.from('preferencias_usuario').upsert(preferenciasConfig);
 
-      notify("Preferencias guardadas correctamente", "success");
+      globalSnack.show("Preferencias guardadas correctamente", "success");
     } catch (err: any) {
-      notify("Error al guardar preferencias: " + err.message, "error");
+      globalSnack.show("Error al guardar preferencias: " + err.message, "error");
     } finally {
       setLoading(false);
     }
@@ -294,12 +293,12 @@ export default function Configuracion() {
 
   const handleCambioPassword = async () => {
     if (seguridadConfig.passwordNuevo !== seguridadConfig.passwordConfirmar) {
-      notify("Las contraseñas no coinciden", "error");
+      globalSnack.show("Las contraseñas no coinciden", "error");
       return;
     }
 
     if (seguridadConfig.passwordNuevo.length < 8) {
-      notify("La contraseña debe tener al menos 8 caracteres", "error");
+      globalSnack.show("La contraseña debe tener al menos 8 caracteres", "error");
       return;
     }
 
@@ -308,7 +307,7 @@ export default function Configuracion() {
       const { error } = await supabase.auth.updateUser({ password: seguridadConfig.passwordNuevo });
       if (error) throw error;
 
-      notify("Contraseña actualizada correctamente", "success");
+      globalSnack.show("Contraseña actualizada correctamente", "success");
       
       // Limpiar formulario
       setSeguridadConfig({
@@ -319,7 +318,7 @@ export default function Configuracion() {
         passwordConfirmar: ""
       });
     } catch (err: any) {
-      notify("Error al actualizar contraseña: " + err.message, "error");
+      globalSnack.show("Error al actualizar contraseña: " + err.message, "error");
     } finally {
       setLoading(false);
     }
@@ -345,9 +344,9 @@ export default function Configuracion() {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
-      notify("Backup descargado correctamente", "success");
+      globalSnack.show("Backup descargado correctamente", "success");
     } catch (err: any) {
-      notify("Error al crear backup: " + err.message, "error");
+      globalSnack.show("Error al crear backup: " + err.message, "error");
     } finally {
       setLoading(false);
       setOpenBackupDialog(false);
@@ -368,9 +367,9 @@ export default function Configuracion() {
         setPreferenciasConfig(backupData.preferencias);
       }
 
-      notify("Configuración restaurada correctamente", "success");
+      globalSnack.show("Configuración restaurada correctamente", "success");
     } catch (err: any) {
-      notify("Error al restaurar backup: " + err.message, "error");
+      globalSnack.show("Error al restaurar backup: " + err.message, "error");
     } finally {
       setLoading(false);
       setOpenRestoreDialog(false);
@@ -823,10 +822,10 @@ export default function Configuracion() {
       // Guardamos la configuración en LocalStorage para adaptar la UI
       if (esModoCompatibilidad) {
         if (typeof window !== "undefined") localStorage.setItem("crm_compat_mode", "true");
-        notify("⚠️ Datos cargados en Modo Compatibilidad (Base de datos simplificada detectada)", "warning");
+        globalSnack.show("⚠️ Datos cargados en Modo Compatibilidad (Base de datos simplificada detectada)", "warning");
       } else {
         if (typeof window !== "undefined") localStorage.setItem("crm_compat_mode", "false");
-        notify("¡Datos reales inicializados con éxito con todas las 9 empresas reales!", "success");
+        globalSnack.show("¡Datos reales inicializados con éxito con todas las 9 empresas reales!", "success");
       }
 
       // Eliminar el Snackbar local
@@ -836,7 +835,7 @@ export default function Configuracion() {
       }, 2500);
 
     } catch (err: any) {
-      notify("Error al inicializar datos reales: " + err.message, "error");
+      globalSnack.show("Error al inicializar datos reales: " + err.message, "error");
     } finally {
       setLoading(false);
     }
@@ -861,9 +860,9 @@ export default function Configuracion() {
       await promptsAIService.update(editingPrompt.id, editingPrompt);
       setPromptsAI(promptsAI.map(p => p.id === editingPrompt.id ? editingPrompt : p));
       setOpenPromptModal(false);
-      notify("Personalidad de la IA actualizada", "success");
+      globalSnack.show("Personalidad de la IA actualizada", "success");
     } catch (e: any) {
-      notify("Error: " + e.message, "error");
+      globalSnack.show("Error: " + e.message, "error");
     } finally { setLoading(false); } // Eliminar el Snackbar local
   };
 
@@ -873,13 +872,13 @@ export default function Configuracion() {
     setConocimiento([...conocimiento, guardado]);
     setNuevoConocimiento({ titulo: "", contenido: "", categoria: "operaciones" });
     setOpenConocimientoModal(false); // Usar el Snackbar global
-    notify("Conocimiento agregado al cerebro de la IA", "success");
+    globalSnack.show("Conocimiento agregado al cerebro de la IA", "success");
   };
 
   const handleDeleteConocimiento = async (id: number) => {
     await conocimientoService.delete(id);
     setConocimiento(conocimiento.filter(c => c.id !== id)); // Usar el Snackbar global
-    notify("Conocimiento eliminado", "info");
+    globalSnack.show("Conocimiento eliminado", "info");
   };
 
   // Componente de pestaña
@@ -1274,7 +1273,7 @@ export default function Configuracion() {
                         <Button
                           variant="outlined"
                           startIcon={<FiRefreshCw />}
-                          onClick={() => notify("Gestión de sesiones en desarrollo", "info")}
+                          onClick={() => globalSnack.show("Gestión de sesiones en desarrollo", "info")}
                         >
                           Gestionar
                         </Button>
@@ -1323,7 +1322,7 @@ export default function Configuracion() {
                           <Chip size="small" label={p.tipo} sx={{ height: 22, fontSize: "0.7rem" }} />
                           <Box sx={{ display: "flex", gap: 0.5 }}>
                             <IconButton size="small" onClick={() => { setEditingDocTemplateId(p.id); setDocTemplateForm({ tipo: p.tipo, nombre: p.nombre, contenido: p.contenido, iva_porcentaje: Number(p.iva_porcentaje || 19), color_primario: p.color_primario || "#1976d2", color_secundario: p.color_secundario || "#e91e63", logo_url: p.logo_url || "", activo: !!p.activo }); setOpenDocTemplateModal(true); }}><FiEdit size={14} /></IconButton>
-                            <IconButton size="small" color="error" onClick={async () => { if (!confirm(`¿Eliminar plantilla #${p.id}?`)) return; await plantillasDocumentosService.remove(p.id); setPlantillasDocs(plantillasDocs.filter((x: any) => x.id !== p.id)); notify("Plantilla eliminada", "success"); }}><FiX size={14} /></IconButton>
+                            <IconButton size="small" color="error" onClick={async () => { if (!confirm(`¿Eliminar plantilla #${p.id}?`)) return; await plantillasDocumentosService.remove(p.id); setPlantillasDocs(plantillasDocs.filter((x: any) => x.id !== p.id)); globalSnack.show("Plantilla eliminada", "success"); }}><FiX size={14} /></IconButton>
                           </Box>
                         </Box>
                         <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>{p.nombre}</Typography>
