@@ -165,8 +165,8 @@ BEGIN
     END IF;
 
     IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'contratos') THEN
-      INSERT INTO contratos (cliente_id, proyecto_id, tipo, titulo, estado, valor, fecha_inicio, fecha_fin)
-      SELECT c.id, v_proyecto_id_text, 'prestacion_servicios', 'Contrato Agencia Deseo Digital', 'activo', 15000000, CURRENT_DATE, CURRENT_DATE + INTERVAL '120 days'
+      INSERT INTO contratos (cliente_id, proyecto_id, tipo, titulo, contenido, estado, valor, fecha_inicio, fecha_fin)
+      SELECT c.id, v_proyecto_id_text, 'prestacion_servicios', 'Contrato Agencia Deseo Digital', 'Contrato de prestación de servicios', 'activo', 15000000, CURRENT_DATE, CURRENT_DATE + INTERVAL '120 days'
       FROM clientes c
       WHERE c.email = 'juanjosealvarez@gmail.com';
     END IF;
