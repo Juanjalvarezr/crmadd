@@ -9,7 +9,7 @@ import {
   FiActivity, FiTarget, FiFileText, FiClock, FiCheckCircle, FiAlertCircle
 } from "react-icons/fi";
 import { format, startOfMonth, endOfMonth, startOfYear, endOfYear } from "date-fns";
-import { tareasService, clientesService, oportunidadesService, proyectosService } from "../services/supabase";
+import { tareasService, clientesService, oportunidadesService, proyectosService, facturasService } from "../services/supabase";
 import { useNotificationStore } from "../store/useNotificationStore";
 
 // Tipos para reportes
@@ -60,11 +60,13 @@ export default function Reportes() {
         setLoading(true);
         setError(null);
 
-        const [clientes, oportunidades, tareas, proyectos] = await Promise.all([
+        const [clientes, oportunidades, tareas, proyectos, facturas, transacciones] = await Promise.all([
           clientesService.getAll(),
           oportunidadesService.getAll(),
           tareasService.getAll(),
           proyectosService.getAll(),
+          facturasService.getAll(),
+          transaccionesService.getAll()
         ]);
 
         const inicio = new Date(fechaInicio + "T00:00:00");
@@ -86,11 +88,18 @@ export default function Reportes() {
         });
 
         const proyectosFiltrados = (proyectos || []).filter((p: any) => {
-          const created = new Date(p.creado_en || p.actualizado_en);
+          const created = new Date(p.creado_en || p.actualizado_en || p.fecha_inicio || Date.now());
           return created >= inicio && created <= fin;
         });
 
+        const facturasFiltradas = (facturas || []).filter((f: any) => {
+          const emision = new Date(f.fecha_emision || f.updated_at || Date.now());
+          return emision >= inicio && emision <= fin;
+        });
+
         const ingresosProyectos = proyectosFiltrados.reduce((sum: number, p: any) => sum + (Number(p.presupuesto) || 0), 0);
+        const ingresosFacturas = facturasFiltradas.reduce((sum: number, f: any) => sum + (Number(f.total) || 0), 0);
+        const ingresos = ingresosProyectos + ingresosFacturas;
 
         const clientesActivos = clientesFiltrados.filter((c: any) => c.estado === "Activo").length;
         const cerradas = oportunidadesFiltradas.filter((o: any) => o.etapa === "Cierre" || o.estado === "Cerrada").length;
@@ -102,8 +111,8 @@ export default function Reportes() {
 
         const metricasReales: Metrica[] = [
           {
-            titulo: "Ingresos Proyectados",
-            valor: formatCOP(ingresosProyectos),
+            titulo: "Ingresos",
+            valor: formatCOP(ingresos),
             cambio: Math.round((tareasPendientes / Math.max(tareasFiltradas.length, 1)) * 100),
             icono: <FiDollarSign size={24} />,
             color: "#4caf50"
@@ -135,7 +144,7 @@ export default function Reportes() {
         proyectosFiltrados.forEach((p: any) => {
           const periodoTexto = format(new Date(p.creado_en || p.actualizado_en || fechaInicio), "MMM");
           if (!meses[periodoTexto]) {
-            meses[periodoTexto] = { periodo: periodoTexto, ingresos: 0, nuevosClientes: 0, proyectosCompletados: 0, tasaConversion: 0 };
+            meses[periodoTexto] = { periodo: periodoTexto, ingresos: 0, nuevosClientes: 0, proyectosCompletados: 0, tasaConversion: 0, transacciones: 0 };
           }
           meses[periodoTexto].ingresos += Number(p.presupuesto) || 0;
         });
