@@ -3,16 +3,21 @@
 
 -- 1) Equipo base (unique por email)
 INSERT INTO equipo (nombre, email, rol, especialidad, estado)
-VALUES
-  ('Juan José Álvarez', 'juan@deseodigital.com', 'Admin', 'Estrategia', 'Activo'),
-  ('Jessica López', 'jessica@deseodigital.com', 'Técnico', 'Desarrollo Web', 'Activo'),
-  ('Pedro Ramírez', 'pedro@deseodigital.com', 'Creativo', 'Branding', 'Activo')
-ON CONFLICT (email) DO NOTHING;
+SELECT 'Juan José Álvarez', 'juan@deseodigital.com', 'Admin', 'Estrategia', 'Activo'
+WHERE NOT EXISTS (SELECT 1 FROM equipo WHERE email = 'juan@deseodigital.com');
+
+INSERT INTO equipo (nombre, email, rol, especialidad, estado)
+SELECT 'Jessica López', 'jessica@deseodigital.com', 'Técnico', 'Desarrollo Web', 'Activo'
+WHERE NOT EXISTS (SELECT 1 FROM equipo WHERE email = 'jessica@deseodigital.com');
+
+INSERT INTO equipo (nombre, email, rol, especialidad, estado)
+SELECT 'Pedro Ramírez', 'pedro@deseodigital.com', 'Creativo', 'Branding', 'Activo'
+WHERE NOT EXISTS (SELECT 1 FROM equipo WHERE email = 'pedro@deseodigital.com');
 
 -- 2) Cliente base (unique por email)
 INSERT INTO clientes (nombre, email, telefono, empresa, nicho, estado, favorito)
-VALUES ('Juan Jose Alvarez', 'juanjosealvarez@gmail.com', '320 369 8476', 'DESEO DIGITAL', 'Tecnología', 'Activo', true)
-ON CONFLICT (email) DO NOTHING;
+SELECT 'Juan Jose Alvarez', 'juanjosealvarez@gmail.com', '320 369 8476', 'DESEO DIGITAL', 'Tecnología', 'Activo', true
+WHERE NOT EXISTS (SELECT 1 FROM clientes WHERE email = 'juanjosealvarez@gmail.com');
 
 -- 3) Configuración empresa (sin unique, evitar duplicado lógico)
 INSERT INTO configuracion_empresa (nombre_agencia, email_contacto, telefono, website, descripcion, direccion, ciudad, pais)
