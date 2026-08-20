@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import {
-  Box, Typography, Paper, Grid, Card, CardContent,
+  Box, Typography, Grid, Card, CardContent,
   Avatar, Chip, Button, IconButton, Dialog, DialogTitle,
   DialogContent, DialogActions, TextField, Select, MenuItem,
   InputLabel, FormControl, Divider, Alert
 } from "@mui/material";
-import { FiUserPlus, FiMail, FiEdit2, FiTrash2 } from "react-icons/fi";
+import { FiUserPlus, FiMail, FiEdit2, FiTrash2, FiRefreshCw } from "react-icons/fi";
 import { subagentesService as equipoService } from '../services/supabase';
 
 export default function Equipo() {
@@ -89,20 +89,18 @@ export default function Equipo() {
 
   return (
     <Box sx={{ p: { xs: 1, sm: 1.5, md: 2 } }}>
-      {error && <Alert severity="error" sx={{ mb: 1 }}>{error}</Alert>}
-      <Paper sx={{ p: { xs: 1.5, sm: 2 }, mb: { xs: 1, sm: 1.5 }, backgroundColor: "#f0f7ff", borderLeft: "3px solid #2196f3" }}>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
-          <Box>
-            <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1976d2", fontSize: { xs: '1rem', sm: '1.1rem' } }}>Equipo Técnico y Subagentes</Typography>
-            <Typography variant="caption" color="text.secondary">Gestiona los especialistas de DESEO DIGITAL</Typography>
+      <Box sx={{ mb: { xs: 2.5, sm: 3 } }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 1, mb: { xs: 1, sm: 1.5 } }}>
+          <Typography variant="h6" sx={{ fontSize: { xs: '1rem', sm: '1.15rem' } }}>Equipo</Typography>
+          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+            <Button size="small" startIcon={<FiRefreshCw size={14} />} onClick={loadEquipo} disabled={loading}>Recargar</Button>
+            <Button size="small" variant="contained" startIcon={<FiUserPlus size={16} />} onClick={() => handleOpenModal()}>Nuevo</Button>
           </Box>
-          <Button variant="contained" size="small" startIcon={<FiUserPlus />} onClick={() => handleOpenModal()}>
-            Añadir Miembro
-          </Button>
         </Box>
-      </Paper>
+      </Box>
 
       <Grid container spacing={{ xs: 1, sm: 1.5 }}>
+        {error && <Grid item xs={12}><Alert severity="error">{error}</Alert></Grid>}
         {miembros.map((miembro) => (
           <Grid item xs={6} sm={6} md={4} key={miembro.id}>
             <Card sx={{ borderRadius: 2, transition: "0.2s", '&:hover': { boxShadow: 3, transform: 'translateY(-2px)' } }}>

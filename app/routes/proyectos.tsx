@@ -16,7 +16,7 @@ import {
   Video, Camera, Zap, Award, FileCheck, Share2, Mail, Send,
   Plus, Circle
 } from "lucide-react";
-import { FiFileText } from "react-icons/fi";
+import { FiFileText, FiRefreshCw, FiPlus } from "react-icons/fi";
 import { format, formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 import { emailService, subagentesService as equipoService, logsService, proyectosService, tareasService } from "../services/supabase";
@@ -816,10 +816,12 @@ export default function Proyectos() {
       {/* Header compacto */}
       {/* Header compacto mobile */}
       <Box sx={{ mb: { xs: 2.5, sm: 3 } }}>
-        <Typography variant="h6" sx={{ fontSize: { xs: '1rem', sm: '1.15rem' } }}>Proyectos</Typography>
-        <Box sx={{ display: "flex", gap: 1, mt: 1, flexWrap: "wrap" }}>
-          <Button size="small" onClick={loadData} disabled={loading}>Recargar</Button>
-          <Button variant="contained" onClick={() => handleOpenProyectoModal()}>Nuevo</Button>
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: { xs: 1, sm: 1.5 }, flexWrap: "wrap", gap: 1 }}>
+          <Typography variant="h6" sx={{ fontSize: { xs: '1rem', sm: '1.15rem' } }}>Proyectos</Typography>
+          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+            <Button size="small" startIcon={<FiRefreshCw size={14} />} onClick={loadData} disabled={loading}>Recargar</Button>
+            <Button size="small" variant="contained" startIcon={<FiPlus size={16} />} onClick={() => handleOpenProyectoModal()}>Nuevo</Button>
+          </Box>
         </Box>
       </Box>
 
