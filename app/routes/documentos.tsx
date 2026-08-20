@@ -12,8 +12,8 @@ export function meta() {
 }
 
 export default function Documentos() {
-  const [, set] = useState<any[]>([]);
-  const [, set] = useState(true);
+  const [documentos, setDocumentos] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
