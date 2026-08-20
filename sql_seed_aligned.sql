@@ -133,7 +133,6 @@ BEGIN
     WHERE c.email = 'juanjosealvarez@gmail.com'
       AND NOT EXISTS (SELECT 1 FROM proyectos WHERE nombre = 'Agencia Deseo Digital');
 
-    -- Insertar tareas usando uuid directamente
     IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'tareas') THEN
       INSERT INTO tareas (titulo, descripcion, fecha, prioridad, estado, tipo, proyecto_id, cliente_id, responsable_id)
       SELECT 'Definir alcance CRM', 'Reunir requisitos y cierre de propuesta', CURRENT_DATE + 2, 'Alta', 'Pendiente', 'Tarea', v_proyecto_id, c.id, e.id
@@ -157,7 +156,6 @@ BEGIN
         AND NOT EXISTS (SELECT 1 FROM tareas WHERE titulo = 'Entrega cliente' AND proyecto_id = v_proyecto_id);
     END IF;
 
-    -- Insertar facturas con proyecto_id como text
     IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'facturas') THEN
       INSERT INTO facturas (proyecto_id, cliente_id, estado, total, subtotal, iva, numero, tipo, moneda, estado_pago, fecha_emision, fecha_vencimiento)
       SELECT v_proyecto_id_text, c.id, 'Enviada', 15000000, 12500000, 2500000, 'FAC-001', 'factura', 'COP', 'Pendiente', CURRENT_DATE - 10, CURRENT_DATE + 20
@@ -166,7 +164,6 @@ BEGIN
         AND NOT EXISTS (SELECT 1 FROM facturas WHERE numero = 'FAC-001');
     END IF;
 
-    -- Insertar contratos con proyecto_id como text
     IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'contratos') THEN
       INSERT INTO contratos (cliente_id, proyecto_id, tipo, titulo, estado, valor, fecha_inicio, fecha_fin)
       SELECT c.id, v_proyecto_id_text, 'prestacion_servicios', 'Contrato Agencia Deseo Digital', 'activo', 15000000, CURRENT_DATE, CURRENT_DATE + INTERVAL '120 days'
@@ -174,7 +171,6 @@ BEGIN
       WHERE c.email = 'juanjosealvarez@gmail.com';
     END IF;
 
-    -- Insertar transacciones con proyecto_id como text
     IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'transacciones') THEN
       INSERT INTO transacciones (proyecto_id, cliente_id, tipo, monto, categoria, moneda, forma_pago, fecha)
       SELECT v_proyecto_id_text, c.id, 'ingreso', 4500000, 'ingreso', 'COP', 'transferencia', CURRENT_DATE - 8
@@ -189,7 +185,6 @@ BEGIN
         AND NOT EXISTS (SELECT 1 FROM transacciones WHERE tipo = 'egreso' AND categoria = 'egreso' AND proyecto_id = v_proyecto_id_text);
     END IF;
 
-    -- Pagos dependen de facturas, se mantienen igual
     IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'pagos') THEN
       INSERT INTO pagos (factura_id, monto, metodo_pago, referencia, fecha_pago)
       SELECT 1, 4500000, 'transferencia', 'REF-001', CURRENT_DATE - 8
