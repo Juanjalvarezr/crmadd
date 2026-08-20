@@ -1,4 +1,4 @@
--- DESEO DIGITAL - Seed CRM alineado a columnas reales confirmadas
+-- DESEO DIGITAL - Seed CRM alineado al schema real confirmado
 -- Ejecutar en SQL Editor de Supabase.
 
 -- Equipo
@@ -43,16 +43,16 @@ END $$;
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'servicios') THEN
-    INSERT INTO servicios (nombre, categoria, descripcion, precio_base, duracion, incluye, estado, popularidad)
-    SELECT 'Diseño Web Profesional', 'Desarrollo', 'Landing page o sitio corporativo', 2500000, '2 semanas', ARRAY['Diseño responsive','SEO básico','Hosting 1 año'], 'Activo', 5
+    INSERT INTO servicios (nombre, categoria, descripcion, precio_base, duracion, incluye, estado, popularidad, created_at)
+    SELECT 'Diseño Web Profesional', 'Desarrollo', 'Landing page o sitio corporativo', 2500000, '2 semanas', ARRAY['Diseño responsive','SEO básico','Hosting 1 año'], 'Activo', 5, CURRENT_TIMESTAMP
     WHERE NOT EXISTS (SELECT 1 FROM servicios WHERE nombre = 'Diseño Web Profesional');
 
-    INSERT INTO servicios (nombre, categoria, descripcion, precio_base, duracion, incluye, estado, popularidad)
-    SELECT 'Desarrollo Full Stack', 'Desarrollo', 'App web o móvil completa', 8500000, '1 mes', ARRAY['Frontend','Backend','Base de datos','Despliegue'], 'Activo', 4
+    INSERT INTO servicios (nombre, categoria, descripcion, precio_base, duracion, incluye, estado, popularidad, created_at)
+    SELECT 'Desarrollo Full Stack', 'Desarrollo', 'App web o móvil completa', 8500000, '1 mes', ARRAY['Frontend','Backend','Base de datos','Despliegue'], 'Activo', 4, CURRENT_TIMESTAMP
     WHERE NOT EXISTS (SELECT 1 FROM servicios WHERE nombre = 'Desarrollo Full Stack');
 
-    INSERT INTO servicios (nombre, categoria, descripcion, precio_base, duracion, incluye, estado, popularidad)
-    SELECT 'SEO Optimization', 'Marketing', 'Auditoría y optimización SEO', 1200000, '1 semana', ARRAY['Auditoría','Keywords','Reporte mensual'], 'Activo', 3
+    INSERT INTO servicios (nombre, categoria, descripcion, precio_base, duracion, incluye, estado, popularidad, created_at)
+    SELECT 'SEO Optimization', 'Marketing', 'Auditoría y optimización SEO', 1200000, '1 semana', ARRAY['Auditoría','Keywords','Reporte mensual'], 'Activo', 3, CURRENT_TIMESTAMP
     WHERE NOT EXISTS (SELECT 1 FROM servicios WHERE nombre = 'SEO Optimization');
   END IF;
 END $$;
@@ -123,10 +123,10 @@ DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'proyectos') THEN
     INSERT INTO proyectos (id, nombre, descripcion, cliente_id, cliente_nombre, servicios, estado, prioridad, fecha_inicio, fecha_fin, progreso, presupuesto, costo_actual, estado_pago, fase_administrativa)
-    SELECT 'PROJ-001', 'Agencia Deseo Digital', 'Proyecto interno CRM', id, 'DESEO DIGITAL', ARRAY['Diseño Web Profesional'], 'en_progreso', 'alta', '2026-06-01', '2026-12-31', 30, 15000000, 4500000, 'parcial', 'operacion'
-    FROM clientes
-    WHERE email = 'juanjosealvarez@gmail.com'
-      AND NOT EXISTS (SELECT 1 FROM proyectos WHERE id = 'PROJ-001');
+    SELECT gen_random_uuid(), 'Agencia Deseo Digital', 'Proyecto interno CRM', c.id, 'DESEO DIGITAL', ARRAY['Diseño Web Profesional'], 'en_progreso', 'alta', '2026-06-01', '2026-12-31', 30, 15000000, 4500000, 'parcial', 'operacion'
+    FROM clientes c
+    WHERE c.email = 'juanjosealvarez@gmail.com'
+      AND NOT EXISTS (SELECT 1 FROM proyectos WHERE nombre = 'Agencia Deseo Digital');
   END IF;
 END $$;
 
@@ -135,26 +135,26 @@ DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'tareas') THEN
     INSERT INTO tareas (titulo, descripcion, fecha, prioridad, estado, tipo, proyecto_id, cliente_id, responsable_id)
-    SELECT 'Definir alcance CRM', 'Reunir requisitos y cierre de propuesta', CURRENT_DATE + 2, 'Alta', 'Pendiente', 'Tarea', 'PROJ-001', c.id, e.id
+    SELECT 'Definir alcance CRM', 'Reunir requisitos y cierre de propuesta', CURRENT_DATE + 2, 'Alta', 'Pendiente', 'Tarea', (SELECT id FROM proyectos WHERE nombre = 'Agencia Deseo Digital' LIMIT 1), c.id, e.id
     FROM clientes c
     JOIN (SELECT id FROM equipo WHERE email = 'juan@deseodigital.com') e ON true
     WHERE c.email = 'juanjosealvarez@gmail.com';
 
     INSERT INTO tareas (titulo, descripcion, fecha, prioridad, estado, tipo, proyecto_id, cliente_id, responsable_id)
-    SELECT 'Diseño UI/UX', 'Prototipos y pruebas de contraste', CURRENT_DATE + 5, 'Media', 'En progreso', 'Tarea', 'PROJ-001', c.id, e.id
+    SELECT 'Diseño UI/UX', 'Prototipos y pruebas de contraste', CURRENT_DATE + 5, 'Media', 'En progreso', 'Tarea', (SELECT id FROM proyectos WHERE nombre = 'Agencia Deseo Digital' LIMIT 1), c.id, e.id
     FROM clientes c
     JOIN (SELECT id FROM equipo WHERE email = 'jessica@deseodigital.com') e ON true
     WHERE c.email = 'juanjosealvarez@gmail.com';
 
     INSERT INTO tareas (titulo, descripcion, fecha, prioridad, estado, tipo, proyecto_id, cliente_id, responsable_id)
-    SELECT 'Entrega cliente', 'Demo funcional y capacitación', CURRENT_DATE + 10, 'Alta', 'Pendiente', 'Cita', 'PROJ-001', c.id, e.id
+    SELECT 'Entrega cliente', 'Demo funcional y capacitación', CURRENT_DATE + 10, 'Alta', 'Pendiente', 'Cita', (SELECT id FROM proyectos WHERE nombre = 'Agencia Deseo Digital' LIMIT 1), c.id, e.id
     FROM clientes c
     JOIN (SELECT id FROM equipo WHERE email = 'juan@deseodigital.com') e ON true
     WHERE c.email = 'juanjosealvarez@gmail.com';
   END IF;
 END $$;
 
--- Facturas (columnas reales: sin descuento, sin metodo_pago; tiene numero/estado_pago/moneda/etc.)
+-- Facturas
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'facturas') THEN
@@ -176,7 +176,16 @@ BEGIN
   END IF;
 END $$;
 
--- Contratos omitidos temporalmente: requieren confirmar valores válidos de tipo/estado (enum).
+-- Contratos
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'contratos') THEN
+    INSERT INTO contratos (cliente_id, proyecto_id, estado, valor, fecha_inicio, fecha_fin)
+    SELECT c.id, 'PROJ-001', 'Activo', 15000000, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP + INTERVAL '120 days'
+    FROM clientes c
+    WHERE c.email = 'juanjosealvarez@gmail.com';
+  END IF;
+END $$;
 
 -- Transacciones
 DO $$
@@ -208,9 +217,9 @@ END $$;
 DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'plantillas_email') THEN
-    INSERT INTO plantillas_email (nombre, asunto, contenido, categoria)
-    SELECT 'Propuesta estándar', 'Propuesta {{cliente}}', 'Hola {{cliente}}, ...', 'ventas'
-    WHERE NOT EXISTS (SELECT 1 FROM plantillas_email WHERE nombre = 'Propuesta estándar');
+    INSERT INTO plantillas_email (id, nombre, asunto, contenido, categoria)
+    SELECT 'plantilla_001', 'Propuesta estándar', 'Propuesta {{cliente}}', 'Hola {{cliente}}, ...', 'ventas'
+    WHERE NOT EXISTS (SELECT 1 FROM plantillas_email WHERE id = 'plantilla_001');
   END IF;
 END $$;
 
