@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import {
   Box, Typography, Chip, Alert, CircularProgress,
   Paper, Button, IconButton, Dialog, DialogTitle, DialogContent, DialogActions,
-  TextField, FormControl, InputLabel, Select, MenuItem
+  TextField, FormControl, InputLabel, Select, MenuItem, Tooltip
 } from "@mui/material";
 import { FiRefreshCw, FiPlus, FiX, FiUpload, FiFileText, FiEdit, FiTrash2 } from "react-icons/fi";
 import { contratosService } from "../services/supabase";
@@ -21,6 +21,7 @@ export default function Contratos() { const loadContratos = () => { if (typeof w
   const [error, setError] = useState<string | null>(null);
   const [openModal, setOpenModal] = useState(false);
   const [editing, setEditing] = useState<any | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<any | null>(null);
   const [form, setForm] = useState({ estado: "Activo", valor: "", proyecto_id: "", cliente_id: "", factura_id: "", fecha_inicio: "", fecha_fin: "", url: "" });
   const [saving, setSaving] = useState(false);
   const [file, setFile] = useState<File | null>(null);
