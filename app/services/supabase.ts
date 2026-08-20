@@ -211,6 +211,22 @@ export type Tables = {
     created_at: string;
     updated_at: string;
   };
+  cotizaciones: {
+    id: number;
+    numero_cotizacion?: string;
+    proyecto_id?: string;
+    cliente_id?: number;
+    estado: "Borrador" | "Enviada" | "Aceptada" | "Rechazada" | "Vencida";
+    total: number;
+    subtotal?: number;
+    iva?: number;
+    descuento?: number;
+    notas?: string;
+    fecha_emision?: string;
+    fecha_vencimiento?: string;
+    created_at: string;
+    updated_at: string;
+  };
   plantillas_documentos: {
     id: number;
     tipo: "cotizacion" | "factura" | "contrato" | "recibo";
@@ -1042,6 +1058,42 @@ export const facturasService = {
   },
   async delete(id: number) {
     const { error } = await supabase.from('facturas').delete().eq('id', id);
+    if (error) throw error;
+    return true;
+  },
+};
+
+// --- Servicio de Cotizaciones ---
+export const cotizacionesService = {
+  async getAll() {
+    const { data, error } = await supabase
+      .from('cotizaciones')
+      .select('*')
+      .order('fecha_emision', { ascending: false });
+    if (error) throw error;
+    return (data || []).map((c: any) => ({ ...c, total: Number(c.total || 0) }));
+  },
+  async create(cotizacion: Omit<Tables['cotizaciones'], 'id' | 'created_at' | 'updated_at'>) {
+    const { data, error } = await supabase
+      .from('cotizaciones')
+      .insert([{ ...cotizacion, fecha_emision: cotizacion.fecha_emision || new Date().toISOString(), updated_at: new Date().toISOString() }])
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+  async update(id: number, updates: Partial<Tables['cotizaciones']>) {
+    const { data, error } = await supabase
+      .from('cotizaciones')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  },
+  async delete(id: number) {
+    const { error } = await supabase.from('cotizaciones').delete().eq('id', id);
     if (error) throw error;
     return true;
   },
