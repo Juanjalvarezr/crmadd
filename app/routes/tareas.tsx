@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import {
   Box, Typography, Paper, Button, TextField, InputAdornment, FormControl, InputLabel, Select, MenuItem,
-  Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Alert, Chip, Skeleton
+  Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Alert, Chip, Skeleton, Tooltip
 } from "@mui/material";
 import { FiPlus, FiEdit, FiTrash2, FiCheck, FiSearch, FiRefreshCw, FiCheckSquare, FiX } from "react-icons/fi";
 import { tareasService } from "../services/supabase";
@@ -51,6 +51,7 @@ export default function Tareas() {
   const [openModal, setOpenModal] = useState(false);
   const [editingTarea, setEditingTarea] = useState<Tarea | null>(null);
   const [saving, setSaving] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<Tarea | null>(null);
   const { showNotification } = useNotificationStore();
 
   const [formData, setFormData] = useState({
@@ -134,9 +135,14 @@ export default function Tareas() {
   };
 
   const handleDelete = async (tarea: Tarea) => {
-    if (typeof window !== "undefined" && !confirm(`¿Eliminar "${tarea.titulo}"?`)) return;
-    try { await tareasService.delete(tarea.id); await loadTareas(); showNotification("Tarea eliminada", "success"); }
+    setDeleteTarget(tarea);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    try { await tareasService.delete(deleteTarget.id); await loadTareas(); showNotification("Tarea eliminada", "success"); }
     catch (err: any) { showNotification("Error: " + err.message, "error"); }
+    finally { setDeleteTarget(null); }
   };
 
   return (
@@ -236,9 +242,9 @@ export default function Tareas() {
               width: 120,
               render: (t) => (
                 <Box sx={{ display: "flex", gap: 0.25, justifyContent: "flex-end" }}>
-                  <IconButton size="small" onClick={() => handleComplete(t)}><FiCheck size={16} /></IconButton>
-                  <IconButton size="small" onClick={() => handleEdit(t)}><FiEdit size={16} /></IconButton>
-                  <IconButton size="small" onClick={() => handleDelete(t)}><FiTrash2 size={16} /></IconButton>
+                  <Tooltip title="Completar"><IconButton size="small" onClick={() => handleComplete(t)}><FiCheck size={16} /></IconButton></Tooltip>
+                  <Tooltip title="Editar"><IconButton size="small" onClick={() => handleEdit(t)}><FiEdit size={16} /></IconButton></Tooltip>
+                  <Tooltip title="Eliminar"><IconButton size="small" color="error" onClick={() => handleDelete(t)}><FiTrash2 size={16} /></IconButton></Tooltip>
                 </Box>
               ),
             },
@@ -260,6 +266,17 @@ export default function Tareas() {
           />
         </Box>
       )}
+
+      <Dialog open={!!deleteTarget} onClose={() => setDeleteTarget(null)}>
+        <DialogTitle>Eliminar tarea</DialogTitle>
+        <DialogContent>
+          <Typography>¿Estás seguro de eliminar "{deleteTarget?.titulo}"? Esta acción no se puede deshacer.</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteTarget(null)}>Cancelar</Button>
+          <Button color="error" onClick={confirmDelete}>Eliminar</Button>
+        </DialogActions>
+      </Dialog>
 
       <Dialog open={openModal} onClose={() => setOpenModal(false)} maxWidth="sm" fullWidth>
         <DialogTitle>
