@@ -396,6 +396,7 @@ export default function Facturacion() {
         <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setDocumentoGenerado(null)}>Cerrar</Button>
           <Button variant="contained" onClick={() => { if (documentoGenerado) { window.print(); } }}>Imprimir / Guardar PDF</Button>
+          <Button variant="outlined" onClick={() => { if (documentoGenerado) { const blob = new Blob([documentoGenerado], { type: 'text/html' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `factura_${selected?.numero_factura || 'documento'}.html`; a.click(); URL.revokeObjectURL(url); showNotification('Documento descargado', 'success'); } }}>Descargar HTML</Button>
         </DialogActions>
       </Dialog>
 

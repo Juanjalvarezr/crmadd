@@ -65,9 +65,14 @@ export default function Contratos() { const loadContratos = () => { if (typeof w
   };
 
   const handleDelete = async (row: any) => {
-    if (typeof window !== "undefined" && !confirm(`¿Eliminar contrato #${row.id}?`)) return;
-    try { await contratosService.delete(row.id); await load(); showNotification("Contrato eliminado", "success"); }
+    setDeleteTarget(row);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    try { await contratosService.delete(deleteTarget.id); await load(); showNotification("Contrato eliminado", "success"); }
     catch (err: any) { showNotification(err.message || "Error eliminando contrato", "error"); }
+    finally { setDeleteTarget(null); }
   };
 
   return (
@@ -123,14 +128,25 @@ export default function Contratos() { const loadContratos = () => { if (typeof w
                 </Typography>
               )}
               <Box sx={{ display: "flex", gap: { xs: 0.25, sm: 0.5 }, flexWrap: "wrap" }}>
-                <IconButton size="small" onClick={() => openEdit(c)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiEdit size={16}/></IconButton>
-                <IconButton size="small" color="error" onClick={() => handleDelete(c)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiTrash2 size={16}/></IconButton>
+                <Tooltip title="Editar contrato"><IconButton size="small" onClick={() => openEdit(c)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiEdit size={16}/></IconButton></Tooltip>
+                <Tooltip title="Eliminar contrato"><IconButton size="small" color="error" onClick={() => handleDelete(c)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiTrash2 size={16}/></IconButton></Tooltip>
               </Box>
             </Paper>
             );
           })}
         </Box>
       )}
+
+      <Dialog open={!!deleteTarget} onClose={() => setDeleteTarget(null)}>
+        <DialogTitle>Eliminar contrato</DialogTitle>
+        <DialogContent>
+          <Typography>¿Estás seguro de eliminar el contrato #{deleteTarget?.id}? Esta acción no se puede deshacer.</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteTarget(null)}>Cancelar</Button>
+          <Button color="error" onClick={confirmDelete}>Eliminar</Button>
+        </DialogActions>
+      </Dialog>
 
       <Dialog open={openModal} onClose={() => setOpenModal(false)} maxWidth="sm" fullWidth>
         <DialogTitle>{editing ? "Editar Contrato" : "Nuevo Contrato"}<IconButton onClick={() => setOpenModal(false)} size="small" sx={{ float: "right" }}><FiX /></IconButton></DialogTitle>

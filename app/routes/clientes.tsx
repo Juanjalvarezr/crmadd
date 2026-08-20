@@ -163,7 +163,8 @@ export default function Clientes() {
     return estado === "Activo" ? "success" : "error";
   };
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return "Sin interacción";
     try {
       return format(new Date(dateString), "dd/MM/yyyy");
     } catch {
@@ -670,10 +671,10 @@ export default function Clientes() {
                   </Box>
 
                   <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, borderTop: '1px solid #eee', pt: 1, flexWrap: 'wrap' }}>
-                    <IconButton size="small" onClick={() => handleToggleFavorite(cliente)} sx={{ color: cliente.favorito ? '#ffb400' : '#ccc' }} aria-label="Favorito"><FiStar size={16} style={{ fill: cliente.favorito ? '#ffb400' : 'none' }} /></IconButton>
-                    <IconButton size="small" onClick={() => handleViewDetails(cliente)} sx={{ color: '#1976d2' }}><FiEye size={16} /></IconButton>
-                    <IconButton size="small" onClick={() => handleEdit(cliente)} sx={{ color: '#ff9800' }}><FiEdit size={16} /></IconButton>
-                    <IconButton size="small" onClick={() => handleDelete(cliente)} sx={{ color: '#f44336' }} aria-label={`Eliminar a ${cliente.nombre}`}><FiTrash2 size={16} /></IconButton>
+                    <Tooltip title={cliente.favorito ? "Quitar de favoritos" : "Marcar como favorito"}><IconButton size="small" onClick={() => handleToggleFavorite(cliente)} sx={{ color: cliente.favorito ? '#ffb400' : '#ccc' }} aria-label="Favorito"><FiStar size={16} style={{ fill: cliente.favorito ? '#ffb400' : 'none' }} /></IconButton></Tooltip>
+                    <Tooltip title="Ver detalles"><IconButton size="small" onClick={() => handleViewDetails(cliente)} sx={{ color: '#1976d2' }} aria-label={`Ver detalles de ${cliente.nombre}`}><FiEye size={16} /></IconButton></Tooltip>
+                    <Tooltip title="Editar cliente"><IconButton size="small" onClick={() => handleEdit(cliente)} sx={{ color: '#ff9800' }} aria-label={`Editar a ${cliente.nombre}`}><FiEdit size={16} /></IconButton></Tooltip>
+                    <Tooltip title="Eliminar cliente"><IconButton size="small" onClick={() => handleDelete(cliente)} sx={{ color: '#f44336' }} aria-label={`Eliminar a ${cliente.nombre}`}><FiTrash2 size={16} /></IconButton></Tooltip>
                   </Box>
                 </CardContent>
               </Card>
