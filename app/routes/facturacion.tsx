@@ -23,6 +23,7 @@ export default function Facturacion() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [openModal, setOpenModal] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   const [editing, setEditing] = useState<any | null>(null);
   const [selected, setSelected] = useState<any | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
@@ -299,12 +300,12 @@ export default function Facturacion() {
           })}
         </Box>
       )}
-
-      <Dialog open={openModal} onClose={() => setOpenModal(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>{editing ? "Editar Factura" : "Nueva Factura"}<IconButton onClick={() => setOpenModal(false)} size="small" sx={{ float: "right" }}><FiX /></IconButton></DialogTitle>
+      <Dialog open={openModal} onClose={() => { setOpenModal(false); setFormError(null); }} maxWidth="sm" fullWidth>
+        <DialogTitle>{editing ? "Editar Factura" : "Nueva Factura"}<IconButton onClick={() => { setOpenModal(false); setFormError(null); }} size="small" sx={{ float: "right" }}><FiX /></IconButton></DialogTitle>
         <DialogContent>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}>
-            <TextField label="Número factura" fullWidth value={form.numero_factura} onChange={(e) => setForm({ ...form, numero_factura: e.target.value })} />
+            {formError && <Alert severity="error">{formError}</Alert>}
+            <TextField label="Número factura *" fullWidth value={form.numero_factura} onChange={(e) => setForm({ ...form, numero_factura: e.target.value })} error={!form.numero_factura} helperText={!form.numero_factura ? "Requerido" : ""} />
             <FormControl fullWidth>
               <InputLabel>Estado</InputLabel>
               <Select value={form.estado} label="Estado" onChange={(e) => setForm({ ...form, estado: e.target.value })}>
@@ -312,13 +313,14 @@ export default function Facturacion() {
                 <MenuItem value="Enviada">Enviada</MenuItem>
                 <MenuItem value="Pagada">Pagada</MenuItem>
                 <MenuItem value="Vencida">Vencida</MenuItem>
+                <MenuItem value="Anulada">Anulada</MenuItem>
               </Select>
             </FormControl>
-            <FormControl fullWidth>
-              <InputLabel>Cliente</InputLabel>
+            <FormControl fullWidth error={!form.cliente_id}>
+              <InputLabel>Cliente *</InputLabel>
               <Select value={form.cliente_id} label="Cliente" onChange={(e) => setForm({ ...form, cliente_id: e.target.value })}>
                 <MenuItem value="">Sin cliente</MenuItem>
-                {clientes.map((c: any) => <MenuItem key={c.id} value={String(c.id)}>{c.nombre}</MenuItem>)}
+                {(clientes || []).map((c: any) => <MenuItem key={c.id} value={String(c.id)}>{c.nombre}</MenuItem>)}
               </Select>
             </FormControl>
             <FormControl fullWidth>
@@ -329,15 +331,15 @@ export default function Facturacion() {
               </Select>
             </FormControl>
             <Box sx={{ display: "flex", gap: 1 }}>
-              <TextField label="Subtotal" type="number" sx={{ flex: 1 }} value={form.subtotal} onChange={(e) => setForm({ ...form, subtotal: e.target.value })} />
+              <TextField label="Subtotal *" type="number" sx={{ flex: 1 }} value={form.subtotal} onChange={(e) => setForm({ ...form, subtotal: e.target.value })} error={Number(form.subtotal || 0) < 0} helperText={Number(form.subtotal || 0) < 0 ? "Debe ser mayor a 0" : ""} />
               <TextField label="IVA" type="number" sx={{ flex: 1 }} value={form.iva} onChange={(e) => setForm({ ...form, iva: e.target.value })} />
             </Box>
-            <TextField label="Total" type="number" fullWidth value={form.total} onChange={(e) => setForm({ ...form, total: e.target.value })} />
+            <TextField label="Total *" type="number" fullWidth value={form.total} onChange={(e) => setForm({ ...form, total: e.target.value })} error={Number(form.total || 0) < 0} helperText={Number(form.total || 0) < 0 ? "Debe ser mayor a 0" : ""} />
             <TextField label="Fecha vencimiento" type="date" fullWidth value={form.fecha_vencimiento} onChange={(e) => setForm({ ...form, fecha_vencimiento: e.target.value })} InputLabelProps={{ shrink: true }} />
           </Box>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setOpenModal(false)} variant="outlined" disabled={saving}>Cancelar</Button>
+          <Button onClick={() => { setOpenModal(false); setFormError(null); }} variant="outlined" disabled={saving}>Cancelar</Button>
           <Button onClick={handleSave} variant="contained" disabled={saving}>{saving ? "Guardando..." : "Guardar"}</Button>
         </DialogActions>
       </Dialog>
