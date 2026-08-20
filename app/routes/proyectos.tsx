@@ -130,10 +130,7 @@ export default function Proyectos() {
     
     if (typeof navigator !== "undefined" && navigator.clipboard) if (typeof navigator !== "undefined" && navigator.clipboard) navigator.clipboard.writeText(magicUrl);
     
-    showNotification(
-      "¡Magic Link copiado! El cliente ahora puede ver su avance sin loguearse. 🚀", 
-      "success"
-    );
+    showNotification("¡Magic Link copiado! El cliente ahora puede ver su avance sin loguearse.", "success");
   };
 
   // Generar vista previa del email de cierre
