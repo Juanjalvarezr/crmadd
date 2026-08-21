@@ -45,6 +45,14 @@ const getEtapaColor = (etapa: string): "primary" | "secondary" | "success" | "wa
   return colors[etapa] || "primary";
 };
 
+// Colores de etapa con contraste WCAG AA (fondo oscuro + texto blanco)
+const ETAPA_STYLES: Record<string, { bg: string; text: string; border: string; chipBg: string; chipText: string }> = {
+  "Prospección": { bg: "#f3e5f5", text: "#4a148c", border: "#ce93d8", chipBg: "#7b1fa2", chipText: "#fff" },
+  "Propuesta":  { bg: "#e3f2fd", text: "#0d47a1", border: "#90caf9", chipBg: "#1565c0", chipText: "#fff" },
+  "Negociación": { bg: "#fff3e0", text: "#e65100", border: "#ffcc80", chipBg: "#ef6c00", chipText: "#fff" },
+  "Cierre":     { bg: "#e8f5e9", text: "#1b5e20", border: "#a5d6a7", chipBg: "#2e7d32", chipText: "#fff" },
+};
+
 const formatCOP = (value: number) => {
   return new Intl.NumberFormat("es-CO", {
     style: "currency",
@@ -445,10 +453,10 @@ export default function Ventas() {
                 const sumValor = oppsCol.reduce((a, b) => a + b.valor, 0);
                 
                 return (
-                  <Paper key={col} sx={{ minWidth: 300, flex: 1, p: 2, bgcolor: '#f8f9fa', borderTop: `4px solid ${getEtapaColor(col) === 'primary' ? '#2196f3' : getEtapaColor(col) === 'success' ? '#4caf50' : getEtapaColor(col) === 'warning' ? '#ff9800' : '#e91e63'}` }}>
+                  <Paper key={col} sx={{ minWidth: 300, flex: 1, p: 2, bgcolor: (theme) => ETAPA_STYLES[col]?.bg || '#f5f5f5', borderTop: `4px solid ${ETAPA_STYLES[col]?.border || '#e91e63'}` }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                       <Typography variant="subtitle1" sx={{ fontWeight: "bold", color: "text.primary" }}>{col}</Typography>
-                      <Chip label={oppsCol.length} size="small" />
+                      <Chip label={oppsCol.length} size="small" sx={{ bgcolor: (theme) => ETAPA_STYLES[col]?.chipBg || "#e91e63", color: (theme) => ETAPA_STYLES[col]?.chipText || "#fff", fontWeight: "bold" }} />
                     </Box>
                     <Typography variant="body2" color="text.secondary" sx={{ mb: 2, fontWeight: 'bold' }}>
                       {formatValue(sumValor)}
@@ -481,7 +489,7 @@ export default function Ventas() {
                                       borderRadius: 2,
                                       transition: 'all 0.2s',
                                       transform: snapshot.isDragging ? 'scale(1.02)' : 'none',
-                                      borderLeft: `4px solid ${getEtapaColor(opp.etapa) === 'primary' ? '#2196f3' : getEtapaColor(opp.etapa) === 'success' ? '#4caf50' : getEtapaColor(opp.etapa) === 'warning' ? '#ff9800' : '#e91e63'}`
+                                      borderLeft: `4px solid ${ETAPA_STYLES[opp.etapa]?.border || '#e91e63'}`,
                                     }}
                                   >
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
