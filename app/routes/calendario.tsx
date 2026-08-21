@@ -10,7 +10,6 @@ import { es } from "date-fns/locale/es";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useCRMStore } from "../store/useCRMStore";
 import { globalSnack } from "../components/GlobalSnackbar";
-import { EmptyState } from "../components/EmptyState";
 import { facturasService, pagosService, calendarEventsService } from "../services/supabase";
 
 const locales = { es };

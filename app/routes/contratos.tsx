@@ -9,7 +9,6 @@ import { contratosService } from "../services/supabase";
 import { storageHelper } from "../services/supabase";
 import { useCRMStore } from "../store/useCRMStore";
 import { globalSnack } from "../components/GlobalSnackbar";
-import { EmptyState } from "../components/EmptyState";
 
 export function meta() {
   return [{ title: "Contratos | CRM Agencia" }];
