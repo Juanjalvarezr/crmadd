@@ -6,7 +6,6 @@ import {
 import { FiCamera, FiUpload, FiX, FiCheck } from 'react-icons/fi';
 import { scanCardFromImage, type ExtractedCard } from '../services/ocrService';
 import { clientesService, interaccionesService } from '../services/supabase';
-import { useNotificationStore } from '../store/useNotificationStore';
 
 interface Props {
   open: boolean;
@@ -15,8 +14,7 @@ interface Props {
 }
 
 export default function ScannerTarjetas({ open, onClose, onSave }: Props) {
-  const { showNotification } = useNotificationStore();
-  const [preview, setPreview] = useState<string | null>(null);
+    const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<ExtractedCard | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -68,11 +66,11 @@ export default function ScannerTarjetas({ open, onClose, onSave }: Props) {
         });
       }
 
-      showNotification('Cliente guardado desde OCR', 'success');
+      globalSnack.show('Cliente guardado desde OCR', 'success');
       onSave(data);
       handleClose();
     } catch (e: any) {
-      showNotification(e?.message || 'Error guardando cliente OCR', 'error');
+      globalSnack.show(e?.message || 'Error guardando cliente OCR', 'error');
     }
   };
 

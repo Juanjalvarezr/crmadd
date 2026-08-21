@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router";
 import { Box, Snackbar, Alert, ThemeProvider, CssBaseline, Typography } from "@mui/material";
-import { useNotificationStore } from "./store/useNotificationStore";
 import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
 import { MobileFab } from "./components/MobileFab";
@@ -40,7 +39,6 @@ export default function Root() {
   useEffect(() => { document.title = "CRM DESEO DIGITAL"; }, []);
   const navigate = useNavigate();
   const location = useLocation();
-  const { open, message, severity, hideNotification } = useNotificationStore();
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(() => {
