@@ -10,7 +10,6 @@ export default [
 	route("/proyectos", "routes/proyectos.tsx"),
 	route("/email-marketing", "routes/email-marketing.tsx"),
 	route("/public/proyecto/:id", "routes/public/proyecto/$id.tsx"),
-	route("/public/proyecto/:id", "routes/public/proyecto/$id.tsx"),
 	route("/calendario", "routes/calendario.tsx"),
 	route("/reportes", "routes/reportes.tsx"),
 	route("/configuracion", "routes/configuracion.tsx"),
