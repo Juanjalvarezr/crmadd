@@ -337,27 +337,23 @@ export default function Calendario() {
       <Paper sx={{ 
         p: { xs: 0.75, sm: 1 }, 
         flex: 1, 
-        minHeight: { xs: 420, sm: 520 }, 
         borderRadius: 1.5, 
         overflow: 'hidden', 
         border: '1px solid', 
-        borderColor: 'divider', 
-        display: 'flex', 
-        flexDirection: 'column' 
+        borderColor: 'divider' 
       }}>
-        <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', minHeight: { xs: 520, sm: 600 } }}>
-          <Calendar
-            localizer={localizer}
-            events={filteredEvents}
-            startAccessor="start"
-            endAccessor="end"
-            style={{ height: '100%', minHeight: { xs: 420, sm: 520 } }}
-            culture="es"
-            view={view}
-            onView={setView}
-            date={date}
-            onNavigate={setDate}
-            onSelectEvent={handleSelectEvent}
+        <Calendar
+          localizer={localizer}
+          events={filteredEvents}
+          startAccessor="start"
+          endAccessor="end"
+          style={{ height: '100%', minHeight: { xs: 520, sm: 640 } }}
+          culture="es"
+          view={view}
+          onView={setView}
+          date={date}
+          onNavigate={setDate}
+          onSelectEvent={handleSelectEvent}
             eventPropGetter={eventStyleGetter}
             views={[Views.MONTH, Views.WEEK, Views.DAY]}
             components={{
