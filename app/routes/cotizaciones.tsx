@@ -173,7 +173,7 @@ export default function Cotizaciones() {
         </Paper>
       ) : (
         <Box sx={{ display: "flex", flexDirection: "column", gap: { xs: 0.5, sm: 1 } }}>
-          {itemsPaginated.map((row: any) => {
+          {items.slice((page - 1) * pageSize, page * pageSize).map((row: any) => {
             const estado = row.estado || "Borrador";
             const estadoColor = estado === "Aceptada" ? "success" : estado === "Enviada" ? "info" : estado === "Rechazada" ? "error" : estado === "Vencida" ? "error" : "default";
             return (
