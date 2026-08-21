@@ -7,6 +7,8 @@ export default [
 	route("/servicios", "routes/servicios.tsx"),
 	route("/ventas", "routes/ventas.tsx"),
 	route("/tareas", "routes/tareas.tsx"),
+	route("/", "routes/index.tsx"),
+	route("/dashboard", "routes/dashboard.tsx"),
 	route("/proyectos", "routes/proyectos.tsx"),
 	route("/email-marketing", "routes/email-marketing.tsx"),
 	route("/public/proyecto/:id", "routes/public/proyecto/$id.tsx"),
