@@ -27,6 +27,7 @@ import { BRAND } from "../theme";
 import { SupabaseStatus } from "../components/SupabaseTest";
 import { format } from "date-fns";
 import { EmptyState } from "../components/EmptyState";
+import { usePagination, PaginationBar } from "../utils/pagination";
 import { CompactTable } from "../components/CompactTable";
 import { useLocation } from "react-router";
 import type { Cliente } from "../types/crm";
@@ -106,7 +107,8 @@ export default function Clientes() {
     }
   }, [location]);
 
-  // Cargar clientes desde Supabase  
+  // Cargar clientes desde Supabase    const { page, setPage, totalPages, paginated: clientesPaginated, reset } = usePagination(clientes, 16);
+
   const loadClientes = async () => {
     try {
       setLoading(true);
