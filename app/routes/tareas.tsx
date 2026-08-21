@@ -11,7 +11,6 @@ import { useCRMStore } from "../store/useCRMStore";
 import { globalSnack } from "../components/GlobalSnackbar";
 import { format, startOfDay, isBefore } from "date-fns";
 import { EmptyState } from "../components/EmptyState";
-import { usePagination, PaginationBar } from "../utils/pagination";
 import { CompactTable } from "../components/CompactTable";
 import { StatCard } from "../components/StatCard";
 
@@ -72,8 +71,7 @@ export default function Tareas() {
     window.addEventListener("resize", updateMobile);
     return () => window.removeEventListener("resize", updateMobile);
   }, []);
-    const { page, setPage, totalPages, paginated: tareasPaginated, reset } = usePagination(tareas, 16);
-
+    
   const loadTareas = async () => {
     try {
       setLoading(true);
@@ -269,8 +267,7 @@ export default function Tareas() {
           />
         </Box>
       )}
-      <PaginationBar page={page} totalPages={totalPages} onChange={setPage} />
-      
+            
       <Dialog open={!!deleteTarget} onClose={() => setDeleteTarget(null)}>
         <DialogTitle>Eliminar tarea</DialogTitle>
         <DialogContent>
