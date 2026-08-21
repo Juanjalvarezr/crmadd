@@ -1,15 +1,14 @@
 import React from "react";
-import { Box, Typography, TextField, Button, Card, CardContent } from "@mui/material";
+import { Box, Typography, Button, Card, CardContent } from "@mui/material";
 import { FiLock } from "react-icons/fi";
 
 interface Props {
   passwordNuevo: string;
-  onChange: (updates: any) => void;
   onChangePassword: () => Promise<void>;
   loading: boolean;
 }
 
-export const ConfigTabSeguridad: React.FC<Props> = ({ passwordNuevo, onChange, onChangePassword, loading }) => (
+export const ConfigTabSeguridad: React.FC<Props> = ({ passwordNuevoPassword, loading }) => (
   <Box sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2 }}>
     <Typography variant="h6" sx={{ mb: 3, fontWeight: "bold" }}>Seguridad de la Cuenta</Typography>
     <Card sx={{ mb: 2 }}>
