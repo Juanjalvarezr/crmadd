@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import {
-  Box, Typography, Paper, Button, TextField, FormControl, InputLabel, Select, MenuItem,
+  Box, Pagination, Typography, Paper, Button, TextField, FormControl, InputLabel, Select, MenuItem,
   Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Alert, CircularProgress, Chip, Tooltip
 } from "@mui/material";
 import { FiPlus, FiEdit, FiTrash2, FiFileText, FiRefreshCw, FiMessageSquare, FiX } from "react-icons/fi";
@@ -25,6 +25,8 @@ export default function Cotizaciones() {
   const [editing, setEditing] = useState<any | null>(null);
   const [form, setForm] = useState({ numero_cotizacion: "", estado: "Borrador", total: "", proyecto_id: "", cliente_id: "", fecha_vencimiento: "", subtotal: "", iva: "", notas: "" });
   const [saving, setSaving] = useState(false);
+  const [page, setPage] = useState(1);
+  const pageSize = 16;
   const { showNotification } = useNotificationStore();
     
   const load = async () => {
@@ -193,6 +195,9 @@ export default function Cotizaciones() {
           })}
         </Box>
       )}
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 2, mb: 1 }}>
+        <Pagination count={Math.max(1, Math.ceil((items.length || 0) / pageSize))} page={page} onChange={(_, p) => setPage(p)} size="small" />
+      </Box>
             
       <Dialog open={openModal} onClose={() => { setOpenModal(false); setFormError(null); }} maxWidth="sm" fullWidth>
         <DialogTitle>{editing ? "Editar Cotización" : "Nueva Cotización"}<IconButton onClick={() => { setOpenModal(false); setFormError(null); }} size="small" sx={{ float: "right" }}><FiX /></IconButton></DialogTitle>
