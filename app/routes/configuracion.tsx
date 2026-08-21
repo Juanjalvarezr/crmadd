@@ -16,6 +16,9 @@ import {
 import { configuracionService, reglasAIService, conocimientoService, promptsAIService, supabase, testConnection, plantillasDocumentosService } from "../services/supabase";
 import { BRAND } from "../theme";
 import { EmpresaTab } from "../components/EmpresaTab";
+import { ConfigTabEmpresa } from "../components/config/ConfigTabEmpresa";
+import { ConfigTabPreferencias } from "../components/config/ConfigTabPreferencias";
+import { ConfigTabSeguridad } from "../components/config/ConfigTabSeguridad";
 import { CerebroAITab } from "../components/CerebroAITab";
 
 // Tipos para configuración
