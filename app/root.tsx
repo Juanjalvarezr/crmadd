@@ -147,16 +147,6 @@ export default function Root() {
           <GlobalSnackbar />
         </Box>
       </Box>
-      <Snackbar
-        open={open}
-        autoHideDuration={5000}
-        onClose={hideNotification}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-      >
-        <Alert onClose={hideNotification} severity={severity} sx={{ width: "100%" }}>
-          {message}
-        </Alert>
-      </Snackbar>
     </ThemeProvider>
     </ErrorBoundary>
   );
