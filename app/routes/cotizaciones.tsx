@@ -3,7 +3,7 @@ import {
   Box, Pagination, Typography, Paper, Button, TextField, FormControl, InputLabel, Select, MenuItem,
   Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Alert, CircularProgress, Chip, Tooltip
 } from "@mui/material";
-import { FiPlus, FiEdit, FiTrash2, FiFileText, FiRefreshCw, FiMessageSquare, FiX } from "react-icons/fi";
+import { FiEdit, FiTrash2, FiFileText, FiMessageSquare, FiX } from "react-icons/fi";
 import { cotizacionesService, clientesService, documentosService } from "../services/supabase";
 import { plantillasDocumentosService } from "../services/supabase";
 import { storageHelper } from "../services/supabase";
