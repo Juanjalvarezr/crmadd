@@ -35,7 +35,7 @@ export default function Documentos() {
       const data = await documentosService.getAll();
       let filtered = data || [];
       if (filters.proyecto_id) filtered = filtered.filter((x: any) => String(x.proyecto_id) === String(filters.proyecto_id));
-      if (filters.cliente_id) filtered = filtered.filter((x: any) => Number(x.cliente_id) === Number(filters.cliente_id));
+      if (filters.cliente_id) filtered = filtered.filter((x: any) => String(x.cliente_id) === String(filters.cliente_id));
       if (filters.tipo) filtered = filtered.filter((x: any) => x.tipo === filters.tipo);
       setDocumentos(filtered);
     } catch (err: any) {
@@ -96,7 +96,7 @@ export default function Documentos() {
         url = await storageHelper.upload('crm-documents', `doc-${Date.now()}.${file.name.split('.').pop() || 'bin'}`, file);
         setUploading(false);
       }
-      const payload = { ...form, proyecto_id: form.proyecto_id ? Number(form.proyecto_id) : null, cliente_id: form.cliente_id ? Number(form.cliente_id) : null, factura_id: form.factura_id ? Number(form.factura_id) : null, url };
+      const payload = { ...form, proyecto_id: form.proyecto_id || null, cliente_id: form.cliente_id || null, factura_id: form.factura_id || null, url };
       await documentosService.create(payload);
       globalSnack.show("Documento creado", "success");
       setOpen(false);
