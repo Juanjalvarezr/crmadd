@@ -16,6 +16,8 @@ import {
 import { configuracionService, reglasAIService, conocimientoService, promptsAIService, supabase, testConnection, plantillasDocumentosService } from "../services/supabase";
 import { BRAND } from "../theme";
 import { EmpresaTab } from "../components/EmpresaTab";
+import { ConfigTabPreferencias } from "../components/config/ConfigTabPreferencias";
+import { ConfigTabSeguridad } from "../components/config/ConfigTabSeguridad";
 import { CerebroAITab } from "../components/CerebroAITab";
 
 // Tipos para configuración
@@ -959,6 +961,7 @@ export default function Configuracion() {
             <Alert severity="error" sx={{ mb: 2 }}>
               Error de conexión con Supabase. Verificá las variables de entorno.
             </Alert>
+// CONFIG_TAB_PREFERENCIAS_START
           )}
           {/* Configuración de Empresa */}
           {activeTab === "empresa" && (
@@ -1156,6 +1159,8 @@ export default function Configuracion() {
               </Box>
             </Paper>
           )}
+// CONFIG_TAB_SEGURIDAD_START
+// CONFIG_TAB_PREFERENCIAS_END
 
           {/* Configuración de Seguridad */}
           {activeTab === "seguridad" && (
@@ -1273,6 +1278,7 @@ export default function Configuracion() {
                   </Card>
                 </Grid>
               </Grid>
+// CONFIG_TAB_SEGURIDAD_END
             </Paper>
           )}
 

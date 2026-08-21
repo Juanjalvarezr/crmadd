@@ -491,7 +491,7 @@ export default function Ventas() {
                                       </Box>
                                       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
                                         <Tooltip title="Generar Propuesta IA">
-                                          <IconButton size="small" onClick={() => handleGenerarPropuestaAI(opp)} sx={{ color: '#daa520' }}>
+                                          <IconButton size="small" aria-label="Acción" onClick={() => handleGenerarPropuestaAI(opp)} sx={{ color: '#daa520' }}>
                                             <FiZap size={16} />
                                           </IconButton>
                                         </Tooltip>
@@ -512,10 +512,10 @@ export default function Ventas() {
                                       <Chip label={`${opp.probabilidad}%`} size="small" color={opp.probabilidad >= 75 ? 'success' : opp.probabilidad >= 40 ? 'warning' : 'error'} sx={{ height: 20, fontSize: '0.65rem' }} />
                                     </Box>
                                     <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.5, borderTop: '1px solid #eee', pt: 1, flexWrap: 'wrap' }}>
-                                      <IconButton size="small" onClick={() => handleEdit(opp)} sx={{ color: 'text.secondary' }}><FiEdit size={14}/></IconButton>
-                                      <IconButton size="small" onClick={() => handleDelete(opp)} color="error"><FiTrash2 size={14}/></IconButton>
-                                      <IconButton size="small" onClick={() => handleGenerarPropuestaAI(opp)} sx={{ color: '#daa520' }}><FiZap size={14}/></IconButton>
-                                      <IconButton size="small" onClick={() => setOpenPropuestaModal(true)} sx={{ color: '#1976d2' }}><FiFileText size={14}/></IconButton>
+                                      <IconButton size="small" aria-label="Acción" onClick={() => handleEdit(opp)} sx={{ color: 'text.secondary' }}><FiEdit size={14}/></IconButton>
+                                      <IconButton size="small" aria-label="Acción" onClick={() => handleDelete(opp)} color="error"><FiTrash2 size={14}/></IconButton>
+                                      <IconButton size="small" aria-label="Acción" onClick={() => handleGenerarPropuestaAI(opp)} sx={{ color: '#daa520' }}><FiZap size={14}/></IconButton>
+                                      <IconButton size="small" aria-label="Acción" onClick={() => setOpenPropuestaModal(true)} sx={{ color: '#1976d2' }}><FiFileText size={14}/></IconButton>
                                     </Box>
                                   </Paper>
                                 </Box>

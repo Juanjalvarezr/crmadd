@@ -209,10 +209,10 @@ export default function Servicios() {
                   </Box>
                 </CardContent>
                 <CardActions sx={{ justifyContent: 'flex-end', p: { xs: 1, sm: 1.5 }, pt: 0 }}>
-                  <IconButton size="small" onClick={() => handleOpenModal(servicio)} color="primary">
+                  <IconButton size="small" aria-label="Acción" onClick={() => handleOpenModal(servicio)} color="primary">
                     <FiEdit size={16} />
                   </IconButton>
-                  <IconButton size="small" onClick={() => handleDelete(servicio.id)} color="error">
+                  <IconButton size="small" aria-label="Acción" onClick={() => handleDelete(servicio.id)} color="error">
                     <FiTrash2 size={16} />
                   </IconButton>
                 </CardActions>
@@ -312,7 +312,7 @@ export default function Servicios() {
                     <ListItem key={index}>
                       <ListItemText primary={item} />
                       <ListItemSecondaryAction>
-                        <IconButton size="small" edge="end" onClick={() => handleRemoveItemIncluye(index)}>
+                        <IconButton size="small" aria-label="Acción" edge="end" onClick={() => handleRemoveItemIncluye(index)}>
                           <FiX />
                         </IconButton>
                       </ListItemSecondaryAction>
