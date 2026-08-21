@@ -812,6 +812,13 @@ export const emailService = {
 
 // Configuración Service
 export const configuracionService = {
+  async upsertCatalogos(payload: any) {
+    const { data, error } = await supabase
+      .from('configuracion_empresa')
+      .upsert(payload, { onConflict: 'id' });
+    if (error) throw error;
+    return data;
+  },
   async getEmpresa() {
     try {
       const { data, error } = await supabase
