@@ -585,7 +585,8 @@ export const proyectosService = {
     const { data, error } = await supabase
       .from('proyectos')
       .select('*')
-      .order('actualizado_en', { ascending: false });
+      .order('actualizado_en', { ascending: false })
+      .limit(50);
     if (error) {
       console.error("Error crítico cargando proyectos:", error);
       return [];
