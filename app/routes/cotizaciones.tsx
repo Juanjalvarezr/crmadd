@@ -7,8 +7,8 @@ import { FiPlus, FiEdit, FiTrash2, FiFileText, FiRefreshCw, FiMessageSquare, FiX
 import { cotizacionesService, clientesService, documentosService } from "../services/supabase";
 import { plantillasDocumentosService } from "../services/supabase";
 import { storageHelper } from "../services/supabase";
-import { useNotificationStore } from "../store/useNotificationStore";
 import { StatCard } from "../components/StatCard";
+import { globalSnack } from "../components/GlobalSnackbar";
 
 export function meta() {
   return [{ title: "Cotizaciones | CRM Agencia" }];
@@ -27,7 +27,6 @@ export default function Cotizaciones() {
   const [saving, setSaving] = useState(false);
   const [page, setPage] = useState(1);
   const pageSize = 16;
-  const { showNotification } = useNotificationStore();
     
   const load = async () => {
     try {
@@ -80,21 +79,21 @@ export default function Cotizaciones() {
       if (fecha_vencimiento) payload.fecha_vencimiento = fecha_vencimiento;
       if (editing) {
         await cotizacionesService.update(editing.id, payload);
-        showNotification("Cotización actualizada", "success");
+        globalSnack.show("Cotización actualizada", "success");
       } else {
         await cotizacionesService.create(payload);
-        showNotification("Cotización creada", "success");
+        globalSnack.show("Cotización creada", "success");
       }
       setOpenModal(false);
       await load();
-    } catch (err: any) { showNotification(err.message || "Error guardando cotización", "error"); }
+    } catch (err: any) { globalSnack.show(err.message || "Error guardando cotización", "error"); }
     finally { setSaving(false); }
   };
 
   const handleDelete = async (row: any) => {
     if (typeof window !== "undefined" && !confirm(`¿Eliminar cotización #${row.id}?`)) return;
-    try { await cotizacionesService.delete(row.id); await load(); showNotification("Cotización eliminada", "success"); }
-    catch (err: any) { showNotification(err.message || "Error eliminando cotización", "error"); }
+    try { await cotizacionesService.delete(row.id); await load(); globalSnack.show("Cotización eliminada", "success"); }
+    catch (err: any) { globalSnack.show(err.message || "Error eliminando cotización", "error"); }
   };
 
   const getClienteNombre = (clienteId: number | string | null | undefined) => {
@@ -107,16 +106,16 @@ export default function Cotizaciones() {
     const cliente = getClienteNombre(row.cliente_id);
     const clienteObj = clientes.find((x: any) => Number(x.id) === Number(row.cliente_id));
     const telefono = clienteObj?.telefono || "";
-    if (!telefono) { showNotification(`El cliente "${cliente}" no tiene teléfono cargado`, "warning"); return; }
+    if (!telefono) { globalSnack.show(`El cliente "${cliente}" no tiene teléfono cargado`, "warning"); return; }
     const texto = encodeURIComponent(`Hola ${cliente}, te compartimos tu cotización #${row.numero_cotizacion || row.id} por $${Number(row.total || 0).toFixed(0)}. Estado: ${row.estado || "Borrador"}. Vencimiento: ${row.fecha_vencimiento || "Sin definir"}. Ante cualquier duda respondé este mensaje.`);
     if (typeof window !== "undefined") window.open(`https://wa.me/${telefono}?text=${texto}`, "_blank");
-    showNotification("Abriendo WhatsApp...", "info");
+    globalSnack.show("Abriendo WhatsApp...", "info");
   };
 
   const generarDocumento = async (row: any) => {
     try {
       const tpl = await plantillasDocumentosService.getByTipo("cotizacion") || await plantillasDocumentosService.getByTipo("factura");
-      if (!tpl) { showNotification("Creá una plantilla de cotización en Configuración primero", "warning"); return; }
+      if (!tpl) { globalSnack.show("Creá una plantilla de cotización en Configuración primero", "warning"); return; }
       const cliente = clientes.find((x: any) => Number(x.id) === Number(row.cliente_id));
       const { subtotal, iva, descuento, total } = { subtotal: Number(row.subtotal || row.total || 0), iva: Number(row.iva || 0), descuento: Number(row.descuento || 0), total: Number(row.total || 0) };
       const ctx = {
@@ -138,12 +137,12 @@ export default function Cotizaciones() {
       const file = new Blob([fullHtml], { type: "text/html" });
       const url = await storageHelper.upload("crm-documents", `cotizaciones/${fileName}`, file as any);
       try { await documentosService.create({ titulo: `Cotización #${row.numero_cotizacion || row.id}`, tipo: "cotizacion", url, descripcion: `Generada automáticamente. Total: $${total}`, proyecto_id: row.proyecto_id || null, cliente_id: row.cliente_id || null, factura_id: null }); } catch {}
-      showNotification("Cotización generada", "success");
+      globalSnack.show("Cotización generada", "success");
       if (typeof window !== "undefined") {
         const win = window.open();
         if (win) { win.document.write(fullHtml); win.document.close(); }
       }
-    } catch (err: any) { showNotification(err.message || "Error generando cotización", "error"); }
+    } catch (err: any) { globalSnack.show(err.message || "Error generando cotización", "error"); }
   };
 
   return (
