@@ -7,6 +7,6 @@ export function meta() {
 
 export default function Index() {
   const navigate = useNavigate();
-  useEffect(() => { navigate("/dashboard", { replace: true }); }, [navigate]);
+  useEffect(() => { navigate("/proyectos", { replace: true }); }, [navigate]);
   return null;
 }
