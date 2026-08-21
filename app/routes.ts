@@ -9,7 +9,6 @@ export default [
 	route("/tareas", "routes/tareas.tsx"),
 	route("/proyectos", "routes/proyectos.tsx"),
 	route("/email-marketing", "routes/email-marketing.tsx"),
-	route("/chatbot", "routes/chatbot.tsx"),
 	route("/calendario", "routes/calendario.tsx"),
 	route("/reportes", "routes/reportes.tsx"),
 	route("/configuracion", "routes/configuracion.tsx"),
