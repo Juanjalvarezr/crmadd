@@ -797,7 +797,7 @@ export default function Proyectos() {
         {tareasProyecto.map((t: any) => (
           <ListItem key={t.id} divider sx={{ border: '1px solid #eee', borderRadius: 2, mb: 1, bgcolor: 'background.paper' }}>
             <ListItemIcon sx={{ minWidth: 36 }}>
-              <IconButton size="small" onClick={() => toggle(t)}>
+              <IconButton size="small" aria-label="Ver detalle del proyecto" onClick={() => toggle(t)}>
                 {t.estado === 'Completada' ? <CheckCircle size={18} color="#4caf50" /> : <Circle size={18} color="#9e9e9e" />}
               </IconButton>
             </ListItemIcon>
@@ -805,7 +805,7 @@ export default function Proyectos() {
               primary={<Typography variant="body2" sx={{ textDecoration: t.estado === 'Completada' ? 'line-through' : 'none' }}>{t.titulo}</Typography>}
               secondary={<Typography variant="caption">{t.prioridad || 'Media'} • {t.fecha ? new Date(t.fecha).toLocaleDateString('es-CO') : ''}</Typography>}
             />
-            <IconButton size="small" color="error" onClick={() => eliminar(t)}><Trash2 size={16} /></IconButton>
+            <IconButton size="small" aria-label="Ver detalle del proyecto" color="error" onClick={() => eliminar(t)}><Trash2 size={16} /></IconButton>
           </ListItem>
         ))}
       </List>
@@ -1004,17 +1004,17 @@ export default function Proyectos() {
                 }}>
                   <Box sx={{ display: "flex", gap: { xs: 0.5, sm: 1 } }}>
                     <Tooltip title="Compartir progreso con cliente (Magic Link)">
-                      <IconButton size="small" color="primary" onClick={() => handleGenerateMagicLink(proyecto)}>
+                      <IconButton size="small" aria-label="Ver detalle del proyecto" color="primary" onClick={() => handleGenerateMagicLink(proyecto)}>
                         <Share2 size={18} />
                       </IconButton>
                     </Tooltip>
                     <Tooltip title="Ver detalles">
-                      <IconButton size="small" onClick={() => setSelectedProyecto(proyecto)}>
+                      <IconButton size="small" aria-label="Ver detalle del proyecto" onClick={() => setSelectedProyecto(proyecto)}>
                         <Eye size={18} />
                       </IconButton>
                     </Tooltip>
                     <Tooltip title="Editar">
-                      <IconButton size="small" onClick={() => handleOpenProyectoModal(proyecto)}>
+                      <IconButton size="small" aria-label="Ver detalle del proyecto" onClick={() => handleOpenProyectoModal(proyecto)}>
                         <Edit2 size={18} />
                       </IconButton>
                     </Tooltip>
@@ -1022,27 +1022,27 @@ export default function Proyectos() {
                   <Box sx={{ display: "flex", gap: { xs: 0.5, sm: 1 } }}>
                     {proyecto.estado === "en_progreso" && (
                       <Tooltip title="Pausar">
-                        <IconButton size="small" onClick={() => handleCambiarEstado(proyecto, "pausado")}>
+                        <IconButton size="small" aria-label="Ver detalle del proyecto" onClick={() => handleCambiarEstado(proyecto, "pausado")}>
                           <Pause size={18} />
                         </IconButton>
                       </Tooltip>
                     )}
                     {proyecto.estado === "pausado" && (
                       <Tooltip title="Reanudar">
-                        <IconButton size="small" onClick={() => handleCambiarEstado(proyecto, "en_progreso")}>
+                        <IconButton size="small" aria-label="Ver detalle del proyecto" onClick={() => handleCambiarEstado(proyecto, "en_progreso")}>
                           <Play size={18} />
                         </IconButton>
                       </Tooltip>
                     )}
                     {proyecto.estado === "en_progreso" && (
                       <Tooltip title="Completar">
-                        <IconButton size="small" onClick={() => handleCambiarEstado(proyecto, "completado")}>
+                        <IconButton size="small" aria-label="Ver detalle del proyecto" onClick={() => handleCambiarEstado(proyecto, "completado")}>
                           <CheckCircle size={18} />
                         </IconButton>
                       </Tooltip>
                     )}
                     <Tooltip title="Eliminar">
-                      <IconButton size="small" color="error" onClick={() => handleDeleteProyecto(proyecto)}>
+                      <IconButton size="small" aria-label="Ver detalle del proyecto" color="error" onClick={() => handleDeleteProyecto(proyecto)}>
                         <Trash2 size={18} />
                       </IconButton>
                     </Tooltip>
@@ -1083,8 +1083,8 @@ export default function Proyectos() {
                                       <Typography variant="body2" color="text.secondary" noWrap sx={{ mb: 1 }}>{proyecto.clienteNombre}</Typography>
                                     </Box>
                                     <Box sx={{ display: 'flex', gap: 0.5 }} {...provided.dragHandleProps}>
-                                      <Tooltip title="Ver detalles"><IconButton size="small" onClick={() => setSelectedProyecto(proyecto)}><Eye size={16} /></IconButton></Tooltip>
-                                      <Tooltip title="Editar"><IconButton size="small" onClick={() => handleOpenProyectoModal(proyecto)}><Edit2 size={16} /></IconButton></Tooltip>
+                                      <Tooltip title="Ver detalles"><IconButton size="small" aria-label="Ver detalle del proyecto" onClick={() => setSelectedProyecto(proyecto)}><Eye size={16} /></IconButton></Tooltip>
+                                      <Tooltip title="Editar"><IconButton size="small" aria-label="Ver detalle del proyecto" onClick={() => handleOpenProyectoModal(proyecto)}><Edit2 size={16} /></IconButton></Tooltip>
                                     </Box>
                                   </Box>
                                   <Box sx={{ display: 'flex', gap: 0.5, mt: 1, flexWrap: 'wrap' }}>
@@ -1271,7 +1271,7 @@ export default function Proyectos() {
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <Typography variant="h6" sx={{ fontWeight: "bold" }}>{selectedProyecto.nombre}</Typography>
                   <Tooltip title="Generar enlace público de seguimiento">
-                    <IconButton size="small" color="primary" onClick={() => handleGenerateMagicLink(selectedProyecto)}>
+                    <IconButton size="small" aria-label="Ver detalle del proyecto" color="primary" onClick={() => handleGenerateMagicLink(selectedProyecto)}>
                       <Share2 size={18} />
                     </IconButton>
                   </Tooltip>
@@ -1394,7 +1394,7 @@ export default function Proyectos() {
                             secondary={<Typography variant="caption">{doc.tipo} {doc.url ? `• <a href="${doc.url}" target="_blank" rel="noreferrer">Ver</a>` : ''}</Typography>}
                           />
                           {doc.url && (
-                            <IconButton size="small" href={doc.url} target="_blank" rel="noreferrer">
+                            <IconButton size="small" aria-label="Ver detalle del proyecto" href={doc.url} target="_blank" rel="noreferrer">
                               <ExternalLink size={16} />
                             </IconButton>
                           )}
@@ -1673,7 +1673,7 @@ export default function Proyectos() {
                             >
                               <ExternalLink size={16} />
                             </IconButton>
-                            <IconButton size="small" color="error" onClick={() => handleDeleteRecurso(recurso.id)}><Trash2 size={16} /></IconButton>
+                            <IconButton size="small" aria-label="Ver detalle del proyecto" color="error" onClick={() => handleDeleteRecurso(recurso.id)}><Trash2 size={16} /></IconButton>
                           </ListItemSecondaryAction>
                         </ListItem>
                       ))
