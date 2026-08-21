@@ -9,6 +9,7 @@ import { contratosService } from "../services/supabase";
 import { storageHelper } from "../services/supabase";
 import { useCRMStore } from "../store/useCRMStore";
 import { globalSnack } from "../components/GlobalSnackbar";
+import { EmptyState } from "../components/EmptyState";
 
 export function meta() {
   return [{ title: "Contratos | CRM Agencia" }];
@@ -98,7 +99,12 @@ export default function Contratos() { const loadContratos = () => { if (typeof w
         <Box sx={{ display: "flex", justifyContent: "center", p: { xs: 2, sm: 3 } }}><CircularProgress /></Box>
       ) : contratos.length === 0 ? (
         <Paper sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2, textAlign: "center", border: "1px dashed", borderColor: "divider" }}>
-          <Typography color="text.secondary" variant="body2">No hay contratos registrados.</Typography>
+          <EmptyState
+            title="Sin contratos"
+            description="Creá el primer contrato para formalizar acuerdos."
+            actionLabel="Crear contrato"
+            onAction={openCreate}
+          />
           <Button size="small" variant="text" onClick={openCreate}>Crear el primero</Button>
         </Paper>
       ) : (

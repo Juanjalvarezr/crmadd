@@ -9,6 +9,7 @@ import { plantillasDocumentosService } from "../services/supabase";
 import { storageHelper } from "../services/supabase";
 import { StatCard } from "../components/StatCard";
 import { globalSnack } from "../components/GlobalSnackbar";
+import { EmptyState } from "../components/EmptyState";
 
 export function meta() {
   return [{ title: "Cotizaciones | CRM Agencia" }];
@@ -167,8 +168,12 @@ export default function Cotizaciones() {
         <Box sx={{ display: "flex", justifyContent: "center", p: { xs: 2, sm: 3 } }}><CircularProgress size={28} /></Box>
       ) : items.length === 0 ? (
         <Paper sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2, textAlign: "center", border: "1px dashed", borderColor: "divider" }}>
-          <Typography variant="body2" color="text.secondary">No hay cotizaciones registradas.</Typography>
-          <Button size="small" variant="text" onClick={openCreate}>Crear la primera</Button>
+          <EmptyState
+            title="Sin cotizaciones"
+            description="Creá la primera cotización para enviar a clientes."
+            actionLabel="Crear cotización"
+            onAction={openCreate}
+          />
         </Paper>
       ) : (
         <Box sx={{ display: "flex", flexDirection: "column", gap: { xs: 0.5, sm: 1 } }}>
