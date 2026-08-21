@@ -90,13 +90,12 @@ export default function Equipo() {
   return (
     <Box sx={{ p: { xs: 1, sm: 1.5, md: 2 } }}>
       <Box sx={{ mb: { xs: 2.5, sm: 3 } }}>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 1, mb: { xs: 1, sm: 1.5 } }}>
-          <Typography variant="h6" sx={{ fontSize: { xs: '1rem', sm: '1.15rem' } }}>Equipo</Typography>
-          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-            <Button size="small" startIcon={<FiRefreshCw size={14} />} onClick={loadEquipo} disabled={loading}>Recargar</Button>
-            <Button size="small" variant="contained" startIcon={<FiUserPlus size={16} />} onClick={() => handleOpenModal()}>Nuevo</Button>
-          </Box>
-        </Box>
+        <ListToolbar
+          title="Equipo"
+          onCreate={() => handleOpenModal()}
+          onRefresh={loadEquipo}
+          searchPlaceholder="Buscar miembro..."
+        />
       </Box>
 
       <Grid container spacing={{ xs: 1, sm: 1.5 }}>

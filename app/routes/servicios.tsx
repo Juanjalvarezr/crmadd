@@ -10,6 +10,7 @@ import {
 } from "react-icons/fi";
 import { serviciosService } from "../services/supabase";
 import { EmptyState } from "../components/EmptyState";
+import { ListToolbar } from "../components/ListToolbar";
 
 export function meta() {
   return [
@@ -153,13 +154,12 @@ export default function Servicios() {
   return (
     <Box sx={{ p: { xs: 1, sm: 1.5, md: 2 } }}>
       <Box sx={{ mb: { xs: 2.5, sm: 3 } }}>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 1, mb: { xs: 1, sm: 1.5 } }}>
-          <Typography variant="h6" sx={{ fontSize: { xs: '1rem', sm: '1.15rem' } }}>Servicios</Typography>
-          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-            <Button size="small" startIcon={<FiRefreshCw size={14} />} onClick={loadServicios} disabled={loading}>Recargar</Button>
-            <Button size="small" variant="contained" startIcon={<FiPlus size={16} />} onClick={() => handleOpenModal()}>Nuevo</Button>
-          </Box>
-        </Box>
+        <ListToolbar
+          title="Servicios"
+          onCreate={() => handleOpenModal()}
+          onRefresh={loadServicios}
+          searchPlaceholder="Buscar servicio..."
+        />
       </Box>
 
       {loading ? (
