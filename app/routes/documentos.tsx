@@ -5,13 +5,14 @@ import { FiPlus, FiX, FiDownload, FiUpload, FiFileText, FiRefreshCw } from "reac
 import { documentosService, storageHelper } from "../services/supabase";
 import { clientesService, facturasService, proyectosService } from "../services/supabase";
 import { StatCard } from "../components/StatCard";
+import { EmptyState } from "../components/EmptyState";
 
 export function meta() {
   return [{ title: "Documentos | CRM Agencia" }];
 }
 
 export default function Documentos() {
-          const [documentos, setDocumentos] = useState<any[]>([]);
+  const [documentos, setDocumentos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
@@ -190,7 +191,14 @@ export default function Documentos() {
             </Box>
           </Paper>
         ))}
-        {!loading && documentos.length === 0 && <Typography variant="body2" color="text.secondary">Sin documentos</Typography>}
+        {!loading && documentos.length === 0 && (
+        <EmptyState
+          title="Sin documentos"
+          description="Subí el primer documento para organizar la información."
+          actionLabel="Subir documento"
+          onAction={openCreate}
+        />
+      )}
       </Box>
 
       <Dialog open={open} onClose={() => setOpen(false)} maxWidth="sm" fullWidth>

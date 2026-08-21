@@ -7,6 +7,7 @@ import { FiPlus, FiEdit, FiTrash2, FiFileText, FiRefreshCw, FiMessageSquare, FiX
 import { cotizacionesService, clientesService, documentosService } from "../services/supabase";
 import { plantillasDocumentosService } from "../services/supabase";
 import { storageHelper } from "../services/supabase";
+import { useNotificationStore } from "../store/useNotificationStore";
 import { StatCard } from "../components/StatCard";
 
 export function meta() {
