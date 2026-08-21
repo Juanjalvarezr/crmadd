@@ -321,7 +321,7 @@ export const tareasService = {
   async getAll() {
     const { data, error } = await supabase
       .from('tareas')
-      .select('*')
+      .select('id, titulo, estado, prioridad, fecha_vencimiento, proyecto_id, cliente_id, created_at' )
       .order('fecha', { ascending: true });
     
     if (error) throw error;
@@ -506,7 +506,7 @@ export const clientesService = {
   async getAll(): Promise<Cliente[]> {
     const { data, error } = await supabase
       .from('clientes')
-      .select('*')
+      .select('id, nombre, email, telefono, empresa, nicho, estado, ultima_interaccion, favorito' )
       .order('nombre');
     if (error) {
       console.error("Error crítico cargando clientes:", error);
@@ -584,7 +584,7 @@ export const proyectosService = {
   async getAll() {
     const { data, error } = await supabase
       .from('proyectos')
-      .select('*')
+      .select('id, nombre, descripcion, cliente_id, cliente_nombre, estado, prioridad, fecha_inicio, fecha_fin, progreso, presupuesto, actualizado_en')
       .order('actualizado_en', { ascending: false })
       .limit(50);
     if (error) {
@@ -911,7 +911,7 @@ export const documentosService = {
   async getAll() {
     const { data, error } = await supabase
       .from('documentos')
-      .select('*')
+      .select('id, titulo, tipo, url, proyecto_id, cliente_id, factura_id, created_at' )
       .order('fecha_creacion', { ascending: false });
     if (error) throw error;
     return data || [];
@@ -1033,7 +1033,7 @@ export const facturasService = {
   async getAll() {
     const { data, error } = await supabase
       .from('facturas')
-      .select('*')
+      .select('id, numero_factura, estado, total, subtotal, iva, cliente_id, proyecto_id, fecha_vencimiento, created_at' )
       .order('fecha_emision', { ascending: false });
     if (error) throw error;
     return (data || []).map((f: any) => ({ ...f, total: Number(f.total || 0) }));

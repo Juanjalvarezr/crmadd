@@ -25,7 +25,7 @@ export default function Contratos() { const loadContratos = () => { if (typeof w
   const [form, setForm] = useState({ estado: "Activo", valor: "", proyecto_id: "", cliente_id: "", factura_id: "", fecha_inicio: "", fecha_fin: "", url: "" });
   const [saving, setSaving] = useState(false);
   const [file, setFile] = useState<File | null>(null);
-  
+    
   const load = async () => {
     try { setLoading(true); setError(null); await fetchContratos(); }
     catch (err: any) { setError(err.message || "Error al cargar contratos"); }
@@ -136,7 +136,7 @@ export default function Contratos() { const loadContratos = () => { if (typeof w
           })}
         </Box>
       )}
-
+      
       <Dialog open={!!deleteTarget} onClose={() => setDeleteTarget(null)}>
         <DialogTitle>Eliminar contrato</DialogTitle>
         <DialogContent>

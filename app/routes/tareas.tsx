@@ -71,7 +71,7 @@ export default function Tareas() {
     window.addEventListener("resize", updateMobile);
     return () => window.removeEventListener("resize", updateMobile);
   }, []);
-
+  
   const loadTareas = async () => {
     try {
       setLoading(true);
@@ -267,7 +267,7 @@ export default function Tareas() {
           />
         </Box>
       )}
-
+      
       <Dialog open={!!deleteTarget} onClose={() => setDeleteTarget(null)}>
         <DialogTitle>Eliminar tarea</DialogTitle>
         <DialogContent>

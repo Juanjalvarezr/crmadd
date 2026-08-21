@@ -21,7 +21,7 @@ export default function Equipo() {
     especialidad: "",
     estado: "Activo"
   });
-
+  
   const loadEquipo = async () => {
     setLoading(true);
     setError(null);

@@ -35,7 +35,7 @@ export default function Facturacion() {
   const [documentoGenerado, setDocumentoGenerado] = useState<string | null>(null);
   const [uploadingPayment, setUploadingPayment] = useState(false);
   const [paymentFile, setPaymentFile] = useState<File | null>(null);
-  
+    
   const load = async () => {
     try {
       setLoading(true);
@@ -301,7 +301,7 @@ export default function Facturacion() {
           })}
         </Box>
       )}
-      <Dialog open={openModal} onClose={() => { setOpenModal(false); setFormError(null); }} maxWidth="sm" fullWidth>
+            <Dialog open={openModal} onClose={() => { setOpenModal(false); setFormError(null); }} maxWidth="sm" fullWidth>
         <DialogTitle>{editing ? "Editar Factura" : "Nueva Factura"}<IconButton onClick={() => { setOpenModal(false); setFormError(null); }} size="small" sx={{ float: "right" }}><FiX /></IconButton></DialogTitle>
         <DialogContent>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}>
