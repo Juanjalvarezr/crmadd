@@ -6,6 +6,7 @@ import { documentosService, storageHelper } from "../services/supabase";
 import { clientesService, facturasService, proyectosService } from "../services/supabase";
 import { StatCard } from "../components/StatCard";
 import { EmptyState } from "../components/EmptyState";
+import { ListToolbar } from "../components/ListToolbar";
 
 export function meta() {
   return [{ title: "Documentos | CRM Agencia" }];
@@ -119,13 +120,12 @@ export default function Documentos() {
 
   return (
     <Box sx={{ p: { xs: 1, sm: 1.5, md: 2 } }}>
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: { xs: 1, sm: 1.5 } }}>
-        <Typography variant="h6" sx={{ fontSize: { xs: '1rem', sm: '1.1rem' } }}>Documentos</Typography>
-        <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-          <IconButton size="small" onClick={refreshOptions}><FiRefreshCw size={16}/></IconButton>
-          <Button variant="contained" size="small" startIcon={<FiPlus size={16} />} onClick={openCreate}>Nuevo</Button>
-        </Box>
-      </Box>
+      <ListToolbar
+        title="Documentos"
+        onCreate={openCreate}
+        onRefresh={refreshOptions}
+        searchPlaceholder="Buscar documento..."
+      />
 
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: { xs: 0.5, sm: 1 }, mb: { xs: 1, sm: 1.5 } }}>
         <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}>
