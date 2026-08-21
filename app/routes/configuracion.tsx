@@ -14,7 +14,6 @@ import {
   FiPackage, FiPlus, FiList, FiEdit
 } from "react-icons/fi";
 import { configuracionService, reglasAIService, conocimientoService, promptsAIService, supabase, testConnection, plantillasDocumentosService } from "../services/supabase";
-import { supabase as sb } from "../services/supabase";
 import { BRAND } from "../theme";
 import { EmpresaTab } from "../services/EmpresaTab";
 import { CerebroAITab } from "../services/CerebroAITab";
