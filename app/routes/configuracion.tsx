@@ -124,7 +124,7 @@ export default function Configuracion() {
   const handleSaveCatalogos = async (newCatalogos: typeof catalogos) => {
     setCatalogos(newCatalogos);
     try {
-      await sb.from("configuracion_empresa").upsert([{ id: "catalogos", data: newCatalogos as any }], { onConflict: ["id"] }) as any;
+      await (sb.from("configuracion_empresa").upsert([{ id: "catalogos", data: newCatalogos } as any], { onConflict: ["id"] }) as any);
       globalSnack.show("Campos y Estados actualizados", "success");
     } catch (err: any) {
       globalSnack.show(err.message || "Error guardando catálogos", "error");
