@@ -8,7 +8,7 @@ interface Props {
   loading: boolean;
 }
 
-export const ConfigTabEmpresa: React.FC<Props> = ({ config, onChange, onSave, onLogoUpload, loading, logoInputRef }) => {
+export const ConfigTabEmpresa: React.FC<Props> = ({ config, onChange, onSave, loading }) => {
   return (
     <Box sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2 }}>
       <Typography variant="h6" sx={{ mb: 3, fontWeight: "bold" }}>Información de la Empresa</Typography>
