@@ -4,6 +4,7 @@ import { FiUsers, FiCheckSquare, FiTrendingUp, FiPlus, FiX, FiMessageSquare, FiS
 import { useNavigate } from 'react-router';
 import { tareasService, oportunidadesService, interaccionesService } from '../services/supabase';
 import { useCRMStore } from '../store/useCRMStore';
+import { globalSnack } from '../components/GlobalSnackbar';
 
 type ActionType = 'tarea' | 'oportunidad' | 'interaccion';
 
