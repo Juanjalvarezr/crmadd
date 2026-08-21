@@ -15,8 +15,8 @@ import {
 } from "react-icons/fi";
 import { configuracionService, reglasAIService, conocimientoService, promptsAIService, supabase, testConnection, plantillasDocumentosService } from "../services/supabase";
 import { BRAND } from "../theme";
-import { EmpresaTab } from "../services/EmpresaTab";
-import { CerebroAITab } from "../services/CerebroAITab";
+import { EmpresaTab } from "../components/EmpresaTab";
+import { CerebroAITab } from "../components/CerebroAITab";
 
 // Tipos para configuración
 interface EmpresaConfig {
