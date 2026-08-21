@@ -14,6 +14,7 @@ import {
   FiPackage, FiPlus, FiList, FiEdit
 } from "react-icons/fi";
 import { configuracionService, reglasAIService, conocimientoService, promptsAIService, supabase, testConnection, plantillasDocumentosService } from "../services/supabase";
+import { supabase as sb } from "../services/supabase";
 import { BRAND } from "../theme";
 import { EmpresaTab } from "../services/EmpresaTab";
 import { CerebroAITab } from "../services/CerebroAITab";
@@ -120,12 +121,14 @@ export default function Configuracion() {
 
   const [nuevoItem, setNuevoItem] = useState({ tipo: "estadosCliente", valor: "" });
 
-  const handleSaveCatalogos = (newCatalogos: typeof catalogos) => {
+  const handleSaveCatalogos = async (newCatalogos: typeof catalogos) => {
     setCatalogos(newCatalogos);
-    if (typeof window !== "undefined") {
-      if (typeof window !== "undefined") if (typeof window !== "undefined") localStorage.setItem("crm_custom_catalogs", JSON.stringify(newCatalogos));
+    try {
+      await sb.from("configuracion_empresa").upsert({ id: "catalogos", data: newCatalogos }, { onConflict: ["id"] });
+      globalSnack.show("Campos y Estados actualizados", "success");
+    } catch (err: any) {
+      globalSnack.show(err.message || "Error guardando catálogos", "error");
     }
-    globalSnack.show("Campos y Estados actualizados en caché global", "success");
   };
 
   const handleAddItem = () => {
