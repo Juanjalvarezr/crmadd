@@ -1,13 +1,11 @@
 import React from "react";
-import { Box, Typography, TextField, Grid, Avatar, Button } from "@mui/material";
+import { Box, Typography, TextField, Grid, Button } from "@mui/material";
 
 interface Props {
   config: any;
   onChange: (updates: any) => void;
   onSave: () => Promise<void>;
-  onLogoUpload: (event: React.ChangeEvent<HTMLInputElement>) => Promise<void>;
   loading: boolean;
-  logoInputRef: React.RefObject<HTMLInputElement | null>;
 }
 
 export const ConfigTabEmpresa: React.FC<Props> = ({ config, onChange, onSave, onLogoUpload, loading, logoInputRef }) => {
