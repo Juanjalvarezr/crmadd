@@ -84,12 +84,11 @@ export default function Root() {
   }, []);
 
   if (location.pathname === "/login") {
-    return <>
-        <a href="#main-content" style="position:absolute;left:-9999px;top:6px;background:#000;color:#fff;padding:4px 8px;border-radius:4px;z-index:9999" onfocus="this.style.left='6px'" onblur="this.style.left='-9999px'">Saltar al contenido principal</a>
-        <Box id="main-content" sx={{ outline: "none" }}>
-          <Outlet />
-        </Box>
-      </>;
+    return (
+      <Box id="main-content" sx={{ outline: "none" }}>
+        <Outlet />
+      </Box>
+    );
   }
 
   const handleDrawerToggle = () => setMobileOpen((prev) => !prev);
@@ -145,8 +144,7 @@ export default function Root() {
               minHeight: "calc(100vh - 120px)",
             }}
           >
-            <a href="#main-content" style="position:absolute;left:-9999px;top:6px;background:#000;color:#fff;padding:4px 8px;border-radius:4px;z-index:9999" onfocus="this.style.left='6px'" onblur="this.style.left='-9999px'">Saltar al contenido principal</a>
-        <Box id="main-content" sx={{ outline: "none" }}>
+            <Box id="main-content" sx={{ outline: "none" }}>
           <Outlet />
         </Box>
           </Box>
