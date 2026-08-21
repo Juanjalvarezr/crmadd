@@ -27,6 +27,7 @@ import { BRAND } from "../theme";
 import { SupabaseStatus } from "../components/SupabaseTest";
 import { format } from "date-fns";
 import { EmptyState } from "../components/EmptyState";
+import { ListToolbar } from "../components/ListToolbar";
 import { CompactTable } from "../components/CompactTable";
 import { useLocation } from "react-router";
 import type { Cliente } from "../types/crm";
@@ -433,15 +434,15 @@ export default function Clientes() {
       {/* Indicador de conexión a Supabase */}
       <SupabaseStatus />
         
-      {/* Header compacto mobile */}
-      <Box sx={{ mb: { xs: 1, sm: 1.5 } }}>
-        <Typography variant="h6" sx={{ fontWeight: "bold", fontSize: { xs: '1rem', sm: '1.1rem' } }}>Clientes</Typography>
-        <Box sx={{ display: "flex", gap: 1, mt: 1, flexWrap: "wrap" }}>
-          <Button size="small" startIcon={<FiSearch size={14} />} onClick={() => setIsFilterDrawerOpen(true)}>Filtros</Button>
-          <Button size="small" onClick={handleExportCSV}>Exportar</Button>
-          <Button size="small" variant="contained" startIcon={<FiPlus size={16} />} onClick={handleOpenModal}>Nuevo</Button>
-        </Box>
-      </Box>
+      <ListToolbar
+        title="Clientes"
+        onCreate={handleOpenModal}
+        onRefresh={loadClientes}
+        onSearch={setSearchTerm}
+        onExport={handleExportCSV}
+        searchPlaceholder="Buscar cliente..."
+        extra={<Button size="small" startIcon={<FiSearch size={14} />} onClick={() => setIsFilterDrawerOpen(true)}>Filtros</Button>}
+      />
       {selectedIds.length > 0 && (
         <Paper
           elevation={4}
