@@ -10,16 +10,13 @@ import {
 import { 
   FiSettings, FiSave, FiRefreshCw, FiUser, FiMail, FiGlobe,
   FiBell, FiShield, FiDatabase, FiDownload, FiUpload, FiX,
-  FiMoon, FiSun, FiLock, FiTrash2, FiCheck, FiAlertCircle, FiZap,
+  FiMoon, FiSun, FiTrash2, FiCheck, FiAlertCircle, FiZap,
   FiPackage, FiPlus, FiList, FiEdit
 } from "react-icons/fi";
 import { configuracionService, reglasAIService, conocimientoService, promptsAIService, supabase, testConnection, plantillasDocumentosService } from "../services/supabase";
 import { BRAND } from "../theme";
 import { EmpresaTab } from "../components/EmpresaTab";
-import { ConfigTabPreferencias } from "../components/config/ConfigTabPreferencias";
-import { ConfigTabSeguridad } from "../components/config/ConfigTabSeguridad";
-import { ConfigTabPreferencias } from "../components/config/ConfigTabPreferencias";
-import { ConfigTabSeguridad } from "../components/config/ConfigTabSeguridad";
+import { ConfigTabPreferencias, ConfigTabSeguridad } from "../components/config";
 import { CerebroAITab } from "../components/CerebroAITab";
 
 // Tipos para configuración
