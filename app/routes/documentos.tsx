@@ -203,7 +203,7 @@ export default function Documentos() {
       )}
       </Box>
       <Box sx={{ display: "flex", justifyContent: "center", mt: 2, mb: 1 }}>
-        <Pagination count={Math.max(1, Math.ceil((documentos.length || 0) / pageSize))} page={page} onChange={(_: React.SyntheticEvent, p: number) => setPage(p)} size="small" />
+        <Pagination count={Math.max(1, Math.ceil((documentos.length || 0) / pageSize))} page={page} onChange={(_: any, p: number) => setPage(p)} size="small" />
       </Box>
 
       <Dialog open={open} onClose={() => setOpen(false)} maxWidth="sm" fullWidth>

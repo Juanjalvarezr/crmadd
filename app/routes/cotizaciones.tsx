@@ -196,7 +196,7 @@ export default function Cotizaciones() {
         </Box>
       )}
       <Box sx={{ display: "flex", justifyContent: "center", mt: 2, mb: 1 }}>
-        <Pagination count={Math.max(1, Math.ceil((items.length || 0) / pageSize))} page={page} onChange={(_: React.SyntheticEvent, p: number) => setPage(p)} size="small" />
+        <Pagination count={Math.max(1, Math.ceil((items.length || 0) / pageSize))} page={page} onChange={(_: any, p: number) => setPage(p)} size="small" />
       </Box>
             
       <Dialog open={openModal} onClose={() => { setOpenModal(false); setFormError(null); }} maxWidth="sm" fullWidth>
