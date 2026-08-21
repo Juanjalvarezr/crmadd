@@ -975,7 +975,7 @@ export default function Configuracion() {
           {activeTab === "empresa" && (
             <EmpresaTab 
               config={empresaConfig}
-              onChange={(updates) => setEmpresaConfig({ ...empresaConfig, ...updates })}
+              onChange={(updates: any) => setEmpresaConfig({ ...empresaConfig, ...updates })}
               onSave={handleSaveEmpresa}
               onLogoUpload={handleLogoUpload}
               loading={loading}
