@@ -35,16 +35,6 @@ export function meta() {
   ];
 }
 
-const getEtapaColor = (etapa: string): "primary" | "secondary" | "success" | "warning" | "error" => {
-  const colors: Record<string, "primary" | "secondary" | "success" | "warning" | "error"> = {
-    "Prospección": "secondary",
-    "Propuesta": "primary",
-    "Negociación": "warning",
-    "Cierre": "success",
-  };
-  return colors[etapa] || "primary";
-};
-
 // Colores de etapa con contraste WCAG AA (fondo oscuro + texto blanco)
 const ETAPA_STYLES: Record<string, { bg: string; text: string; border: string; chipBg: string; chipText: string }> = {
   "Prospección": { bg: "#f3e5f5", text: "#4a148c", border: "#ce93d8", chipBg: "#7b1fa2", chipText: "#fff" },
@@ -453,10 +443,10 @@ export default function Ventas() {
                 const sumValor = oppsCol.reduce((a, b) => a + b.valor, 0);
                 
                 return (
-                  <Paper key={col} sx={{ minWidth: 300, flex: 1, p: 2, bgcolor: (theme) => ETAPA_STYLES[col]?.bg || '#f5f5f5', borderTop: `4px solid ${ETAPA_STYLES[col]?.border || '#e91e63'}` }}>
+                  <Paper key={col} sx={{ minWidth: 300, flex: 1, p: 2, bgcolor: ETAPA_STYLES[col]?.bg || "#f5f5f5", borderTop: `4px solid ${ETAPA_STYLES[col]?.border || '#e91e63'}` }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                       <Typography variant="subtitle1" sx={{ fontWeight: "bold", color: "text.primary" }}>{col}</Typography>
-                      <Chip label={oppsCol.length} size="small" sx={{ bgcolor: (theme) => ETAPA_STYLES[col]?.chipBg || "#e91e63", color: (theme) => ETAPA_STYLES[col]?.chipText || "#fff", fontWeight: "bold" }} />
+                      <Chip label={oppsCol.length} size="small" sx={{ bgcolor: ETAPA_STYLES[col]?.chipBg || "#e91e63", color: ETAPA_STYLES[col]?.chipText || "#fff", fontWeight: "bold" }} />
                     </Box>
                     <Typography variant="body2" color="text.secondary" sx={{ mb: 2, fontWeight: 'bold' }}>
                       {formatValue(sumValor)}
