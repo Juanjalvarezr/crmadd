@@ -5,8 +5,9 @@ import {
   DialogContent, DialogActions, TextField, Select, MenuItem,
   InputLabel, FormControl, Divider, Alert
 } from "@mui/material";
-import { FiUserPlus, FiMail, FiEdit2, FiTrash2, FiRefreshCw } from "react-icons/fi";
+import { FiMail, FiEdit2, FiTrash2 } from "react-icons/fi";
 import { subagentesService as equipoService } from '../services/supabase';
+import { ListToolbar } from '../components/ListToolbar';
 
 export default function Equipo() {
   const [miembros, setMiembros] = useState<any[]>([]);
