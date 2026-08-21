@@ -6,7 +6,7 @@ import {
   CircularProgress, Divider, List, ListItem, ListItemText, ListItemSecondaryAction
 } from "@mui/material";
 import { 
-  FiPlus, FiEdit, FiTrash2, FiStar, FiClock, FiX, FiPlusCircle, FiRefreshCw 
+  FiEdit, FiTrash2, FiStar, FiClock, FiX, FiPlusCircle 
 } from "react-icons/fi";
 import { serviciosService } from "../services/supabase";
 import { EmptyState } from "../components/EmptyState";
