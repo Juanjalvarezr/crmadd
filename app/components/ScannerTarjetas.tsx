@@ -6,6 +6,7 @@ import {
 import { FiCamera, FiUpload, FiX, FiCheck } from 'react-icons/fi';
 import { scanCardFromImage, type ExtractedCard } from '../services/ocrService';
 import { clientesService, interaccionesService } from '../services/supabase';
+import { globalSnack } from '../components/GlobalSnackbar';
 
 interface Props {
   open: boolean;
