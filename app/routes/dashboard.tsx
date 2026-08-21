@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router";
 import { useCRMStore } from "../store/useCRMStore";
 
 export function meta() {
@@ -114,7 +113,7 @@ export default function Dashboard() {
           <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
             {kpiCard("Pipeline", valorPipeline, "Valor total cotizaciones", "#E91E63")}
             {kpiCard("Pendientes", cotizacionesPendientes, "Cotizaciones por cerrar", "#FF9800")}
-            {kpiCard("Conversión", totalCotizaciones ? Math.round((cotizaciones.filter((c: any) => c.estado === "aceptada").length / totalCotizaciones) * 100) + "%" : "0%", "Aceptadas / total", "#4CAF50")}
+            {kpiCard("Conversión", "0%", "Aceptadas / total", "#4CAF50")}
           </div>
         )}
 
