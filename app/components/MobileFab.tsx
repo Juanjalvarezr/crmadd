@@ -4,7 +4,6 @@ import { FiUsers, FiCheckSquare, FiTrendingUp, FiPlus, FiX, FiMessageSquare, FiS
 import { useNavigate } from 'react-router';
 import { tareasService, oportunidadesService, interaccionesService } from '../services/supabase';
 import { useCRMStore } from '../store/useCRMStore';
-import { useNotificationStore } from '../store/useNotificationStore';
 
 type ActionType = 'tarea' | 'oportunidad' | 'interaccion';
 
@@ -22,8 +21,7 @@ export const MobileFab: React.FC = () => {
   const navigate = useNavigate();
   const clientesStore = useCRMStore((s) => s.clientes);
   const fetchClientes = useCRMStore((s) => s.fetchClientes);
-  const { showNotification } = useNotificationStore();
-
+  
   useEffect(() => {
     if (clientesStore.length === 0) {
       fetchClientes().then(() => {
@@ -58,14 +56,14 @@ export const MobileFab: React.FC = () => {
       setGuardando(true);
       const clienteId = Number(selectedCliente);
       if (!clienteId) {
-        showNotification('Seleccioná un cliente', 'warning');
+        globalSnack.show('Seleccioná un cliente', 'warning');
         setGuardando(false);
         return;
       }
 
       if (actionType === 'tarea') {
         if (!titulo.trim()) {
-          showNotification('Título requerido', 'warning');
+          globalSnack.show('Título requerido', 'warning');
           setGuardando(false);
           return;
         }
@@ -78,10 +76,10 @@ export const MobileFab: React.FC = () => {
           tipo: tipo as any,
           cliente_id: clienteId,
         });
-        showNotification('Tarea creada', 'success');
+        globalSnack.show('Tarea creada', 'success');
       } else if (actionType === 'oportunidad') {
         if (!titulo.trim()) {
-          showNotification('Título requerido', 'warning');
+          globalSnack.show('Título requerido', 'warning');
           setGuardando(false);
           return;
         }
@@ -95,10 +93,10 @@ export const MobileFab: React.FC = () => {
           estado: 'Abierta',
           probabilidad: 25,
         });
-        showNotification('Oportunidad creada', 'success');
+        globalSnack.show('Oportunidad creada', 'success');
       } else if (actionType === 'interaccion') {
         if (!descripcion.trim()) {
-          showNotification('Descripción requerida', 'warning');
+          globalSnack.show('Descripción requerida', 'warning');
           setGuardando(false);
           return;
         }
@@ -109,12 +107,12 @@ export const MobileFab: React.FC = () => {
           contenido: descripcion.trim(),
           usuario: 'Asistente IA',
         });
-        showNotification('Gestión registrada en historial', 'success');
+        globalSnack.show('Gestión registrada en historial', 'success');
       }
 
       setFormOpen(false);
     } catch (e: any) {
-      showNotification(e?.message || 'Error guardando', 'error');
+      globalSnack.show(e?.message || 'Error guardando', 'error');
     } finally {
       setGuardando(false);
     }
