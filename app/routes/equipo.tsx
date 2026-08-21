@@ -133,10 +133,10 @@ export default function Equipo() {
                     Contactar
                   </Button>
                   <Box>
-                    <IconButton size="small" onClick={() => handleOpenModal(miembro)} color="warning">
+                    <IconButton size="small" aria-label="Acción" onClick={() => handleOpenModal(miembro)} color="warning">
                       <FiEdit2 size={14} />
                     </IconButton>
-                    <IconButton size="small" color="error" onClick={() => handleDelete(miembro.id)}>
+                    <IconButton size="small" aria-label="Acción" color="error" onClick={() => handleDelete(miembro.id)}>
                       <FiTrash2 size={14} />
                     </IconButton>
                   </Box>

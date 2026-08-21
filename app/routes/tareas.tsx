@@ -243,9 +243,9 @@ export default function Tareas() {
               width: 120,
               render: (t) => (
                 <Box sx={{ display: "flex", gap: 0.25, justifyContent: "flex-end" }}>
-                  <Tooltip title="Completar"><IconButton size="small" onClick={() => handleComplete(t)}><FiCheck size={16} /></IconButton></Tooltip>
-                  <Tooltip title="Editar"><IconButton size="small" onClick={() => handleEdit(t)}><FiEdit size={16} /></IconButton></Tooltip>
-                  <Tooltip title="Eliminar"><IconButton size="small" color="error" onClick={() => handleDelete(t)}><FiTrash2 size={16} /></IconButton></Tooltip>
+                  <Tooltip title="Completar"><IconButton size="small" aria-label="Acción" onClick={() => handleComplete(t)}><FiCheck size={16} /></IconButton></Tooltip>
+                  <Tooltip title="Editar"><IconButton size="small" aria-label="Acción" onClick={() => handleEdit(t)}><FiEdit size={16} /></IconButton></Tooltip>
+                  <Tooltip title="Eliminar"><IconButton size="small" aria-label="Acción" color="error" onClick={() => handleDelete(t)}><FiTrash2 size={16} /></IconButton></Tooltip>
                 </Box>
               ),
             },

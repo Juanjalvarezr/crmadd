@@ -187,9 +187,9 @@ export default function Documentos() {
               </Typography>
             </Box>
             <Box sx={{ display: "flex", gap: 0.5 }}>
-              {row.url && <IconButton size="small" href={row.url} target="_blank" rel="noreferrer" title="Descargar"><FiDownload size={16} /></IconButton>}
-              {row.url && <IconButton size="small" onClick={() => setPreview(row.url)} title="Vista previa"><FiFileText size={16} /></IconButton>}
-              <IconButton size="small" color="error" onClick={() => handleDelete(row)} title="Eliminar"><FiX size={16} /></IconButton>
+              {row.url && <IconButton size="small" aria-label="Acción" href={row.url} target="_blank" rel="noreferrer" title="Descargar"><FiDownload size={16} /></IconButton>}
+              {row.url && <IconButton size="small" aria-label="Acción" onClick={() => setPreview(row.url)} title="Vista previa"><FiFileText size={16} /></IconButton>}
+              <IconButton size="small" aria-label="Acción" color="error" onClick={() => handleDelete(row)} title="Eliminar"><FiX size={16} /></IconButton>
             </Box>
           </Paper>
         ))}
