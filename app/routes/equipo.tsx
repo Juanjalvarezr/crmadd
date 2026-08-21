@@ -148,7 +148,7 @@ export default function Equipo() {
         {miembros.length === 0 && (
           <Grid item xs={12}>
             <Typography sx={{ textAlign: "center", color: "text.secondary", py: 3, fontSize: '0.85rem' }}>
-              No hay miembros cargados. Agregá el primero.
+              Agregá el primer miembro al equipo.
             </Typography>
           </Grid>
         )}

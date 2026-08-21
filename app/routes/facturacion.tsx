@@ -9,6 +9,7 @@ import { facturasService, emailService, plantillasDocumentosService, pagosServic
 import { storageHelper } from "../services/supabase";
 import { useCRMStore } from "../store/useCRMStore";
 import { globalSnack } from "../components/GlobalSnackbar";
+import { EmptyState } from "../components/EmptyState";
 import { StatCard } from "../components/StatCard";
 
 export function meta() {
@@ -264,8 +265,12 @@ export default function Facturacion() {
         <Box sx={{ display: "flex", justifyContent: "center", p: { xs: 2, sm: 3 } }}><CircularProgress size={28} /></Box>
       ) : facturas.length === 0 ? (
         <Paper sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2, textAlign: "center", border: "1px dashed", borderColor: "divider" }}>
-          <Typography variant="body2" color="text.secondary">No hay facturas registradas.</Typography>
-          <Button size="small" variant="text" onClick={openCreate}>Crear la primera</Button>
+          <EmptyState
+            title="Sin facturas"
+            description="Creá la primera factura para comenzar a facturar."
+            actionLabel="Crear factura"
+            onAction={openCreate}
+          />
         </Paper>
       ) : (
         <Box sx={{ display: "flex", flexDirection: "column", gap: { xs: 0.5, sm: 1 } }}>
