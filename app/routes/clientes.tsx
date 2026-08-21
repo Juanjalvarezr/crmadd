@@ -68,8 +68,6 @@ export default function Clientes() {
   const [estadoFilter, setEstadoFilter] = useState("all");
   const [industriaFilter, setIndustriaFilter] = useState("all");
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
-  const [page, setPage] = useState(1);
-  const itemsPerPage = 10;
   
   // Modales de Detalle e Historial
   const [selectedClient, setSelectedClient] = useState<Cliente | null>(null);
@@ -142,14 +140,6 @@ export default function Clientes() {
     setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
   };
 
-  const totalPages = useMemo(() => Math.ceil(filteredClientes.length / itemsPerPage) || 1, [filteredClientes.length]);
-  
-  const paginatedClientes = useMemo(() => {
-    return filteredClientes.slice(
-      (page - 1) * itemsPerPage,
-      page * itemsPerPage
-    );
-  }, [filteredClientes, page, itemsPerPage]);
 
   const clientesActivos = useMemo(() => clientes.filter(c => c.estado === "Activo").length, [clientes]);
   const clientesInactivos = useMemo(() => clientes.filter(c => c.estado === "Inactivo").length, [clientes]);
@@ -619,7 +609,7 @@ export default function Clientes() {
         {!loading && !error && (
           isMobile ? (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            {paginatedClientes.map((cliente) => (
+            {clientesPaginated.map((cliente) => (
               <Card key={cliente.id} sx={{ borderRadius: 2, boxShadow: 1 }}>
                 <CardContent sx={{ p: 2, pb: "16px !important" }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
@@ -684,7 +674,7 @@ export default function Clientes() {
           </Box>
           ) : (
             <CompactTable
-              rows={paginatedClientes}
+              rows={clientesPaginated}
               getRowId={(c) => c.id}
               columns={[
                 {

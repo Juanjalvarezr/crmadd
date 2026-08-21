@@ -175,7 +175,7 @@ export default function Documentos() {
         </FormControl>
       </Box>
       <Box sx={{ display: "grid", gap: 1 }}>
-        {documentos.map((row) => (
+        {documentosPaginated.map((row) => (
           <Paper key={row.id} variant="outlined" sx={{ p: 1.5, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <Box>
               <Typography variant="subtitle2" sx={{ fontSize: "0.85rem" }}>{row.titulo}</Typography>
