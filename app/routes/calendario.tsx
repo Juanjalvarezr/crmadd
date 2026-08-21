@@ -52,14 +52,12 @@ export default function Calendario() {
   const [filterType, setFilterType] = useState<string>("");
   const [view, setView] = useState<string>(Views.MONTH);
   const [date, setDate] = useState<Date>(new Date());
-
   const [selectedEvent, setSelectedEvent] = useState<CalEvent | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [eventModalOpen, setEventModalOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<CalEvent | null>(null);
   const [eventForm, setEventForm] = useState({ title: "", start: "", end: "", allDay: true, type: "tarea" as CalEvent["type"], color: "#2196f3", desc: "" });
 
-  
   useEffect(() => {
     loadEvents();
   }, []);
@@ -148,7 +146,6 @@ export default function Calendario() {
     }
   };
 
-  // Sincronizar vencimientos de facturas sin sobrescribir eventos manuales
   useEffect(() => {
     let cancelled = false;
     const syncFacturas = async () => {
@@ -219,16 +216,16 @@ export default function Calendario() {
         desc: eventForm.desc,
         factura_id: editingEvent?.facturaId || null,
       };
+
       if (editingEvent) {
-        const updated = await calendarEventsService.update(editingEvent.id, payload);
-        setEvents(prev => prev.map(e => e.id === editingEvent.id ? { ...e, ...(updated as any) } : e));
+        await calendarEventsService.update(Number(editingEvent.id), payload);
         globalSnack.show("Evento actualizado", "success");
       } else {
-        const created = await calendarEventsService.create(payload);
-        setEvents(prev => [...prev, created as any]);
+        await calendarEventsService.create(payload as any);
         globalSnack.show("Evento creado", "success");
       }
       setEventModalOpen(false);
+      loadEvents();
     } catch (err: any) {
       globalSnack.show(err.message || "Error guardando evento", "error");
     }
@@ -237,26 +234,38 @@ export default function Calendario() {
   const handleDeleteEvent = async (evt: CalEvent) => {
     if (!confirm(`¿Eliminar evento "${evt.title}"?`)) return;
     try {
-      const id = typeof evt.id === 'string' && evt.id.startsWith('cal-') ? Number(evt.id.replace('cal-', '')) : evt.id;
-      await calendarEventsService.delete(id);
-      setEvents(prev => prev.filter(e => e.id !== evt.id));
-      setIsModalOpen(false);
+      if (String(evt.id).startsWith("factura-vencimiento-")) {
+        globalSnack.show("Los vencimientos se sincronizan desde facturación.", "warning");
+        return;
+      }
+      await calendarEventsService.remove(Number(evt.id));
       globalSnack.show("Evento eliminado", "success");
+      setIsModalOpen(false);
+      loadEvents();
     } catch (err: any) {
       globalSnack.show(err.message || "Error eliminando evento", "error");
     }
   };
 
+  const eventStyleGetter = (event: CalEvent) => {
+    return {
+      style: {
+        backgroundColor: event.color,
+        borderRadius: "4px",
+        opacity: 0.9,
+        color: "white",
+        border: "none",
+        display: "block",
+      },
+    };
+  };
+
   const handleQuickPay = async () => {
-    if (!selectedEvent?.facturaId) return;
     try {
-      const facturasList = await facturasService.getAll();
-      const factura = (facturasList || []).find((f: any) => f.id === selectedEvent.facturaId);
-      if (!factura) { globalSnack.show("Factura no encontrada", "warning"); return; }
+      if (!selectedEvent?.facturaId) return;
+      const factura = await facturasService.getById(selectedEvent.facturaId);
       const total = Number(factura.total || 0);
-      const pagosList = await pagosService.getByFactura(factura.id);
-      const pagado = (pagosList || []).reduce((a, b) => a + Number(b.monto || 0), 0);
-      const saldo = Math.max(total - pagado, 0);
+      const saldo = Number(factura.saldo_pendiente ?? total);
       const telefono = factura.cliente?.telefono || "";
       const clienteNombre = factura.cliente?.nombre || `Cliente #${factura.cliente_id}`;
       const texto = encodeURIComponent(`Hola ${clienteNombre}, te compartimos tu factura #${factura.numero_factura || factura.id} por $${total.toFixed(0)}. Saldo pendiente: $${saldo.toFixed(0)}. Estado: ${factura.estado || "Borrador"}. Fecha vencimiento: ${factura.fecha_vencimiento || "Sin definir"}. Ante cualquier duda respondé este mensaje.`);
@@ -269,19 +278,6 @@ export default function Calendario() {
     } catch (err: any) { globalSnack.show(err.message || "Error", "error"); }
   };
 
-  const eventStyleGetter = (event: CalEvent) => {
-    return {
-      style: {
-        backgroundColor: event.color,
-        borderRadius: '4px',
-        opacity: 0.9,
-        color: 'white',
-        border: 'none',
-        display: 'block'
-      }
-    };
-  };
-
   if (loading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
@@ -291,24 +287,24 @@ export default function Calendario() {
   }
 
   return (
-    <Box sx={{ 
-      p: { xs: 1, sm: 1.5, md: 2 }, 
-      height: '100%',
+    <Box sx={{
+      p: { xs: 1, sm: 1.5, md: 2 },
+      height: "100%",
       minHeight: { xs: 580, sm: 640 },
-      display: 'flex',
-      flexDirection: 'column',
+      display: "flex",
+      flexDirection: "column",
       gap: { xs: 1, sm: 1.5 }
     }}>
-      <Box sx={{ 
-        display: "flex", 
-        alignItems: "center", 
-        gap: { xs: 1, sm: 1.5 }, 
+      <Box sx={{
+        display: "flex",
+        alignItems: "center",
+        gap: { xs: 1, sm: 1.5 },
         flexWrap: "wrap",
         justifyContent: "space-between"
       }}>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
           <FiCalendar size={20} color="#1976d2" />
-          <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1976d2", fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>Calendario</Typography>
+          <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1976d2", fontSize: { xs: "1.1rem", sm: "1.25rem" } }}>Calendario</Typography>
         </Box>
         <Box sx={{ display: "flex", gap: 1, alignItems: "center", flexWrap: "wrap" }}>
           <ToggleButtonGroup
@@ -334,60 +330,56 @@ export default function Calendario() {
         </Box>
       </Box>
 
-      <Paper sx={{ 
-        p: { xs: 0.75, sm: 1 }, 
-        flex: 1, 
-        borderRadius: 1.5, 
-        overflow: 'hidden', 
-        border: '1px solid', 
-        borderColor: 'divider' 
+      <Paper sx={{
+        p: { xs: 0.75, sm: 1 },
+        flex: 1,
+        borderRadius: 1.5,
+        overflow: "hidden",
+        border: "1px solid",
+        borderColor: "divider"
       }}>
         <Calendar
           localizer={localizer}
           events={filteredEvents}
           startAccessor="start"
           endAccessor="end"
-          style={{ height: '100%', minHeight: { xs: 520, sm: 640 } }}
+          style={{ height: "100%", minHeight: { xs: 520, sm: 640 } }}
           culture="es"
           view={view}
           onView={setView}
           date={date}
           onNavigate={setDate}
           onSelectEvent={handleSelectEvent}
-            eventPropGetter={eventStyleGetter}
-            views={[Views.MONTH, Views.WEEK, Views.DAY]}
-            components={{
-              toolbar: () => null
-            }}
-            messages={{
-              next: "Siguiente",
-              previous: "Anterior",
-              today: "Hoy",
-              month: "Mes",
-              week: "Semana",
-              day: "Día",
-              noEventsInRange: "No hay eventos en este rango."
+          eventPropGetter={eventStyleGetter}
+          views={[Views.MONTH, Views.WEEK, Views.DAY]}
+          components={{ toolbar: () => null }}
+          messages={{
+            next: "Siguiente",
+            previous: "Anterior",
+            today: "Hoy",
+            month: "Mes",
+            week: "Semana",
+            day: "Día",
+            noEventsInRange: "No hay eventos en este rango."
           }}
-          />
-          {!loading && !events?.length && (
-            <EmptyState title="Sin eventos" description="Creá el primer evento para comenzar." actionLabel="Nuevo evento" />
-          )}
-        </Box>
+        />
+        {!loading && !events?.length && (
+          <EmptyState title="Sin eventos" description="Creá el primer evento para comenzar." actionLabel="Nuevo evento" />
+        )}
       </Paper>
 
-      {/* Modal de Detalle de Evento */}
       <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)} maxWidth="sm" fullWidth>
         {selectedEvent && (
           <>
-            <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Box sx={{ width: 12, height: 12, borderRadius: '50%', bgcolor: selectedEvent.color }} />
+            <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Box sx={{ width: 12, height: 12, borderRadius: "50%", bgcolor: selectedEvent.color }} />
               {selectedEvent.title}
             </DialogTitle>
             <DialogContent dividers>
-              <Typography variant="body1" sx={{ whiteSpace: 'pre-line', mb: 2 }}>
+              <Typography variant="body1" sx={{ whiteSpace: "pre-line", mb: 2 }}>
                 {selectedEvent.desc || "Sin descripción."}
               </Typography>
-              <Box sx={{ display: 'flex', gap: 2, color: 'text.secondary', fontSize: '0.9rem' }}>
+              <Box sx={{ display: "flex", gap: 2, color: "text.secondary", fontSize: "0.9rem" }}>
                 <Typography variant="body2">
                   <strong>Fecha:</strong> {format(selectedEvent.start, "dd 'de' MMMM, yyyy", { locale: es })}
                 </Typography>
@@ -404,7 +396,6 @@ export default function Calendario() {
         )}
       </Dialog>
 
-      {/* Modal Crear/Editar Evento */}
       <Dialog open={eventModalOpen} onClose={() => setEventModalOpen(false)} maxWidth="sm" fullWidth>
         <DialogTitle>{editingEvent ? "Editar evento" : "Nuevo evento"}</DialogTitle>
         <DialogContent dividers>
