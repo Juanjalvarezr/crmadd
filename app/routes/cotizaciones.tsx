@@ -1,4 +1,3 @@
-import { usePagination, PaginationBar } from "../utils/pagination";
 import { useState, useEffect } from "react";
 import {
   Box, Typography, Paper, Button, TextField, FormControl, InputLabel, Select, MenuItem,

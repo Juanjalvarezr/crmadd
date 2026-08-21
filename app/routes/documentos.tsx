@@ -11,7 +11,7 @@ export function meta() {
 }
 
 export default function Documentos() {
-  const [documentos, setDocumentos] = useState<any[]>([]);
+          const [documentos, setDocumentos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
@@ -34,7 +34,7 @@ export default function Documentos() {
       if (filters.proyecto_id) filtered = filtered.filter((x: any) => String(x.proyecto_id) === String(filters.proyecto_id));
       if (filters.cliente_id) filtered = filtered.filter((x: any) => Number(x.cliente_id) === Number(filters.cliente_id));
       if (filters.tipo) filtered = filtered.filter((x: any) => x.tipo === filters.tipo);
-      setItems(filtered);
+      setDocumentos(filtered);
     } catch (err: any) {
       setError(err?.message || "Error al cargar documentos");
     } finally {
@@ -190,7 +190,7 @@ export default function Documentos() {
             </Box>
           </Paper>
         ))}
-        {!loading && items.length === 0 && <Typography variant="body2" color="text.secondary">Sin documentos</Typography>}
+        {!loading && documentos.length === 0 && <Typography variant="body2" color="text.secondary">Sin documentos</Typography>}
       </Box>
 
       <Dialog open={open} onClose={() => setOpen(false)} maxWidth="sm" fullWidth>
