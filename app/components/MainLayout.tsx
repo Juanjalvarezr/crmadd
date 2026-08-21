@@ -2,6 +2,7 @@ import React from "react";
 import { useTheme } from "@mui/material";
 import { Box } from "@mui/material";
 import { Header } from "./Header";
+import ChatbotWhatsApp from "./ChatbotWhatsApp";
 import { Sidebar, DRAWER_WIDTH_CONST as DRAWER_WIDTH } from "./Sidebar";
 
 export const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -36,6 +37,7 @@ export const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }
         >
           {children}
         </Box>
+        <ChatbotWhatsApp />
       </Box>
     </Box>
   );
