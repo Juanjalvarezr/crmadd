@@ -1,6 +1,6 @@
 import { globalSnack } from "../components/GlobalSnackbar";
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Paper, Button, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, FormControl, InputLabel, Select, MenuItem, CircularProgress, Alert } from "@mui/material";
+import { Box, Typography, Paper, Button, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, FormControl, InputLabel, Select, MenuItem, CircularProgress, Alert, Pagination } from "@mui/material";
 import { FiPlus, FiX, FiDownload, FiUpload, FiFileText, FiRefreshCw } from "react-icons/fi";
 import { documentosService, storageHelper } from "../services/supabase";
 import { clientesService, facturasService, proyectosService } from "../services/supabase";
@@ -203,7 +203,7 @@ export default function Documentos() {
       )}
       </Box>
       <Box sx={{ display: "flex", justifyContent: "center", mt: 2, mb: 1 }}>
-        <Pagination count={Math.max(1, Math.ceil((documentos.length || 0) / pageSize))} page={page} onChange={(_, p) => setPage(p)} size="small" />
+        <Pagination count={Math.max(1, Math.ceil((documentos.length || 0) / pageSize))} page={page} onChange={(_: React.SyntheticEvent, p: number) => setPage(p)} size="small" />
       </Box>
 
       <Dialog open={open} onClose={() => setOpen(false)} maxWidth="sm" fullWidth>
