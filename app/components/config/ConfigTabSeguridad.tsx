@@ -8,7 +8,7 @@ interface Props {
   loading: boolean;
 }
 
-export const ConfigTabSeguridad: React.FC<Props> = ({ passwordNuevoPassword, loading }) => (
+export const ConfigTabSeguridad: React.FC<Props> = ({ passwordNuevo, onChangePassword, loading }) => (
   <Box sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2 }}>
     <Typography variant="h6" sx={{ mb: 3, fontWeight: "bold" }}>Seguridad de la Cuenta</Typography>
     <Card sx={{ mb: 2 }}>
