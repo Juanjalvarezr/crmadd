@@ -10,6 +10,7 @@ import { storageHelper } from "../services/supabase";
 import { StatCard } from "../components/StatCard";
 import { globalSnack } from "../components/GlobalSnackbar";
 import { EmptyState } from "../components/EmptyState";
+import { ListToolbar } from "../components/ListToolbar";
 
 export function meta() {
   return [{ title: "Cotizaciones | CRM Agencia" }];
@@ -148,12 +149,12 @@ export default function Cotizaciones() {
 
   return (
     <Box sx={{ p: { xs: 1, sm: 1.5, md: 2 } }}>
-      <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 1, sm: 1.5 }, mb: { xs: 1, sm: 1.5 }, flexWrap: "wrap" }}>
-        <FiFileText size={18} color="#009688" />
-        <Typography variant="h6" sx={{ color: "#009688", fontWeight: "bold", flex: 1, fontSize: { xs: '1rem', sm: '1.1rem' } }}>Cotizaciones</Typography>
-        <Button size="small" startIcon={<FiRefreshCw size={14} />} onClick={load} disabled={loading}>Recargar</Button>
-        <Button variant="contained" size="small" startIcon={<FiPlus size={14} />} onClick={openCreate}>Nueva</Button>
-      </Box>
+      <ListToolbar
+        title="Cotizaciones"
+        onCreate={openCreate}
+        onRefresh={load}
+        searchPlaceholder="Buscar cotización..."
+      />
 
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: { xs: 0.5, sm: 1 }, mb: { xs: 1, sm: 1.5 } }}>
         <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}><StatCard title="Total" value={loading ? "..." : items.length} subtitle="Cotizaciones" color="primary" /></Box>
