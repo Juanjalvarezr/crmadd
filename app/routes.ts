@@ -18,5 +18,4 @@ export default [
 	route("/cotizaciones", "routes/cotizaciones.tsx"),
 	route("/contratos", "routes/contratos.tsx"),
 	route("/documentos", "routes/documentos.tsx"),
-	route("/public/proyecto/:id", "routes/public-proyecto.tsx"),
 ] satisfies RouteConfig;
