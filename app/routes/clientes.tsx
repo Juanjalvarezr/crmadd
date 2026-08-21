@@ -283,7 +283,7 @@ export default function Clientes() {
             await clientesService.create(compatData);
           }
           
-          if (typeof window !== "undefined") if (typeof window !== "undefined") localStorage.setItem("crm_compat_mode", "true");
+          if (typeof window !== "undefined") localStorage.setItem("crm_compat_mode", "true");
         } else {
           throw dbErr;
         }

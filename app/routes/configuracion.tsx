@@ -101,22 +101,11 @@ export default function Configuracion() {
   const [nuevoSop, setNuevoSop] = useState({ titulo: "", descripcion: "", categoria: "operaciones" });
 
   // Estados para Campos y Estados personalizados
-  const [catalogos, setCatalogos] = useState(() => {
-    if (typeof window !== "undefined") {
-      const stored = typeof window !== "undefined" ? localStorage.getItem("crm_custom_catalogs") : null;
-      if (stored) {
-        try {
-          return JSON.parse(stored);
-        } catch (e) {
-                  }
-      }
-    }
-    return {
-      estadosCliente: ["Activo", "Inactivo", "Prospecto", "Lead Frío"],
-      etapasVenta: ["Primer Contacto", "Propuesta Enviada", "Negociación", "Cierre"],
-      prioridadesTarea: ["Alta", "Media", "Baja"]
-    };
-  });
+  const [catalogos, setCatalogos] = useState<any>({
+  estadosCliente: ["Activo", "Inactivo", "Prospecto", "Lead Frío"],
+  etapasVenta: ["Primer Contacto", "Propuesta Enviada", "Negociación", "Cierre"],
+  prioridadesTarea: ["Alta", "Media", "Baja"]
+});
 
   const [nuevoItem, setNuevoItem] = useState({ tipo: "estadosCliente", valor: "" });
 
