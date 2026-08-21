@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from "react";
-import { Pagination, PaginationItem, Box, Typography } from "@mui/material";
+import { Pagination, PaginationItem, Box } from "@mui/material";
 
 export function usePagination<T>(items: T[], pageSize = 16) {
   const [page, setPage] = useState(1);
