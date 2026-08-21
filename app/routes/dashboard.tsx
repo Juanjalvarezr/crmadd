@@ -6,68 +6,129 @@ export function meta() {
   return [{ title: "Inicio | CRM DESEO DIGITAL" }];
 }
 
+type Tab = "resumen" | "ventas" | "proyectos" | "clientes" | "facturacion";
+
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { proyectos, clientes, facturas } = useCRMStore();
+  const { proyectos, clientes, facturas, cotizaciones } = useCRMStore();
+  const [tab, setTab] = useState<Tab>("resumen");
   const [intro, setIntro] = useState(true);
 
   useEffect(() => {
-    const t = setTimeout(() => setIntro(false), 1800);
+    const t = setTimeout(() => setIntro(false), 1400);
     return () => clearTimeout(t);
   }, []);
+
+  const totalProyectos = proyectos.length;
+  const proyectosActivos = proyectos.filter((p: any) => p.estado === "en_progreso" || p.estado === "planificacion").length;
+  const totalClientes = clientes.length;
+  const clientesActivos = clientes.filter((c: any) => c.estado === "Activo").length;
+  const totalCotizaciones = cotizaciones.length;
+  const cotizacionesPendientes = cotizaciones.filter((c: any) => c.estado === "pendiente" || c.estado === "enviada").length;
+  const totalFacturas = facturas.length;
+  const facturasPagadas = facturas.filter((f: any) => f.estado === "pagada").length;
+  const facturasVencidas = facturas.filter((f: any) => f.estado === "vencida").length;
+
+  const valorPipeline = cotizaciones.reduce((acc: number, c: any) => acc + Number(c.total || 0), 0);
+  const valorFacturado = facturas.reduce((acc: number, f: any) => acc + Number(f.total || 0), 0);
 
   if (intro) {
     return (
       <div style={{
         minHeight: "100vh", display: "flex", flexDirection: "column",
-        alignItems: "center", justifyContent: "center", background: "#0a0a0a", color: "#fff", gap: 24
+        alignItems: "center", justifyContent: "center", background: "#0a0a0a", color: "#fff", gap: 20
       }}>
         <div style={{
-          width: 120, height: 120, borderRadius: 24, background: "linear-gradient(135deg,#E91E63,#9C27B0)",
-          display: "flex", alignItems: "center", justifyContent: "center", fontSize: 48, fontWeight: 800,
-          animation: "pulse 1.2s ease-in-out infinite"
+          width: 110, height: 110, borderRadius: 24, background: "linear-gradient(135deg,#E91E63,#9C27B0)",
+          display: "flex", alignItems: "center", justifyContent: "center", fontSize: 44, fontWeight: 800,
+          animation: "pulse 1.1s ease-in-out infinite"
         }}>DD</div>
-        <h1 style={{ fontSize: "2.5rem", fontWeight: 800, letterSpacing: "-0.02em", margin: 0 }}>DESEO DIGITAL</h1>
-        <p style={{ color: "#aaa", fontSize: 14, letterSpacing: "0.2em", textTransform: "uppercase" }}>Agencia Inteligente</p>
-        <style>{`@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.08);opacity:.85}}`}</style>
+        <h1 style={{ fontSize: "2.2rem", fontWeight: 800, margin: 0, letterSpacing: "-0.02em" }}>DESEO DIGITAL</h1>
+        <p style={{ color: "#aaa", fontSize: 13, letterSpacing: "0.25em", textTransform: "uppercase" }}>Agencia Inteligente</p>
+        <style>{`@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.1);opacity:.8}}`}</style>
       </div>
     );
   }
 
-  const stats = [
-    { label: "Proyectos", value: proyectos.length, to: "/proyectos", color: "#E91E63" },
-    { label: "Clientes", value: clientes.length, to: "/clientes", color: "#2196F3" },
-    { label: "Facturas", value: facturas.length, to: "/facturacion", color: "#4CAF50" },
+  const tabs: { key: Tab; label: string }[] = [
+    { key: "resumen", label: "Resumen" },
+    { key: "ventas", label: "Ventas" },
+    { key: "proyectos", label: "Proyectos" },
+    { key: "clientes", label: "Clientes" },
+    { key: "facturacion", label: "Facturación" },
   ];
+
+  const kpiCard = (title: string, value: string | number, sub: string, color: string) => (
+    <div style={{
+      background: "#fff", border: "1px solid #f0f0f0", borderRadius: 16, padding: 18, flex: "1 1 200px",
+      boxShadow: "0 2px 10px rgba(0,0,0,0.04)"
+    }}>
+      <div style={{ fontSize: 12, color: "#888", textTransform: "uppercase", letterSpacing: "0.1em" }}>{title}</div>
+      <div style={{ fontSize: 34, fontWeight: 800, color, marginTop: 6 }}>{value}</div>
+      <div style={{ fontSize: 12, color: "#999", marginTop: 4 }}>{sub}</div>
+    </div>
+  );
 
   return (
     <div style={{ minHeight: "100vh", padding: 24 }}>
       <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-        <div style={{ marginBottom: 24 }}>
-          <h1 style={{ fontSize: "1.75rem", fontWeight: 800, margin: 0 }}>Panel de Inicio</h1>
-          <p style={{ color: "#666", marginTop: 4 }}>Resumen del CRM en un vistazo</p>
+        <div style={{ marginBottom: 20, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+          <div>
+            <h1 style={{ fontSize: "1.6rem", fontWeight: 800, margin: 0 }}>Panel de Inicio</h1>
+            <p style={{ color: "#666", marginTop: 4 }}>Métricas y datos del CRM</p>
+          </div>
+          <div style={{ display: "flex", gap: 8 }}>
+            {tabs.map((t) => (
+              <button key={t.key} onClick={() => setTab(t.key)} style={{
+                padding: "8px 14px", borderRadius: 999, border: "1px solid " + (tab === t.key ? "#E91E63" : "#e5e5e5"),
+                background: tab === t.key ? "#E91E63" : "#fff", color: tab === t.key ? "#fff" : "#333",
+                fontSize: 13, fontWeight: 600, cursor: "pointer"
+              }}>{t.label}</button>
+            ))}
+          </div>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16, marginBottom: 24 }}>
-          {stats.map((s) => (
-            <button key={s.label} onClick={() => navigate(s.to)} style={{
-              background: "#fff", border: "1px solid #eee", borderRadius: 16, padding: 20, cursor: "pointer",
-              textAlign: "left", transition: "all .2s", boxShadow: "0 2px 8px rgba(0,0,0,0.04)"
-            }}>
-              <div style={{ fontSize: 12, color: "#888", textTransform: "uppercase", letterSpacing: "0.1em" }}>{s.label}</div>
-              <div style={{ fontSize: 32, fontWeight: 800, color: s.color, marginTop: 4 }}>{s.value}</div>
-            </button>
-          ))}
-        </div>
+        {tab === "resumen" && (
+          <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+            {kpiCard("Proyectos", totalProyectos, `${proyectosActivos} activos`, "#E91E63")}
+            {kpiCard("Clientes", totalClientes, `${clientesActivos} activos`, "#2196F3")}
+            {kpiCard("Cotizaciones", totalCotizaciones, `${cotizacionesPendientes} pendientes`, "#FF9800")}
+            {kpiCard("Facturación", totalFacturas, `${facturasPagadas} pagadas`, "#4CAF50")}
+            {kpiCard("Valor Pipeline", `$${Number(valorPipeline).toLocaleString("es-CO")}`, "Cotizaciones activas", "#9C27B0")}
+            {kpiCard("Valor Facturado", `$${Number(valorFacturado).toLocaleString("es-CO")}`, "Facturas emitidas", "#009688")}
+          </div>
+        )}
 
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-          {["Proyectos", "Clientes", "Ventas", "Tareas", "Facturación", "Cotizaciones", "Documentos", "Calendario"].map((tab) => (
-            <button key={tab} onClick={() => navigate(`/${tab.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")}`)} style={{
-              padding: "8px 14px", borderRadius: 999, border: "1px solid #e5e5e5", background: "#fff",
-              fontSize: 13, fontWeight: 600, cursor: "pointer", color: "#333"
-            }}>{tab}</button>
-          ))}
-        </div>
+        {tab === "ventas" && (
+          <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+            {kpiCard("Pipeline", valorPipeline, "Valor total cotizaciones", "#E91E63")}
+            {kpiCard("Pendientes", cotizacionesPendientes, "Cotizaciones por cerrar", "#FF9800")}
+            {kpiCard("Conversión", totalCotizaciones ? Math.round((cotizaciones.filter((c: any) => c.estado === "aceptada").length / totalCotizaciones) * 100) + "%" : "0%", "Aceptadas / total", "#4CAF50")}
+          </div>
+        )}
+
+        {tab === "proyectos" && (
+          <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+            {kpiCard("Total", totalProyectos, "Proyectos registrados", "#E91E63")}
+            {kpiCard("Activos", proyectosActivos, "En progreso / planificación", "#2196F3")}
+          </div>
+        )}
+
+        {tab === "clientes" && (
+          <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+            {kpiCard("Total", totalClientes, "Clientes registrados", "#2196F3")}
+            {kpiCard("Activos", clientesActivos, "Con estado Activo", "#4CAF50")}
+          </div>
+        )}
+
+        {tab === "facturacion" && (
+          <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+            {kpiCard("Total", totalFacturas, "Facturas emitidas", "#4CAF50")}
+            {kpiCard("Pagadas", facturasPagadas, "Cobradas", "#009688")}
+            {kpiCard("Vencidas", facturasVencidas, "Requieren gestión", "#f44336")}
+            {kpiCard("Monto facturado", `$${Number(valorFacturado).toLocaleString("es-CO")}`, "Suma total", "#FF9800")}
+          </div>
+        )}
       </div>
     </div>
   );
