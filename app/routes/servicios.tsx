@@ -9,6 +9,7 @@ import {
   FiPlus, FiEdit, FiTrash2, FiStar, FiClock, FiX, FiPlusCircle, FiRefreshCw 
 } from "react-icons/fi";
 import { serviciosService } from "../services/supabase";
+import { EmptyState } from "../components/EmptyState";
 
 export function meta() {
   return [
@@ -318,7 +319,7 @@ export default function Servicios() {
                     </ListItem>
                   ))}
                   {formData.incluye.length === 0 && (
-                    <Typography variant="caption" sx={{ p: 1, color: 'text.secondary' }}>No hay items añadidos</Typography>
+                    <EmptyState title="Sin items" description="Agregá el primer item al servicio." actionLabel="Nuevo item" />
                   )}
                 </List>
               </Paper>

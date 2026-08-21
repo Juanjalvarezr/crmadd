@@ -26,6 +26,7 @@ import { aiService } from "../services/ai";
 import { useCRMStore } from "../store/useCRMStore";
 import { useExportCsv } from "../utils/exportCsv";
 import { globalSnack } from "../components/GlobalSnackbar";
+import { EmptyState } from "../components/EmptyState";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
 // Esquema de validación con Zod
@@ -885,7 +886,7 @@ export default function Proyectos() {
       )}
 
       {!loading && !error && proyectosFiltrados.length === 0 && (
-        <Alert severity="info" sx={{ mt: 2 }}>No hay proyectos para mostrar. Creá uno nuevo para comenzar.</Alert>
+        <EmptyState title="Sin proyectos" description="Creá el primer proyecto para organizar el trabajo." actionLabel="Nuevo proyecto" />
       )}
 
       {!loading && !error && proyectosFiltrados.length > 0 && (
