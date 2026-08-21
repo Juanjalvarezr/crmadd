@@ -191,10 +191,10 @@ export default function Cotizaciones() {
                 <Chip size="small" label={estado} color={estadoColor as any} sx={{ height: { xs: 22, sm: 26 }, fontSize: { xs: '0.65rem', sm: '0.7rem' } }} />
                 <Typography variant="caption" sx={{ fontWeight: "bold", fontSize: { xs: '0.8rem', sm: '0.85rem' } }}>${Number(row.total || 0).toFixed(0)}</Typography>
                 <Box sx={{ display: "flex", gap: { xs: 0.25, sm: 0.5 }, flexWrap: "wrap" }}>
-                  <Tooltip title="Generar documento"><IconButton size="small" onClick={() => generarDocumento(row)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiFileText size={16}/></IconButton></Tooltip>
-                  <Tooltip title="Enviar por WhatsApp"><IconButton size="small" color="success" onClick={() => sendWhatsApp(row)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiMessageSquare size={16}/></IconButton></Tooltip>
-                  <Tooltip title="Editar"><IconButton size="small" onClick={() => openEdit(row)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiEdit size={16}/></IconButton></Tooltip>
-                  <Tooltip title="Eliminar"><IconButton size="small" color="error" onClick={() => handleDelete(row)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiTrash2 size={16}/></IconButton></Tooltip>
+                  <Tooltip title="Generar documento"><IconButton size="small" aria-label="Acciones de cotización" onClick={() => generarDocumento(row)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiFileText size={16}/></IconButton></Tooltip>
+                  <Tooltip title="Enviar por WhatsApp"><IconButton size="small" aria-label="Acciones de cotización" color="success" onClick={() => sendWhatsApp(row)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiMessageSquare size={16}/></IconButton></Tooltip>
+                  <Tooltip title="Editar"><IconButton size="small" aria-label="Acciones de cotización" onClick={() => openEdit(row)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiEdit size={16}/></IconButton></Tooltip>
+                  <Tooltip title="Eliminar"><IconButton size="small" aria-label="Acciones de cotización" color="error" onClick={() => handleDelete(row)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiTrash2 size={16}/></IconButton></Tooltip>
                 </Box>
               </Paper>
             );
