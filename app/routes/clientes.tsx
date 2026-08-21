@@ -27,7 +27,6 @@ import { BRAND } from "../theme";
 import { SupabaseStatus } from "../components/SupabaseTest";
 import { format } from "date-fns";
 import { EmptyState } from "../components/EmptyState";
-import { usePagination, PaginationBar } from "../utils/pagination";
 import { CompactTable } from "../components/CompactTable";
 import { useLocation } from "react-router";
 import type { Cliente } from "../types/crm";
@@ -105,8 +104,7 @@ export default function Clientes() {
     }
   }, [location]);
 
-  // Cargar clientes desde Supabase    const { page, setPage, totalPages, paginated: clientesPaginated, reset } = usePagination(clientes, 16);
-
+  // Cargar clientes desde Supabase  
   const loadClientes = async () => {
     try {
       setLoading(true);
@@ -609,7 +607,7 @@ export default function Clientes() {
         {!loading && !error && (
           isMobile ? (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            {clientesPaginated.map((cliente) => (
+            {paginatedClientes.map((cliente) => (
               <Card key={cliente.id} sx={{ borderRadius: 2, boxShadow: 1 }}>
                 <CardContent sx={{ p: 2, pb: "16px !important" }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
@@ -674,7 +672,7 @@ export default function Clientes() {
           </Box>
           ) : (
             <CompactTable
-              rows={clientesPaginated}
+              rows={paginatedClientes}
               getRowId={(c) => c.id}
               columns={[
                 {

@@ -24,7 +24,6 @@ import { tareasService, serviciosService, clientesService, oportunidadesService,
 import { aiService } from "../services/ai";
 
 import { EmptyState } from "../components/EmptyState";
-import { usePagination, PaginationBar } from "../utils/pagination";
 import { useLocation } from "react-router";
 import type { Oportunidad, Cliente } from "../types/crm";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
@@ -104,8 +103,7 @@ export default function Ventas() {
       handleOpenModal();
     }
   }, [location]);
-    const { page, setPage, totalPages, paginated: oportunidadesPaginated, reset } = usePagination(oportunidades, 16);
-
+    
   const loadData = async () => {
     try {
       setLoading(true);

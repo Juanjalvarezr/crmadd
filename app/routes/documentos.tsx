@@ -6,7 +6,6 @@ import { documentosService, storageHelper } from "../services/supabase";
 import { clientesService, facturasService, proyectosService } from "../services/supabase";
 import { StatCard } from "../components/StatCard";
 import { EmptyState } from "../components/EmptyState";
-import { usePagination, PaginationBar } from "../utils/pagination";
 
 export function meta() {
   return [{ title: "Documentos | CRM Agencia" }];
@@ -26,8 +25,7 @@ export default function Documentos() {
   const [proyectos, setProyectos] = useState<any[]>([]);
   const [clientes, setClientes] = useState<any[]>([]);
   const [facturas, setFacturas] = useState<any[]>([]);
-      const { page, setPage, totalPages, paginated: documentosPaginated, reset } = usePagination(documentos, 16);
-
+      
   const load = async () => {
     try {
       setLoading(true);
