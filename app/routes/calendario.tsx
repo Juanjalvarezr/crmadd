@@ -10,6 +10,7 @@ import { es } from "date-fns/locale/es";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useCRMStore } from "../store/useCRMStore";
 import { globalSnack } from "../components/GlobalSnackbar";
+import { EmptyState } from "../components/EmptyState";
 import { facturasService, pagosService, calendarEventsService } from "../services/supabase";
 
 const locales = { es };
@@ -370,8 +371,11 @@ export default function Calendario() {
               week: "Semana",
               day: "Día",
               noEventsInRange: "No hay eventos en este rango."
-            }}
+          }}
           />
+          {!loading && !events?.length && (
+            <EmptyState title="Sin eventos" description="Creá el primer evento para comenzar." actionLabel="Nuevo evento" />
+          )}
         </Box>
       </Paper>
 
