@@ -8,15 +8,16 @@ import {
   ListItemIcon, ListItemSecondaryAction, Dialog, DialogTitle, DialogContent, DialogActions
 } from "@mui/material";
 import { 
-  FiSettings, FiSave, FiRefreshCw, FiUser, FiMail, FiGlobe,
+  FiSettings, FiSave, FiRefreshCw, FiUser, FiGlobe,
   FiBell, FiShield, FiDatabase, FiDownload, FiUpload, FiX,
-  FiMoon, FiSun, FiTrash2, FiCheck, FiAlertCircle, FiZap,
+  FiMoon, FiTrash2, FiCheck, FiAlertCircle, FiZap,
   FiPackage, FiPlus, FiList, FiEdit
 } from "react-icons/fi";
 import { configuracionService, reglasAIService, conocimientoService, promptsAIService, supabase, testConnection, plantillasDocumentosService } from "../services/supabase";
 import { BRAND } from "../theme";
 import { EmpresaTab } from "../components/EmpresaTab";
-import { ConfigTabPreferencias, ConfigTabSeguridad } from "../components/config";
+import { ConfigTabPreferencias } from "../components/config/ConfigTabPreferencias";
+import { ConfigTabSeguridad } from "../components/config/ConfigTabSeguridad";
 import { CerebroAITab } from "../components/CerebroAITab";
 
 // Tipos para configuración
