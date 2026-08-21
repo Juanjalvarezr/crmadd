@@ -265,26 +265,6 @@ export default function Configuracion() {
     }
   };
 
-  const handleSavePreferencias = async () => {
-    setLoading(true);
-    try {
-      // Aplicar tema inmediatamente
-      if (preferenciasConfig.tema === "dark") {
-        if (typeof document !== "undefined") if (typeof document !== "undefined") document.body.classList.add("dark-mode");
-      } else {
-        if (typeof document !== "undefined") if (typeof document !== "undefined") document.body.classList.remove("dark-mode");
-      }
-      
-      // Aquí iría la llamada a Supabase para guardar preferencias
-      // await supabase.from('preferencias_usuario').upsert(preferenciasConfig);
-
-      globalSnack.show("Preferencias guardadas correctamente", "success");
-    } catch (err: any) {
-      globalSnack.show("Error al guardar preferencias: " + err.message, "error");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleCambioPassword = async () => {
     if (seguridadConfig.passwordNuevo !== seguridadConfig.passwordConfirmar) {
@@ -987,9 +967,9 @@ export default function Configuracion() {
           )}
 {activeTab === "seguridad" && (
             <ConfigTabSeguridad
-              passwordNuevo={passwordNuevo}
-              onChangePassword={handleChangePassword}
-              loading={loadingPassword}
+              passwordNuevo={seguridadConfig.passwordNuevo}
+              onChangePassword={handleCambioPassword}
+              loading={loading}
             />
           )}
           {activeTab === "cerebro" && (
