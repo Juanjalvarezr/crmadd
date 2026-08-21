@@ -14,6 +14,8 @@ export function meta() {
 export default function Documentos() {
   const [documentos, setDocumentos] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const pageSize = 16;
   const [error, setError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -173,7 +175,7 @@ export default function Documentos() {
         </FormControl>
       </Box>
       <Box sx={{ display: "grid", gap: 1 }}>
-        {documentosPaginated.map((row) => (
+        {documentos.slice((page - 1) * pageSize, page * pageSize).map((row: any) => (
           <Paper key={row.id} variant="outlined" sx={{ p: 1.5, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <Box>
               <Typography variant="subtitle2" sx={{ fontSize: "0.85rem" }}>{row.titulo}</Typography>

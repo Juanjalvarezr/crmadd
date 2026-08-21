@@ -138,6 +138,16 @@ export default function Clientes() {
     setSelectedIds(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]);
   };
 
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 10;
+  const totalPages = useMemo(() => Math.ceil(filteredClientes.length / itemsPerPage) || 1, [filteredClientes.length]);
+  
+  const paginatedClientes = useMemo(() => {
+    return filteredClientes.slice(
+      (page - 1) * itemsPerPage,
+      page * itemsPerPage
+    );
+  }, [filteredClientes, page, itemsPerPage]);
 
   const clientesActivos = useMemo(() => clientes.filter(c => c.estado === "Activo").length, [clientes]);
   const clientesInactivos = useMemo(() => clientes.filter(c => c.estado === "Inactivo").length, [clientes]);
