@@ -5,7 +5,7 @@ import {
   TextField, FormControl, InputLabel, Select, MenuItem, Divider, Tooltip
 } from "@mui/material";
 import { FiFileText, FiX, FiUpload, FiEye, FiEdit, FiTrash2, FiMessageSquare, FiMail } from "react-icons/fi";
-import { facturasService, emailService, plantillasDocumentosService, pagosService, documentosService } from "../services/supabase";
+import { facturasService, emailService, plantillasDocumentosService, pagosService, documentosService, logsService } from "../services/supabase";
 import { storageHelper } from "../services/supabase";
 import { useCRMStore } from "../store/useCRMStore";
 import { globalSnack } from "../components/GlobalSnackbar";
@@ -156,7 +156,7 @@ export default function Facturacion() {
     }
     const encoded = encodeURIComponent(texto);
     if (typeof window !== "undefined") window.open(`https://wa.me/${telefono}?text=${encoded}`, "_blank");
-    await logsService.create({ accion: "whatsapp_abierto", modulo: p.parent.name, detalle: {} , usuario: "admin" });
+    await logsService.create({ accion: "whatsapp_abierto", modulo: "facturacion", detalle: {} , usuario: "admin" });
     globalSnack.show("Abriendo WhatsApp...", "info");
   };
 
@@ -168,7 +168,7 @@ export default function Facturacion() {
       if (!to) { globalSnack.show(`El cliente "${cliente}" no tiene email cargado`, "warning"); return; }
       const subject = `Factura #${row.numero_factura || row.id} - DESEO DIGITAL`;
       const html = `<p>Hola ${cliente},</p><p>Adjuntamos tu factura <strong>#${row.numero_factura || row.id}</strong> por <strong>$${Number(row.total || 0).toFixed(0)}</strong>.</p><p>Estado: ${row.estado || "Borrador"}<br>Vencimiento: ${row.fecha_vencimiento || "Sin definir"}</p><p>Saludos,<br>DESEO DIGITAL</p>`;
-      await logsService.create({ accion: "email_enviado", modulo: p.parent.name, detalle: { asunto: subject }, usuario: "admin" });
+      await logsService.create({ accion: "email_enviado", modulo: "facturacion", detalle: { asunto: subject }, usuario: "admin" });
       const res = await emailService.sendRealEmail([to], subject, html);
       globalSnack.show(res?.message || "Factura enviada por email", "success");
     } catch (err: any) { globalSnack.show(err.message || "Error enviando factura por email", "error"); }

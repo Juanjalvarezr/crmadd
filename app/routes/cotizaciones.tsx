@@ -4,7 +4,7 @@ import {
   Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Alert, CircularProgress, Chip, Tooltip
 } from "@mui/material";
 import { FiEdit, FiTrash2, FiFileText, FiMessageSquare, FiX } from "react-icons/fi";
-import { cotizacionesService, clientesService, documentosService } from "../services/supabase";
+import { cotizacionesService, clientesService, documentosService, logsService } from "../services/supabase";
 import { plantillasDocumentosService } from "../services/supabase";
 import { storageHelper } from "../services/supabase";
 import { StatCard } from "../components/StatCard";
@@ -111,7 +111,7 @@ export default function Cotizaciones() {
     if (!telefono) { globalSnack.show(`El cliente "${cliente}" no tiene teléfono cargado`, "warning"); return; }
     const texto = encodeURIComponent(`Hola ${cliente}, te compartimos tu cotización #${row.numero_cotizacion || row.id} por $${Number(row.total || 0).toFixed(0)}. Estado: ${row.estado || "Borrador"}. Vencimiento: ${row.fecha_vencimiento || "Sin definir"}. Ante cualquier duda respondé este mensaje.`);
     if (typeof window !== "undefined") window.open(`https://wa.me/${telefono}?text=${texto}`, "_blank");
-    await logsService.create({ accion: "whatsapp_abierto", modulo: p.parent.name, detalle: {} , usuario: "admin" });
+    await logsService.create({ accion: "whatsapp_abierto", modulo: "cotizaciones", detalle: {} , usuario: "admin" });
     globalSnack.show("Abriendo WhatsApp...", "info");
   };
 
