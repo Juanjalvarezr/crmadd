@@ -9,8 +9,7 @@ export function meta() {
 type Tab = "resumen" | "ventas" | "proyectos" | "clientes" | "facturacion";
 
 export default function Dashboard() {
-  const navigate = useNavigate();
-  const { proyectos, clientes, facturas, cotizaciones } = useCRMStore();
+    const { proyectos, clientes, facturas } = useCRMStore();
   const [tab, setTab] = useState<Tab>("resumen");
   const [intro, setIntro] = useState(true);
 
@@ -23,14 +22,14 @@ export default function Dashboard() {
   const proyectosActivos = proyectos.filter((p: any) => p.estado === "en_progreso" || p.estado === "planificacion").length;
   const totalClientes = clientes.length;
   const clientesActivos = clientes.filter((c: any) => c.estado === "Activo").length;
-  const totalCotizaciones = cotizaciones.length;
-  const cotizacionesPendientes = cotizaciones.filter((c: any) => c.estado === "pendiente" || c.estado === "enviada").length;
+  const totalCotizaciones = 0;
+  const cotizacionesPendientes = 0;
   const totalFacturas = facturas.length;
   const facturasPagadas = facturas.filter((f: any) => f.estado === "pagada").length;
   const facturasVencidas = facturas.filter((f: any) => f.estado === "vencida").length;
 
-  const valorPipeline = cotizaciones.reduce((acc: number, c: any) => acc + Number(c.total || 0), 0);
-  const valorFacturado = facturas.reduce((acc: number, f: any) => acc + Number(f.total || 0), 0);
+  const valorPipeline = 0;
+  const valorFacturado = facturas.reduce((acc: number, f: any) => acc + Number((f as any).total || (f as any).monto || 0), 0);
 
   if (intro) {
     return (
