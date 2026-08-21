@@ -26,7 +26,8 @@ export default function Cotizaciones() {
   const [form, setForm] = useState({ numero_cotizacion: "", estado: "Borrador", total: "", proyecto_id: "", cliente_id: "", fecha_vencimiento: "", subtotal: "", iva: "", notas: "" });
   const [saving, setSaving] = useState(false);
   const { showNotification } = useNotificationStore();
-  
+    const { page, setPage, totalPages, paginated: itemsPaginated, reset } = usePagination(items, 16);
+
   const load = async () => {
     try {
       setLoading(true);
@@ -193,6 +194,7 @@ export default function Cotizaciones() {
           })}
         </Box>
       )}
+      <PaginationBar page={page} totalPages={totalPages} onChange={setPage} />
       
       <Dialog open={openModal} onClose={() => { setOpenModal(false); setFormError(null); }} maxWidth="sm" fullWidth>
         <DialogTitle>{editing ? "Editar Cotización" : "Nueva Cotización"}<IconButton onClick={() => { setOpenModal(false); setFormError(null); }} size="small" sx={{ float: "right" }}><FiX /></IconButton></DialogTitle>
