@@ -1,7 +1,7 @@
 import { globalSnack } from "../components/GlobalSnackbar";
 import React, { useState, useEffect } from "react";
 import { Box, Typography, Paper, Button, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, FormControl, InputLabel, Select, MenuItem, CircularProgress, Alert, Pagination } from "@mui/material";
-import { FiPlus, FiX, FiDownload, FiUpload, FiFileText, FiRefreshCw } from "react-icons/fi";
+import { FiX, FiDownload, FiUpload, FiFileText } from "react-icons/fi";
 import { documentosService, storageHelper } from "../services/supabase";
 import { clientesService, facturasService, proyectosService } from "../services/supabase";
 import { StatCard } from "../components/StatCard";
