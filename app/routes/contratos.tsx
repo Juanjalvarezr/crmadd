@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import {
-  Box, Typography, Chip, Alert, CircularProgress,
+  Box, Pagination, Typography, Chip, Alert, CircularProgress,
   Paper, Button, IconButton, Dialog, DialogTitle, DialogContent, DialogActions,
   TextField, FormControl, InputLabel, Select, MenuItem, Tooltip
 } from "@mui/material";
@@ -24,6 +24,8 @@ export default function Contratos() { const loadContratos = () => { if (typeof w
   const [deleteTarget, setDeleteTarget] = useState<any | null>(null);
   const [form, setForm] = useState({ estado: "Activo", valor: "", proyecto_id: "", cliente_id: "", factura_id: "", fecha_inicio: "", fecha_fin: "", url: "" });
   const [saving, setSaving] = useState(false);
+  const [page, setPage] = useState(1);
+  const pageSize = 16;
   const [file, setFile] = useState<File | null>(null);
     
   const load = async () => {
@@ -136,6 +138,9 @@ export default function Contratos() { const loadContratos = () => { if (typeof w
           })}
         </Box>
       )}
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 2, mb: 1 }}>
+        <Pagination count={Math.max(1, Math.ceil((contratos.length || 0) / pageSize))} page={page} onChange={(_, p) => setPage(p)} size="small" />
+      </Box>
       
       <Dialog open={!!deleteTarget} onClose={() => setDeleteTarget(null)}>
         <DialogTitle>Eliminar contrato</DialogTitle>

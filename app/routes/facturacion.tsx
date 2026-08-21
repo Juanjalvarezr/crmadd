@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import {
-  Box, Typography, Chip, Alert, CircularProgress,
+  Box, Pagination, Typography, Chip, Alert, CircularProgress,
   Paper, Button, IconButton, Dialog, DialogTitle, DialogContent, DialogActions,
   TextField, FormControl, InputLabel, Select, MenuItem, Divider, Tooltip
 } from "@mui/material";
@@ -29,6 +29,8 @@ export default function Facturacion() {
   const [detailOpen, setDetailOpen] = useState(false);
   const [form, setForm] = useState({ numero_factura: "", estado: "Borrador", total: "", proyecto_id: "", cliente_id: "", fecha_vencimiento: "", subtotal: "", iva: "", notas: "" });
   const [saving, setSaving] = useState(false);
+  const [page, setPage] = useState(1);
+  const pageSize = 16;
   const [pagos, setPagos] = useState<any[]>([]);
   const [pagoForm, setPagoForm] = useState({ monto: "", metodo_pago: "transferencia", referencia: "", comprobante_url: "" });
   const [plantilla, setPlantilla] = useState<any>(null);
@@ -301,6 +303,9 @@ export default function Facturacion() {
           })}
         </Box>
       )}
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 2, mb: 1 }}>
+        <Pagination count={Math.max(1, Math.ceil((facturas.length || 0) / pageSize))} page={page} onChange={(_, p) => setPage(p)} size="small" />
+      </Box>
             <Dialog open={openModal} onClose={() => { setOpenModal(false); setFormError(null); }} maxWidth="sm" fullWidth>
         <DialogTitle>{editing ? "Editar Factura" : "Nueva Factura"}<IconButton onClick={() => { setOpenModal(false); setFormError(null); }} size="small" sx={{ float: "right" }}><FiX /></IconButton></DialogTitle>
         <DialogContent>
