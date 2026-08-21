@@ -9,8 +9,8 @@ import {
 } from "@mui/material";
 import { 
   FiSettings, FiRefreshCw, FiUser, FiGlobe,
-  FiBell, FiShield, FiDatabase, FiDownload, FiUpload, FiX,
-  FiMoon, FiTrash2, FiCheck, FiAlertCircle, FiZap,
+  FiShield, FiDatabase, FiDownload, FiUpload, FiX,
+  FiTrash2, FiCheck, FiAlertCircle, FiZap,
   FiPackage, FiPlus, FiList, FiEdit
 } from "react-icons/fi";
 import { configuracionService, reglasAIService, conocimientoService, promptsAIService, supabase, testConnection, plantillasDocumentosService } from "../services/supabase";
