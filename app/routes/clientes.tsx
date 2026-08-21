@@ -106,7 +106,7 @@ export default function Clientes() {
     }
   }, [location]);
 
-  // Cargar clientes desde Supabase
+  // Cargar clientes desde Supabase  
   const loadClientes = async () => {
     try {
       setLoading(true);

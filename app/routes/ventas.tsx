@@ -103,7 +103,7 @@ export default function Ventas() {
       handleOpenModal();
     }
   }, [location]);
-
+  
   const loadData = async () => {
     try {
       setLoading(true);

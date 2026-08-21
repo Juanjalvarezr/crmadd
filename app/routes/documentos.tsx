@@ -25,7 +25,7 @@ export default function Documentos() {
   const [proyectos, setProyectos] = useState<any[]>([]);
   const [clientes, setClientes] = useState<any[]>([]);
   const [facturas, setFacturas] = useState<any[]>([]);
-  
+    
   const load = async () => {
     try {
       setLoading(true);
