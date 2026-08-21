@@ -35,16 +35,28 @@ export default function Dashboard() {
     return (
       <div style={{
         minHeight: "100vh", display: "flex", flexDirection: "column",
-        alignItems: "center", justifyContent: "center", background: "#0a0a0a", color: "#fff", gap: 20
+        alignItems: "center", justifyContent: "center", background: "#0a0a0a", color: "#fff", gap: 24, overflow: "hidden", position: "relative"
       }}>
+        <div style={{ position: "absolute", inset: 0, opacity: 0.35, backgroundImage: "radial-gradient(circle at 20% 30%, #E91E63 0%, transparent 45%), radial-gradient(circle at 80% 70%, #9C27B0 0%, transparent 45%)" }} />
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 2, background: "linear-gradient(90deg, transparent, #E91E63, #9C27B0, transparent)", animation: "slide 1.6s ease-in-out infinite" }} />
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 2, background: "linear-gradient(90deg, transparent, #9C27B0, #E91E63, transparent)", animation: "slide 1.6s ease-in-out infinite reverse" }} />
+        <div style={{ position: "absolute", left: 24, top: "50%", transform: "translateY(-50%)", width: 1, height: 120, background: "linear-gradient(180deg, transparent, #E91E63, transparent)", animation: "fade 1.6s ease-in-out infinite" }} />
+        <div style={{ position: "absolute", right: 24, top: "50%", transform: "translateY(-50%)", width: 1, height: 120, background: "linear-gradient(180deg, transparent, #9C27B0, transparent)", animation: "fade 1.6s ease-in-out infinite reverse" }} />
+
         <div style={{
-          width: 110, height: 110, borderRadius: 24, background: "linear-gradient(135deg,#E91E63,#9C27B0)",
-          display: "flex", alignItems: "center", justifyContent: "center", fontSize: 44, fontWeight: 800,
-          animation: "pulse 1.1s ease-in-out infinite"
+          width: 130, height: 130, borderRadius: 28, background: "linear-gradient(135deg,#E91E63,#9C27B0)",
+          display: "flex", alignItems: "center", justifyContent: "center", fontSize: 48, fontWeight: 800,
+          boxShadow: "0 20px 60px rgba(233,30,99,0.35)", animation: "float 2.2s ease-in-out infinite", zIndex: 1
         }}>DD</div>
-        <h1 style={{ fontSize: "2.2rem", fontWeight: 800, margin: 0, letterSpacing: "-0.02em" }}>DESEO DIGITAL</h1>
-        <p style={{ color: "#aaa", fontSize: 13, letterSpacing: "0.25em", textTransform: "uppercase" }}>Agencia Inteligente</p>
-        <style>{`@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.1);opacity:.8}}`}</style>
+
+        <h1 style={{ fontSize: "2.6rem", fontWeight: 800, margin: 0, letterSpacing: "-0.03em", zIndex: 1 }}>DESEO DIGITAL</h1>
+        <p style={{ color: "#bbb", fontSize: 14, letterSpacing: "0.3em", textTransform: "uppercase", zIndex: 1 }}>Agencia Inteligente</p>
+
+        <style>{`
+          @keyframes slide{0%{transform:translateX(-100%)}50%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
+          @keyframes fade{0%,100%{opacity:0.25}50%{opacity:1}}
+          @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+        `}</style>
       </div>
     );
   }
