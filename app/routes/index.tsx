@@ -1,20 +1,10 @@
-import { useEffect } from "react";
 import { Link } from "react-router";
-import { useNavigate } from "react-router";
-import { useCRMStore } from "../store/useCRMStore";
 
 export function meta() {
   return [{ title: "Inicio | CRM DESEO DIGITAL" }];
 }
 
 export default function Index() {
-  const navigate = useNavigate();
-  const { user } = useCRMStore();
-
-  useEffect(() => {
-    if (user) navigate("/proyectos", { replace: true });
-  }, [user, navigate]);
-
   return (
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
       <div style={{ textAlign: "center", maxWidth: 480 }}>
