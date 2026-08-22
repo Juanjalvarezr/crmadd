@@ -25,6 +25,7 @@ export default function Documentos() {
   const [form, setForm] = useState({ titulo: "", tipo: "propuesta", proyecto_id: "", cliente_id: "", factura_id: "", url: "", descripcion: "" });
   const [preview, setPreview] = useState<string | null>(null);
   const [filters, setFilters] = useState({ proyecto_id: "", cliente_id: "", tipo: "" });
+  const [searchTerm, setSearchTerm] = useState("");
   const [proyectos, setProyectos] = useState<any[]>([]);
   const [clientes, setClientes] = useState<any[]>([]);
   const [facturas, setFacturas] = useState<any[]>([]);
@@ -125,6 +126,23 @@ export default function Documentos() {
         onCreate={openCreate}
         onRefresh={refreshOptions}
         searchPlaceholder="Buscar documento..."
+        searchValue={searchTerm}
+        onSearchChange={(e) => setSearchTerm(e.target.value)}
+        endAction={
+          <IconButton size="small" title="Exportar CSV" onClick={() => {
+            const headers = ["id", "titulo", "tipo", "proyecto_id", "cliente_id", "url"];
+            const rows = filtered.map((d: any) => ({ id: d.id, titulo: d.titulo, tipo: d.tipo, proyecto_id: d.proyecto_id || "", cliente_id: d.cliente_id || "", url: d.url || "" }));
+            const blob = new Blob([rows.map((r: any) => Object.values(r).join(",")).join("
+")], { type: "text/csv" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url; a.download = "documentos.csv"; a.click();
+            URL.revokeObjectURL(url);
+            globalSnack.show("CSV exportado", "success");
+          }}>
+            <FiDownload size={18} />
+          </IconButton>
+        }
       />
 
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: { xs: 0.5, sm: 1 }, mb: { xs: 1, sm: 1.5 } }}>
