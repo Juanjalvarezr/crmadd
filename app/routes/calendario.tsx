@@ -399,28 +399,12 @@ export default function Calendario() {
           onNavigate={setDate}
           onSelectEvent={handleSelectEvent}
           onSelectSlot={(slotInfo: any) => {
-            // Force modal open on cell click
             const start = new Date(slotInfo.start);
             const end = new Date(slotInfo.end || slotInfo.start);
             const toLocal = (d: Date) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
             setEventForm({ title: "", start: toLocal(start), end: toLocal(end), allDay: slotInfo.allDay || false, type: "tarea", color: "#2196f3", desc: "" });
             setEditingEvent(null);
             setEventModalOpen(true);
-          }}
-          onClick={(e: any) => {
-            // Fallback: click on cell opens modal
-            const cell = e.target.closest(".rbc-day-bg, .rbc-date-cell, .rbc-month-view .rbc-day-slot, .rbc-row-bg");
-            if (cell && !e.target.closest(".rbc-event")) {
-              const dateStr = cell.getAttribute("data-date") || cell.textContent?.trim();
-              if (dateStr) {
-                const start = new Date(dateStr);
-                const end = new Date(start);
-                const toLocal = (d: Date) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-                setEventForm({ title: "", start: toLocal(start), end: toLocal(end), allDay: true, type: "tarea", color: "#2196f3", desc: "" });
-                setEditingEvent(null);
-                setEventModalOpen(true);
-              }
-            }
           }}
             const start = new Date(slotInfo.start);
             const end = new Date(slotInfo.end || slotInfo.start);
@@ -433,6 +417,20 @@ export default function Calendario() {
           selectableAccessor={() => true}
           eventPropGetter={eventStyleGetter}
           views={[Views.MONTH, Views.WEEK, Views.DAY]}
+          onClick={(e: any) => {
+            const cell = e.target.closest(".rbc-day-bg, .rbc-date-cell, .rbc-month-view .rbc-day-slot, .rbc-row-bg, .rbc-day-slot");
+            if (cell && !e.target.closest(".rbc-event")) {
+              const dateStr = cell.getAttribute("data-date");
+              if (dateStr) {
+                const start = new Date(dateStr);
+                const end = new Date(start);
+                const toLocal = (d: Date) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+                setEventForm({ title: "", start: toLocal(start), end: toLocal(end), allDay: true, type: "tarea", color: "#2196f3", desc: "" });
+                setEditingEvent(null);
+                setEventModalOpen(true);
+              }
+            }
+          }}
           components={{ toolbar: () => null }}
           messages={{
             next: "Siguiente",
