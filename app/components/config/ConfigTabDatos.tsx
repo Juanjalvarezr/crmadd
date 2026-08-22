@@ -4,6 +4,7 @@ import { FiDatabase, FiCheck, FiAlertCircle } from "react-icons/fi";
 interface Props {
   dbStatus: any;
   loading: boolean;
+  onSeed: () => void;
 }
 
 export const ConfigTabDatos = ({ dbStatus, loading }: Props) => (
@@ -16,7 +17,7 @@ export const ConfigTabDatos = ({ dbStatus, loading }: Props) => (
       <Alert severity="warning" sx={{ mb: 3 }}>
         <strong>Nota:</strong> Esta acción borrará los registros de prueba actuales de Clientes, Ventas, Tareas y Proyectos.
       </Alert>
-      <Button variant="contained" disabled={loading} sx={{ backgroundColor: "#e91e63", "&:hover": { backgroundColor: "#c2185b" } }}>
+      <Button variant="contained" disabled={loading} onClick={onSeed} sx={{ backgroundColor: "#e91e63", "&:hover": { backgroundColor: "#c2185b" } }}>
         Cargar Datos Reales
       </Button>
     </Paper>

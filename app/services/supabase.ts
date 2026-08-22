@@ -1387,3 +1387,89 @@ export const transaccionesService = {
     return true;
   },
 };
+
+// Backup / Restore / Seed
+export const backupService = {
+  async exportJSON() {
+    const [clientes, proyectos, tareas, oportunidades, facturas, documentos, calendar_events] = await Promise.all([
+      withRetry(() => supabase.from('clientes').select('*')),
+      withRetry(() => supabase.from('proyectos').select('*')),
+      withRetry(() => supabase.from('tareas').select('*')),
+      withRetry(() => supabase.from('oportunidades').select('*')),
+      withRetry(() => supabase.from('facturas').select('*')),
+      withRetry(() => supabase.from('documentos').select('*')),
+      withRetry(() => supabase.from('calendar_events').select('*')),
+    ]);
+    
+    if (clientes.error) throw clientes.error;
+    if (proyectos.error) throw proyectos.error;
+    if (tareas.error) throw tareas.error;
+    if (oportunidades.error) throw oportunidades.error;
+    if (facturas.error) throw facturas.error;
+    if (documentos.error) throw documentos.error;
+    if (calendar_events.error) throw calendar_events.error;
+    
+    const payload = {
+      generated_at: new Date().toISOString(),
+      data: {
+        clientes: clientes.data || [],
+        proyectos: proyectos.data || [],
+        tareas: tareas.data || [],
+        oportunidades: oportunidades.data || [],
+        facturas: facturas.data || [],
+        documentos: documentos.data || [],
+        calendar_events: calendar_events.data || [],
+      }
+    };
+    
+    return payload;
+  },
+  
+  async importJSON(json: any) {
+    const tables = ['clientes', 'proyectos', 'tareas', 'oportunidades', 'facturas', 'documentos', 'calendar_events'];
+    
+    for (const table of tables) {
+      const { error } = await withRetry(() => supabase.from(table).delete().neq('id', 0));
+      if (error) throw error;
+      
+      const rows = json?.data?.[table] || [];
+      if (rows.length > 0) {
+        const { error: insertError } = await withRetry(() => supabase.from(table).insert(rows));
+        if (insertError) throw insertError;
+      }
+    }
+    
+    return true;
+  },
+  
+  async seedDESEODigital() {
+    const seedData = {
+      clientes: [
+        { nombre: "Cliente Demo 1", email: "demo1@test.com", telefono: "3000000001", estado: "Activo" },
+        { nombre: "Cliente Demo 2", email: "demo2@test.com", telefono: "3000000002", estado: "Prospecto" },
+      ],
+      proyectos: [
+        { nombre: "Web Corporativa", cliente_id: null, estado: "Activo", fecha_inicio: new Date().toISOString() },
+        { nombre: "Campaña SEO", cliente_id: null, estado: "Planificado", fecha_inicio: new Date().toISOString() },
+      ],
+      tareas: [
+        { titulo: "Diseñar home", proyecto_id: null, estado: "Pendiente", prioridad: "Alta" },
+        { titulo: "Configurar Analytics", proyecto_id: null, estado: "Pendiente", prioridad: "Media" },
+      ],
+      oportunidades: [
+        { titulo: "Rediseño web", cliente_id: null, valor_estimado: 5000000, etapa: "Propuesta Enviada" },
+      ],
+      facturas: [
+        { numero_factura: "F-001", cliente_id: null, total: 1500000, estado: "Pagada", fecha_emision: new Date().toISOString() },
+      ],
+      documentos: [
+        { titulo: "Propuesta Demo", tipo: "propuesta", url: "" },
+      ],
+      calendar_events: [
+        { title: "Demo evento", start: new Date().toISOString(), end: new Date(Date.now() + 3600000).toISOString(), all_day: false, type: "tarea", color: "#2196f3" },
+      ],
+    };
+    
+    return await this.importJSON({ data: seedData });
+  }
+};

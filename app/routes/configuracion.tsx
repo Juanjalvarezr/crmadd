@@ -13,7 +13,7 @@ import {
   FiTrash2, FiCheck, FiAlertCircle, FiZap,
   FiPackage, FiPlus, FiList, FiEdit
 } from "react-icons/fi";
-import { configuracionService, reglasAIService, conocimientoService, promptsAIService, supabase, testConnection, plantillasDocumentosService } from "../services/supabase";
+import { configuracionService, reglasAIService, conocimientoService, promptsAIService, supabase, testConnection, plantillasDocumentosService, backupService } from "../services/supabase";
 import { BRAND } from "../theme";
 import { EmpresaTab } from "../components/EmpresaTab";
 import { ConfigTabPreferencias } from "../components/config/ConfigTabPreferencias";
@@ -1064,6 +1064,18 @@ export default function Configuracion() {
             <ConfigTabDatos
               dbStatus={dbStatus}
               loading={loading}
+              onSeed={async () => {
+                try {
+                  setLoading(true);
+                  await backupService.seedDESEODigital();
+                  globalSnack.show('Datos reales cargados correctamente', 'success');
+                  window.location.reload();
+                } catch (err: any) {
+                  globalSnack.show(err?.message || 'Error cargando datos', 'error');
+                } finally {
+                  setLoading(false);
+                }
+              }}
             />
           )}
         </>
