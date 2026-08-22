@@ -26,6 +26,11 @@ import { ConfigTabDatos } from "../components/config/ConfigTabDatos";
 import { ConfigTabPreferencias } from "../components/config/ConfigTabPreferencias";
 import { ConfigTabSeguridad } from "../components/config/ConfigTabSeguridad";
 import { CerebroAITab } from "../components/CerebroAITab";
+import { ConfigTabPlantillas } from "../components/config/ConfigTabPlantillas";
+import { ConfigTabSop } from "../components/config/ConfigTabSop";
+import { ConfigTabCampos } from "../components/config/ConfigTabCampos";
+import { ConfigTabBackup } from "../components/config/ConfigTabBackup";
+import { ConfigTabDatos } from "../components/config/ConfigTabDatos";
 
 // Tipos para configuración
 interface EmpresaConfig {
@@ -971,8 +976,7 @@ export default function Configuracion() {
               onChangePassword={handleCambioPassword}
               loading={loading}
             />
-          {activeTab === "cerebro" && (
-            <CerebroAITab 
+          <CerebroAITab 
               reglasAI={reglasAI}
               onAddRegla={handleAddRegla}
               onDeleteRegla={handleDeleteRegla}
@@ -986,312 +990,47 @@ export default function Configuracion() {
               onDeleteConocimiento={handleDeleteConocimiento}
               onRefreshConocimiento={refreshConocimiento}
             />
-          )}
 
           {/* Configuración de Plantillas */}
           {activeTab === "plantillas" && (
-            <Paper sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2 }}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
-                <Typography variant="h6" sx={{ fontWeight: "bold" }}>Plantillas</Typography>
-                <Box sx={{ ml: "auto", display: "flex", gap: 1 }}>
-                  <Button size="small" variant="outlined" onClick={() => { setEditingDocTemplateId(null); setDocTemplateForm({ tipo: "cotizacion", nombre: "", contenido: "", iva_porcentaje: 19, color_primario: "#1976d2", color_secundario: "#e91e63", logo_url: "", activo: true }); setOpenDocTemplateModal(true); }} startIcon={<FiPlus size={14} />}>Nueva plantilla</Button>
-                </Box>
-              </Box>
-
-              <Grid container spacing={2}>
-                {plantillasDocs.map((p) => (
-                  <Grid item xs={6} md={4} key={p.id}>
-                    <Card variant="outlined" sx={{ height: "100%" }}>
-                      <CardContent>
-                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
-                          <Chip size="small" label={p.tipo} sx={{ height: 22, fontSize: "0.7rem" }} />
-                          <Box sx={{ display: "flex", gap: 0.5 }}>
-                            <IconButton size="small" onClick={() => { setEditingDocTemplateId(p.id); setDocTemplateForm({ tipo: p.tipo, nombre: p.nombre, contenido: p.contenido, iva_porcentaje: Number(p.iva_porcentaje || 19), color_primario: p.color_primario || "#1976d2", color_secundario: p.color_secundario || "#e91e63", logo_url: p.logo_url || "", activo: !!p.activo }); setOpenDocTemplateModal(true); }}><FiEdit size={14} /></IconButton>
-                            <IconButton size="small" color="error" onClick={async () => { if (!confirm(`¿Eliminar plantilla #${p.id}?`)) return; await plantillasDocumentosService.remove(p.id); setPlantillasDocs(plantillasDocs.filter((x: any) => x.id !== p.id)); globalSnack.show("Plantilla eliminada", "success"); }}><FiX size={14} /></IconButton>
-                          </Box>
-                        </Box>
-                        <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>{p.nombre}</Typography>
-                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>IVA: {p.iva_porcentaje ?? 19}%</Typography>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                ))}
-                {plantillasDocs.length === 0 && (
-                  <Grid item xs={12}>
-                    <Typography variant="body2" color="text.secondary">Sin plantillas. Creá una para cotizaciones/facturas/contratos/recibos.</Typography>
-                  </Grid>
-                )}
-              </Grid>
-            </Paper>
-          )}
-
-          {/* Manual SOP */}
-          {activeTab === "sop" && (
-            <Paper sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2 }}>
-              <Typography variant="h6" sx={{ mb: 1, fontWeight: "bold" }}>📄 Manual SOP</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                Documenta procesos operativos y pasos obligatorios para el equipo.
-              </Typography>
-
-              <Box sx={{ display: 'flex', gap: 2, mb: 3, flexDirection: { xs: 'column', sm: 'row' } }}>
-                <TextField 
-                  label="Título" 
-                  size="small"
-                  value={nuevoSop.titulo}
-                  onChange={(e) => setNuevoSop({...nuevoSop, titulo: e.target.value})}
-                />
-                <TextField 
-                  label="Categoría" 
-                  size="small"
-                  value={nuevoSop.categoria}
-                  onChange={(e) => setNuevoSop({...nuevoSop, categoria: e.target.value})}
-                />
-                <Button variant="contained" onClick={() => { if (!nuevoSop.titulo.trim()) return; setSops([{ ...nuevoSop }, ...sops]); setNuevoSop({ titulo: "", descripcion: "", categoria: "operaciones" }); }} startIcon={<FiPlus />}>Guardar</Button>
-              </Box>
-
-              <Box sx={{ display: 'flex', gap: 2, mb: 4, flexDirection: { xs: 'column', sm: 'row' } }}>
-                <TextField
-                  fullWidth
-                  size="small"
-                  label="Descripción del proceso"
-                  multiline
-                  minRows={3}
-                  value={nuevoSop.descripcion}
-                  onChange={(e) => setNuevoSop({...nuevoSop, descripcion: e.target.value})}
-                />
-              </Box>
-
-              <Grid container spacing={2}>
-                {sops.map((sop, idx) => (
-                  <Grid item xs={12} md={4} key={idx}>
-                    <Card variant="outlined">
-                      <CardContent>
-                        <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#e91e63' }}>{sop.titulo}</Typography>
-                        <Chip label={sop.categoria} size="small" sx={{ mb: 1 }} />
-                        <Typography variant="body2" color="text.secondary">{sop.descripcion}</Typography>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                ))}
-                {sops.length === 0 && (
-                  <Grid item xs={12}>
-                    <Alert severity="info">No hay SOPs creados.</Alert>
-                  </Grid>
-                )}
-              </Grid>
-            </Paper>
-          )}
-
-          {/* Campos y Estados Personalizados */}
-          {activeTab === "campos" && (
-            <Paper sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2 }}>
-              <Typography variant="h6" sx={{ mb: 1, fontWeight: "bold" }}>🏷️ Personalización de Campos e Items</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-                Ajusta las celdas, dropdowns y estados de todos los módulos del CRM. Los cambios se aplicarán al sistema.
-              </Typography>
-
-              {/* Formulario rápido para añadir */}
-              <Box sx={{ display: 'flex', gap: 2, mb: 4, flexDirection: { xs: 'column', sm: 'row' }, p: 2, backgroundColor: 'rgba(233, 30, 99, 0.04)', borderRadius: 2, border: '1px solid rgba(233, 30, 99, 0.15)' }}>
-                <FormControl sx={{ minWidth: 200 }}>
-                  <InputLabel>Sección / Dropdown</InputLabel>
-                  <Select 
-                    size="small"
-                    value={nuevoItem.tipo} 
-                    onChange={(e) => setNuevoItem({...nuevoItem, tipo: e.target.value})}
-                  >
-                    <MenuItem value="estadosCliente">Estados de Cliente</MenuItem>
-                    <MenuItem value="etapasVenta">Etapas de Ventas (Pipeline)</MenuItem>
-                    <MenuItem value="prioridadesTarea">Prioridades de Tareas</MenuItem>
-                  </Select>
-                </FormControl>
-                <TextField 
-                  fullWidth 
-                  size="small" 
-                  placeholder="Ej: Pendiente de Pago, Propuesta Rechazada, Ultra Alta..." 
-                  value={nuevoItem.valor}
-                  onChange={(e) => setNuevoItem({...nuevoItem, valor: e.target.value})}
-                />
-                <Button variant="contained" onClick={handleAddItem} startIcon={<FiPlus />} sx={{ backgroundColor: '#e91e63', '&:hover': { backgroundColor: '#c2185b' } }}>Añadir Item</Button>
-              </Box>
-
-              <Grid container spacing={{ xs: 1, sm: 2 }}>
-                {/* Estados de Cliente */}
-                <Grid item xs={12} md={4}>
-                  <Card variant="outlined" sx={{ height: '100%', border: '1px solid rgba(0,0,0,0.08)' }}>
-                    <CardContent>
-                      <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#4caf50', mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-                        🟢 Estados de Cliente
-                      </Typography>
-                      <Divider sx={{ mb: 1.5 }} />
-                      <List dense>
-                        {catalogos.estadosCliente.map((item: string) => (
-                          <ListItem 
-                            key={item}
-                            secondaryAction={
-                              <IconButton edge="end" color="error" size="small" onClick={() => handleDeleteItem("estadosCliente", item)}>
-                                <FiTrash2 size={14} />
-                              </IconButton>
-                            }
-                          >
-                            <ListItemText primary={item} />
-                          </ListItem>
-                        ))}
-                      </List>
-                    </CardContent>
-                  </Card>
-                </Grid>
-
-                {/* Etapas de Ventas */}
-                <Grid item xs={12} md={4}>
-                  <Card variant="outlined" sx={{ height: '100%', border: '1px solid rgba(0,0,0,0.08)' }}>
-                    <CardContent>
-                      <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#9c27b0', mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-                        ⚡ Etapas de Ventas (Pipeline)
-                      </Typography>
-                      <Divider sx={{ mb: 1.5 }} />
-                      <List dense>
-                        {catalogos.etapasVenta.map((item: string) => (
-                          <ListItem 
-                            key={item}
-                            secondaryAction={
-                              <IconButton edge="end" color="error" size="small" onClick={() => handleDeleteItem("etapasVenta", item)}>
-                                <FiTrash2 size={14} />
-                              </IconButton>
-                            }
-                          >
-                            <ListItemText primary={item} />
-                          </ListItem>
-                        ))}
-                      </List>
-                    </CardContent>
-                  </Card>
-                </Grid>
-
-                {/* Prioridades de Tarea */}
-                <Grid item xs={12} md={4}>
-                  <Card variant="outlined" sx={{ height: '100%', border: '1px solid rgba(0,0,0,0.08)' }}>
-                    <CardContent>
-                      <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: '#f44336', mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-                        📋 Prioridades de Tarea
-                      </Typography>
-                      <Divider sx={{ mb: 1.5 }} />
-                      <List dense>
-                        {catalogos.prioridadesTarea.map((item: string) => (
-                          <ListItem 
-                            key={item}
-                            secondaryAction={
-                              <IconButton edge="end" color="error" size="small" onClick={() => handleDeleteItem("prioridadesTarea", item)}>
-                                <FiTrash2 size={14} />
-                              </IconButton>
-                            }
-                          >
-                            <ListItemText primary={item} />
-                          </ListItem>
-                        ))}
-                      </List>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              </Grid>
-            </Paper>
-          )}
-
-          {/* Backup y Restauración */}
-          {activeTab === "backup" && (
-            <Paper sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2 }}>
-              <Typography variant="h6" sx={{ mb: 3, fontWeight: "bold" }}>
-                Backup y Restauración
-              </Typography>
-              
-              <Grid container spacing={{ xs: 1, sm: 2 }}>
-                <Grid item xs={12} md={6}>
-                  <Card>
-                    <CardContent>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
-                        <FiDownload size={24} color={BRAND.success} />
-                        <Typography variant="h6" sx={{ fontWeight: "bold" }}>Crear Backup</Typography>
-                      </Box>
-                      
-                      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                        Descarga una copia completa de tu configuración y datos del CRM
-                      </Typography>
-                      
-                      <Button
-                        variant="contained"
-                        startIcon={<FiDownload />}
-                        onClick={() => setOpenBackupDialog(true)}
-                        sx={{ backgroundColor: BRAND.success, '&:hover': { backgroundColor: "#388e3c" } }}
-                      >
-                        Descargar Backup
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </Grid>
-                
-                <Grid item xs={12} md={6}>
-                  <Card>
-                    <CardContent>
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}>
-                        <FiUpload size={24} color="#ff9800" />
-                        <Typography variant="h6" sx={{ fontWeight: "bold" }}>Restaurar Backup</Typography>
-                      </Box>
-                      
-                      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                        Sube un archivo de backup para restaurar tu configuración
-                      </Typography>
-                      
-                      <Button
-                        variant="contained"
-                        startIcon={<FiUpload />}
-                        onClick={() => setOpenRestoreDialog(true)}
-                        sx={{ backgroundColor: "#ff9800", '&:hover': { backgroundColor: "#f57c00" } }}
-                      >
-                        Subir Backup
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              </Grid>              
-              <Divider sx={{ my: 3 }} />              
-              <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
-                Historial de Backups
-              </Typography>
-              
-              <List>
-                <ListItem>
-                  <ListItemIcon>
-                    <FiDatabase />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary="Backup Automático - 11 de Mayo 2026"
-                    secondary="Tamaño: 2.4 MB • Completado exitosamente"
-                  />
-                  <ListItemSecondaryAction>
-                    <Button size="small" startIcon={<FiDownload />}>
-                      Descargar
-                    </Button>
-                  </ListItemSecondaryAction>
-                </ListItem>
-                <ListItem>
-                  <ListItemIcon>
-                    <FiDatabase />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary="Backup Manual - 8 de Mayo 2026"
-                    secondary="Tamaño: 2.1 MB • Completado exitosamente"
-                  />
-                  <ListItemSecondaryAction>
-                    <Button size="small" startIcon={<FiDownload />}>
-                      Descargar
-                    </Button>
-                  </ListItemSecondaryAction>
-                </ListItem>
-              </List>
-            </Paper>
-          )}
-
-          {/* Datos Reales */}
-          {activeTab === "datos" && (
+            <ConfigTabPlantillas
+              plantillasDocs={plantillasDocs}
+              setPlantillasDocs={setPlantillasDocs}
+              setEditingDocTemplateId={setEditingDocTemplateId}
+              setDocTemplateForm={setDocTemplateForm}
+              setOpenDocTemplateModal={setOpenDocTemplateModal}
+            />
+          ){activeTab === "sop" && (
+            <ConfigTabSop
+              sops={sops}
+              setSops={setSops}
+              nuevoSop={nuevoSop}
+              setNuevoSop={setNuevoSop}
+              setOpenSopModal={setOpenSopModal}
+              onAddSop={handleAddSop}
+              onDeleteSop={handleDeleteSop}
+            />
+          ){activeTab === "campos" && (
+            <ConfigTabCampos
+              catalogos={catalogos}
+              setCatalogos={setCatalogos}
+              nuevoItem={nuevoItem}
+              setNuevoItem={setNuevoItem}
+              handleSaveCatalogos={handleSaveCatalogos}
+              handleAddItem={handleAddItem}
+              handleDeleteItem={handleDeleteItem}
+            />
+          ){activeTab === "backup" && (
+            <ConfigTabBackup
+              onBackup={handleBackup}
+              onRestore={handleRestore}
+            />
+          ){activeTab === "datos" && (
+            <ConfigTabDatos
+              dbStatus={dbStatus}
+              loading={loading}
+            />
+          )
             <Paper sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2 }}>
               <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
                 Inicialización con Datos Reales de DESEO DIGITAL
