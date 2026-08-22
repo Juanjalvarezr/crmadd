@@ -125,7 +125,8 @@ export default function Calendario() {
   const loadEvents = async () => {
     try {
       setLoading(true);
-      await fetchDashboardData();
+      // Cargar store + calendar_events en paralelo
+      await Promise.allSettled([fetchDashboardData(), calendarEventsService.getAll()]);
       const persisted = (await calendarEventsService.getAll()) || [];
       const mapped = persisted.map((e: any): CalEvent => ({
         id: String(e.id),
@@ -139,8 +140,8 @@ export default function Calendario() {
         facturaId: e.factura_id || undefined,
       }));
       setEvents(mapped);
-    } catch (error) {
-      globalSnack.show("Error al cargar eventos del calendario.", "error");
+    } catch (error: any) {
+      globalSnack.show(error?.message || "Error al cargar eventos del calendario.", "error");
     } finally {
       setLoading(false);
     }
@@ -175,7 +176,29 @@ export default function Calendario() {
       } catch {}
     };
     syncFacturas();
-    return () => { cancelled = true; };
+
+    // Realtime: suscribirse a cambios en calendar_events
+    let channel: any;
+    const initRealtime = async () => {
+      try {
+        const { createClient } = await import("../services/supabase");
+        const supa = createClient();
+        channel = supa
+          .channel("calendar-realtime")
+          .on("postgres_changes", { event: "*", schema: "public", table: "calendar_events" }, () => {
+            loadEvents();
+          })
+          .subscribe();
+      } catch {}
+    };
+    initRealtime();
+
+    return () => {
+      cancelled = true;
+      if (channel) {
+        try { channel.unsubscribe(); } catch {}
+      }
+    };
   }, []);
 
   const handleSelectEvent = (event: CalEvent) => {
@@ -200,6 +223,19 @@ export default function Calendario() {
     try {
       if (!eventForm.title || !eventForm.start) {
         globalSnack.show("Título y fecha requeridos", "warning");
+        return;
+      }
+      // Validar solapamiento
+      const newStart = new Date(eventForm.start);
+      const newEnd = eventForm.end ? new Date(eventForm.end) : newStart;
+      const overlap = filteredEvents.find((ev) => {
+        if (ev.id === editingEvent?.id) return false;
+        const evStart = new Date(ev.start);
+        const evEnd = new Date(ev.end);
+        return newStart < evEnd && newEnd > evStart;
+      });
+      if (overlap) {
+        globalSnack.show(`Solapamiento con: ${overlap.title}`, "warning");
         return;
       }
       const start = new Date(eventForm.start);
