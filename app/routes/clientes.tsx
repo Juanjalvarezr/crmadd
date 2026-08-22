@@ -60,6 +60,7 @@ export default function Clientes() {
   
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [filterEstado, setFilterEstado] = useState<string>("");
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' | 'info' | 'warning' }>({ open: false, message: '', severity: 'info' });
   

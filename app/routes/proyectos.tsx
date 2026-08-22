@@ -58,6 +58,7 @@ export default function Proyectos() {
   const fetchTareas = useCRMStore((s) => s.fetchTareas);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [filterEstado, setFilterEstado] = useState<string>("");
   const [activeTab, setActiveTab] = useState("activos");
   const [viewMode, setViewMode] = useState<"grid" | "kanban">("grid");
   const [openProyectoModal, setOpenProyectoModal] = useState(false);
