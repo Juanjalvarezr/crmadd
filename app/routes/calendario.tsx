@@ -83,46 +83,6 @@ function deriveEvents(persisted: CalEvent[], tareas: any[], oportunidades: any[]
   return Array.from(unique.values());
 }
 
-function deriveEvents(persisted: CalEvent[], tareas: any[], oportunidades: any[], clientesList: any[]): CalEvent[] {
-  const base = persisted.filter((e: any) => !String(e.id).startsWith("factura-vencimiento-"));
-  const fromTareas: CalEvent[] = [];
-  (tareas || []).forEach((t: any) => {
-    if (!t.fecha) return;
-    const d = new Date(t.fecha);
-    const cliente = t.cliente_id ? (clientesList || []).find((c: any) => String(c.id) === String(t.cliente_id)) : null;
-    const info = cliente ? ` (${cliente.nombre}${cliente.nicho ? ` - ${cliente.nicho}` : ""})` : "";
-    fromTareas.push({
-      id: `tarea-${t.id}`,
-      title: `[Tarea] ${t.titulo}${info}`,
-      start: d,
-      end: d,
-      allDay: true,
-      type: "tarea",
-      color: t.estado === "Completada" ? "#4caf50" : "#2196f3",
-      desc: t.descripcion,
-    });
-  });
-  const fromVentas: CalEvent[] = [];
-  (oportunidades || []).forEach((v: any) => {
-    const d = new Date(v.created_at);
-    d.setDate(d.getDate() + 15);
-    fromVentas.push({
-      id: `venta-${v.id}`,
-      title: `[Cierre] ${v.nombre}`,
-      start: d,
-      end: d,
-      allDay: true,
-      type: "venta",
-      color: "#e91e63",
-      desc: `Oportunidad: ${v.cliente_nombre || ""} - ${new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP" }).format(v.valor || 0)}`,
-    });
-  });
-  const vencimientos = persisted.filter((e: any) => String(e.id).startsWith("factura-vencimiento-"));
-  const all = [...base, ...fromTareas, ...fromVentas, ...vencimientos];
-  const unique = new Map(all.map((e: any) => [e.id, e]));
-  return Array.from(unique.values());
-}
-
 export default function Calendario() {
   const tareas = useCRMStore((s) => s.tareas);
   const oportunidades = useCRMStore((s) => s.oportunidades);
