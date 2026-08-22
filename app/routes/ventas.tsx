@@ -1,6 +1,7 @@
 import { globalSnack } from "../components/GlobalSnackbar";
 import { useState, useEffect } from "react";
-import { CompactStatCard, VentasIcon } from "../components/CompactStatCard";
+import { CompactStatCard } from "../components/CompactStatCard";
+import { VentasIcon } from "../components/StatCard";
 import {
   Box, Typography, Paper, Grid, Button, Chip, TextField, InputAdornment, FormControl, InputLabel, Select, MenuItem,
   Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Alert, Slider, CircularProgress, Tooltip, Skeleton, keyframes
