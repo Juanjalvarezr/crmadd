@@ -12,7 +12,18 @@ interface Props {
   handleDeleteItem: (tipo: string, item: string) => void;
 }
 
-export const ConfigTabCampos = ({ catalogos, setCatalogos, nuevoItem, setNuevoItem, handleSaveCatalogos, handleAddItem, handleDeleteItem }: Props) => (
+export const ConfigTabCampos = ({ catalogos, setCatalogos, nuevoItem, setNuevoItem, handleSaveCatalogos, handleAddItem, handleDeleteItem }: Props) => {
+  useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      try {
+        const data = await configuracionService.getEmpresa();
+        if (mounted && data?.catalogos) setCatalogos(data.catalogos);
+      } catch {}
+    };
+    load();
+    return () => { mounted = false; };
+  }, [setCatalogos]);
   <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
     <Paper sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2 }}>
       <Typography variant="h6" sx={{ mb: 1, fontWeight: "bold" }}>Personalización de Campos e Items</Typography>

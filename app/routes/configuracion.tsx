@@ -70,6 +70,43 @@ export default function Configuracion() {
   // Estados principales
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("empresa"); // Mantener activeTab local
+  // Cargar datos reales al montar
+  useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      try {
+        setLoading(true);
+        const [empresa, reglas, conocimientoData] = await Promise.all([
+          configuracionService.getEmpresa(),
+          reglasAIService.getAll(),
+          conocimientoService.getAll(),
+        ]);
+        if (!mounted) return;
+        if (empresa) {
+          setEmpresaConfig({
+            nombre: empresa.nombre || "",
+            logo: empresa.logo || "",
+            telefono: empresa.telefono || "",
+            email: empresa.email || "",
+            direccion: empresa.direccion || "",
+            ciudad: empresa.ciudad || "",
+            pais: empresa.pais || "",
+            website: empresa.website || "",
+            descripcion: empresa.descripcion || "",
+            googleBusinessLink: empresa.google_business_link || "",
+          });
+        }
+        setReglasAI(reglas || []);
+        setConocimiento(conocimientoData || []);
+      } catch (err: any) {
+        globalSnack.show(err?.message || "Error al cargar configuración", "error");
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+    load();
+    return () => { mounted = false; };
+  }, []);
   
     
   // Punto 2 y Testigo de Conexión

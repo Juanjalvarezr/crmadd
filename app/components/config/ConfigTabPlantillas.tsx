@@ -11,7 +11,18 @@ interface Props {
   setOpenDocTemplateModal: (open: boolean) => void;
 }
 
-export const ConfigTabPlantillas = ({ plantillasDocs, setPlantillasDocs, setEditingDocTemplateId, setDocTemplateForm, setOpenDocTemplateModal }: Props) => (
+export const ConfigTabPlantillas = ({ plantillasDocs, setPlantillasDocs, setEditingDocTemplateId, setDocTemplateForm, setOpenDocTemplateModal }: Props) => {
+  useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      try {
+        const data = await plantillasDocumentosService.getAll();
+        if (mounted) setPlantillasDocs(data || []);
+      } catch {}
+    };
+    load();
+    return () => { mounted = false; };
+  }, [setPlantillasDocs]);
   <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
     <Paper sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2 }}>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>

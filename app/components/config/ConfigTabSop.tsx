@@ -11,7 +11,18 @@ interface Props {
   onDeleteSop: (id: number) => void;
 }
 
-export const ConfigTabSop = ({ sops, setSops, nuevoSop, setNuevoSop, onAddSop, onDeleteSop }: Props) => (
+export const ConfigTabSop = ({ sops, setSops, nuevoSop, setNuevoSop, onAddSop, onDeleteSop }: Props) => {
+  useEffect(() => {
+    let mounted = true;
+    const load = async () => {
+      try {
+        const data = await reglasAIService.getAll();
+        if (mounted) setSops(data || []);
+      } catch {}
+    };
+    load();
+    return () => { mounted = false; };
+  }, [setSops]);
   <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
     <Paper sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2 }}>
       <Typography variant="h6" sx={{ mb: 1, fontWeight: "bold" }}>Manual SOP</Typography>
