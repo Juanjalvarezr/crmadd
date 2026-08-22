@@ -406,13 +406,6 @@ export default function Calendario() {
             setEditingEvent(null);
             setEventModalOpen(true);
           }}
-            const start = new Date(slotInfo.start);
-            const end = new Date(slotInfo.end || slotInfo.start);
-            const toLocal = (d: Date) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-            setEventForm({ title: "", start: toLocal(start), end: toLocal(end), allDay: slotInfo.allDay || false, type: "tarea", color: "#2196f3", desc: "" });
-            setEditingEvent(null);
-            setEventModalOpen(true);
-          }}
           selectable
           selectableAccessor={() => true}
           eventPropGetter={eventStyleGetter}
