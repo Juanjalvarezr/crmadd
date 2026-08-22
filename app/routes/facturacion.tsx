@@ -24,6 +24,7 @@ export default function Facturacion() {
   const fetchClientes = useCRMStore((s) => s.fetchClientes);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [filterEstado, setFilterEstado] = useState<string>("");
   const [openModal, setOpenModal] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [editing, setEditing] = useState<any | null>(null);
