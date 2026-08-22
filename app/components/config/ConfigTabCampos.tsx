@@ -124,6 +124,6 @@ export const ConfigTabCampos = ({ catalogos, setCatalogos, nuevoItem, setNuevoIt
                 </Grid>
               </Grid>
             </Paper>
-          )}
+          </Paper>
   </Box>
 );
