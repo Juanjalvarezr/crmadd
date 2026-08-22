@@ -24,7 +24,8 @@ export const ConfigTabSop = ({ sops, setSops, nuevoSop, setNuevoSop, onAddSop, o
     return () => { mounted = false; };
   }, [setSops]);
 
-  return ( sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+  return (
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
     <Paper sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2 }}>
       <Typography variant="h6" sx={{ mb: 1, fontWeight: "bold" }}>Manual SOP</Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>

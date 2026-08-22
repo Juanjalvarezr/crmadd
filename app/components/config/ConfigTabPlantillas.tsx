@@ -24,7 +24,8 @@ export const ConfigTabPlantillas = ({ plantillasDocs, setPlantillasDocs, setEdit
     return () => { mounted = false; };
   }, [setPlantillasDocs]);
 
-  return ( sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+  return (
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
     <Paper sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2 }}>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
                 <Typography variant="h6" sx={{ fontWeight: "bold" }}>Plantillas</Typography>
