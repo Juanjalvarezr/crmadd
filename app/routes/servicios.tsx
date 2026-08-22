@@ -23,6 +23,9 @@ export default function Servicios() {
   const [servicios, setServicios] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterEstado, setFilterEstado] = useState<string>("");
+  const [filterCategoria, setFilterCategoria] = useState<string>("");
   const [openModal, setOpenModal] = useState(false);
   const [editingServicio, setEditingServicio] = useState<any | null>(null);
   const [saving, setSaving] = useState(false);
@@ -47,7 +50,14 @@ export default function Servicios() {
       setError(null);
       const data = await serviciosService.getAll();
       const unique = (Array.isArray(data) ? data : []).filter((x: any, idx: number, arr: any[]) => arr.findIndex((y: any) => y.nombre === x.nombre) === idx);
-      setServicios(unique);
+      const term = searchTerm.toLowerCase();
+      const filtered = unique.filter((s: any) => {
+        const matchS = s.nombre.toLowerCase().includes(term) || (s.descripcion || "").toLowerCase().includes(term);
+        const matchE = !filterEstado || s.estado === filterEstado;
+        const matchC = !filterCategoria || s.categoria === filterCategoria;
+        return matchS && matchE && matchC;
+      });
+      setServicios(filtered);
     } catch (err: any) {
       setError(err?.message || "Error al cargar servicios");
       setServicios([]);
