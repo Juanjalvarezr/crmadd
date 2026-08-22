@@ -22,6 +22,7 @@ export default function Cotizaciones() {
   
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [filterEstado, setFilterEstado] = useState<string>("");
   const [formError, setFormError] = useState<string | null>(null);
   const [openModal, setOpenModal] = useState(false);
   const [editing, setEditing] = useState<any | null>(null);

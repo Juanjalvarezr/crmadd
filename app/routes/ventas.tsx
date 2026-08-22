@@ -57,6 +57,7 @@ export default function Ventas() {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [filterEstado, setFilterEstado] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState("");
   const [etapaFilter, setEtapaFilter] = useState("all");
   const [presentationMode, setPresentationMode] = useState(false);
