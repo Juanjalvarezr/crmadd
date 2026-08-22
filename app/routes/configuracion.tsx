@@ -18,6 +18,13 @@ import { BRAND } from "../theme";
 import { EmpresaTab } from "../components/EmpresaTab";
 import { ConfigTabPreferencias } from "../components/config/ConfigTabPreferencias";
 import { ConfigTabSeguridad } from "../components/config/ConfigTabSeguridad";
+import { ConfigTabPlantillas } from "../components/config/ConfigTabPlantillas";
+import { ConfigTabSop } from "../components/config/ConfigTabSop";
+import { ConfigTabCampos } from "../components/config/ConfigTabCampos";
+import { ConfigTabBackup } from "../components/config/ConfigTabBackup";
+import { ConfigTabDatos } from "../components/config/ConfigTabDatos";
+import { ConfigTabPreferencias } from "../components/config/ConfigTabPreferencias";
+import { ConfigTabSeguridad } from "../components/config/ConfigTabSeguridad";
 import { CerebroAITab } from "../components/CerebroAITab";
 
 // Tipos para configuración
@@ -944,8 +951,7 @@ export default function Configuracion() {
 // CONFIG_TAB_PREFERENCIAS_START
           )}
           {/* Configuración de Empresa */}
-          {activeTab === "empresa" && (
-            <EmpresaTab 
+          <EmpresaTab 
               config={empresaConfig}
               onChange={(updates: any) => setEmpresaConfig({ ...empresaConfig, ...updates })}
               onSave={handleSaveEmpresa}
@@ -953,23 +959,18 @@ export default function Configuracion() {
               loading={loading}
               logoInputRef={logoInputRef}
             />
-          )}
 
           {/* Preferencias de Usuario */}
 {/* Preferencias de Usuario */}
-          {activeTab === "preferencias" && (
-            <ConfigTabPreferencias
+          <ConfigTabPreferencias
               preferenciasConfig={preferenciasConfig}
               onChange={(updates: any) => setPreferenciasConfig({ ...preferenciasConfig, ...updates })}
             />
-          )}
-{activeTab === "seguridad" && (
-            <ConfigTabSeguridad
+<ConfigTabSeguridad
               passwordNuevo={seguridadConfig.passwordNuevo}
               onChangePassword={handleCambioPassword}
               loading={loading}
             />
-          )}
           {activeTab === "cerebro" && (
             <CerebroAITab 
               reglasAI={reglasAI}
