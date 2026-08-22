@@ -13,7 +13,7 @@ interface Props {
 }
 
 export const ConfigTabCampos = ({ catalogos, setCatalogos, nuevoItem, setNuevoItem, handleSaveCatalogos, handleAddItem, handleDeleteItem }: Props) => (
-  <Box sx={ display: "flex", flexDirection: "column", gap: 2 }>
+  <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }>
     <Paper sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2 }}>
               <Typography variant="h6" sx={{ mb: 1, fontWeight: "bold" }}>🏷️ Personalización de Campos e Items</Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
@@ -125,7 +125,5 @@ export const ConfigTabCampos = ({ catalogos, setCatalogos, nuevoItem, setNuevoIt
               </Grid>
             </Paper>
           )}
-
-          {/* Backup y Restauración */}
   </Box>
 );
