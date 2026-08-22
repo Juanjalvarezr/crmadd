@@ -507,7 +507,7 @@ export default function Reportes() {
           {/* Métricas principales */}
           <Grid container spacing={{ xs: 1, sm: 2 }} sx={{ mb: 3 }}>
             {metricas.map((metrica, index) => (
-              <Grid item xs={6} sm={6} md={3} key={index}>
+              <Grid item xs={12} sm={6} md={3} key={index}>
                 <Card sx={{ 
                   background: `linear-gradient(135deg, ${metrica.color}15, ${metrica.color}05)`,
                   border: `1px solid ${metrica.color}30`,
