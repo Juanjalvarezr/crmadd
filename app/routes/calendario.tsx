@@ -374,13 +374,17 @@ export default function Calendario() {
         </Box>
       </Box>
 
-      <Paper sx={{
+      <Box sx={{
         p: { xs: 0.75, sm: 1 },
         flex: 1,
         borderRadius: 1.5,
         overflow: "hidden",
         border: "1px solid",
-        borderColor: "divider"
+        borderColor: "divider",
+        width: "100%",
+        "& .rbc-calendar": {
+          width: "100%"
+        }
       }}>
         <Calendar
           localizer={localizer}
@@ -422,7 +426,7 @@ export default function Calendario() {
             <Typography variant="caption" color="text.secondary">Creá el primer evento para comenzar.</Typography>
           </Box>
         )}
-      </Paper>
+      </Box>
 
       <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)} maxWidth="sm" fullWidth>
         {selectedEvent && (
