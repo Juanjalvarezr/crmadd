@@ -1,5 +1,5 @@
-import { Box, Typography, Paper, Button, Alert, CircularProgress } from "@mui/material";
-import { FiDatabase } from "react-icons/fi";
+import { Box, Typography, Paper, Button, Alert, CircularProgress, Chip } from "@mui/material";
+import { FiDatabase, FiCheck, FiAlertCircle } from "react-icons/fi";
 
 interface Props {
   dbStatus: any;
@@ -8,7 +8,7 @@ interface Props {
 
 export const ConfigTabDatos = ({ dbStatus, loading }: Props) => (
   <Box sx={ display: "flex", flexDirection: "column", gap: 2 }>
-                <Paper sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2 }}>
+    <Paper sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2 }}>
               <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
                 Inicialización con Datos Reales de DESEO DIGITAL
               </Typography>

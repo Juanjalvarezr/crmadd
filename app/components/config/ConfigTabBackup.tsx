@@ -9,7 +9,7 @@ interface Props {
 
 export const ConfigTabBackup = ({ onBackup, onRestore }: Props) => (
   <Box sx={ display: "flex", flexDirection: "column", gap: 2 }>
-                <Paper sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2 }}>
+    <Paper sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2 }}>
               <Typography variant="h6" sx={{ mb: 3, fontWeight: "bold" }}>
                 Backup y Restauración
               </Typography>

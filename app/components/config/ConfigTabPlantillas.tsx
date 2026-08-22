@@ -1,18 +1,19 @@
-import { Box, Typography, Paper, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, FormControl, InputLabel, Select, MenuItem, CircularProgress, Alert, Chip } from "@mui/material";
-import { FiPackage, FiEdit, FiTrash2, FiPlus } from "react-icons/fi";
+import { Box, Typography, Paper, Button, Card, CardContent, Grid, Chip, IconButton } from "@mui/material";
+import { FiPlus, FiEdit, FiX } from "react-icons/fi";
 import { globalSnack } from "../GlobalSnackbar";
+import { plantillasDocumentosService } from "../../services/supabase";
 
 interface Props {
   plantillasDocs: any[];
-  onSave: (doc: any) => void;
-  editingDocTemplateId: number | null;
+  setPlantillasDocs: (docs: any[]) => void;
   setEditingDocTemplateId: (id: number | null) => void;
+  setDocTemplateForm: (form: any) => void;
   setOpenDocTemplateModal: (open: boolean) => void;
 }
 
-export const ConfigTabPlantillas = ({ plantillasDocs, onSave, editingDocTemplateId, setEditingDocTemplateId, setOpenDocTemplateModal }: Props) => (
+export const ConfigTabPlantillas = ({ plantillasDocs, setPlantillasDocs, setEditingDocTemplateId, setDocTemplateForm, setOpenDocTemplateModal }: Props) => (
   <Box sx={ display: "flex", flexDirection: "column", gap: 2 }>
-                <Paper sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2 }}>
+    <Paper sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2 }}>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
                 <Typography variant="h6" sx={{ fontWeight: "bold" }}>Plantillas</Typography>
                 <Box sx={{ ml: "auto", display: "flex", gap: 1 }}>

@@ -1,5 +1,5 @@
-import { Box, Typography, Paper, Button, Dialog, DialogTitle, DialogContent, DialogActions, TextField, FormControl, InputLabel, Select, MenuItem, CircularProgress, Alert, Chip, List, ListItem, ListItemText, ListItemIcon, ListItemSecondaryAction, IconButton } from "@mui/material";
-import { FiList, FiEdit, FiTrash2, FiPlus } from "react-icons/fi";
+import { Box, Typography, Paper, Button, Card, CardContent, Grid, Chip, IconButton } from "@mui/material";
+import { FiPlus, FiEdit, FiX } from "react-icons/fi";
 import { globalSnack } from "../GlobalSnackbar";
 
 interface Props {
@@ -14,7 +14,7 @@ interface Props {
 
 export const ConfigTabSop = ({ sops, setSops, nuevoSop, setNuevoSop, setOpenSopModal, onAddSop, onDeleteSop }: Props) => (
   <Box sx={ display: "flex", flexDirection: "column", gap: 2 }>
-                <Paper sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2 }}>
+    <Paper sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2 }}>
               <Typography variant="h6" sx={{ mb: 1, fontWeight: "bold" }}>📄 Manual SOP</Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
                 Documenta procesos operativos y pasos obligatorios para el equipo.

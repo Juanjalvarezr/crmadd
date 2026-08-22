@@ -1,4 +1,5 @@
-import { Box, Typography, Paper, Button, TextField, Chip } from "@mui/material";
+import { Box, Typography, Paper, Button, Chip, TextField, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
+import { FiPlus, FiTrash2 } from "react-icons/fi";
 import { globalSnack } from "../GlobalSnackbar";
 
 interface Props {
@@ -13,7 +14,7 @@ interface Props {
 
 export const ConfigTabCampos = ({ catalogos, setCatalogos, nuevoItem, setNuevoItem, handleSaveCatalogos, handleAddItem, handleDeleteItem }: Props) => (
   <Box sx={ display: "flex", flexDirection: "column", gap: 2 }>
-                <Paper sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2 }}>
+    <Paper sx={{ p: { xs: 2, sm: 3 }, borderRadius: 2 }}>
               <Typography variant="h6" sx={{ mb: 1, fontWeight: "bold" }}>🏷️ Personalización de Campos e Items</Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
                 Ajusta las celdas, dropdowns y estados de todos los módulos del CRM. Los cambios se aplicarán al sistema.
