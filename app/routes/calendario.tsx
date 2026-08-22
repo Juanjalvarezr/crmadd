@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import {
   Box, Typography, Paper, Button, CircularProgress,
-  Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputLabel, Select, MenuItem, Chip, TextField, ToggleButtonGroup, ToggleButton
+  Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputLabel, Select, MenuItem, Chip, TextField, ToggleButtonGroup, ToggleButton, Tooltip
 } from "@mui/material";
 import { FiCalendar, FiCreditCard, FiPlus, FiTrash2, FiEdit2 } from "react-icons/fi";
 import { Calendar, dateFnsLocalizer, Views } from "react-big-calendar";
@@ -248,14 +248,21 @@ export default function Calendario() {
   };
 
   const eventStyleGetter = (event: CalEvent) => {
+    const isToday = new Date().toDateString() === new Date(event.start).toDateString();
     return {
       style: {
         backgroundColor: event.color,
-        borderRadius: "4px",
-        opacity: 0.9,
-        color: "white",
-        border: "none",
+        color: "#fff",
+        border: `2px solid ${event.color}`,
+        borderRadius: "8px",
+        padding: "2px 6px",
+        fontSize: "12px",
+        fontWeight: 600,
         display: "block",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap",
+        boxShadow: isToday ? "0 0 0 2px rgba(0,0,0,0.15)" : "none",
       },
     };
   };
@@ -318,15 +325,12 @@ export default function Calendario() {
             <ToggleButton value={Views.WEEK}>Semana</ToggleButton>
             <ToggleButton value={Views.DAY}>Día</ToggleButton>
           </ToggleButtonGroup>
-          <FormControl size="small" sx={{ minWidth: { xs: 100, sm: 130 } }}>
-            <InputLabel>Filtrar</InputLabel>
-            <Select value={filterType} label="Filtrar" onChange={(e) => setFilterType(e.target.value)}>
-              <MenuItem value="">Todos</MenuItem>
-              <MenuItem value="tarea">Tareas</MenuItem>
-              <MenuItem value="venta">Cierres</MenuItem>
-              <MenuItem value="factura">Vencimientos</MenuItem>
-            </Select>
-          </FormControl>
+          <Box sx={{ display: "flex", gap: 0.5 }}>
+            <Chip label="Todos" onClick={() => setFilterType("")} color={filterType === "" ? "primary" : "default"} size="small" />
+            <Chip label="Tareas" onClick={() => setFilterType("tarea")} color={filterType === "tarea" ? "info" : "default"} size="small" />
+            <Chip label="Cierres" onClick={() => setFilterType("venta")} color={filterType === "venta" ? "error" : "default"} size="small" />
+            <Chip label="Vencimientos" onClick={() => setFilterType("factura")} color={filterType === "factura" ? "warning" : "default"} size="small" />
+          </Box>
           <Button size="small" variant="contained" startIcon={<FiPlus size={14} />} onClick={handleOpenCreateEvent}>Nuevo</Button>
         </Box>
       </Box>
@@ -365,7 +369,10 @@ export default function Calendario() {
           }}
         />
         {!loading && !events?.length && (
-          <EmptyState title="Sin eventos" description="Creá el primer evento para comenzar." actionLabel="Nuevo evento" />
+          <Box sx={{ textAlign: "center", py: 6 }}>
+            <Typography variant="body1" color="text.secondary" sx={{ mb: 1 }}>Sin eventos aún</Typography>
+            <Typography variant="caption" color="text.secondary">Creá el primer evento para comenzar.</Typography>
+          </Box>
         )}
       </Paper>
 
@@ -374,7 +381,9 @@ export default function Calendario() {
           <>
             <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <Box sx={{ width: 12, height: 12, borderRadius: "50%", bgcolor: selectedEvent.color }} />
-              {selectedEvent.title}
+              <Tooltip title={selectedEvent.desc || selectedEvent.title} arrow>
+                <Box sx={{ flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", cursor: "help" }}>{selectedEvent.title}</Box>
+              </Tooltip>
             </DialogTitle>
             <DialogContent dividers>
               <Typography variant="body1" sx={{ whiteSpace: "pre-line", mb: 2 }}>
@@ -388,8 +397,8 @@ export default function Calendario() {
               </Box>
             </DialogContent>
             <DialogActions>
-              <Button startIcon={<FiEdit2 size={14} />} onClick={() => handleOpenEditEvent(selectedEvent)}>Editar</Button>
-              <Button startIcon={<FiTrash2 size={14} />} color="error" onClick={() => handleDeleteEvent(selectedEvent)}>Eliminar</Button>
+              <Tooltip title="Editar evento"><Button startIcon={<FiEdit2 size={14} />} onClick={() => handleOpenEditEvent(selectedEvent)}>Editar</Button></Tooltip>
+              <Tooltip title="Eliminar evento"><Button startIcon={<FiTrash2 size={14} />} color="error" onClick={() => handleDeleteEvent(selectedEvent)}>Eliminar</Button></Tooltip>
               {selectedEvent.facturaId && <Button startIcon={<FiCreditCard size={14} />} onClick={handleQuickPay}>Cobrar por WhatsApp</Button>}
               <Button onClick={() => setIsModalOpen(false)}>Cerrar</Button>
             </DialogActions>
