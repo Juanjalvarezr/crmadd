@@ -97,18 +97,7 @@ export default function Contratos() { const loadContratos = () => { if (typeof w
           <Chip label="Activo" onClick={() => setFilterEstado("Activo")} color={filterEstado === "Activo" ? "success" : "default"} size="small" />
           <Chip label="Finalizado" onClick={() => setFilterEstado("Finalizado")} color={filterEstado === "Finalizado" ? "info" : "default"} size="small" />
           <Chip label="Cancelado" onClick={() => setFilterEstado("Cancelado")} color={filterEstado === "Cancelado" ? "error" : "default"} size="small" />
-          <IconButton size="small" title="Exportar CSV" onClick={() => {
-            try {
-              const headers = ["id", "estado", "valor", "fecha_inicio", "fecha_fin", "cliente_id", "proyecto_id"];
-              const csvRows = [headers.join(",")];
-              (filtered || []).forEach((c: any) => csvRows.push([c.id, c.estado || "", c.valor || "", c.fecha_inicio || "", c.fecha_fin || "", c.cliente_id || "", c.proyecto_id || ""].join(",")));
-              const blob = new Blob([csvRows.join("
-")], { type: "text/csv" });
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement("a"); a.href = url; a.download = "contratos.csv"; a.click();
-              URL.revokeObjectURL(url); globalSnack.show("CSV exportado", "success");
-            } catch (e: any) { globalSnack.show(e.message || "Error exportando CSV", "error"); }
-          }}><FiDownload size={16} /></IconButton>
+
         </Box>
       </Box>
 
@@ -140,38 +129,38 @@ export default function Contratos() { const loadContratos = () => { if (typeof w
               return matchS && matchE;
             });
             return filtered.map((c: any) => {
-            const estado = c.estado || "Activo";
-            const estadoColor = estado === "Activo" ? "success" : estado === "Finalizado" ? "info" : estado === "Cancelado" ? "error" : "default";
-            return (
-            <Paper key={c.id} sx={{ 
-              p: { xs: 1, sm: 1.25 }, 
-              borderRadius: 1.75, 
-              display: "flex", 
-              alignItems: "center", 
-              gap: { xs: 0.75, sm: 1 }, 
-              flexWrap: "wrap",
-              border: '1px solid',
-              borderColor: 'divider',
-              bgcolor: 'background.paper'
-            }}>
-              <Box sx={{ flex: 1, minWidth: 0 }}>
-                <Typography variant="caption" sx={{ fontWeight: "bold", fontSize: { xs: '0.8rem', sm: '0.85rem' } }}>Contrato #{c.id}</Typography>
-                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontSize: { xs: '0.7rem', sm: '0.75rem' } }}>{c.fecha_inicio ? new Date(c.fecha_inicio).toLocaleDateString() : ""}</Typography>
-              </Box>
-              <Chip size="small" label={estado} color={estadoColor as any} sx={{ height: { xs: 22, sm: 26 }, fontSize: { xs: '0.65rem', sm: '0.7rem' } }} />
-              <Typography variant="caption" sx={{ fontWeight: "bold", fontSize: { xs: '0.8rem', sm: '0.85rem' } }}>${Number(c.valor || 0).toFixed(0)}</Typography>
-              {c.url && (
-                <Typography variant="caption" sx={{ display: 'block', width: '100%' }}>
-                  <a href={c.url} target="_blank" rel="noreferrer">Ver documento</a>
-                </Typography>
-              )}
-              <Box sx={{ display: "flex", gap: { xs: 0.25, sm: 0.5 }, flexWrap: "wrap" }}>
-                <Tooltip title="Editar contrato"><IconButton size="small" onClick={() => openEdit(c)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiEdit size={16}/></IconButton></Tooltip>
-                <Tooltip title="Eliminar contrato"><IconButton size="small" color="error" onClick={() => handleDelete(c)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiTrash2 size={16}/></IconButton></Tooltip>
-              </Box>
-            </Paper>
-            );
-          })};
+              const estado = c.estado || "Activo";
+              const estadoColor = estado === "Activo" ? "success" : estado === "Finalizado" ? "info" : estado === "Cancelado" ? "error" : "default";
+              return (
+                <Paper key={c.id} sx={{ 
+                  p: { xs: 1, sm: 1.25 }, 
+                  borderRadius: 1.75, 
+                  display: "flex", 
+                  alignItems: "center", 
+                  gap: { xs: 0.75, sm: 1 }, 
+                  flexWrap: "wrap",
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  bgcolor: 'background.paper'
+                }}>
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Typography variant="caption" sx={{ fontWeight: "bold", fontSize: { xs: '0.8rem', sm: '0.85rem' } }}>Contrato #{c.id}</Typography>
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontSize: { xs: '0.7rem', sm: '0.75rem' } }}>{c.fecha_inicio ? new Date(c.fecha_inicio).toLocaleDateString() : ""}</Typography>
+                  </Box>
+                  <Chip size="small" label={estado} color={estadoColor as any} sx={{ height: { xs: 22, sm: 26 }, fontSize: { xs: '0.65rem', sm: '0.7rem' } }} />
+                  <Typography variant="caption" sx={{ fontWeight: "bold", fontSize: { xs: '0.8rem', sm: '0.85rem' } }}>${Number(c.valor || 0).toFixed(0)}</Typography>
+                  {c.url && (
+                    <Typography variant="caption" sx={{ display: 'block', width: '100%' }}>
+                      <a href={c.url} target="_blank" rel="noreferrer">Ver documento</a>
+                    </Typography>
+                  )}
+                  <Box sx={{ display: "flex", gap: { xs: 0.25, sm: 0.5 }, flexWrap: "wrap" }}>
+                    <Tooltip title="Editar contrato"><IconButton size="small" onClick={() => openEdit(c)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiEdit size={16}/></IconButton></Tooltip>
+                    <Tooltip title="Eliminar contrato"><IconButton size="small" color="error" onClick={() => handleDelete(c)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiTrash2 size={16}/></IconButton></Tooltip>
+                  </Box>
+                </Paper>
+              );
+            })();
           })}
         </Box>
       )}
