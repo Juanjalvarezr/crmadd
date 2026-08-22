@@ -46,8 +46,5 @@ export const ConfigTabPlantillas = ({ plantillasDocs, setPlantillasDocs, setEdit
                 )}
               </Grid>
             </Paper>
-          )}
-
-          {/* Manual SOP */}
   </Box>
 );
