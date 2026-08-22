@@ -918,7 +918,7 @@ export const documentosService = {
   async getAll() {
     const { data, error } = await supabase
       .from('documentos')
-      .select('id, titulo, tipo, url, proyecto_id, cliente_id, factura_id, created_at' )
+      .select('*')
       .order('fecha_creacion', { ascending: false });
     if (error) throw error;
     return data || [];
