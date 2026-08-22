@@ -99,10 +99,10 @@ export default function Dashboard() {
 
   const kpiCard = (title: string, value: string | number, sub: string, color: string) => (
     <Tooltip title={sub} arrow>
-      <Paper sx={{ p: 2, borderRadius: 2, border: "1px solid", borderColor: "divider", flex: "1 1 200px", cursor: "pointer", transition: "transform .1s", "&:hover": { transform: "translateY(-2px)" } }}>
-        <Typography variant="caption" sx={{ color: "text.secondary", textTransform: "uppercase", letterSpacing: "0.08em" }}>{title}</Typography>
-        <Typography variant="h4" sx={{ fontWeight: 800, color, mt: 0.5 }}>{value}</Typography>
-        <Typography variant="caption" sx={{ color: "text.secondary" }}>{sub}</Typography>
+      <Paper sx={{ p: { xs: 1, sm: 1.5 }, borderRadius: 1.5, border: "1px solid", borderColor: "divider", flex: "1 1 160px", cursor: "pointer", transition: "transform .1s", "&:hover": { transform: "translateY(-1px)" }, display: "flex", flexDirection: "column", gap: 0.25 }}>
+        <Typography variant="caption" sx={{ color: "text.secondary", textTransform: "uppercase", letterSpacing: "0.05em", fontSize: "0.65rem", lineHeight: 1.2 }}>{title}</Typography>
+        <Typography sx={{ fontWeight: 800, color, fontSize: { xs: "1.1rem", sm: "1.35rem" }, lineHeight: 1.2 }}>{value}</Typography>
+        <Typography variant="caption" sx={{ color: "text.secondary", fontSize: "0.65rem", lineHeight: 1.2 }}>{sub}</Typography>
       </Paper>
     </Tooltip>
   );
