@@ -391,7 +391,7 @@ export default function Calendario() {
           events={filteredEvents}
           startAccessor="start"
           endAccessor="end"
-          style={{ height: "100%", minHeight: { xs: 520, sm: 640 } }}
+          style={{ height: "100%", minHeight: { xs: 520, sm: 640 }, width: "100%" }}
           culture="es"
           view={view}
           onView={setView}
