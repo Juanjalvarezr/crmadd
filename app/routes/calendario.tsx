@@ -407,6 +407,7 @@ export default function Calendario() {
             setEventModalOpen(true);
           }}
           selectable
+          selectableAccessor={() => true}
           eventPropGetter={eventStyleGetter}
           views={[Views.MONTH, Views.WEEK, Views.DAY]}
           components={{ toolbar: () => null }}
