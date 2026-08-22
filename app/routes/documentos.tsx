@@ -30,46 +30,29 @@ export default function Documentos() {
   const [clientes, setClientes] = useState<any[]>([]);
   const [facturas, setFacturas] = useState<any[]>([]);
       
-  const load = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await documentosService.getAll();
-      let filtered = data || [];
-      if (filters.proyecto_id) filtered = filtered.filter((x: any) => String(x.proyecto_id) === String(filters.proyecto_id));
-      if (filters.cliente_id) filtered = filtered.filter((x: any) => String(x.cliente_id) === String(filters.cliente_id));
-      if (filters.tipo) filtered = filtered.filter((x: any) => x.tipo === filters.tipo);
-      setDocumentos(filtered);
-    } catch (err: any) {
-      setError(err?.message || "Error al cargar documentos");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const loadOptions = async () => {
-    try {
-      const [pRes, cRes, fRes] = await Promise.allSettled([
-        proyectosService.getAll(),
-        clientesService.getAll(),
-        facturasService.getAll(),
-      ]);
-      setProyectos(pRes.status === "fulfilled" ? (pRes.value || []) : []);
-      setClientes(cRes.status === "fulfilled" ? (cRes.value || []) : []);
-      setFacturas(fRes.status === "fulfilled" ? (fRes.value || []) : []);
-    } catch (err: any) {
-      console.warn("Error cargando opciones de documentos:", err?.message);
-    }
-  };
-
   useEffect(() => {
+    let mounted = true;
     const seed = async () => {
       try {
-        await Promise.all([load(), loadOptions()]);
-      } catch { }
+        const [docs, opts] = await Promise.all([documentosService.getAll(), Promise.allSettled([
+          proyectosService.getAll(),
+          clientesService.getAll(),
+          facturasService.getAll(),
+        ])]);
+        if (!mounted) return;
+        setDocumentos(docs || []);
+        if (opts[0].status === "fulfilled") setProyectos(opts[0].value || []);
+        if (opts[1].status === "fulfilled") setClientes(opts[1].value || []);
+        if (opts[2].status === "fulfilled") setFacturas(opts[2].value || []);
+      } catch (err: any) {
+        if (mounted) setError(err?.message || "Error al cargar documentos");
+      } finally {
+        if (mounted) setLoading(false);
+      }
     };
     seed();
-  }, [load]);
+    return () => { mounted = false; };
+  }, []);
 
   const openCreate = () => {
     setForm({ titulo: "", tipo: "propuesta", proyecto_id: "", cliente_id: "", factura_id: "", url: "", descripcion: "" });
