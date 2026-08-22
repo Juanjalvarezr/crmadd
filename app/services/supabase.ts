@@ -1031,6 +1031,12 @@ export const authService = {
   }
 };
 
+
+// Retry wrapper for service calls
+export async function withRetry<T>(fn: () => Promise<T>, attempts = 3): Promise<T> {
+  return retry(fn, attempts, 1500);
+}
+
 // Verificar conexión
 export async function testConnection() {
   try {
