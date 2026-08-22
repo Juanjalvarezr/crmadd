@@ -1050,12 +1050,14 @@ export async function testConnection() {
 // --- Servicio de Facturas ---
 export const facturasService = {
   async getAll() {
-    const { data, error } = await supabase
-      .from('facturas')
-      .select('id, numero_factura, estado, total, subtotal, iva, cliente_id, proyecto_id, fecha_vencimiento, created_at' )
-      .order('fecha_emision', { ascending: false });
-    if (error) throw error;
-    return (data || []).map((f: any) => ({ ...f, total: Number(f.total || 0) }));
+    return withRetry(async () => {
+      const { data, error } = await supabase
+        .from('facturas')
+        .select('id, numero_factura, estado, total, subtotal, iva, cliente_id, proyecto_id, fecha_vencimiento, created_at' )
+        .order('fecha_emision', { ascending: false });
+      if (error) throw error;
+      return (data || []).map((f: any) => ({ ...f, total: Number(f.total || 0) }));
+    });
   },
   async create(factura: Omit<Tables['facturas'], 'id' | 'created_at' | 'updated_at'>) {
     const { data, error } = await supabase
