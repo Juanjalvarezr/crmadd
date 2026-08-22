@@ -4,7 +4,7 @@ import { Box, Typography, Paper, Button, IconButton, Dialog, DialogTitle, Dialog
 import { FiX, FiDownload, FiUpload, FiFileText } from "react-icons/fi";
 import { documentosService, storageHelper } from "../services/supabase";
 import { clientesService, facturasService, proyectosService } from "../services/supabase";
-import { StatCard } from "../components/StatCard";
+import { CompactStatCard } from "../components/CompactStatCard";
 import { EmptyState } from "../components/EmptyState";
 import { ListToolbar } from "../components/ListToolbar";
 
@@ -115,10 +115,10 @@ export default function Documentos() {
 
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: { xs: 0.5, sm: 1 }, mb: { xs: 1, sm: 1.5 } }}>
         <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}>
-          <StatCard title="Total" value={loading ? "..." : documentos.length} subtitle="Documentos" color="primary" />
+          <CompactStatCard title="Total" value={loading ? "..." : documentos.length} subtitle="Documentos" color="primary" />
         </Box>
         <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}>
-          <StatCard title="Con URL" value={documentos.filter((i: any) => i.url).length} subtitle="Enlaces" color="success" />
+          <CompactStatCard title="Con URL" value={documentos.filter((i: any) => i.url).length} subtitle="Enlaces" color="success" />
         </Box>
       </Box>
 

@@ -12,7 +12,7 @@ import { globalSnack } from "../components/GlobalSnackbar";
 import { format, startOfDay, isBefore } from "date-fns";
 import { EmptyState } from "../components/EmptyState";
 import { CompactTable } from "../components/CompactTable";
-import { StatCard } from "../components/StatCard";
+import { CompactStatCard } from "../components/CompactStatCard";
 
 export function meta() {
   return [{ title: "Tareas | DESEO DIGITAL" }];
@@ -159,10 +159,10 @@ export default function Tareas() {
       </Box>
 
       <Box sx={{ display: "flex", gap: { xs: 0.5, sm: 0.75 }, flexWrap: "wrap", mb: { xs: 1, sm: 1.5 } }}>
-        <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}><StatCard title="Pendientes" value={loading ? "..." : pendientes} subtitle="Pendientes" color="warning" /></Box>
-        <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}><StatCard title="En curso" value={loading ? "..." : enProgreso} subtitle="En progreso" color="primary" /></Box>
-        <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}><StatCard title="Completadas" value={loading ? "..." : completadas} subtitle="Completadas" color="success" /></Box>
-        <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}><StatCard title="Alta" value={loading ? "..." : altaPrioridad} subtitle="Alta prioridad" color="error" /></Box>
+        <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}><CompactStatCard title="Pendientes" value={loading ? "..." : pendientes} subtitle="Pendientes" color="warning" /></Box>
+        <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}><CompactStatCard title="En curso" value={loading ? "..." : enProgreso} subtitle="En progreso" color="primary" /></Box>
+        <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}><CompactStatCard title="Completadas" value={loading ? "..." : completadas} subtitle="Completadas" color="success" /></Box>
+        <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}><CompactStatCard title="Alta" value={loading ? "..." : altaPrioridad} subtitle="Alta prioridad" color="error" /></Box>
       </Box>
 
       <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 2 }}>

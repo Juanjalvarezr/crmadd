@@ -359,7 +359,7 @@ export default function Ventas() {
           { title: "En Cierre", value: loading ? "..." : enCierre, subtitle: "Listas para cerrar", color: "info" },
         ].map((kpi) => (
           <Box key={kpi.title} sx={{ flex: { xs: "50%", sm: "48%", md: "23%" }, minWidth: 0 }}>
-            <StatCard title={kpi.title} value={kpi.value} subtitle={kpi.subtitle} icon={<VentasIcon />} color={kpi.color as any} />
+            <CompactStatCard title={kpi.title} value={kpi.value} subtitle={kpi.subtitle} icon={<VentasIcon />} color={kpi.color as any} />
           </Box>
         ))}
       </Box>

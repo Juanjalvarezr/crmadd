@@ -493,16 +493,16 @@ export default function Clientes() {
       {/* KPI compacto */}
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: { xs: 0.5, sm: 1 }, mb: { xs: 1, sm: 1.5 } }}>
         <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}>
-          <StatCard title="Total" value={loading ? "..." : clientes.length} subtitle="En BD" icon={<ClientesIcon />} color="primary" />
+          <CompactStatCard title="Total" value={loading ? "..." : clientes.length} subtitle="En BD" icon={<ClientesIcon />} color="primary" />
         </Box>
         <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}>
-          <StatCard title="Activos" value={clientesActivos} subtitle="Activos" icon={<ClientesIcon />} color="success" />
+          <CompactStatCard title="Activos" value={clientesActivos} subtitle="Activos" icon={<ClientesIcon />} color="success" />
         </Box>
         <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}>
-          <StatCard title="Inactivos" value={clientesInactivos} subtitle="Inactivos" icon={<ClientesIcon />} color="error" />
+          <CompactStatCard title="Inactivos" value={clientesInactivos} subtitle="Inactivos" icon={<ClientesIcon />} color="error" />
         </Box>
         <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}>
-          <StatCard title="Nuevos" value={clientesNuevosEsteMes} subtitle="Este mes" icon={<ClientesIcon />} color="warning" />
+          <CompactStatCard title="Nuevos" value={clientesNuevosEsteMes} subtitle="Este mes" icon={<ClientesIcon />} color="warning" />
         </Box>
       </Box>
 
