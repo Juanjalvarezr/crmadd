@@ -128,21 +128,6 @@ export default function Documentos() {
         searchPlaceholder="Buscar documento..."
         searchValue={searchTerm}
         onSearchChange={(e) => setSearchTerm(e.target.value)}
-        endAction={
-          <IconButton size="small" title="Exportar CSV" onClick={() => {
-            const headers = ["id", "titulo", "tipo", "proyecto_id", "cliente_id", "url"];
-            const rows = filtered.map((d: any) => ({ id: d.id, titulo: d.titulo, tipo: d.tipo, proyecto_id: d.proyecto_id || "", cliente_id: d.cliente_id || "", url: d.url || "" }));
-            const blob = new Blob([rows.map((r: any) => Object.values(r).join(",")).join("
-")], { type: "text/csv" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url; a.download = "documentos.csv"; a.click();
-            URL.revokeObjectURL(url);
-            globalSnack.show("CSV exportado", "success");
-          }}>
-            <FiDownload size={18} />
-          </IconButton>
-        }
       />
 
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: { xs: 0.5, sm: 1 }, mb: { xs: 1, sm: 1.5 } }}>
