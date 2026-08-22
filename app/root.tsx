@@ -35,6 +35,10 @@ class ErrorBoundary extends React.Component<any, { hasError: boolean; error: any
   }
 }
 
+export function meta() {
+  return [{ name: "viewport", content: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=yes" }];
+}
+
 export default function Root() {
   useEffect(() => { document.title = "CRM DESEO DIGITAL"; }, []);
   const navigate = useNavigate();
