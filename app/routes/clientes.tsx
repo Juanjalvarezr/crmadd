@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { StatCard, ClientesIcon } from "../components/StatCard";
+import { CompactStatCard, ClientesIcon } from "../components/CompactStatCard";
 import {
   Box, Typography, Paper, Grid,
   Button, Chip, TextField, InputAdornment, FormControl, InputLabel, Select, MenuItem, Pagination, Checkbox,
