@@ -11,7 +11,7 @@ import { useCRMStore } from "../store/useCRMStore";
 import { globalSnack } from "../components/GlobalSnackbar";
 import { EmptyState } from "../components/EmptyState";
 import { ListToolbar } from "../components/ListToolbar";
-import { StatCard } from "../components/StatCard";
+import { CompactStatCard } from "../components/CompactStatCard";
 
 export function meta() {
   return [{ title: "Facturación | CRM Agencia" }];
@@ -251,16 +251,16 @@ export default function Facturacion() {
 
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: { xs: 0.5, sm: 1 }, mb: { xs: 1, sm: 1.5 } }}>
         <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}>
-          <StatCard title="Total" value={loading ? "..." : facturas.length} subtitle="Facturas" color="primary" />
+          <CompactStatCard title="Total" value={loading ? "..." : facturas.length} subtitle="Facturas" color="primary" />
         </Box>
         <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}>
-          <StatCard title="Pagadas" value={facturas.filter((f: any) => f.estado === "Pagada").length} subtitle="Pagadas" color="success" />
+          <CompactStatCard title="Pagadas" value={facturas.filter((f: any) => f.estado === "Pagada").length} subtitle="Pagadas" color="success" />
         </Box>
         <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}>
-          <StatCard title="Vencidas" value={facturas.filter((f: any) => f.estado === "Vencida").length} subtitle="Vencidas" color="error" />
+          <CompactStatCard title="Vencidas" value={facturas.filter((f: any) => f.estado === "Vencida").length} subtitle="Vencidas" color="error" />
         </Box>
         <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}>
-          <StatCard title="Total $" value={Number(facturas.reduce((a: number, b: any) => a + Number(b.total || 0), 0)).toFixed(0)} subtitle="Monto" color="warning" />
+          <CompactStatCard title="Total $" value={Number(facturas.reduce((a: number, b: any) => a + Number(b.total || 0), 0)).toFixed(0)} subtitle="Monto" color="warning" />
         </Box>
       </Box>
 
