@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { CompactStatCard, ClientesIcon } from "../components/CompactStatCard";
+import { CompactStatCard } from "../components/CompactStatCard";
 import {
   Box, Typography, Paper, Grid,
   Button, Chip, TextField, InputAdornment, FormControl, InputLabel, Select, MenuItem, Pagination, Checkbox,
@@ -493,16 +493,16 @@ export default function Clientes() {
       {/* KPI compacto */}
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: { xs: 0.5, sm: 1 }, mb: { xs: 1, sm: 1.5 } }}>
         <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}>
-          <CompactStatCard title="Total" value={loading ? "..." : clientes.length} subtitle="En BD" icon={<ClientesIcon />} color="primary" />
+          <CompactStatCard title="Total" value={loading ? "..." : clientes.length} subtitle="En BD" icon={null} color="primary" />
         </Box>
         <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}>
-          <CompactStatCard title="Activos" value={clientesActivos} subtitle="Activos" icon={<ClientesIcon />} color="success" />
+          <CompactStatCard title="Activos" value={clientesActivos} subtitle="Activos" icon={null} color="success" />
         </Box>
         <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}>
-          <CompactStatCard title="Inactivos" value={clientesInactivos} subtitle="Inactivos" icon={<ClientesIcon />} color="error" />
+          <CompactStatCard title="Inactivos" value={clientesInactivos} subtitle="Inactivos" icon={null} color="error" />
         </Box>
         <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}>
-          <CompactStatCard title="Nuevos" value={clientesNuevosEsteMes} subtitle="Este mes" icon={<ClientesIcon />} color="warning" />
+          <CompactStatCard title="Nuevos" value={clientesNuevosEsteMes} subtitle="Este mes" icon={null} color="warning" />
         </Box>
       </Box>
 

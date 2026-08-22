@@ -7,7 +7,7 @@ import { FiEdit, FiTrash2, FiFileText, FiMessageSquare, FiX } from "react-icons/
 import { cotizacionesService, clientesService, documentosService, logsService } from "../services/supabase";
 import { plantillasDocumentosService } from "../services/supabase";
 import { storageHelper } from "../services/supabase";
-import { StatCard } from "../components/StatCard";
+import { CompactStatCard } from "../components/CompactStatCard";
 import { globalSnack } from "../components/GlobalSnackbar";
 import { EmptyState } from "../components/EmptyState";
 import { ListToolbar } from "../components/ListToolbar";
@@ -159,10 +159,10 @@ export default function Cotizaciones() {
       />
 
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: { xs: 0.5, sm: 1 }, mb: { xs: 1, sm: 1.5 } }}>
-        <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}><StatCard title="Total" value={loading ? "..." : items.length} subtitle="Cotizaciones" color="primary" /></Box>
-        <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}><StatCard title="Aceptadas" value={items.filter((x: any) => x.estado === "Aceptada").length} subtitle="Aceptadas" color="success" /></Box>
-        <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}><StatCard title="Enviadas" value={items.filter((x: any) => x.estado === "Enviada").length} subtitle="Enviadas" color="info" /></Box>
-        <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}><StatCard title="Total $" value={Number(items.reduce((a: number, b: any) => a + Number(b.total || 0), 0)).toFixed(0)} subtitle="Monto" color="warning" /></Box>
+        <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}><CompactStatCard title="Total" value={loading ? "..." : items.length} subtitle="Cotizaciones" color="primary" /></Box>
+        <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}><CompactStatCard title="Aceptadas" value={items.filter((x: any) => x.estado === "Aceptada").length} subtitle="Aceptadas" color="success" /></Box>
+        <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}><CompactStatCard title="Enviadas" value={items.filter((x: any) => x.estado === "Enviada").length} subtitle="Enviadas" color="info" /></Box>
+        <Box sx={{ flex: { xs: "50%", sm: "25%" }, minWidth: 0 }}><CompactStatCard title="Total $" value={Number(items.reduce((a: number, b: any) => a + Number(b.total || 0), 0)).toFixed(0)} subtitle="Monto" color="warning" /></Box>
       </Box>
 
       {error && <Alert severity="error" sx={{ mb: { xs: 1, sm: 1.5 } }}>{error}</Alert>}
