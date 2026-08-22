@@ -3,11 +3,11 @@ import { useCRMStore } from "../store/useCRMStore";
 import { globalSnack } from "../components/GlobalSnackbar";
 import { exportCsv } from "../utils/exportCsv";
 import {
-  Box, Typography, Paper, Button, CircularProgress, ToggleButtonGroup, ToggleButton
+  Box, Typography, Paper, Button, CircularProgress, ToggleButtonGroup, ToggleButton, Tooltip
 } from "@mui/material";
-import { FiDownload } from "react-icons/fi";
+import { FiDownload, FiInfo } from "react-icons/fi";
 import {
-  LineChart, Line, BarChart, Bar, DoughnutChart, Doughnut, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer
+  LineChart, Line, BarChart, Bar, PieChart, Pie, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer
 } from "recharts";
 
 type Tab = "resumen" | "ventas" | "proyectos" | "clientes" | "facturacion";
@@ -29,7 +29,7 @@ function filterByDate(items: any[], dateField = "created_at", range: Range) {
 }
 
 export default function Dashboard() {
-  const { proyectos, clientes, facturas, tareas, cotizaciones, fetchDashboardData } = useCRMStore();
+  const { proyectos, clientes, facturas, tareas, oportunidades, fetchDashboardData } = useCRMStore();
   const [tab, setTab] = useState<Tab>("resumen");
   const [intro, setIntro] = useState(true);
   const [range, setRange] = useState<Range>("30d");
@@ -61,7 +61,7 @@ export default function Dashboard() {
   const clientesF = filterByDate(clientes, "created_at", range);
   const facturasF = filterByDate(facturas, "created_at", range);
   const tareasF = filterByDate(tareas, "created_at", range);
-  const cotizacionesF = filterByDate(cotizaciones || [], "created_at", range);
+  const cotizacionesF = filterByDate(oportunidades || [], "created_at", range);
 
   const totalProyectos = proyectosF.length;
   const proyectosActivos = proyectosF.filter((p: any) => p.estado === "en_progreso" || p.estado === "planificacion").length;
@@ -98,11 +98,13 @@ export default function Dashboard() {
   ].filter((x) => x.value > 0);
 
   const kpiCard = (title: string, value: string | number, sub: string, color: string) => (
-    <Paper sx={{ p: 2, borderRadius: 2, border: "1px solid", borderColor: "divider", flex: "1 1 200px" }}>
-      <Typography variant="caption" sx={{ color: "text.secondary", textTransform: "uppercase", letterSpacing: "0.08em" }}>{title}</Typography>
-      <Typography variant="h4" sx={{ fontWeight: 800, color, mt: 0.5 }}>{value}</Typography>
-      <Typography variant="caption" sx={{ color: "text.secondary" }}>{sub}</Typography>
-    </Paper>
+    <Tooltip title={sub} arrow>
+      <Paper sx={{ p: 2, borderRadius: 2, border: "1px solid", borderColor: "divider", flex: "1 1 200px", cursor: "pointer", transition: "transform .1s", "&:hover": { transform: "translateY(-2px)" } }}>
+        <Typography variant="caption" sx={{ color: "text.secondary", textTransform: "uppercase", letterSpacing: "0.08em" }}>{title}</Typography>
+        <Typography variant="h4" sx={{ fontWeight: 800, color, mt: 0.5 }}>{value}</Typography>
+        <Typography variant="caption" sx={{ color: "text.secondary" }}>{sub}</Typography>
+      </Paper>
+    </Tooltip>
   );
 
   const handleExport = (filename: string, headers: string[], rows: any[]) => {
@@ -200,11 +202,11 @@ export default function Dashboard() {
               <Paper sx={{ p: 2, borderRadius: 2, flex: "1 1 240px" }}>
                 <Typography variant="subtitle2" sx={{ mb: 1 }}>Proyectos</Typography>
                 <ResponsiveContainer width="100%" height={220}>
-                  <DoughnutChart data={distribucionProyectos}>
+                  <PieChart data={distribucionProyectos}>
                     <RechartsTooltip />
                     <Legend />
-                    <Doughnut dataKey="value" />
-                  </DoughnutChart>
+                    <Pie dataKey="value" />
+                  </PieChart>
                 </ResponsiveContainer>
               </Paper>
             </Box>
@@ -252,11 +254,11 @@ export default function Dashboard() {
             <Paper sx={{ p: 2, borderRadius: 2 }}>
               <Typography variant="subtitle2" sx={{ mb: 1 }}>Distribución</Typography>
               <ResponsiveContainer width="100%" height={260}>
-                <DoughnutChart data={distribucionProyectos}>
+                <PieChart data={distribucionProyectos}>
                   <RechartsTooltip />
                   <Legend />
-                  <Doughnut dataKey="value" />
-                </DoughnutChart>
+                  <Pie dataKey="value" />
+                </PieChart>
               </ResponsiveContainer>
             </Paper>
             <Button variant="outlined" startIcon={<FiDownload size={16} />} onClick={() => handleExport("dashboard_proyectos.csv", ["id", "nombre", "estado"], proyectosF.map((p: any) => ({ id: p.id, nombre: p.nombre, estado: p.estado })))}>Exportar CSV</Button>

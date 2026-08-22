@@ -48,6 +48,7 @@ export default function Tareas() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [filterEstado, setFilterEstado] = useState<string>("");
   const [prioridadFilter, setPrioridadFilter] = useState("all");
   const [estadoFilter, setEstadoFilter] = useState("all");
   const [openModal, setOpenModal] = useState(false);

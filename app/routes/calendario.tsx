@@ -263,7 +263,8 @@ export default function Calendario() {
   const handleQuickPay = async () => {
     try {
       if (!selectedEvent?.facturaId) return;
-      const factura = await facturasService.getById(selectedEvent.facturaId);
+      const all = await facturasService.getAll();
+      const factura = (all || []).find((x: any) => x.id === selectedEvent.facturaId);
       const total = Number(factura.total || 0);
       const saldo = Number(factura.saldo_pendiente ?? total);
       const telefono = factura.cliente?.telefono || "";
