@@ -915,13 +915,19 @@ export const reglasAIService = {
 
 // Punto 8: Servicio de Prompts Dinámicos
 export const documentosService = {
-  async getAll() {
-    const { data, error } = await supabase
-      .from('documentos')
-      .select('*')
-      .order('fecha_creacion', { ascending: false });
+  async getAll(filters?: { proyecto_id?: string | number; cliente_id?: string | number; tipo?: string; search?: string }) {
+    let query = supabase.from('documentos').select('*');
+    if (filters?.proyecto_id) query = query.eq('proyecto_id', Number(filters.proyecto_id));
+    if (filters?.cliente_id) query = query.eq('cliente_id', Number(filters.cliente_id));
+    if (filters?.tipo) query = query.eq('tipo', filters.tipo);
+    const { data, error } = await query.order('fecha_creacion', { ascending: false });
     if (error) throw error;
-    return data || [];
+    let rows = data || [];
+    if (filters?.search) {
+      const term = filters.search.toLowerCase();
+      rows = rows.filter((r: any) => (r.titulo || '').toLowerCase().includes(term) || (r.descripcion || '').toLowerCase().includes(term));
+    }
+    return rows;
   },
   async create(payload: any) {
     const { data, error } = await supabase

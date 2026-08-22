@@ -31,28 +31,9 @@ export default function Documentos() {
   const [facturas, setFacturas] = useState<any[]>([]);
       
   useEffect(() => {
-    let mounted = true;
-    const seed = async () => {
-      try {
-        const [docs, opts] = await Promise.all([documentosService.getAll(), Promise.allSettled([
-          proyectosService.getAll(),
-          clientesService.getAll(),
-          facturasService.getAll(),
-        ])]);
-        if (!mounted) return;
-        setDocumentos(docs || []);
-        if (opts[0].status === "fulfilled") setProyectos(opts[0].value || []);
-        if (opts[1].status === "fulfilled") setClientes(opts[1].value || []);
-        if (opts[2].status === "fulfilled") setFacturas(opts[2].value || []);
-      } catch (err: any) {
-        if (mounted) setError(err?.message || "Error al cargar documentos");
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    };
-    seed();
-    return () => { mounted = false; };
-  }, []);
+    load();
+    loadOptions();
+  }, [filters.proyecto_id, filters.cliente_id, filters.tipo, searchTerm]);
 
   const openCreate = () => {
     setForm({ titulo: "", tipo: "propuesta", proyecto_id: "", cliente_id: "", factura_id: "", url: "", descripcion: "" });
@@ -78,7 +59,7 @@ export default function Documentos() {
       let url = form.url;
       if (file) {
         setUploading(true);
-        url = await storageHelper.upload('crm-documents', `doc-${Date.now()}.${file.name.split('.').pop() || 'bin'}`, file);
+        url = await storageHelper.upload('crm-documents', `doc-${Date.now()}.${(file.name.split('.').pop() || 'bin').toLowerCase()}`, file);
         setUploading(false);
       }
       const payload = { ...form, proyecto_id: form.proyecto_id || null, cliente_id: form.cliente_id || null, factura_id: form.factura_id || null, url };
