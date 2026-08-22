@@ -20,6 +20,8 @@ export default function Contratos() { const loadContratos = () => { if (typeof w
   const fetchContratos = useCRMStore((s) => s.fetchContratos);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterEstado, setFilterEstado] = useState<string>("");
   const [openModal, setOpenModal] = useState(false);
   const [editing, setEditing] = useState<any | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<any | null>(null);
@@ -82,10 +84,31 @@ export default function Contratos() { const loadContratos = () => { if (typeof w
     <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
       {/* Header compacto mobile */}
       <Box sx={{ mb: { xs: 1.5, sm: 2 } }}>
-        <Typography variant="h6" sx={{ fontWeight: "bold", fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>Contratos</Typography>
-        <Box sx={{ display: "flex", gap: 1, mt: 1, flexWrap: "wrap" }}>
-          <Button size="small" startIcon={<FiRefreshCw size={14} />} onClick={loadContratos} disabled={loading}>Recargar</Button>
-          <Button size="small" variant="contained" startIcon={<FiPlus />} onClick={openCreate}>Nuevo</Button>
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 1 }}>
+          <Typography variant="h6" sx={{ fontWeight: "bold", fontSize: { xs: '1.1rem', sm: '1.25rem' } }}>Contratos</Typography>
+          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+            <Button size="small" startIcon={<FiRefreshCw size={14} />} onClick={load} disabled={loading}>Recargar</Button>
+            <Button size="small" variant="contained" startIcon={<FiPlus />} onClick={openCreate}>Nuevo</Button>
+          </Box>
+        </Box>
+        <Box sx={{ mt: 1, display: "flex", gap: 1, flexWrap: "wrap" }}>
+          <TextField size="small" placeholder="Buscar contrato..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} sx={{ minWidth: 200 }} />
+          <Chip label="Activos" onClick={() => setFilterEstado("")} color={filterEstado === "" ? "primary" : "default"} size="small" />
+          <Chip label="Activo" onClick={() => setFilterEstado("Activo")} color={filterEstado === "Activo" ? "success" : "default"} size="small" />
+          <Chip label="Finalizado" onClick={() => setFilterEstado("Finalizado")} color={filterEstado === "Finalizado" ? "info" : "default"} size="small" />
+          <Chip label="Cancelado" onClick={() => setFilterEstado("Cancelado")} color={filterEstado === "Cancelado" ? "error" : "default"} size="small" />
+          <IconButton size="small" title="Exportar CSV" onClick={() => {
+            try {
+              const headers = ["id", "estado", "valor", "fecha_inicio", "fecha_fin", "cliente_id", "proyecto_id"];
+              const csvRows = [headers.join(",")];
+              (filtered || []).forEach((c: any) => csvRows.push([c.id, c.estado || "", c.valor || "", c.fecha_inicio || "", c.fecha_fin || "", c.cliente_id || "", c.proyecto_id || ""].join(",")));
+              const blob = new Blob([csvRows.join("
+")], { type: "text/csv" });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a"); a.href = url; a.download = "contratos.csv"; a.click();
+              URL.revokeObjectURL(url); globalSnack.show("CSV exportado", "success");
+            } catch (e: any) { globalSnack.show(e.message || "Error exportando CSV", "error"); }
+          }}><FiDownload size={16} /></IconButton>
         </Box>
       </Box>
 
@@ -109,7 +132,14 @@ export default function Contratos() { const loadContratos = () => { if (typeof w
         </Paper>
       ) : (
         <Box sx={{ display: "flex", flexDirection: "column", gap: { xs: 0.75, sm: 1 } }}>
-          {contratos.slice(0, 20).map((c: any) => {
+          {(() => {
+            const term = searchTerm.toLowerCase();
+            const filtered = (contratos || []).filter((c: any) => {
+              const matchS = (c.estado || "").toLowerCase().includes(term) || (c.url || "").toLowerCase().includes(term);
+              const matchE = !filterEstado || c.estado === filterEstado;
+              return matchS && matchE;
+            });
+            return filtered.map((c: any) => {
             const estado = c.estado || "Activo";
             const estadoColor = estado === "Activo" ? "success" : estado === "Finalizado" ? "info" : estado === "Cancelado" ? "error" : "default";
             return (
@@ -141,6 +171,7 @@ export default function Contratos() { const loadContratos = () => { if (typeof w
               </Box>
             </Paper>
             );
+          })};
           })}
         </Box>
       )}
