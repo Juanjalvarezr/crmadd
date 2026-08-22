@@ -11,7 +11,7 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useCRMStore } from "../store/useCRMStore";
 import { globalSnack } from "../components/GlobalSnackbar";
 import { EmptyState } from "../components/EmptyState";
-import { facturasService, pagosService, calendarEventsService } from "../services/supabase";
+import { facturasService, pagosService, calendarEventsService, clientesService, oportunidadesService, tareasService } from "../services/supabase";
 
 const locales = { es };
 
@@ -127,7 +127,7 @@ export default function Calendario() {
   const tareas = useCRMStore((s) => s.tareas);
   const oportunidades = useCRMStore((s) => s.oportunidades);
   const clientes = useCRMStore((s) => s.clientes);
-  const { clientesService, oportunidadesService, tareasService } = await import("../services/supabase");
+
   const [events, setEvents] = useState<CalEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState<string>("");
