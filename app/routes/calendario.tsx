@@ -4,24 +4,14 @@ import {
   Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputLabel, Select, MenuItem, Chip, TextField, ToggleButtonGroup, ToggleButton, Tooltip
 } from "@mui/material";
 import { FiCalendar, FiCreditCard, FiPlus, FiTrash2, FiEdit2 } from "react-icons/fi";
-import { Calendar, dateFnsLocalizer, Views } from "react-big-calendar";
-import { format, parse, startOfWeek, getDay } from "date-fns";
+import { format } from "date-fns";
 import { es } from "date-fns/locale/es";
-import "react-big-calendar/lib/css/react-big-calendar.css";
 import { useCRMStore } from "../store/useCRMStore";
 import { globalSnack } from "../components/GlobalSnackbar";
 import { EmptyState } from "../components/EmptyState";
 import { facturasService, pagosService, calendarEventsService, clientesService, oportunidadesService, tareasService } from "../services/supabase";
 
 const locales = { es };
-
-const localizer = dateFnsLocalizer({
-  format,
-  parse,
-  startOfWeek: () => startOfWeek(new Date(), { weekStartsOn: 1 }),
-  getDay,
-  locales,
-});
 
 export function meta() {
   return [
@@ -327,123 +317,94 @@ export default function Calendario() {
 
   if (loading) {
     return (
-      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
-        <CircularProgress size={60} sx={{ color: '#e91e63' }} />
-      </Box>
-    );
-  }
-
-  return (
-    <Box sx={{
-      p: { xs: 1, sm: 1.5, md: 2 },
-      height: "100%",
-      minHeight: { xs: 580, sm: 640 },
-      display: "flex",
-      flexDirection: "column",
-      gap: { xs: 1, sm: 1.5 }
-    }}>
       <Box sx={{
-        display: "flex",
-        alignItems: "center",
-        gap: { xs: 1, sm: 1.5 },
-        flexWrap: "wrap",
-        justifyContent: "space-between"
-      }}>
-        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-          <FiCalendar size={20} color="#1976d2" />
-          <Typography variant="h6" sx={{ fontWeight: "bold", color: "#1976d2", fontSize: { xs: "1.1rem", sm: "1.25rem" } }}>Calendario</Typography>
-        </Box>
-        <Box sx={{ display: "flex", gap: 1, alignItems: "center", flexWrap: "wrap" }}>
-          <ToggleButtonGroup
-            size="small"
-            exclusive
-            value={view}
-            onChange={(_, next) => next && setView(next)}
-          >
-            <ToggleButton value={Views.MONTH}>Mes</ToggleButton>
-            <ToggleButton value={Views.WEEK}>Semana</ToggleButton>
-            <ToggleButton value={Views.DAY}>Día</ToggleButton>
-          </ToggleButtonGroup>
-          <Box sx={{ display: "flex", gap: 0.5 }}>
-            <Chip label="Todos" onClick={() => setFilterType("")} color={filterType === "" ? "primary" : "default"} size="small" />
-            <Chip label="Tareas" onClick={() => setFilterType("tarea")} color={filterType === "tarea" ? "info" : "default"} size="small" />
-            <Chip label="Cierres" onClick={() => setFilterType("venta")} color={filterType === "venta" ? "error" : "default"} size="small" />
-            <Chip label="Vencimientos" onClick={() => setFilterType("factura")} color={filterType === "factura" ? "warning" : "default"} size="small" />
-          </Box>
-          <Button size="small" variant="contained" startIcon={<FiPlus size={14} />} onClick={handleOpenCreateEvent}>Nuevo</Button>
-        </Box>
-      </Box>
-
-      <Box sx={{
-        p: { xs: 0.75, sm: 1 },
         flex: 1,
         borderRadius: 1.5,
-        overflow: "hidden",
         border: "1px solid",
         borderColor: "divider",
         width: "100%",
-        "& .rbc-calendar": {
-          width: "100%"
-        }
+        overflow: "auto",
+        bgcolor: "background.paper"
       }}>
-        <Calendar
-          localizer={localizer}
-          events={filteredEvents}
-          startAccessor="start"
-          endAccessor="end"
-          style={{ height: "100%", minHeight: { xs: 520, sm: 640 }, width: "100%" }}
-          culture="es"
-          view={view}
-          onView={setView}
-          date={date}
-          onNavigate={setDate}
-          onSelectEvent={handleSelectEvent}
-          onSelectSlot={(slotInfo: any) => {
-            const start = new Date(slotInfo.start);
-            const end = new Date(slotInfo.end || slotInfo.start);
-            const toLocal = (d: Date) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-            setEventForm({ title: "", start: toLocal(start), end: toLocal(end), allDay: slotInfo.allDay || false, type: "tarea", color: "#2196f3", desc: "" });
-            setEditingEvent(null);
-            setEventModalOpen(true);
-          }}
-          selectable
-          selectableAccessor={() => true}
-          eventPropGetter={eventStyleGetter}
-          views={[Views.MONTH, Views.WEEK, Views.DAY]}
-          onClick={(e: any) => {
-            const cell = e.target.closest(".rbc-day-bg, .rbc-date-cell, .rbc-month-view .rbc-day-slot, .rbc-row-bg, .rbc-day-slot");
-            if (cell && !e.target.closest(".rbc-event")) {
-              const dateStr = cell.getAttribute("data-date");
-              if (dateStr) {
-                const start = new Date(dateStr);
-                const end = new Date(start);
-                const toLocal = (d: Date) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-                setEventForm({ title: "", start: toLocal(start), end: toLocal(end), allDay: true, type: "tarea", color: "#2196f3", desc: "" });
-                setEditingEvent(null);
-                setEventModalOpen(true);
-              }
-            }
-          }}
-          components={{ toolbar: () => null }}
-          messages={{
-            next: "Siguiente",
-            previous: "Anterior",
-            today: "Hoy",
-            month: "Mes",
-            week: "Semana",
-            day: "Día",
-            noEventsInRange: "No hay eventos en este rango."
-          }}
-        />
-        {!loading && !events?.length && (
-          <Box sx={{ textAlign: "center", py: 6 }}>
-            <Typography variant="body1" color="text.secondary" sx={{ mb: 1 }}>Sin eventos aún</Typography>
-            <Typography variant="caption" color="text.secondary">Creá el primer evento para comenzar.</Typography>
-          </Box>
-        )}
-      </Box>
-
-      <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)} maxWidth="sm" fullWidth>
+        {(() => {
+          const today = new Date();
+          const year = date.getFullYear();
+          const month = date.getMonth();
+          const firstDay = new Date(year, month, 1);
+          const startDate = new Date(firstDay);
+          startDate.setDate(startDate.getDate() - ((startDate.getDay() || 7) - 1));
+          const days = Array.from({ length: 42 }).map((_, i) => {
+            const d = new Date(startDate);
+            d.setDate(d.getDate() + i);
+            return d;
+          });
+          const dayNames = ['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'];
+          return (
+            <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: { xs: 520, sm: 640 } }}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', borderBottom: '1px solid', borderColor: 'divider' }}>
+                {dayNames.map((name, idx) => (
+                  <Box key={idx} sx={{ p: { xs: 0.5, sm: 1 }, textAlign: 'center', typography: 'caption', color: 'text.secondary', fontWeight: 600 }}>{name}</Box>
+                ))}
+              </Box>
+              <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', flex: 1 }}>
+                {days.map((d, idx) => {
+                  const isCurrentMonth = d.getMonth() === month;
+                  const dateStr = format(d, 'yyyy-MM-dd');
+                  const dayEvents = filteredEvents.filter((ev: CalEvent) => {
+                    const evDate = new Date(ev.start);
+                    return format(evDate, 'yyyy-MM-dd') === dateStr;
+                  }).slice(0, 3);
+                  const isToday = format(today, 'yyyy-MM-dd') === dateStr;
+                  return (
+                    <Box key={idx} sx={{
+                      minHeight: { xs: 70, sm: 100 },
+                      borderRight: '1px solid',
+                      borderBottom: '1px solid',
+                      borderColor: 'divider',
+                      p: { xs: 0.5, sm: 0.75 },
+                      bgcolor: isCurrentMonth ? 'background.default' : 'action.disabledBackground',
+                      opacity: isCurrentMonth ? 1 : 0.5,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: 0.25,
+                      position: 'relative'
+                    }}>
+                      <Typography sx={{ fontSize: '0.75rem', fontWeight: isToday ? 700 : 400, color: isToday ? 'primary.main' : 'text.primary', lineHeight: 1 }}>
+                        {format(d, 'd')}
+                      </Typography>
+                      {dayEvents.map((ev: CalEvent, i: number) => (
+                        <Tooltip key={i} title={ev.title} arrow>
+                          <Box sx={{
+                            fontSize: '0.65rem',
+                            px: 0.5,
+                            py: 0.25,
+                            borderRadius: 0.5,
+                            bgcolor: ev.color,
+                            color: '#fff',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            cursor: 'pointer',
+                            lineHeight: 1.2
+                          }} onClick={() => handleSelectEvent(ev)}>
+                            {ev.title}
+                          </Box>
+                        </Tooltip>
+                      ))}
+                      {filteredEvents.filter((ev: CalEvent) => {
+                        const evDate = new Date(ev.start);
+                        return format(evDate, 'yyyy-MM-dd') === dateStr;
+                      }).length > 3 && (
+                        <Typography sx={{ fontSize: '0.65rem', color: 'text.secondary', mt: 0.25 }}>+ más</Typography>
+                      )}
+                    </Box>
+                  );
+                })}
+              </Box>
+            </Box>
+          );
+        })()}
+      </Box>      <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)} maxWidth="sm" fullWidth>
         {selectedEvent && (
           <>
             <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1 }}>

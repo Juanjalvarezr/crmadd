@@ -1310,45 +1310,18 @@ export const sopsService = {
   },
 };
 
-// --- Servicio de Eventos de Calendario ---
+// --- Servicio de Eventos de Calendario (deshabilitado hasta crear tabla) ---
 export const calendarEventsService = {
   async getAll() {
-    const { data, error } = await supabase
-      .from('calendar_events')
-      .select('*')
-      .order('start', { ascending: true });
-    if (error) throw error;
-    return (data || []).map((e: any) => ({
-      ...e,
-      start: new Date(e.start),
-      end: e.end ? new Date(e.end) : new Date(e.start),
-    }));
+    return [];
   },
   async create(event: any) {
-    const { data, error } = await supabase
-      .from('calendar_events')
-      .insert([event])
-      .select()
-      .single();
-    if (error) throw error;
-    return { ...data, start: new Date(data.start), end: data.end ? new Date(data.end) : new Date(data.start) };
+    return event;
   },
   async update(id: string | number, updates: any) {
-    const { data, error } = await supabase
-      .from('calendar_events')
-      .update({ ...updates, updated_at: new Date().toISOString() })
-      .eq('id', id)
-      .select()
-      .single();
-    if (error) throw error;
-    return { ...data, start: new Date(data.start), end: data.end ? new Date(data.end) : new Date(data.start) };
+    return { id, ...updates };
   },
   async delete(id: string | number) {
-    const { error } = await supabase
-      .from('calendar_events')
-      .delete()
-      .eq('id', id);
-    if (error) throw error;
     return true;
   },
 };
@@ -1391,34 +1364,32 @@ export const transaccionesService = {
 // Backup / Restore / Seed
 export const backupService = {
   async exportJSON() {
-    const [clientes, proyectos, tareas, oportunidades, facturas, documentos, calendar_events] = await Promise.all([
+    const [clientesRes, proyectosRes, tareasRes, oportunidadesRes, facturasRes, documentosRes] = await Promise.all([
       withRetry(() => supabase.from('clientes').select('*')),
       withRetry(() => supabase.from('proyectos').select('*')),
       withRetry(() => supabase.from('tareas').select('*')),
       withRetry(() => supabase.from('oportunidades').select('*')),
       withRetry(() => supabase.from('facturas').select('*')),
       withRetry(() => supabase.from('documentos').select('*')),
-      withRetry(() => supabase.from('calendar_events').select('*')),
     ]);
     
-    if (clientes.error) throw clientes.error;
-    if (proyectos.error) throw proyectos.error;
-    if (tareas.error) throw tareas.error;
-    if (oportunidades.error) throw oportunidades.error;
-    if (facturas.error) throw facturas.error;
-    if (documentos.error) throw documentos.error;
-    if (calendar_events.error) throw calendar_events.error;
+    if (clientesRes.error) throw clientesRes.error;
+    if (proyectosRes.error) throw proyectosRes.error;
+    if (tareasRes.error) throw tareasRes.error;
+    if (oportunidadesRes.error) throw oportunidadesRes.error;
+    if (facturasRes.error) throw facturasRes.error;
+    if (documentosRes.error) throw documentosRes.error;
     
     const payload = {
       generated_at: new Date().toISOString(),
       data: {
-        clientes: clientes.data || [],
-        proyectos: proyectos.data || [],
-        tareas: tareas.data || [],
-        oportunidades: oportunidades.data || [],
-        facturas: facturas.data || [],
-        documentos: documentos.data || [],
-        calendar_events: calendar_events.data || [],
+        clientes: clientesRes.data || [],
+        proyectos: proyectosRes.data || [],
+        tareas: tareasRes.data || [],
+        oportunidades: oportunidadesRes.data || [],
+        facturas: facturasRes.data || [],
+        documentos: documentosRes.data || [],
+        calendar_events: [],
       }
     };
     
