@@ -406,7 +406,7 @@ export default function Calendario() {
         })()}
       </Box>
 
-      <Dialog open={isModalOpen}      <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)} maxWidth="sm" fullWidth>
+      <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)} maxWidth="sm" fullWidth>
         {selectedEvent && (
           <>
             <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1 }}>
