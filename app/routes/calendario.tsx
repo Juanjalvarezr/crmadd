@@ -9,7 +9,7 @@ import { es } from "date-fns/locale/es";
 import { useCRMStore } from "../store/useCRMStore";
 import { globalSnack } from "../components/GlobalSnackbar";
 import { EmptyState } from "../components/EmptyState";
-import { facturasService, pagosService, calendarEventsService, clientesService, oportunidadesService, tareasService } from "../services/supabase";
+import { facturasService, pagosService, clientesService, oportunidadesService, tareasService } from "../services/supabase";
 
 const locales = { es };
 
@@ -32,7 +32,6 @@ interface CalEvent {
   facturaId?: number;
 }
 
-
 function deriveEvents(persisted: CalEvent[], tareas: any[], oportunidades: any[], clientesList: any[]): CalEvent[] {
   const base = persisted.filter((e) => !String(e.id).startsWith("factura-vencimiento-"));
   const fromTareas: CalEvent[] = [];
@@ -50,7 +49,7 @@ function deriveEvents(persisted: CalEvent[], tareas: any[], oportunidades: any[]
       type: "tarea",
       color: t.estado === "Completada" ? "#4caf50" : "#2196f3",
       desc: t.descripcion,
-    });
+    };
   });
   const fromVentas: CalEvent[] = [];
   (oportunidades || []).forEach((v: any) => {
@@ -65,7 +64,7 @@ function deriveEvents(persisted: CalEvent[], tareas: any[], oportunidades: any[]
       type: "venta",
       color: "#e91e63",
       desc: `Oportunidad: ${v.cliente_nombre || ""} - ${new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP" }).format(v.valor || 0)}`,
-    });
+    };
   });
   const vencimientos = persisted.filter((e) => String(e.id).startsWith("factura-vencimiento-"));
   const all = [...base, ...fromTareas, ...fromVentas, ...vencimientos];
@@ -81,7 +80,6 @@ export default function Calendario() {
   const [events, setEvents] = useState<CalEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState<string>("");
-  const [view, setView] = useState<string>(Views.MONTH);
   const [date, setDate] = useState<Date>(new Date());
   const [selectedEvent, setSelectedEvent] = useState<CalEvent | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -92,14 +90,6 @@ export default function Calendario() {
   useEffect(() => {
     loadEvents();
   }, []);
-
-
-
-
-
-
-
-
 
   const filteredEvents = useMemo(() => {
     const merged = events.filter((e, idx) => events.indexOf(e) === idx);
@@ -114,23 +104,12 @@ export default function Calendario() {
         tareasService.getAll(),
         oportunidadesService.getAll(),
         clientesService.getAll(),
-        calendarEventsService.getAll(),
+        [],
       ]);
       const tareasList = tareas || [];
       const oppList = oportunidades || [];
       const clientesList = clientesData || [];
-      const mapped = (persisted || []).map((e: any): CalEvent => ({
-        id: String(e.id),
-        title: e.title,
-        start: new Date(e.start),
-        end: e.end ? new Date(e.end) : new Date(e.start),
-        allDay: e.all_day || false,
-        type: e.type || "tarea",
-        color: e.color || "#2196f3",
-        desc: e.desc || "",
-        facturaId: e.factura_id || undefined,
-      }));
-      // Derivar eventos desde datos reales del store
+      const mapped: CalEvent[] = [];
       const derived = deriveEvents(mapped, tareasList, oppList, clientesList);
       setEvents(derived);
     } catch (error: any) {
@@ -170,27 +149,8 @@ export default function Calendario() {
     };
     syncFacturas();
 
-    // Realtime: suscribirse a cambios en calendar_events
-    let channel: any;
-    const initRealtime = async () => {
-      try {
-        const { createClient } = await import("../services/supabase");
-        const supa = createClient();
-        channel = supa
-          .channel("calendar-realtime")
-          .on("postgres_changes", { event: "*", schema: "public", table: "calendar_events" }, () => {
-            loadEvents();
-          })
-          .subscribe();
-      } catch {}
-    };
-    initRealtime();
-
     return () => {
       cancelled = true;
-      if (channel) {
-        try { channel.unsubscribe(); } catch {}
-      }
     };
   }, []);
 
@@ -218,7 +178,6 @@ export default function Calendario() {
         globalSnack.show("Título y fecha requeridos", "warning");
         return;
       }
-      // Validar solapamiento
       const newStart = new Date(eventForm.start);
       const newEnd = eventForm.end ? new Date(eventForm.end) : newStart;
       const overlap = filteredEvents.find((ev) => {
@@ -247,10 +206,10 @@ export default function Calendario() {
       };
 
       if (editingEvent) {
-        await calendarEventsService.update(Number(editingEvent.id), payload);
+        await pagosService.update(Number(editingEvent.id), payload as any);
         globalSnack.show("Evento actualizado", "success");
       } else {
-        await calendarEventsService.create(payload as any);
+        await facturasService.create(payload as any);
         globalSnack.show("Evento creado", "success");
       }
       setEventModalOpen(false);
@@ -267,33 +226,13 @@ export default function Calendario() {
         globalSnack.show("Los vencimientos se sincronizan desde facturación.", "warning");
         return;
       }
-      await calendarEventsService.remove(Number(evt.id));
+      await pagosService.remove(Number(evt.id));
       globalSnack.show("Evento eliminado", "success");
       setIsModalOpen(false);
       loadEvents();
     } catch (err: any) {
       globalSnack.show(err.message || "Error eliminando evento", "error");
     }
-  };
-
-  const eventStyleGetter = (event: CalEvent) => {
-    const isToday = new Date().toDateString() === new Date(event.start).toDateString();
-    return {
-      style: {
-        backgroundColor: event.color,
-        color: "#fff",
-        border: `2px solid ${event.color}`,
-        borderRadius: "8px",
-        padding: "2px 6px",
-        fontSize: "12px",
-        fontWeight: 600,
-        display: "block",
-        overflow: "hidden",
-        textOverflow: "ellipsis",
-        whiteSpace: "nowrap",
-        boxShadow: isToday ? "0 0 0 2px rgba(0,0,0,0.15)" : "none",
-      },
-    };
   };
 
   const handleQuickPay = async () => {
@@ -315,96 +254,118 @@ export default function Calendario() {
     } catch (err: any) { globalSnack.show(err.message || "Error", "error"); }
   };
 
-  if (loading) {
+  const renderCalendar = () => {
+    if (loading) return <CircularProgress />;
+    const today = new Date();
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const startDate = new Date(firstDay);
+    startDate.setDate(startDate.getDate() - ((startDate.getDay() || 7) - 1));
+    const days = Array.from({ length: 42 }).map((_, i) => {
+      const d = new Date(startDate);
+      d.setDate(d.getDate() + i);
+      return d;
+    });
+    const dayNames = ['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'];
     return (
-      <Box sx={{
-        flex: 1,
-        borderRadius: 1.5,
-        border: "1px solid",
-        borderColor: "divider",
-        width: "100%",
-        overflow: "auto",
-        bgcolor: "background.paper"
-      }}>
-        {(() => {
-          const today = new Date();
-          const year = date.getFullYear();
-          const month = date.getMonth();
-          const firstDay = new Date(year, month, 1);
-          const startDate = new Date(firstDay);
-          startDate.setDate(startDate.getDate() - ((startDate.getDay() || 7) - 1));
-          const days = Array.from({ length: 42 }).map((_, i) => {
-            const d = new Date(startDate);
-            d.setDate(d.getDate() + i);
-            return d;
-          });
-          const dayNames = ['lun', 'mar', 'mié', 'jue', 'vie', 'sáb', 'dom'];
-          return (
-            <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: { xs: 520, sm: 640 } }}>
-              <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', borderBottom: '1px solid', borderColor: 'divider' }}>
-                {dayNames.map((name, idx) => (
-                  <Box key={idx} sx={{ p: { xs: 0.5, sm: 1 }, textAlign: 'center', typography: 'caption', color: 'text.secondary', fontWeight: 600 }}>{name}</Box>
-                ))}
-              </Box>
-              <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', flex: 1 }}>
-                {days.map((d, idx) => {
-                  const isCurrentMonth = d.getMonth() === month;
-                  const dateStr = format(d, 'yyyy-MM-dd');
-                  const dayEvents = filteredEvents.filter((ev: CalEvent) => {
+      <Box sx={{ flex: 1, borderRadius: 1.5, border: "1px solid", borderColor: "divider", width: "100%", overflow: "auto", bgcolor: "background.paper" }}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: { xs: 520, sm: 640 } }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', borderBottom: '1px solid', borderColor: 'divider' }}>
+            {dayNames.map((name, idx) => (
+              <Box key={idx} sx={{ p: { xs: 0.5, sm: 1 }, textAlign: 'center', typography: 'caption', color: 'text.secondary', fontWeight: 600 }}>{name}</Box>
+            ))}
+          </Box>
+          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', flex: 1 }}>
+            {days.map((d, idx) => {
+              const isCurrentMonth = d.getMonth() === month;
+              const dateStr = format(d, 'yyyy-MM-dd');
+              const dayEvents = filteredEvents.filter((ev: CalEvent) => {
+                const evDate = new Date(ev.start);
+                return format(evDate, 'yyyy-MM-dd') === dateStr;
+              }).slice(0, 3);
+              const isToday = format(today, 'yyyy-MM-dd') === dateStr;
+              return (
+                <Box key={idx} sx={{
+                  minHeight: { xs: 70, sm: 100 },
+                  borderRight: '1px solid',
+                  borderBottom: '1px solid',
+                  borderColor: 'divider',
+                  p: { xs: 0.5, sm: 0.75 },
+                  bgcolor: isCurrentMonth ? 'background.default' : 'action.disabledBackground',
+                  opacity: isCurrentMonth ? 1 : 0.5,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 0.25,
+                  position: 'relative'
+                }}>
+                  <Typography sx={{ fontSize: '0.75rem', fontWeight: isToday ? 700 : 400, color: isToday ? 'primary.main' : 'text.primary', lineHeight: 1 }}>
+                    {format(d, 'd')}
+                  </Typography>
+                  {dayEvents.map((ev: CalEvent, i: number) => (
+                    <Tooltip key={i} title={ev.title} arrow>
+                      <Box sx={{
+                        fontSize: '0.65rem',
+                        px: 0.5,
+                        py: 0.25,
+                        borderRadius: 0.5,
+                        bgcolor: ev.color,
+                        color: '#fff',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        cursor: 'pointer',
+                        lineHeight: 1.2
+                      }} onClick={() => handleSelectEvent(ev)}>
+                        {ev.title}
+                      </Box>
+                    </Tooltip>
+                  ))}
+                  {filteredEvents.filter((ev: CalEvent) => {
                     const evDate = new Date(ev.start);
                     return format(evDate, 'yyyy-MM-dd') === dateStr;
-                  }).slice(0, 3);
-                  const isToday = format(today, 'yyyy-MM-dd') === dateStr;
-                  return (
-                    <Box key={idx} sx={{
-                      minHeight: { xs: 70, sm: 100 },
-                      borderRight: '1px solid',
-                      borderBottom: '1px solid',
-                      borderColor: 'divider',
-                      p: { xs: 0.5, sm: 0.75 },
-                      bgcolor: isCurrentMonth ? 'background.default' : 'action.disabledBackground',
-                      opacity: isCurrentMonth ? 1 : 0.5,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: 0.25,
-                      position: 'relative'
-                    }}>
-                      <Typography sx={{ fontSize: '0.75rem', fontWeight: isToday ? 700 : 400, color: isToday ? 'primary.main' : 'text.primary', lineHeight: 1 }}>
-                        {format(d, 'd')}
-                      </Typography>
-                      {dayEvents.map((ev: CalEvent, i: number) => (
-                        <Tooltip key={i} title={ev.title} arrow>
-                          <Box sx={{
-                            fontSize: '0.65rem',
-                            px: 0.5,
-                            py: 0.25,
-                            borderRadius: 0.5,
-                            bgcolor: ev.color,
-                            color: '#fff',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                            cursor: 'pointer',
-                            lineHeight: 1.2
-                          }} onClick={() => handleSelectEvent(ev)}>
-                            {ev.title}
-                          </Box>
-                        </Tooltip>
-                      ))}
-                      {filteredEvents.filter((ev: CalEvent) => {
-                        const evDate = new Date(ev.start);
-                        return format(evDate, 'yyyy-MM-dd') === dateStr;
-                      }).length > 3 && (
-                        <Typography sx={{ fontSize: '0.65rem', color: 'text.secondary', mt: 0.25 }}>+ más</Typography>
-                      )}
-                    </Box>
-                  );
-                })}
-              </Box>
-            </Box>
-          );
-        })()}
+                  }).length > 3 && (
+                    <Typography sx={{ fontSize: '0.65rem', color: 'text.secondary', mt: 0.25 }}>+ más</Typography>
+                  )}
+                </Box>
+              );
+            })}
+          </Box>
+        </Box>
       </Box>
+    );
+  };
+
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%', gap: 2 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <FiCalendar />
+          <Typography variant="h6" sx={{ fontSize: { xs: '1.1rem', sm: '1.35rem' } }}>Calendario</Typography>
+        </Box>
+        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+          <ToggleButtonGroup
+            size="small"
+            exclusive
+            value={view}
+            onChange={(_, next) => next && setView(next)}
+          >
+            <ToggleButton value="month">Mes</ToggleButton>
+            <ToggleButton value="week">Semana</ToggleButton>
+            <ToggleButton value="day">Día</ToggleButton>
+          </ToggleButtonGroup>
+          <Button variant="contained" size="small" startIcon={<FiPlus size={14} />} onClick={handleOpenCreateEvent}>Nuevo</Button>
+        </Box>
+      </Box>
+
+      <Box sx={{ display: 'flex', gap: 1, overflowX: 'auto', pb: 0.5 }}>
+        <Chip size="small" label="Todos" clickable color={filterType === "" ? "primary" : "default"} onClick={() => setFilterType("")} />
+        <Chip size="small" label="Tareas" clickable color={filterType === "tarea" ? "primary" : "default"} onClick={() => setFilterType("tarea")} />
+        <Chip size="small" label="Cierres" clickable color={filterType === "venta" ? "primary" : "default"} onClick={() => setFilterType("venta")} />
+        <Chip size="small" label="Vencimientos" clickable color={filterType === "factura" ? "primary" : "default"} onClick={() => setFilterType("factura")} />
+      </Box>
+
+      {renderCalendar()}
 
       <Dialog open={isModalOpen} onClose={() => setIsModalOpen(false)} maxWidth="sm" fullWidth>
         {selectedEvent && (
@@ -419,7 +380,7 @@ export default function Calendario() {
               <Typography variant="body1" sx={{ whiteSpace: "pre-line", mb: 2 }}>
                 {selectedEvent.desc || "Sin descripción."}
               </Typography>
-              <Box sx={{ display: "flex", gap: 2, color: "text.secondary", fontSize: "0.9rem" }}>
+              <Box sx={{ display: "flex", gap: 2, color: "text.secondary", fontSize: "0.9rem", flexWrap: 'wrap' }}>
                 <Typography variant="body2">
                   <strong>Fecha:</strong> {format(selectedEvent.start, "dd 'de' MMMM, yyyy", { locale: es })}
                 </Typography>
