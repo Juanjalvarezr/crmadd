@@ -49,7 +49,7 @@ function deriveEvents(persisted: CalEvent[], tareas: any[], oportunidades: any[]
       type: "tarea",
       color: t.estado === "Completada" ? "#4caf50" : "#2196f3",
       desc: t.descripcion,
-    };
+    });
   });
   const fromVentas: CalEvent[] = [];
   (oportunidades || []).forEach((v: any) => {
