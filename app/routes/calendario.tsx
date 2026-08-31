@@ -64,7 +64,7 @@ function deriveEvents(persisted: CalEvent[], tareas: any[], oportunidades: any[]
       type: "venta",
       color: "#e91e63",
       desc: `Oportunidad: ${v.cliente_nombre || ""} - ${new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP" }).format(v.valor || 0)}`,
-    };
+    });
   });
   const vencimientos = persisted.filter((e) => String(e.id).startsWith("factura-vencimiento-"));
   const all = [...base, ...fromTareas, ...fromVentas, ...vencimientos];
@@ -81,6 +81,7 @@ export default function Calendario() {
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState<string>("");
   const [date, setDate] = useState<Date>(new Date());
+  const [view, setView] = useState<string>("month");
   const [selectedEvent, setSelectedEvent] = useState<CalEvent | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [eventModalOpen, setEventModalOpen] = useState(false);
@@ -226,7 +227,7 @@ export default function Calendario() {
         globalSnack.show("Los vencimientos se sincronizan desde facturación.", "warning");
         return;
       }
-      await pagosService.remove(Number(evt.id));
+      await pagosService.delete(Number(evt.id));
       globalSnack.show("Evento eliminado", "success");
       setIsModalOpen(false);
       loadEvents();

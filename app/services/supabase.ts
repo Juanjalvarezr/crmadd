@@ -374,7 +374,8 @@ const mapDBToEmpresa = (e: any) => ({
   descripcion: e.descripcion,
   colores: e.colores,
   actualizadoEn: e.actualizado_en,
-  googleBusinessLink: e.google_business_link
+  googleBusinessLink: e.google_business_link,
+  catalogos: e.catalogos || null
 });
 
 const mapEmpresaToDB = (e: any) => ({
@@ -1033,6 +1034,13 @@ export const authService = {
 
 
 // Retry wrapper for service calls
+async function retry<T>(fn: () => Promise<T>, attempts = 3, delayMs = 1500): Promise<T> {
+  for (let i = 0; i < attempts; i++) {
+    try { return await fn(); } catch {}
+    if (i < attempts - 1) await new Promise(r => setTimeout(r, delayMs));
+  }
+  return await fn();
+}
 export async function withRetry<T>(fn: () => Promise<T>, attempts = 3): Promise<T> {
   return retry(fn, attempts, 1500);
 }
@@ -1318,12 +1326,12 @@ export const calendarEventsService = {
   async create(event: any) {
     return event;
   },
-  async update(id: string | number, updates: any) {
-    return { id, ...updates };
+  async update(_id: string | number, updates: any) {
+    return { id: _id, ...updates };
   },
-  async delete(id: string | number) {
+  async delete(_id: string | number) {
     return true;
-  },
+  }
 };
 
 export const transaccionesService = {
@@ -1362,24 +1370,64 @@ export const transaccionesService = {
 };
 
 // Backup / Restore / Seed
+export const schemaCheckService = {
+  async verifyTables(expected: Record<string, string[]>): Promise<{ table: string; missing: string[] }[]> {
+    try {
+      const { data: tablesData, error: tablesError } = await supabase
+        .from('information_schema.tables')
+        .select('table_name')
+        .eq('table_schema', 'public')
+        .in('table_name', Object.keys(expected));
+
+      if (tablesError) throw tablesError;
+
+      const existingTables = new Set((tablesData || []).map((t: any) => t.table_name));
+      const results: { table: string; missing: string[] }[] = [];
+
+      for (const table of Object.keys(expected)) {
+        if (!existingTables.has(table)) {
+          results.push({ table, missing: ['TABLA NO EXISTE'] });
+          continue;
+        }
+
+        const { data: columnsData, error: columnsError } = await supabase
+          .from('information_schema.columns')
+          .select('column_name')
+          .eq('table_schema', 'public')
+          .eq('table_name', table);
+
+        if (columnsError) throw columnsError;
+
+        const existingColumns = new Set((columnsData || []).map((c: any) => c.column_name));
+        const missing = expected[table].filter(col => !existingColumns.has(col));
+
+        results.push({ table, missing });
+      }
+
+      return results;
+    } catch (err: any) {
+      console.error('Schema check failed:', err);
+      throw err;
+    }
+  }
+};
+
 export const backupService = {
   async exportJSON() {
-    const [clientesRes, proyectosRes, tareasRes, oportunidadesRes, facturasRes, documentosRes] = await Promise.all([
-      withRetry(() => supabase.from('clientes').select('*')),
-      withRetry(() => supabase.from('proyectos').select('*')),
-      withRetry(() => supabase.from('tareas').select('*')),
-      withRetry(() => supabase.from('oportunidades').select('*')),
-      withRetry(() => supabase.from('facturas').select('*')),
-      withRetry(() => supabase.from('documentos').select('*')),
-    ]);
-    
+    const clientesRes = await supabase.from('clientes').select('*');
+    const proyectosRes = await supabase.from('proyectos').select('*');
+    const tareasRes = await supabase.from('tareas').select('*');
+    const oportunidadesRes = await supabase.from('oportunidades').select('*');
+    const facturasRes = await supabase.from('facturas').select('*');
+    const documentosRes = await supabase.from('documentos').select('*');
+
     if (clientesRes.error) throw clientesRes.error;
     if (proyectosRes.error) throw proyectosRes.error;
     if (tareasRes.error) throw tareasRes.error;
     if (oportunidadesRes.error) throw oportunidadesRes.error;
     if (facturasRes.error) throw facturasRes.error;
     if (documentosRes.error) throw documentosRes.error;
-    
+
     const payload = {
       generated_at: new Date().toISOString(),
       data: {
@@ -1392,27 +1440,27 @@ export const backupService = {
         calendar_events: [],
       }
     };
-    
+
     return payload;
   },
-  
+
   async importJSON(json: any) {
     const tables = ['clientes', 'proyectos', 'tareas', 'oportunidades', 'facturas', 'documentos', 'calendar_events'];
-    
+
     for (const table of tables) {
-      const { error } = await withRetry(() => supabase.from(table).delete().neq('id', 0));
+      const { error } = await supabase.from(table).delete().neq('id', 0);
       if (error) throw error;
-      
+
       const rows = json?.data?.[table] || [];
       if (rows.length > 0) {
-        const { error: insertError } = await withRetry(() => supabase.from(table).insert(rows));
+        const { error: insertError } = await supabase.from(table).insert(rows);
         if (insertError) throw insertError;
       }
     }
-    
+
     return true;
   },
-  
+
   async seedDESEODigital() {
     const seedData = {
       clientes: [

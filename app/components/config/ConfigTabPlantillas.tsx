@@ -2,6 +2,7 @@ import { Box, Typography, Paper, Button, Card, CardContent, Grid, Chip, IconButt
 import { FiPlus, FiEdit, FiX } from "react-icons/fi";
 import { globalSnack } from "../GlobalSnackbar";
 import { plantillasDocumentosService } from "../../services/supabase";
+import { useEffect } from "react";
 
 interface Props {
   plantillasDocs: any[];

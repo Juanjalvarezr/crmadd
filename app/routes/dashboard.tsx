@@ -109,7 +109,8 @@ export default function Dashboard() {
 
   const handleExport = (filename: string, headers: string[], rows: any[]) => {
     try {
-      useExportCsv(filename, headers)();
+      const { download } = useExportCsv(filename, headers, () => rows);
+      download();
       globalSnack.show("CSV exportado", "success");
     } catch (e: any) {
       globalSnack.show(e.message || "Error exportando CSV", "error");

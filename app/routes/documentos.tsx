@@ -2,8 +2,7 @@ import { globalSnack } from "../components/GlobalSnackbar";
 import React, { useState, useEffect } from "react";
 import { Box, Typography, Paper, Button, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, FormControl, InputLabel, Select, MenuItem, CircularProgress, Alert, Pagination } from "@mui/material";
 import { FiX, FiDownload, FiUpload, FiFileText } from "react-icons/fi";
-import { documentosService, storageHelper } from "../services/supabase";
-import { clientesService, facturasService, proyectosService } from "../services/supabase";
+import { documentosService, storageHelper, clientesService, facturasService, proyectosService } from "../services/supabase";
 import { CompactStatCard } from "../components/CompactStatCard";
 import { EmptyState } from "../components/EmptyState";
 import { ListToolbar } from "../components/ListToolbar";
@@ -31,7 +30,7 @@ export default function Documentos() {
   const [facturas, setFacturas] = useState<any[]>([]);
       
   useEffect(() => {
-    load();
+    loadDocumentos();
     loadOptions();
   }, [filters.proyecto_id, filters.cliente_id, filters.tipo, searchTerm]);
 
@@ -44,6 +43,49 @@ export default function Documentos() {
     await loadOptions();
     globalSnack.show("Opciones actualizadas", "info");
   };
+
+  const loadDocumentos = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const [docs, proy, cli, fac] = await Promise.all([
+        documentosService.getAll(),
+        proyectosService.getAll(),
+        clientesService.getAll(),
+        facturasService.getAll(),
+      ]);
+      setDocumentos(docs || []);
+      setProyectos(proy || []);
+      setClientes(cli || []);
+      setFacturas(fac || []);
+    } catch (err: any) {
+      setError(err?.message || "Error cargando documentos");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadOptions = async () => {
+    try {
+      const [proy, cli, fac] = await Promise.all([
+        proyectosService.getAll(),
+        clientesService.getAll(),
+        facturasService.getAll(),
+      ]);
+      setProyectos(proy || []);
+      setClientes(cli || []);
+      setFacturas(fac || []);
+    } catch {}
+  };
+
+  const filteredDocumentos = documentos.filter((row: any) => {
+    const term = searchTerm.trim().toLowerCase();
+    const matchSearch = !term || [row.titulo, row.tipo, row.url, row.descripcion].some((v: any) => String(v || "").toLowerCase().includes(term));
+    const matchProyecto = !filters.proyecto_id || String(row.proyecto_id) === String(filters.proyecto_id);
+    const matchCliente = !filters.cliente_id || String(row.cliente_id) === String(filters.cliente_id);
+    const matchTipo = !filters.tipo || row.tipo === filters.tipo;
+    return matchSearch && matchProyecto && matchCliente && matchTipo;
+  });
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0] || null;
@@ -68,7 +110,7 @@ export default function Documentos() {
       setOpen(false);
       setFile(null);
       setForm({ titulo: "", tipo: "propuesta", proyecto_id: "", cliente_id: "", factura_id: "", url: "", descripcion: "" });
-      await load();
+      await loadDocumentos();
     } catch (err: any) {
       globalSnack.show(err.message || "Error guardando documento", "error");
     } finally {
@@ -79,7 +121,7 @@ export default function Documentos() {
   
   const handleDelete = async (row: any) => {
     if (typeof window !== "undefined" && !confirm(`¿Eliminar documento #${row.id}?`)) return;
-    try { await documentosService.delete(row.id); await load(); globalSnack.show("Documento eliminado", "success"); }
+    try { await documentosService.delete(row.id); await loadDocumentos(); globalSnack.show("Documento eliminado", "success"); }
     catch (err: any) { globalSnack.show(err.message || "Error eliminando documento", "error"); }
   };
 
@@ -90,8 +132,7 @@ export default function Documentos() {
         onCreate={openCreate}
         onRefresh={refreshOptions}
         searchPlaceholder="Buscar documento..."
-        searchValue={searchTerm}
-        onSearchChange={(e) => setSearchTerm(e.target.value)}
+        onSearch={setSearchTerm}
       />
 
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: { xs: 0.5, sm: 1 }, mb: { xs: 1, sm: 1.5 } }}>
@@ -105,7 +146,7 @@ export default function Documentos() {
 
       {loading && <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}><CircularProgress size={24} /></Box>}
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-      {!loading && documentos.length === 0 && (
+      {!loading && filteredDocumentos.length === 0 && (
         <Paper sx={{ p: { xs: 2, sm: 3 }, textAlign: "center", borderRadius: 2, border: "1px dashed", borderColor: "divider" }}>
           <Typography variant="body2" color="text.secondary">Sin documentos</Typography>
           <Button size="small" variant="text" onClick={openCreate}>Crear el primero</Button>
@@ -142,7 +183,7 @@ export default function Documentos() {
         </FormControl>
       </Box>
       <Box sx={{ display: "grid", gap: 1 }}>
-        {documentos.slice((page - 1) * pageSize, page * pageSize).map((row: any) => (
+        {filteredDocumentos.slice((page - 1) * pageSize, page * pageSize).map((row: any) => (
           <Paper key={row.id} variant="outlined" sx={{ p: 1.5, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <Box>
               <Typography variant="subtitle2" sx={{ fontSize: "0.85rem" }}>{row.titulo}</Typography>
@@ -170,7 +211,7 @@ export default function Documentos() {
       )}
       </Box>
       <Box sx={{ display: "flex", justifyContent: "center", mt: 2, mb: 1 }}>
-        <Pagination count={Math.max(1, Math.ceil((documentos.length || 0) / pageSize))} page={page} onChange={(_: any, p: number) => setPage(p)} size="small" />
+        <Pagination count={Math.max(1, Math.ceil((filteredDocumentos.length || 0) / pageSize))} page={page} onChange={(_: any, p: number) => setPage(p)} size="small" />
       </Box>
 
       <Dialog open={open} onClose={() => setOpen(false)} maxWidth="sm" fullWidth>
