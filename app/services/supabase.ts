@@ -921,7 +921,7 @@ export const documentosService = {
     if (filters?.proyecto_id) query = query.eq('proyecto_id', Number(filters.proyecto_id));
     if (filters?.cliente_id) query = query.eq('cliente_id', Number(filters.cliente_id));
     if (filters?.tipo) query = query.eq('tipo', filters.tipo);
-    const { data, error } = await query.order('fecha_creacion', { ascending: false });
+    const { data, error } = await query.order('created_at', { ascending: false });
     if (error) throw error;
     let rows = data || [];
     if (filters?.search) {
