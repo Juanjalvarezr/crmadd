@@ -1,14 +1,17 @@
 import { Box, Typography, Paper, Button, Card, CardContent, Grid, Chip, TextField, Alert } from "@mui/material";
 import { FiPlus } from "react-icons/fi";
 import { globalSnack } from "../GlobalSnackbar";
+import { useEffect } from "react";
+import { reglasAIService } from "../../services/supabase";
 
 interface Props {
   sops: any[];
   setSops: (sops: any[]) => void;
   nuevoSop: any;
   setNuevoSop: (sop: any) => void;
-  onAddSop: () => void;
-  onDeleteSop: (id: number) => void;
+  setOpenSopModal?: (open: boolean) => void;
+  onAddSop?: () => void;
+  onDeleteSop?: (id: number) => void;
 }
 
 export const ConfigTabSop = ({ sops, setSops, nuevoSop, setNuevoSop, onAddSop, onDeleteSop }: Props) => {

@@ -4,7 +4,7 @@ import { globalSnack } from "../GlobalSnackbar";
 
 interface Props {
   onBackup: () => void;
-  onRestore: () => void;
+  onRestore?: (...args: any[]) => void | Promise<void>;
 }
 
 export const ConfigTabBackup = ({ onBackup, onRestore }: Props) => (

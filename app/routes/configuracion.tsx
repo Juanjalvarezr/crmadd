@@ -37,6 +37,7 @@ interface EmpresaConfig {
   website: string;
   descripcion: string;
   googleBusinessLink?: string;
+  catalogos?: any;
 }
 
 interface PreferenciasConfig {
@@ -93,7 +94,7 @@ export default function Configuracion() {
             pais: empresa.pais || "",
             website: empresa.website || "",
             descripcion: empresa.descripcion || "",
-            googleBusinessLink: empresa.google_business_link || "",
+            googleBusinessLink: empresa.googleBusinessLink || "",
           });
         }
         setReglasAI(reglas || []);
@@ -232,6 +233,49 @@ export default function Configuracion() {
     const checkDB = async () => {
       const status = await testConnection();
       setDbStatus(status);
+    };
+    const [schemaCheck, setSchemaCheck] = useState<{ table: string; missing: string[] }[] | null>(null);
+    const [schemaCheckLoading, setSchemaCheckLoading] = useState(false);
+
+    const handleSchemaCheck = async () => {
+      setSchemaCheckLoading(true);
+      try {
+        const expected: Record<string, string[]> = {
+          clientes: ['id', 'nombre', 'email', 'telefono', 'empresa', 'estado', 'favorito'],
+          proyectos: ['id', 'nombre', 'descripcion', 'cliente_id', 'estado', 'progreso'],
+          tareas: ['id', 'titulo', 'estado', 'prioridad', 'fecha_vencimiento'],
+          oportunidades: ['id', 'nombre', 'etapa', 'estado'],
+          facturas: ['id', 'estado', 'total', 'fecha_vencimiento'],
+          cotizaciones: ['id', 'estado', 'total', 'fecha_vencimiento'],
+          contratos: ['id', 'estado', 'valor'],
+          documentos: ['id', 'titulo', 'tipo'],
+          pagos: ['id', 'factura_id', 'monto'],
+          equipo: ['id', 'nombre', 'email', 'rol'],
+          servicios: ['id', 'nombre', 'precio_base'],
+          campanas_email: ['id', 'nombre', 'estado'],
+          plantillas_email: ['id', 'nombre', 'asunto'],
+          configuracion_empresa: ['id', 'nombre_agencia'],
+          reglas_negocio_ai: ['id', 'categoria'],
+          conocimiento_agencia: ['id', 'titulo', 'categoria'],
+          interacciones: ['id', 'tipo', 'contenido'],
+          audit_logs: ['id', 'accion', 'modulo'],
+          prompts_ai: ['id', 'slug'],
+          plantillas_documentos: ['id', 'tipo', 'nombre'],
+          briefs: ['id', 'titulo', 'estado'],
+          sops: ['id', 'titulo'],
+          transacciones: ['id', 'monto', 'fecha'],
+        };
+        const { schemaCheckService } = await import('../services/supabase');
+        const results = await schemaCheckService.verifyTables(expected);
+        setSchemaCheck(results);
+        const missingCount = results.reduce((acc, r) => acc + r.missing.length, 0);
+        if (missingCount === 0) globalSnack.show('Schema sincronizado', 'success');
+        else globalSnack.show(`${missingCount} columnas/tablas faltantes detectadas`, 'error');
+      } catch (err: any) {
+        globalSnack.show(err.message || 'Error verificando schema', 'error');
+      } finally {
+        setSchemaCheckLoading(false);
+      }
     };
     loadConfig();
     loadReglas();
@@ -943,6 +987,30 @@ export default function Configuracion() {
               size="small"
             />
           )}
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={<FiZap />}
+            onClick={handleSchemaCheck}
+            disabled={schemaCheckLoading}
+          >
+            {schemaCheckLoading ? 'Verificando...' : 'Verificar Schema'}
+          </Button>
+        </Box>
+        {schemaCheck && (
+          <Box sx={{ mt: 2 }}>
+            <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+              {schemaCheck.filter(r => r.missing.length > 0).length === 0
+                ? '✅ Schema sincronizado con Supabase'
+                : `❌ ${schemaCheck.reduce((acc, r) => acc + r.missing.length, 0)} columnas/tablas faltantes`}
+            </Typography>
+            <Box sx={{ mt: 1, display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+              {schemaCheck.filter(r => r.missing.length > 0).map((item, idx) => (
+                <Chip key={idx} size="small" color="error" label={`${item.table}: ${item.missing.join(', ')}`} />
+              ))}
+            </Box>
+          </Box>
+        )}
         </Box>
         <Typography variant="body2" sx={{ color: (theme) => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.7)' : 'text.secondary', fontSize: { xs: '0.85rem', sm: '0.9rem' } }}>
           Personaliza tu CRM DESEO DIGITAL. Configura empresa, preferencias y seguridad.
@@ -1038,9 +1106,6 @@ export default function Configuracion() {
               setSops={setSops}
               nuevoSop={nuevoSop}
               setNuevoSop={setNuevoSop}
-              setOpenSopModal={setOpenSopModal}
-              onAddSop={handleAddSop}
-              onDeleteSop={handleDeleteSop}
             />
           )}
           {activeTab === "campos" && (
