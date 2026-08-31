@@ -1011,7 +1011,6 @@ export default function Configuracion() {
             </Box>
           </Box>
         )}
-        </Box>
         <Typography variant="body2" sx={{ color: (theme) => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.7)' : 'text.secondary', fontSize: { xs: '0.85rem', sm: '0.9rem' } }}>
           Personaliza tu CRM DESEO DIGITAL. Configura empresa, preferencias y seguridad.
         </Typography>
