@@ -70,8 +70,51 @@ export function meta() {
 export default function Configuracion() {
   // Estados principales
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState("empresa"); // Mantener activeTab local
-  // Cargar datos reales al montar
+  const [activeTab, setActiveTab] = useState("empresa");
+  const [schemaCheck, setSchemaCheck] = useState<{ table: string; missing: string[] }[] | null>(null);
+  const [schemaCheckLoading, setSchemaCheckLoading] = useState(false);
+
+  const handleSchemaCheck = async () => {
+    setSchemaCheckLoading(true);
+    try {
+      const expected: Record<string, string[]> = {
+        clientes: ['id', 'nombre', 'email', 'telefono', 'empresa', 'estado', 'favorito'],
+        proyectos: ['id', 'nombre', 'descripcion', 'cliente_id', 'estado', 'progreso'],
+        tareas: ['id', 'titulo', 'estado', 'prioridad', 'fecha_vencimiento'],
+        oportunidades: ['id', 'nombre', 'etapa', 'estado'],
+        facturas: ['id', 'estado', 'total', 'fecha_vencimiento'],
+        cotizaciones: ['id', 'estado', 'total', 'fecha_vencimiento'],
+        contratos: ['id', 'estado', 'valor'],
+        documentos: ['id', 'titulo', 'tipo'],
+        pagos: ['id', 'factura_id', 'monto'],
+        equipo: ['id', 'nombre', 'email', 'rol'],
+        servicios: ['id', 'nombre', 'precio_base'],
+        campanas_email: ['id', 'nombre', 'estado'],
+        plantillas_email: ['id', 'nombre', 'asunto'],
+        configuracion_empresa: ['id', 'nombre_agencia'],
+        reglas_negocio_ai: ['id', 'categoria'],
+        conocimiento_agencia: ['id', 'titulo', 'categoria'],
+        interacciones: ['id', 'tipo', 'contenido'],
+        audit_logs: ['id', 'accion', 'modulo'],
+        prompts_ai: ['id', 'slug'],
+        plantillas_documentos: ['id', 'tipo', 'nombre'],
+        briefs: ['id', 'titulo', 'estado'],
+        sops: ['id', 'titulo'],
+        transacciones: ['id', 'monto', 'fecha'],
+      };
+      const { schemaCheckService } = await import('../services/supabase');
+      const results = await schemaCheckService.verifyTables(expected);
+      setSchemaCheck(results);
+      const missingCount = results.reduce((acc, r) => acc + r.missing.length, 0);
+      if (missingCount === 0) globalSnack.show('Schema sincronizado', 'success');
+      else globalSnack.show(`${missingCount} columnas/tablas faltantes detectadas`, 'error');
+    } catch (err: any) {
+      globalSnack.show(err.message || 'Error verificando schema', 'error');
+    } finally {
+      setSchemaCheckLoading(false);
+    }
+  };
+
   useEffect(() => {
     let mounted = true;
     const load = async () => {
