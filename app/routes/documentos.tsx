@@ -256,7 +256,7 @@ export default function Documentos() {
               <InputLabel>Factura</InputLabel>
               <Select value={form.factura_id} label="Factura" onChange={(e) => setForm({ ...form, factura_id: e.target.value })}>
                 <MenuItem value="">Sin vincular</MenuItem>
-                {(facturas || []).map((f: any) => <MenuItem key={f.id} value={String(f.id)}>{`#${f.numero_factura || f.id} - $${Number(f.total || 0).toFixed(0)}`}</MenuItem>)}
+                {(facturas || []).map((f: any) => <MenuItem key={f.id} value={String(f.id)}>{`#${f.id} - $${Number(f.total || 0).toFixed(0)}`}</MenuItem>)}
               </Select>
             </FormControl>
             <TextField label="Descripción" size="small" value={form.descripcion} onChange={(e) => setForm({ ...form, descripcion: e.target.value })} fullWidth />
