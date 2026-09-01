@@ -171,6 +171,7 @@ export default function Facturacion() {
       const html = `<p>Hola ${cliente},</p><p>Adjuntamos tu factura <strong>#${row.numero_factura || row.id}</strong> por <strong>$${Number(row.total || 0).toFixed(0)}</strong>.</p><p>Estado: ${row.estado || "Borrador"}<br>Vencimiento: ${row.fecha_vencimiento || "Sin definir"}</p><p>Saludos,<br>DESEO DIGITAL</p>`;
       await logsService.create({ accion: "email_enviado", modulo: "facturacion", detalle: { asunto: subject }, usuario: "admin" });
       const res = await emailService.sendRealEmail([to], subject, html);
+      await crmEventsService.create("email_enviado", { to, subject, modulo: "facturacion", factura_id: row.id });
       globalSnack.show(res?.message || "Factura enviada por email", "success");
     } catch (err: any) { globalSnack.show(err.message || "Error enviando factura por email", "error"); }
   };
@@ -234,7 +235,11 @@ export default function Facturacion() {
       setPaymentFile(null);
       globalSnack.show("Pago registrado", "success");
       const saldo = Number(selected.total || 0) - data.reduce((a, b) => a + Number(b.monto || 0), 0);
-      if (saldo <= 0) { await facturasService.update(selected.id, { estado: "Pagada" }); await load(); }
+      if (saldo <= 0) {
+        await facturasService.update(selected.id, { estado: "Pagada" });
+        await crmEventsService.create("factura_pagada", { factura_id: selected.id, total: selected.total });
+        await load();
+      }
     } catch (err: any) { globalSnack.show(err.message || "Error registrando pago", "error"); }
     finally { setUploadingPayment(false); }
   };

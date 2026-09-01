@@ -1492,3 +1492,16 @@ export const backupService = {
     return await this.importJSON({ data: seedData });
   }
 };
+
+export const crmEventsService = {
+  async create(tipo: string, payload: any) {
+    try {
+      const { error } = await supabase
+        .from('crm_events')
+        .insert([{ tipo, payload }]);
+      if (error) throw error;
+    } catch (e) {
+      console.warn('[CRM Events] No se pudo registrar el evento:', e);
+    }
+  }
+};
