@@ -125,6 +125,7 @@ export default function Tareas() {
     try {
       if (editingTarea) { await tareasService.update(editingTarea.id, payload as any); globalSnack.show("Tarea actualizada ✓", "success"); }
       else { await tareasService.create(payload as any); globalSnack.show("Tarea creada ✓", "success"); }
+      await crmEventsService.create("tarea_guardada", { tarea_id: editingTarea?.id ?? null, estado: payload.estado ?? "Pendiente" });
       await loadTareas();
       setOpenModal(false);
     } catch (err: any) { globalSnack.show("Error: " + err.message, "error"); }

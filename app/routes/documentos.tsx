@@ -106,6 +106,7 @@ export default function Documentos() {
       }
       const payload = { ...form, proyecto_id: form.proyecto_id || null, cliente_id: form.cliente_id || null, factura_id: form.factura_id || null, url };
       await documentosService.create(payload);
+      await crmEventsService.create("documento_creado", { documento_id: null, titulo: payload.titulo, tipo: payload.tipo });
       globalSnack.show("Documento creado", "success");
       setOpen(false);
       setFile(null);

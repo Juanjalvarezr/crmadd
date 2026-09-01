@@ -87,6 +87,7 @@ export default function Cotizaciones() {
         await cotizacionesService.create(payload);
         globalSnack.show("Cotización creada", "success");
       }
+      await crmEventsService.create("cotizacion_guardada", { cotizacion_id: editing?.id ?? null, estado: payload.estado ?? "Borrador" });
       setOpenModal(false);
       await load();
     } catch (err: any) { globalSnack.show(err.message || "Error guardando cotización", "error"); }

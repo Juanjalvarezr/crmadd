@@ -320,17 +320,13 @@ export default function Configuracion() {
         setSchemaCheckLoading(false);
       }
     };
+    checkDB();
     loadConfig();
     loadReglas();
     loadConocimiento();
     loadPrompts();
     checkDB();
   }, []);
-
-  const refreshConocimiento = async () => {
-    const data = await conocimientoService.getAll();
-    setConocimiento(data);
-  };
 
   const [preferenciasConfig, setPreferenciasConfig] = useState<PreferenciasConfig>({
     tema: "light",
