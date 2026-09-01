@@ -37,7 +37,10 @@ class ErrorBoundary extends React.Component<any, { hasError: boolean; error: any
 }
 
 export function meta() {
-  return [{ name: "viewport", content: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=yes" }];
+  return [
+    { title: "CRM DESEO DIGITAL" },
+    { name: "viewport", content: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=yes" },
+  ];
 }
 
 export default function Root() {
@@ -108,6 +111,16 @@ export default function Root() {
       crmPollingService.tick();
     }, 30000);
     return () => clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && "serviceWorker" in navigator) {
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        registrations.forEach((registration) => {
+          registration.unregister().catch(() => {});
+        });
+      }).catch(() => {});
+    }
   }, []);
 
   if (location.pathname === "/login") {
