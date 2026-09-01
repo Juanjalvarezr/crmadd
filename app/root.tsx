@@ -7,6 +7,7 @@ import { MobileFab } from "./components/MobileFab";
 import GlobalSearch from "./components/GlobalSearch";
 import { darkTheme, lightTheme } from "./theme";
 import GlobalSnackbar from "./components/GlobalSnackbar";
+import { crmPollingService } from "./services/crmPollingService";
 
 const DRAWER_WIDTH = 260;
 
@@ -85,6 +86,28 @@ export default function Root() {
     };
     window.addEventListener("theme-changed", handler as EventListener);
     return () => window.removeEventListener("theme-changed", handler as EventListener);
+  }, []);
+
+  useEffect(() => {
+    crmPollingService.register("factura_pagada", async (payload) => {
+      await safeSendEmail(`Factura pagada #${payload.factura_id}`, `<p>Factura #${payload.factura_id} por $${Number(payload.total || 0).toFixed(0)} marcada como pagada.</p>`);
+    });
+    crmPollingService.register("cotizacion_guardada", async (payload) => {
+      await safeSendEmail(`Cotización guardada #${payload.cotizacion_id}`, `<p>Cotización #${payload.cotizacion_id} en estado ${payload.estado || 'Borrador'}.</p>`);
+    });
+    crmPollingService.register("tarea_guardada", async (payload) => {
+      await safeSendEmail(`Tarea #${payload.tarea_id}`, `<p>Tarea actualizada a estado ${payload.estado || 'Pendiente'}.</p>`);
+    });
+    crmPollingService.register("documento_creado", async (payload) => {
+      await safeSendEmail(`Documento creado: ${payload.titulo}`, `<p>Documento <strong>${payload.titulo}</strong> tipo ${payload.tipo}.</p>`);
+    });
+    crmPollingService.register("email_enviado", async (payload) => {
+      console.log("[polling] email_enviado audit", payload);
+    });
+    const id = setInterval(() => {
+      crmPollingService.tick();
+    }, 30000);
+    return () => clearInterval(id);
   }, []);
 
   if (location.pathname === "/login") {
