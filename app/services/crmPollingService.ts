@@ -1,5 +1,4 @@
-import { supabase } from "./supabase";
-import { sendRealEmail } from "./supabase";
+import { supabase, emailService } from "./supabase";
 
 export type CrmEvent = {
   id: number;
@@ -21,7 +20,7 @@ function getRecipientsForEvent(tipo: string): string[] {
 async function safeSendEmail(subject: string, html: string) {
   const to = getRecipientsForEvent(subject);
   try {
-    const res = await sendRealEmail(to, subject, html);
+    const res = await emailService.sendRealEmail(to, subject, html);
     console.log("[polling] email enviado", res);
   } catch (e) {
     console.error("[polling] error enviando email", e);
