@@ -18,4 +18,6 @@ export default [
 	route("/cotizaciones", "routes/cotizaciones.tsx"),
 	route("/contratos", "routes/contratos.tsx"),
 	route("/documentos", "routes/documentos.tsx"),
+	route("/kanban", "routes/kanban.tsx"),
+	route("/chatbot", "routes/chatbot.tsx"),
 ] satisfies RouteConfig;
