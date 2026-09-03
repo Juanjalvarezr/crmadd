@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { useCRMStore } from "../store/useCRMStore";
-import { crmEventsService } from "../services/crmPollingService";
+import { crmEventsService } from "../services/supabase";
 import {
   Box, Typography, Paper, Chip, IconButton, Tooltip, Alert, Snackbar,
   Select, MenuItem
@@ -19,8 +19,8 @@ interface TareaKanban {
   fecha?: string;
   cliente_id?: number | null;
   proyecto_id?: string | null;
-  cliente_nombre?: string;
-  proyecto_nombre?: string;
+  cliente_nombre?: string | null;
+  proyecto_nombre?: string | null;
 }
 
 const COLUMNAS: { key: Estado; label: string; color: string }[] = [
@@ -97,9 +97,8 @@ export default function Kanban() {
       const current = (tareas || []).find((t: any) => t.id === tareaId);
       if (!current) return;
       
-      const { error } = await useCRMStore.getState().updateTarea(tareaId, { estado: nuevoEstado });
-      if (error) throw error;
-      
+      useCRMStore.getState().updateTarea(tareaId, { estado: nuevoEstado });
+
       await crmEventsService.create("tarea_guardada", {
         tarea_id: tareaId,
         estado: nuevoEstado,
