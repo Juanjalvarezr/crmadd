@@ -12,6 +12,7 @@ const DRAWER_WIDTH = 260;
 const menuItems = [
   { label: "Inicio", icon: FiHome, path: "/", notifications: 0, color: "#1976d2" },
   { label: "Clientes", icon: FiUsers, path: "/clientes", notifications: 0, color: "#4caf50" },
+  { label: "Prospectos", icon: FiUsers, path: "/prospectos", notifications: 0, color: "#9c27b0" },
   { label: "Equipo (Subagentes)", icon: FiUsers, path: "/equipo", notifications: 0, color: "#2196f3" },
   { label: "Servicios ★", icon: FiPackage, path: "/servicios", notifications: 0, color: "#ff9800" },
   { label: "Proyectos", icon: FiPackage, path: "/proyectos", notifications: 0, color: "#2196f3" },

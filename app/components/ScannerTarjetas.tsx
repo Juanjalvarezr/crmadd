@@ -4,9 +4,24 @@ import {
   TextField, Chip, Stack, Alert
 } from '@mui/material';
 import { FiCamera, FiUpload, FiX, FiCheck } from 'react-icons/fi';
-import { scanCardFromImage, type ExtractedCard } from '../services/ocrService';
 import { clientesService, interaccionesService } from '../services/supabase';
 import { globalSnack } from '../components/GlobalSnackbar';
+
+// OCR temporalmente deshabilitado
+interface ExtractedCard {
+  nombre?: string;
+  empresa?: string;
+  telefono?: string;
+  email?: string;
+  direccion?: string;
+  redes?: string[];
+  texto?: string;
+}
+
+const scanCardFromImage = async (file: File): Promise<ExtractedCard> => {
+  // OCR deshabilitado temporalmente
+  return { nombre: undefined, empresa: undefined, telefono: undefined, email: undefined, direccion: undefined, texto: 'OCR deshabilitado temporalmente' };
+};
 
 interface Props {
   open: boolean;

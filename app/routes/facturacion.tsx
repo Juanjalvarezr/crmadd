@@ -7,6 +7,8 @@ import {
 import { FiFileText, FiX, FiUpload, FiEye, FiEdit, FiTrash2, FiMessageSquare, FiMail } from "react-icons/fi";
 import { facturasService, emailService, plantillasDocumentosService, pagosService, documentosService, logsService } from "../services/supabase";
 import { storageHelper } from "../services/supabase";
+import { generarYGuardarDocumento } from "../services/docsHelper";
+import { whatsappService } from "../services/whatsappService";
 import { useCRMStore } from "../store/useCRMStore";
 import { globalSnack } from "../components/GlobalSnackbar";
 import { EmptyState } from "../components/EmptyState";
@@ -156,7 +158,7 @@ export default function Facturacion() {
       globalSnack.show("Documento descargado. Adjuntalo manualmente en WhatsApp.", "info");
     }
     const encoded = encodeURIComponent(texto);
-    if (typeof window !== "undefined") window.open(`https://wa.me/${telefono}?text=${encoded}`, "_blank");
+    await whatsappService.send(telefono, encoded);
     await logsService.create({ accion: "whatsapp_abierto", modulo: "facturacion", detalle: {} , usuario: "admin" });
     globalSnack.show("Abriendo WhatsApp...", "info");
   };
@@ -176,46 +178,28 @@ export default function Facturacion() {
     } catch (err: any) { globalSnack.show(err.message || "Error enviando factura por email", "error"); }
   };
 
+  const [documentoUrl, setDocumentoUrl] = useState<string | null>(null);
   const generarDocumento = async (row: any) => {
-    try {
-      const tpl = plantilla || await plantillasDocumentosService.getByTipo("factura");
-      if (!tpl) { globalSnack.show("Creá una plantilla de factura en Configuración primero", "warning"); return; }
-      const cliente = clientes.find((x: any) => Number(x.id) === Number(row.cliente_id));
-      const { subtotal, iva, descuento, total } = { subtotal: Number(row.subtotal || row.total || 0), iva: Number(row.iva || 0), descuento: Number(row.descuento || 0), total: Number(row.total || 0) };
-      const ctx = {
-        empresa: { nombre: "DESEO DIGITAL", email: "contacto@deseodigital.com", telefono: "320 369 8476", direccion: "Calle Principal #123-45", ciudad: "Bogotá", pais: "Colombia" },
-        cliente: { nombre: cliente?.nombre || "Cliente", email: cliente?.email || "", telefono: cliente?.telefono || "", empresa: cliente?.empresa || "", nicho: cliente?.nicho || "" },
-        proyecto: { nombre: "", id: row.proyecto_id || "", servicios: [] },
-        factura: { numero: row.numero_factura || String(row.id), fecha_emision: row.fecha_emision || new Date().toISOString(), fecha_vencimiento: row.fecha_vencimiento || "", estado: row.estado || "Borrador", subtotal, iva, descuento, total },
-        pagos: { realizados: pagos.reduce((a, b) => a + Number(b.monto || 0), 0), saldo: Math.max(total - pagos.reduce((a, b) => a + Number(b.monto || 0), 0), 0) },
-        fecha: new Date().toLocaleDateString("es-CO"),
-      };
-      let html = tpl.contenido || "";
-      Object.entries(ctx).forEach(([section, values]: any) => {
-        Object.entries(values).forEach(([key, value]) => {
-          html = html.split(`{{${section}.${key}}`).join(String(value ?? ""));
-        });
-      });
+    const res = await generarYGuardarDocumento("factura", {
+      id: row.id,
+      total: row.total,
+      estado: row.estado,
+      factura_id: row.id,
+      cliente_id: row.cliente_id,
+    });
+    if (!res.ok) { globalSnack.show(res.error || "Error generando documento", "error"); return; }
+    setDocumentoUrl(res.url);
+    globalSnack.show("Factura generada. Tocá 'Ver documento' para abrirla.", "success");
+  };
 
-      const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"/><title>Factura #${row.numero_factura || row.id}</title><style>body{font-family:Arial,sans-serif;padding:24px;color:#222} .muted{color:#666} .right{text-align:right} table{width:100%;border-collapse:collapse;margin-top:12px} th,td{border:1px solid #ddd;padding:8px;text-align:left} th{background:#f7f7f7}</style></head><body>${html}</body></html>`;
-      const fileName = `factura-${row.numero_factura || row.id}-${Date.now()}.html`;
-      const file = new Blob([fullHtml], { type: "text/html" });
-      const url = await storageHelper.upload("crm-documents", `facturas/${fileName}`, file as any);
-
-      try {
-        await documentosService.create({ titulo: `Factura #${row.numero_factura || row.id}`, tipo: "factura", url, descripcion: `Generada automáticamente. Total: $${total}`, proyecto_id: row.proyecto_id || null, cliente_id: row.cliente_id || null, factura_id: row.id || null });
-      } catch {}
-
-      setDocumentoGenerado(fullHtml);
-      globalSnack.show("Factura generada", "success");
-      if (typeof window !== "undefined") {
-        const win = window.open();
-        if (win) {
-          win.document.write(fullHtml);
-          win.document.close();
-        }
-      }
-    } catch (err: any) { globalSnack.show(err.message || "Error generando documento", "error"); }
+  const verDocumento = (row: any) => {
+    const url = row?.documento_url || row?.url || documentoUrl;
+    if (url) {
+      setDocumentoUrl(url);
+      if (typeof window !== "undefined") window.open(url, "_blank");
+    } else {
+      globalSnack.show("Sin documento disponible", "warning");
+    }
   };
 
   const handleRegistrarPago = async () => {
@@ -304,6 +288,9 @@ export default function Facturacion() {
                 <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontSize: { xs: '0.7rem', sm: '0.75rem' } }}>{getClienteNombre(f.cliente_id)}</Typography>
               </Box>
               <Chip size="small" label={estado} color={estadoColor as any} sx={{ height: { xs: 22, sm: 26 }, fontSize: { xs: '0.65rem', sm: '0.7rem' } }} />
+              {estado !== "Pagada" && estado !== "Anulada" && f.fecha_vencimiento && f.fecha_vencimiento < new Date().toISOString().split('T')[0] && (
+                <Chip size="small" label="Por vencer" color="warning" sx={{ height: { xs: 22, sm: 26 }, fontSize: { xs: '0.65rem', sm: '0.7rem' } }} />
+              )}
               <Typography variant="caption" sx={{ fontWeight: "bold", fontSize: { xs: '0.8rem', sm: '0.85rem' } }}>${Number(f.total || 0).toFixed(0)}</Typography>
               <Box sx={{ display: "flex", gap: { xs: 0.25, sm: 0.5 }, flexWrap: "wrap" }}>
                 <Tooltip title="Ver detalle"><IconButton size="small" aria-label="Acciones de factura" onClick={() => openDetail(f)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiEye size={16}/></IconButton></Tooltip>

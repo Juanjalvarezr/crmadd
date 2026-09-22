@@ -17,7 +17,7 @@ function getRecipientsForEvent(tipo: string): string[] {
   return ["onboarding@resend.dev"];
 }
 
-async function safeSendEmail(to: string[], subject: string, html: string) {
+export async function safeSendEmail(subject: string, html: string, to: string[] = ["onboarding@resend.dev"]) {
   try {
     const res = await emailService.sendRealEmail(to, subject, html);
     console.log("[polling] email enviado", res);

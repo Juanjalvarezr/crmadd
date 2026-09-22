@@ -25,6 +25,7 @@ import type { Proyecto, TareaProyecto, RecursoProyecto, PlanItem } from "../type
 import { aiService } from "../services/ai";
 import { useCRMStore } from "../store/useCRMStore";
 import { useExportCsv } from "../utils/exportCsv";
+import { generarYGuardarDocumento } from "../services/docsHelper";
 import { globalSnack } from "../components/GlobalSnackbar";
 import { EmptyState } from "../components/EmptyState";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
@@ -69,6 +70,9 @@ export default function Proyectos() {
   const [relatedDocs, setRelatedDocs] = useState<any[]>([]);
   const [relatedFacturas, setRelatedFacturas] = useState<any[]>([]);
   const [loadingRelated, setLoadingRelated] = useState(false);
+  const [documentoUrl, setDocumentoUrl] = useState<string | null>(null);
+
+  // --- Generación de documentos ---
 
   // Simulación de rol (En el futuro esto vendrá de tu sistema de Auth/Supabase)
   const [isAdmin] = useState(true);
@@ -612,17 +616,17 @@ export default function Proyectos() {
       // Validación profesional: No permitir completar si hay tareas pendientes vía botones rápidos
       if (nuevoEstado === "completado") {
         const pendientes = proyecto.tareas?.filter(t => !t.completada).length || 0;
-        
+
         if (pendientes > 0 && !isAdmin) {
           globalSnack.show(
-            `Control de Calidad: El proyecto tiene ${pendientes} tareas pendientes. Finalízalas todas antes de completar el proyecto.`, 
+            `Control de Calidad: El proyecto tiene ${pendientes} tareas pendientes. Finalízalas todas antes de completar el proyecto.`,
             "warning"
           );
           return;
         } else if (pendientes > 0 && isAdmin) {
           // Notificación de forzado
           globalSnack.show(
-            "Forzando cierre de proyecto (Rol Admin).", 
+            "Forzando cierre de proyecto (Rol Admin).",
             "info"
           );
         }
@@ -630,7 +634,7 @@ export default function Proyectos() {
 
       const actualizadoEn = new Date().toISOString();
       await proyectosService.update(proyecto.id, { estado: nuevoEstado, actualizadoEn });
-      
+
       useCRMStore.setState((state) => ({ proyectos: state.proyectos.map((p: any) => p.id === proyecto.id ? { ...p, estado: nuevoEstado, actualizadoEn } : p) }));
 
       if (nuevoEstado === "completado") {
@@ -639,12 +643,48 @@ export default function Proyectos() {
       }
 
       globalSnack.show(
-        `Estado del proyecto cambiado a "${nuevoEstado}"`, 
+        `Estado del proyecto cambiado a "${nuevoEstado}"`,
         "success"
       );
     } catch (err: any) {
       globalSnack.show("Error al cambiar estado: " + err.message, "error");
     }
+  };
+
+  // --- Documentos: generar y ver ---
+  const generarDocumentoProyecto = async (proyecto: Proyecto) => {
+    try {
+      const res = await generarYGuardarDocumento("propuesta", {
+        id: proyecto.id,
+        cliente_id: proyecto.clienteId ? Number(proyecto.clienteId) : undefined,
+        proyecto_id: proyecto.id,
+        nombre: proyecto.nombre,
+        descripcion: proyecto.descripcion,
+        servicios: proyecto.servicios,
+        estado: proyecto.estado,
+        presupuesto: proyecto.presupuesto,
+        fechaInicio: proyecto.fechaInicio,
+        fechaFin: proyecto.fechaFin,
+        clienteNombre: proyecto.clienteNombre,
+      });
+      if (res.ok) {
+        setDocumentoUrl(res.url);
+        globalSnack.show(`Documento "${proyecto.nombre}" generado.`, "success");
+      } else {
+        globalSnack.show(res.error || "Error generando documento", "error");
+      }
+    } catch (err: any) {
+      globalSnack.show(err.message || "Error generando documento", "error");
+    }
+  };
+
+  const verDocumentoProyecto = (proyecto: Proyecto) => {
+    const url = proyecto.url_documento || documentoUrl;
+    if (!url) {
+      globalSnack.show("Primero genera el documento", "warning");
+      return;
+    }
+    window.open(url, "_blank", "noopener,noreferrer");
   };
 
   // Funciones de filtrado
@@ -1017,6 +1057,16 @@ export default function Proyectos() {
                     <Tooltip title="Editar">
                       <IconButton size="small" aria-label="Ver detalle del proyecto" onClick={() => handleOpenProyectoModal(proyecto)}>
                         <Edit2 size={18} />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title={documentoUrl ? "Ver documento" : "Generar documento"}>
+                      <IconButton size="small" aria-label="Ver documento" onClick={() => verDocumentoProyecto(proyecto)} sx={{ color: documentoUrl ? '#1976d2' : '#9e9e9e' }}>
+                        <FiEye size={18} />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Generar documento">
+                      <IconButton size="small" aria-label="Generar documento" onClick={() => generarDocumentoProyecto(proyecto)}>
+                        <FiFileText size={18} />
                       </IconButton>
                     </Tooltip>
                   </Box>

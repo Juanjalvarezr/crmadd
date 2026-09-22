@@ -253,80 +253,57 @@ export default function Configuracion() {
   }, []);
 
   // Cargar datos reales
+  // Cargar datos reales
   useEffect(() => {
+    let mounted = true;
     const loadConfig = async () => {
       try {
         const data = await configuracionService.getEmpresa();
-        if (data) setEmpresaConfig(data);
-      } catch (err: any) {
-              }
+        if (data && mounted) setEmpresaConfig(data);
+      } catch {}
     };
     const loadReglas = async () => {
-      const data = await reglasAIService.getAll();
-      setReglasAI(data);
+      try {
+        const data = await reglasAIService.getAll();
+        if (mounted) setReglasAI(data || []);
+      } catch {}
     };
     const loadConocimiento = async () => {
-      const data = await conocimientoService.getAll();
-      setConocimiento(data);
+      try {
+        const data = await conocimientoService.getAll();
+        if (mounted) setConocimiento(data || []);
+      } catch {}
     };
     const loadPrompts = async () => {
-      const data = await promptsAIService.getAll();
-      setPromptsAI(data);
-    };
-    const checkDB = async () => {
-      const status = await testConnection();
-      setDbStatus(status);
-    };
-    const [schemaCheck, setSchemaCheck] = useState<{ table: string; missing: string[] }[] | null>(null);
-    const [schemaCheckLoading, setSchemaCheckLoading] = useState(false);
-
-    const handleSchemaCheck = async () => {
-      setSchemaCheckLoading(true);
       try {
-        const expected: Record<string, string[]> = {
-          clientes: ['id', 'nombre', 'email', 'telefono', 'empresa', 'estado', 'favorito'],
-          proyectos: ['id', 'nombre', 'descripcion', 'cliente_id', 'estado', 'progreso'],
-          tareas: ['id', 'titulo', 'estado', 'prioridad', 'fecha_vencimiento'],
-          oportunidades: ['id', 'nombre', 'etapa', 'estado'],
-          facturas: ['id', 'estado', 'total', 'fecha_vencimiento'],
-          cotizaciones: ['id', 'estado', 'total', 'fecha_vencimiento'],
-          contratos: ['id', 'estado', 'valor'],
-          documentos: ['id', 'titulo', 'tipo'],
-          pagos: ['id', 'factura_id', 'monto'],
-          equipo: ['id', 'nombre', 'email', 'rol'],
-          servicios: ['id', 'nombre', 'precio_base'],
-          campanas_email: ['id', 'nombre', 'estado'],
-          plantillas_email: ['id', 'nombre', 'asunto'],
-          configuracion_empresa: ['id', 'nombre_agencia'],
-          reglas_negocio_ai: ['id', 'categoria'],
-          conocimiento_agencia: ['id', 'titulo', 'categoria'],
-          interacciones: ['id', 'tipo', 'contenido'],
-          audit_logs: ['id', 'accion', 'modulo'],
-          prompts_ai: ['id', 'slug'],
-          plantillas_documentos: ['id', 'tipo', 'nombre'],
-          briefs: ['id', 'titulo', 'estado'],
-          sops: ['id', 'titulo'],
-          transacciones: ['id', 'monto', 'fecha'],
-        };
-        const { schemaCheckService } = await import('../services/supabase');
-        const results = await schemaCheckService.verifyTables(expected);
-        setSchemaCheck(results);
-        const missingCount = results.reduce((acc, r) => acc + r.missing.length, 0);
-        if (missingCount === 0) globalSnack.show('Schema sincronizado', 'success');
-        else globalSnack.show(`${missingCount} columnas/tablas faltantes detectadas`, 'error');
-      } catch (err: any) {
-        globalSnack.show(err.message || 'Error verificando schema', 'error');
-      } finally {
-        setSchemaCheckLoading(false);
-      }
+        const data = await promptsAIService.getAll();
+        if (mounted) setPromptsAI(data || []);
+      } catch {}
     };
-    checkDB();
+    const checkDbOnce = async () => {
+      try {
+        const status = await testConnection();
+        if (mounted) setDbStatus(status);
+      } catch {}
+    };
     loadConfig();
     loadReglas();
     loadConocimiento();
     loadPrompts();
-    checkDB();
+    checkDbOnce();
+    return () => { mounted = false; };
   }, []);
+
+  // Función para refrescar conocimiento (usada por CerebroAITab)
+  const refreshConocimiento = async () => {
+    try {
+      const data = await conocimientoService.getAll();
+      setConocimiento(data || []);
+      globalSnack.show("Cerebro actualizado", "success");
+    } catch (err: any) {
+      globalSnack.show(err?.message || "Error al actualizar cerebro", "error");
+    }
+  };
 
   const [preferenciasConfig, setPreferenciasConfig] = useState<PreferenciasConfig>({
     tema: "light",
@@ -425,7 +402,7 @@ export default function Configuracion() {
   const handleBackup = async () => {
     setLoading(true);
     try {
-      // Simulación de backup
+      // Backup manual como descarga de JSON
       const backupData = {
         empresa: empresaConfig,
         preferencias: preferenciasConfig,

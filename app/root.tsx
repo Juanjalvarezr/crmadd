@@ -7,7 +7,7 @@ import { MobileFab } from "./components/MobileFab";
 import GlobalSearch from "./components/GlobalSearch";
 import { darkTheme, lightTheme } from "./theme";
 import GlobalSnackbar from "./components/GlobalSnackbar";
-import { crmPollingService } from "./services/crmPollingService";
+import { safeSendEmail, crmPollingService } from "./services/crmPollingService";
 
 const DRAWER_WIDTH = 260;
 

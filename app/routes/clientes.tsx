@@ -30,6 +30,7 @@ import { EmptyState } from "../components/EmptyState";
 import { ListToolbar } from "../components/ListToolbar";
 import { CompactTable } from "../components/CompactTable";
 import { useLocation } from "react-router";
+import { generarYGuardarDocumento } from "../services/docsHelper";
 import type { Cliente } from "../types/crm";
 
 const isLeadFrio = (fechaStr: string) => {
@@ -141,8 +142,10 @@ export default function Clientes() {
   };
 
   const [page, setPage] = useState(1);
-  const itemsPerPage = 10;
+  const pageSize = 10;
   const totalPages = useMemo(() => Math.ceil(filteredClientes.length / itemsPerPage) || 1, [filteredClientes.length]);
+
+  const [documentoUrl, setDocumentoUrl] = useState<string | null>(null);
   
   const paginatedClientes = useMemo(() => {
     return filteredClientes.slice(
@@ -319,6 +322,39 @@ export default function Clientes() {
   
   const handleCloseSnackbar = () => {
     setSnackbar({ ...snackbar, open: false });
+  };
+
+  // --- Documentos: generar y ver ---
+  const generarDocumentoCliente = async (cliente: Cliente) => {
+    try {
+      const res = await generarYGuardarDocumento("propuesta", {
+        id: cliente.id,
+        cliente_id: cliente.id,
+        nombre: cliente.nombre,
+        descripcion: cliente.empresa || cliente.nicho || "Cliente sin descripción",
+        email: cliente.email,
+        telefono: cliente.telefono,
+        estado: "Activo",
+        fechaInicio: cliente.ultima_interaccion || new Date().toISOString().split("T")[0],
+      });
+      if (res.ok) {
+        setDocumentoUrl(res.url);
+        globalSnack.show(`Documento de "${cliente.nombre}" generado.`, "success");
+      } else {
+        globalSnack.show(res.error || "Error generando documento", "error");
+      }
+    } catch (err: any) {
+      globalSnack.show(err.message || "Error generando documento", "error");
+    }
+  };
+
+  const verDocumentoCliente = (cliente: Cliente) => {
+    const url = cliente.url_documento || documentoUrl;
+    if (!url) {
+      globalSnack.show("Primero genera el documento", "warning");
+      return;
+    }
+    window.open(url, "_blank", "noopener,noreferrer");
   };
 
   const handleViewDetails = async (cliente: Cliente) => {
@@ -676,6 +712,7 @@ export default function Clientes() {
                     <Tooltip title={cliente.favorito ? "Quitar de favoritos" : "Marcar como favorito"}><IconButton size="small" onClick={() => handleToggleFavorite(cliente)} sx={{ color: cliente.favorito ? '#ffb400' : '#ccc' }} aria-label="Favorito"><FiStar size={16} style={{ fill: cliente.favorito ? '#ffb400' : 'none' }} /></IconButton></Tooltip>
                     <Tooltip title="Ver detalles"><IconButton size="small" onClick={() => handleViewDetails(cliente)} sx={{ color: '#1976d2' }} aria-label={`Ver detalles de ${cliente.nombre}`}><FiEye size={16} /></IconButton></Tooltip>
                     <Tooltip title="Editar cliente"><IconButton size="small" onClick={() => handleEdit(cliente)} sx={{ color: '#ff9800' }} aria-label={`Editar a ${cliente.nombre}`}><FiEdit size={16} /></IconButton></Tooltip>
+                    <Tooltip title="Generar documento"><IconButton size="small" onClick={() => verDocumentoCliente(cliente)} sx={{ color: documentoUrl ? '#1976d2' : '#9e9e9e' }} aria-label={`Ver documento ${cliente.nombre}`}><FiFileText size={16} /></IconButton></Tooltip>
                     <Tooltip title="Eliminar cliente"><IconButton size="small" onClick={() => handleDelete(cliente)} sx={{ color: '#f44336' }} aria-label={`Eliminar a ${cliente.nombre}`}><FiTrash2 size={16} /></IconButton></Tooltip>
                   </Box>
                 </CardContent>
@@ -755,6 +792,7 @@ export default function Clientes() {
                       <Tooltip title="Llamar"><IconButton size="small" onClick={() => handleCall(cliente)} sx={{ color: BRAND.success }} aria-label={`Llamar a ${cliente.nombre}`}><FiPhone size={16} /></IconButton></Tooltip>
                       <Tooltip title="Enviar email"><IconButton size="small" onClick={() => handleEmail(cliente)} sx={{ color: '#9c27b0' }} aria-label={`Enviar email a ${cliente.nombre}`}><FiMail size={16} /></IconButton></Tooltip>
                       <Tooltip title="Enviar mensaje"><IconButton size="small" onClick={() => handleMessage(cliente)} sx={{ color: '#00bcd4' }} aria-label={`Enviar mensaje a ${cliente.nombre}`}><FiMessageSquare size={16} /></IconButton></Tooltip>
+                      <Tooltip title="Generar documento"><IconButton size="small" onClick={() => generarDocumentoCliente(cliente)} sx={{ color: documentoUrl ? '#1976d2' : '#9e9e9e' }} aria-label={`Generar documento ${cliente.nombre}`}><FiFileText size={16} /></IconButton></Tooltip>
                       <Tooltip title="Ver historial"><IconButton size="small" onClick={() => handleHistory(cliente)} sx={{ color: '#607d8b' }} aria-label={`Ver historial de ${cliente.nombre}`}><FiFileText size={16} /></IconButton></Tooltip>
                       <Tooltip title="Eliminar cliente"><IconButton size="small" onClick={() => handleDelete(cliente)} sx={{ color: '#f44336' }} aria-label={`Eliminar a ${cliente.nombre}`}><FiTrash2 size={16} /></IconButton></Tooltip>
                     </Box>

@@ -51,6 +51,7 @@ interface CRMState {
   checkBloqueoOperativo: (proyecto: any) => boolean;
   addBrief: (brief: any) => void;
   addSop: (sop: any) => void;
+  updateTarea: (id: number, data: any) => void;
 }
 
 export const useCRMStore = create<CRMState>((set, get) => ({
@@ -253,4 +254,7 @@ export const useCRMStore = create<CRMState>((set, get) => ({
   },
   addBrief: (brief) => set((state) => ({ briefs: [brief, ...state.briefs] })),
   addSop: (sop) => set((state) => ({ sops: [sop, ...state.sops] })),
+  updateTarea: (id: number, data: any) => set((state) => ({
+    tareas: state.tareas.map(t => t.id === id ? { ...t, ...data } : t)
+  })),
 }));

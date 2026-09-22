@@ -13,6 +13,7 @@ export default defineConfig({
     dedupe: ["react", "react-dom"]
   },
   server: {
-    allowedHosts: [".ngrok-free.app", ".ngrok-free.dev"]
+    allowedHosts: [".ngrok-free.app", ".ngrok-free.dev"],
+    historyApiFallback: true
   }
 });
