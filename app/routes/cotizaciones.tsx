@@ -3,10 +3,12 @@ import {
   Box, Pagination, Typography, Paper, Button, TextField, FormControl, InputLabel, Select, MenuItem,
   Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Alert, CircularProgress, Chip, Tooltip
 } from "@mui/material";
-import { FiEdit, FiTrash2, FiFileText, FiMessageSquare, FiX } from "react-icons/fi";
+import { FiEdit, FiTrash2, FiFileText, FiMessageSquare, FiX, FiEye } from "react-icons/fi";
 import { cotizacionesService, clientesService, documentosService, logsService } from "../services/supabase";
 import { plantillasDocumentosService } from "../services/supabase";
 import { storageHelper } from "../services/supabase";
+import { generarYGuardarDocumento } from "../services/docsHelper";
+import { whatsappService } from "../services/whatsappService";
 import { CompactStatCard } from "../components/CompactStatCard";
 import { globalSnack } from "../components/GlobalSnackbar";
 import { EmptyState } from "../components/EmptyState";
@@ -28,6 +30,7 @@ export default function Cotizaciones() {
   const [editing, setEditing] = useState<any | null>(null);
   const [form, setForm] = useState({ numero_cotizacion: "", estado: "Borrador", total: "", proyecto_id: "", cliente_id: "", fecha_vencimiento: "", subtotal: "", iva: "", notas: "" });
   const [saving, setSaving] = useState(false);
+  const [documentoUrl, setDocumentoUrl] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const pageSize = 16;
     
@@ -112,42 +115,35 @@ export default function Cotizaciones() {
     const telefono = clienteObj?.telefono || "";
     if (!telefono) { globalSnack.show(`El cliente "${cliente}" no tiene teléfono cargado`, "warning"); return; }
     const texto = encodeURIComponent(`Hola ${cliente}, te compartimos tu cotización #${row.numero_cotizacion || row.id} por $${Number(row.total || 0).toFixed(0)}. Estado: ${row.estado || "Borrador"}. Vencimiento: ${row.fecha_vencimiento || "Sin definir"}. Ante cualquier duda respondé este mensaje.`);
-    if (typeof window !== "undefined") window.open(`https://wa.me/${telefono}?text=${texto}`, "_blank");
+    await whatsappService.send(telefono, texto);
     await logsService.create({ accion: "whatsapp_abierto", modulo: "cotizaciones", detalle: {} , usuario: "admin" });
     globalSnack.show("Abriendo WhatsApp...", "info");
   };
 
   const generarDocumento = async (row: any) => {
-    try {
-      const tpl = await plantillasDocumentosService.getByTipo("cotizacion") || await plantillasDocumentosService.getByTipo("factura");
-      if (!tpl) { globalSnack.show("Creá una plantilla de cotización en Configuración primero", "warning"); return; }
-      const cliente = clientes.find((x: any) => Number(x.id) === Number(row.cliente_id));
-      const { subtotal, iva, descuento, total } = { subtotal: Number(row.subtotal || row.total || 0), iva: Number(row.iva || 0), descuento: Number(row.descuento || 0), total: Number(row.total || 0) };
-      const ctx = {
-        empresa: { nombre: "DESEO DIGITAL", email: "contacto@deseodigital.com", telefono: "320 369 8476", direccion: "Calle Principal #123-45", ciudad: "Bogotá", pais: "Colombia" },
-        cliente: { nombre: cliente?.nombre || "Cliente", email: cliente?.email || "", telefono: cliente?.telefono || "", empresa: cliente?.empresa || "", nicho: cliente?.nicho || "" },
-        proyecto: { nombre: "", id: row.proyecto_id || "", servicios: [] },
-        factura: { numero: row.numero_cotizacion || String(row.id), fecha_emision: row.fecha_emision || new Date().toISOString(), fecha_vencimiento: row.fecha_vencimiento || "", estado: row.estado || "Borrador", subtotal, iva, descuento, total },
-        pagos: { realizados: 0, saldo: total },
-        fecha: new Date().toLocaleDateString("es-CO"),
-      };
-      let html = tpl.contenido || "";
-      Object.entries(ctx).forEach(([section, values]: any) => {
-        Object.entries(values).forEach(([key, value]) => {
-          html = html.split(`{{${section}.${key}}`).join(String(value ?? ""));
-        });
-      });
-      const fullHtml = `<!DOCTYPE html><html><head><meta charset="utf-8"/><title>Cotización #${row.numero_cotizacion || row.id}</title><style>body{font-family:Arial,sans-serif;padding:24px;color:#222} .muted{color:#666} .right{text-align:right} table{width:100%;border-collapse:collapse;margin-top:12px} th,td{border:1px solid #ddd;padding:8px;text-align:left} th{background:#f7f7f7}</style></head><body>${html}</body></html>`;
-      const fileName = `cotizacion-${row.numero_cotizacion || row.id}-${Date.now()}.html`;
-      const file = new Blob([fullHtml], { type: "text/html" });
-      const url = await storageHelper.upload("crm-documents", `cotizaciones/${fileName}`, file as any);
-      try { await documentosService.create({ titulo: `Cotización #${row.numero_cotizacion || row.id}`, tipo: "cotizacion", url, descripcion: `Generada automáticamente. Total: $${total}`, proyecto_id: row.proyecto_id || null, cliente_id: row.cliente_id || null, factura_id: null }); } catch {}
-      globalSnack.show("Cotización generada", "success");
-      if (typeof window !== "undefined") {
-        const win = window.open();
-        if (win) { win.document.write(fullHtml); win.document.close(); }
-      }
-    } catch (err: any) { globalSnack.show(err.message || "Error generando cotización", "error"); }
+    const res = await generarYGuardarDocumento("cotizacion", {
+      id: row.id,
+      total: row.total,
+      estado: row.estado,
+      proyecto_id: row.proyecto_id,
+      cliente_id: row.cliente_id,
+    });
+    if (!res.ok) { globalSnack.show(res.error || "Error generando documento", "error"); return; }
+    globalSnack.show("Cotización generada y guardada en documentos", "success");
+    if (typeof window !== "undefined") {
+      const win = window.open(res.url, "_blank");
+      if (!win) globalSnack.show("Documento generado. Revisá la sección Documentos.", "info");
+    }
+  };
+
+  const verDocumento = (row: any) => {
+    const url = row?.documento_url || row?.url;
+    if (url) {
+      setDocumentoUrl(url);
+      if (typeof window !== "undefined") window.open(url, "_blank");
+    } else {
+      globalSnack.show("Sin documento disponible", "warning");
+    }
   };
 
   return (
@@ -193,6 +189,7 @@ export default function Cotizaciones() {
                 <Chip size="small" label={estado} color={estadoColor as any} sx={{ height: { xs: 22, sm: 26 }, fontSize: { xs: '0.65rem', sm: '0.7rem' } }} />
                 <Typography variant="caption" sx={{ fontWeight: "bold", fontSize: { xs: '0.8rem', sm: '0.85rem' } }}>${Number(row.total || 0).toFixed(0)}</Typography>
                 <Box sx={{ display: "flex", gap: { xs: 0.25, sm: 0.5 }, flexWrap: "wrap" }}>
+                  <Tooltip title="Ver documento"><IconButton size="small" aria-label="Acciones de cotización" onClick={() => verDocumento(row)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiEye size={16}/></IconButton></Tooltip>
                   <Tooltip title="Generar documento"><IconButton size="small" aria-label="Acciones de cotización" onClick={() => generarDocumento(row)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiFileText size={16}/></IconButton></Tooltip>
                   <Tooltip title="Enviar por WhatsApp"><IconButton size="small" aria-label="Acciones de cotización" color="success" onClick={() => sendWhatsApp(row)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiMessageSquare size={16}/></IconButton></Tooltip>
                   <Tooltip title="Editar"><IconButton size="small" aria-label="Acciones de cotización" onClick={() => openEdit(row)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiEdit size={16}/></IconButton></Tooltip>

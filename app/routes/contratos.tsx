@@ -7,6 +7,7 @@ import {
 import { FiRefreshCw, FiPlus, FiX, FiUpload, FiFileText, FiEdit, FiTrash2 } from "react-icons/fi";
 import { contratosService } from "../services/supabase";
 import { storageHelper } from "../services/supabase";
+import { generarYGuardarDocumento } from "../services/docsHelper";
 import { useCRMStore } from "../store/useCRMStore";
 import { globalSnack } from "../components/GlobalSnackbar";
 import { EmptyState } from "../components/EmptyState";
@@ -30,6 +31,7 @@ export default function Contratos() {
   const [page, setPage] = useState(1);
   const pageSize = 16;
   const [file, setFile] = useState<File | null>(null);
+  const [documentoUrl, setDocumentoUrl] = useState<string | null>(null);
     
   const load = async () => {
     try { setLoading(true); setError(null); await fetchContratos(); }
@@ -78,6 +80,42 @@ export default function Contratos() {
     try { await contratosService.delete(deleteTarget.id); await load(); globalSnack.show("Contrato eliminado", "success"); }
     catch (err: any) { globalSnack.show(err.message || "Error eliminando contrato", "error"); }
     finally { setDeleteTarget(null); }
+  };
+
+  // --- Documentos: generar y ver ---
+  const generarDocumentoContrato = async (c: any) => {
+    try {
+      const res = await generarYGuardarDocumento("contrato", {
+        id: c.id,
+        cliente_id: c.cliente_id ? Number(c.cliente_id) : undefined,
+        proyecto_id: c.proyecto_id || undefined,
+        factura_id: c.factura_id ? Number(c.factura_id) : undefined,
+        titulo: `Contrato #${c.id}`,
+        valor: c.valor,
+        estado: c.estado,
+        fecha_inicio: c.fecha_inicio,
+        fecha_fin: c.fecha_fin,
+        url: c.url,
+      });
+      if (res.ok) {
+        setDocumentoUrl(res.url);
+        globalSnack.show(`Contrato #${c.id} generado.`, "success");
+        await load();
+      } else {
+        globalSnack.show(res.error || "Error generando documento", "error");
+      }
+    } catch (err: any) {
+      globalSnack.show(err.message || "Error generando documento", "error");
+    }
+  };
+
+  const verDocumentoContrato = (c: any) => {
+    const url = c.url || documentoUrl;
+    if (!url) {
+      globalSnack.show("Primero genera el documento", "warning");
+      return;
+    }
+    window.open(url, "_blank", "noopener,noreferrer");
   };
 
   return (
@@ -156,6 +194,16 @@ export default function Contratos() {
                   )}
                   <Box sx={{ display: "flex", gap: { xs: 0.25, sm: 0.5 }, flexWrap: "wrap" }}>
                     <Tooltip title="Editar contrato"><IconButton size="small" onClick={() => openEdit(c)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiEdit size={16}/></IconButton></Tooltip>
+                    <Tooltip title={documentoUrl ? "Ver documento" : "Generar documento"}>
+                      <IconButton size="small" onClick={() => verDocumentoContrato(c)} sx={{ color: documentoUrl ? '#1976d2' : '#9e9e9e' }}>
+                        <FiEye size={16} />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Generar documento">
+                      <IconButton size="small" onClick={() => generarDocumentoContrato(c)}>
+                        <FiFileText size={16} />
+                      </IconButton>
+                    </Tooltip>
                     <Tooltip title="Eliminar contrato"><IconButton size="small" color="error" onClick={() => handleDelete(c)} sx={{ p: { xs: '2px', sm: '4px' } }}><FiTrash2 size={16}/></IconButton></Tooltip>
                   </Box>
                 </Paper>

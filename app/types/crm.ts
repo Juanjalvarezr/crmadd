@@ -1,95 +1,75 @@
-export interface Cliente {
+export interface Prospecto {
   id: number;
+  codigo: string;
   nombre: string;
-  email: string;
-  telefono: string;
-  empresa?: string;
-  nicho?: string;
+  tipo_negocio?: string;
+  descripcion?: string;
+  telefono?: string;
+  email?: string;
+  direccion?: string;
+  ubicacion?: string;
   origen?: string;
-  dolores?: string;
-  necesidades?: string;
-  intereses?: string;
-  estado: "Activo" | "Inactivo";
-  ultima_interaccion: string; // Corregido a snake_case para coincidir con DB
-  createdAt: string;
-  favorito?: boolean;
-}
-
-export interface Oportunidad {
-  id: number;
-  nombre: string;
-  cliente_id: number | null;
-  cliente_nombre: string;
-  valor: number;
-  etapa: "Prospección" | "Propuesta" | "Negociación" | "Cierre";
-  servicios_interes?: string[];
-  probabilidad: number;
+  fecha_extraccion?: string;
   estado: string;
-  created_at: string;
+  fecha_visita?: string;
+  fecha_cita?: string;
+  notas_visita?: string;
+  necesidades?: string;
+  solucion_propuesta?: string;
+  servicios?: any[];
+  precio_estimado?: number;
+  proximo_contacto?: string;
+  ultima_interaccion?: string;
+  es_prospecto?: boolean;
+  listo_contactar?: boolean;
+  canal_preferido?: string;
+  creado_en?: string;
 }
 
-export interface Tarea {
+export interface EnlaceDocumento {
   id: number;
   titulo: string;
-  descripcion: string;
-  fecha: string;
-  prioridad: "Baja" | "Media" | "Alta";
-  estado: "Pendiente" | "En progreso" | "Completada";
-  tipo: "Tarea" | "Cita" | "Llamada" | "Seguimiento";
-  cliente_id?: number | null;
-  created_at: string;
-}
-
-export interface PlanItem {
-  texto: string;
-  completada: boolean;
-  responsable?: string;
-}
-
-export interface TareaProyecto {
-  id: string;
-  nombre: string;
-  completada: boolean;
-  responsable: string;
-  fechaLimite: string;
-}
-
-export interface RecursoProyecto {
-  id: string;
-  tipo: 'drive' | 'sheet' | 'calendar' | 'doc' | 'url';
-  nombre: string;
   url: string;
+  tipo_documento?: string;
+  prospecto_id?: number;
+  cliente_id?: number;
+  creado_en?: string;
 }
 
-export interface Proyecto {
-  id: string;
-  nombre: string;
-  descripcion: string;
-  clienteId: number;
-  clienteNombre: string;
-  servicios: string[];
-  oportunidadId?: number;
-  estado: "planificacion" | "en_progreso" | "pausado" | "completado" | "cancelado";
-  prioridad: "baja" | "media" | "alta" | "urgente";
-  fechaInicio: string;
-  fechaFin: string;
-  progreso: number;
-  presupuesto: number;
-  costoActual: number;
-  tareas: TareaProyecto[];
-  recursos: RecursoProyecto[];
-  montoPagado: number;
-  estadoPago: "pendiente" | "parcial" | "pagado" | "vencido";
-  metodoPago?: "nequi" | "daviplata" | "transferencia" | "efectivo";
-  faseAdministrativa: "propuesta" | "contrato" | "onboarding" | "operacion" | "capacitacion" | "renovacion";
-  onboardingChecklist: {
-    [key: string]: boolean;
-  };
-  planContenido: {
-    reels: (string | PlanItem)[];
-    stories: (string | PlanItem)[];
-    pauta: (string | PlanItem)[];
-  };
-  creadoEn: string;
-  actualizadoEn: string;
-}
+export type EstadoProspecto =
+  | 'Nuevo'
+  | 'Pendiente'
+  | 'Contactado'
+  | 'En Revisión'
+  | 'Propuesta'
+  | 'Cotización'
+  | 'Contratos'
+  | 'Facturación'
+  | 'Cliente'
+  | 'Perdido';
+
+export const ESTADOS_PROGRESS: Record<EstadoProspecto, number> = {
+  Nuevo: 5,
+  Pendiente: 15,
+  Contactado: 25,
+  'En Revisión': 40,
+  Propuesta: 55,
+  Cotización: 70,
+  Contratos: 85,
+  Facturación: 95,
+  Cliente: 100,
+  Perdido: 0,
+};
+
+export const ESTADO_COLORS: Record<EstadoProspecto, 'success' | 'info' | 'warning' | 'error' | 'primary' | 'secondary'> = {
+  Nuevo: 'success',
+  Pendiente: 'info',
+  Contactado: 'primary',
+  'En Revisión': 'warning',
+  Propuesta: 'warning',
+  Cotización: 'warning',
+  Contratos: 'info',
+  Facturación: 'info',
+  Cliente: 'success',
+  Perdido: 'error',
+};
