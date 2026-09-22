@@ -16,7 +16,7 @@ import {
   Video, Camera, Zap, Award, FileCheck, Share2, Mail, Send,
   Plus, Circle
 } from "lucide-react";
-import { FiFileText, FiRefreshCw, FiPlus, FiDownload } from "react-icons/fi";
+import { FiFileText, FiRefreshCw, FiPlus, FiDownload, FiEye } from "react-icons/fi";
 import { format, formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 import { emailService, subagentesService as equipoService, logsService, proyectosService, tareasService } from "../services/supabase";

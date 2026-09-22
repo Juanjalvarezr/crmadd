@@ -143,16 +143,16 @@ export default function Clientes() {
 
   const [page, setPage] = useState(1);
   const pageSize = 10;
-  const totalPages = useMemo(() => Math.ceil(filteredClientes.length / itemsPerPage) || 1, [filteredClientes.length]);
+  const totalPages = useMemo(() => Math.ceil(filteredClientes.length / pageSize) || 1, [filteredClientes.length]);
 
   const [documentoUrl, setDocumentoUrl] = useState<string | null>(null);
-  
+
   const paginatedClientes = useMemo(() => {
     return filteredClientes.slice(
-      (page - 1) * itemsPerPage,
-      page * itemsPerPage
+      (page - 1) * pageSize,
+      page * pageSize
     );
-  }, [filteredClientes, page, itemsPerPage]);
+  }, [filteredClientes, page, pageSize]);
 
   const clientesActivos = useMemo(() => clientes.filter(c => c.estado === "Activo").length, [clientes]);
   const clientesInactivos = useMemo(() => clientes.filter(c => c.estado === "Inactivo").length, [clientes]);
