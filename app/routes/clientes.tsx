@@ -844,27 +844,31 @@ export default function Clientes() {
           </Box>
         </DialogTitle>
         <DialogContent>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}>
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 1, mt: 1 }}>
             <TextField
               label="Nombre completo *"
               fullWidth
               value={formData.nombre}
               onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
+              size="small"
               required
             />
             <TextField
               label="Email *"
               type="email"
+              size="small"
               fullWidth
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               required
             />
+              size="small"
             <TextField
               label="Teléfono"
               fullWidth
               value={formData.telefono}
               onChange={(e) => setFormData({ ...formData, telefono: e.target.value })}
+              size="small"
             />
             <TextField
               label="Empresa"
@@ -872,6 +876,7 @@ export default function Clientes() {
               value={formData.empresa}
               onChange={(e) => setFormData({ ...formData, empresa: e.target.value })}
               placeholder="Nombre de la empresa o marca"
+              size="small"
             />
             <TextField
               label="¿Qué le duele al cliente? (Dolores)"
@@ -879,6 +884,7 @@ export default function Clientes() {
               multiline
               rows={2}
               value={formData.dolores}
+              size="small"
               onChange={(e) => setFormData({ ...formData, dolores: e.target.value })}
               placeholder="Ej: No vende por Instagram, su web es lenta..."
             />
@@ -888,14 +894,15 @@ export default function Clientes() {
               value={formData.necesidades}
               onChange={(e) => setFormData({ ...formData, necesidades: e.target.value })}
             />
-            <Grid container spacing={2}>
-              <Grid item xs={12} md={6}>
-                <FormControl fullWidth>
-                  <InputLabel>Nicho / Industria</InputLabel>
+            <Grid container spacing={0.5}>
+              <Grid item xs={12} md={4}>
+                <FormControl fullWidth size="small">
+                  <InputLabel shrink>Nicho / Industria</InputLabel>
                   <Select
                     value={formData.nicho}
                     label="Nicho / Industria"
                     onChange={(e) => setFormData({ ...formData, nicho: e.target.value })}
+                    size="small"
                   >
                     <MenuItem value=""><em>Ninguno</em></MenuItem>
                     <MenuItem value="Tecnología">Tecnología</MenuItem>
@@ -907,13 +914,14 @@ export default function Clientes() {
                   </Select>
                 </FormControl>
               </Grid>
-              <Grid item xs={12} md={6}>
-                <FormControl fullWidth>
-                  <InputLabel>Origen del Lead</InputLabel>
+              <Grid item xs={12} md={4}>
+                <FormControl fullWidth size="small">
+                  <InputLabel shrink>Origen del Lead</InputLabel>
                   <Select
                     value={formData.origen}
                     label="Origen del Lead"
                     onChange={(e) => setFormData({ ...formData, origen: e.target.value })}
+                    size="small"
                   >
                     <MenuItem value=""><em>No especificado</em></MenuItem>
                     <MenuItem value="n8n">n8n (Automatización)</MenuItem>
@@ -922,6 +930,20 @@ export default function Clientes() {
                     <MenuItem value="Referido">Referido</MenuItem>
                     <MenuItem value="Directo">Directo / Web</MenuItem>
                     <MenuItem value="WhatsApp">WhatsApp</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <FormControl fullWidth size="small">
+                  <InputLabel shrink>Estado</InputLabel>
+                  <Select
+                    value={formData.estado}
+                    label="Estado"
+                    onChange={(e) => setFormData({ ...formData, estado: e.target.value as "Activo" | "Inactivo" })}
+                    size="small"
+                  >
+                    <MenuItem value="Activo">Activo</MenuItem>
+                    <MenuItem value="Inactivo">Inactivo</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>
@@ -987,8 +1009,8 @@ export default function Clientes() {
             <IconButton onClick={() => setSelectedClient(null)}><FiX /></IconButton>
           </Box>
           {selectedClient && (
-            <Box sx={{ mt: 1 }}>
-              <Tabs value={detailTab} onChange={(_, v) => setDetailTab(v)} variant="scrollable" scrollButtons="auto" sx={{ minHeight: 32, '& .MuiTab-root': { minHeight: 32, py: 0.5, fontSize: { xs: '0.75rem', sm: '0.8rem' }, minWidth: 0, padding: '0 8px' } }}>
+            <Box sx={{ mt: 0.5 }}>
+              <Tabs value={detailTab} onChange={(_, v) => setDetailTab(v)} variant="scrollable" scrollButtons="auto" sx={{ minHeight: 28, '& .MuiTab-root': { minHeight: 28, py: 0.25, fontSize: { xs: '0.65rem', sm: '0.7rem' }, minWidth: 0, px: 1 } }}>
                 <Tab label="Datos" />
                 <Tab label="Proyectos" />
                 <Tab label="Oportunidades" />
