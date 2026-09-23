@@ -24,10 +24,10 @@ interface TareaKanban {
 }
 
 const COLUMNAS: { key: Estado; label: string; color: string }[] = [
-  { key: "Pendiente", label: "Por hacer", color: "#9E9E9E" },
-  { key: "En progreso", label: "En curso", color: "#2196F3" },
-  { key: "En revisión", label: "Revisión", color: "#FF9800" },
-  { key: "Completada", label: "Entregado", color: "#4CAF50" },
+  { key: "Pendiente", label: "Por hacer", color: "grey" },
+  { key: "En progreso", label: "En curso", color: "info" },
+  { key: "En revisión", label: "Revisión", color: "warning" },
+  { key: "Completada", label: "Entregado", color: "success" },
 ];
 
 export function meta() {
