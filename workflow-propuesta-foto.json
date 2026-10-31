@@ -1,0 +1,169 @@
+{
+  "name": "Propuesta por Foto - DESEO DIGITAL",
+  "active": true,
+  "nodes": [
+    {
+      "parameters": {
+        "requestMethod": "POST",
+        "path": "foto-propuesta",
+        "responseMode": "onReceived",
+        "responseData": "all",
+        "credentials": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "id": "webhook-foto",
+      "name": "Webhook - Recibir Foto",
+      "position": [200, 300],
+      "webhookId": "foto-propuesta"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "id": "code-extract",
+      "name": "Code - Validar y preparar",
+      "position": [400, 300],
+      "alwaysOutputData": false,
+      "code": "if (!msg.body || !msg.body.image) {\n  return {\n    json: { error: 'Falta el campo image' }\n  };\n}\n\n// Extraer campos esperados del body\nconst image = msg.body.image;\nconst prompt = msg.body.prompt || 'Extraer nombre, telefono, correo y web';\n\nreturn {\n  json: {\n    image: image,\n    prompt: prompt\n  },\n  headers: msg.headers\n};"
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "prompt": "Extrae de esta imagen del negocio:\n- nombre_del_negocio\n- telefono\n- correo\n- web\n\nDevuelve únicamente este JSON:\n{\n  \"business_name\": \"...\",\n  \"phone\": \"...\",\n  \"email\": \"...\",\n  \"website\": \"...\"\n}",
+        "modelOptions": {},
+        "additionalFields": {},
+        "credentials": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpsRequest",
+      "typeVersion": 1,
+      "id": "ai-extract",
+      "name": "AI - Extraer datos del negocio"
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "prompt": "Actúa como agencia de marketing digital. A partir de:\n- Nombre del negocio: {{$json.business_name}}\n- Teléfono: {{$json.phone}}\n- Correo: {{$json.email}}\n- Web: {{$json.website}}\n\nCrea una propuesta de servicios con:\n1. Contenido visual\n2. Identidad digital\n3. Campañas publicitarias\n\nEstructura:\n- Título\n- Resumen\n- Servicios recomendados\n- Presupuesto estimado\n- Próximos pasos",
+        "modelOptions": {},
+        "additionalFields": {},
+        "credentials": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpsRequest",
+      "typeVersion": 1,
+      "id": "ai-proposal",
+      "name": "AI - Generar propuesta"
+    },
+    {
+      "parameters": {
+        "properties": {
+          "phone": "={{$json.phone}}",
+          "text": "={{$json.text}}"
+        },
+        "webhookId": "foto-propuesta",
+        "credentials": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpsRequest",
+      "typeVersion": 1,
+      "id": "http-owa-send",
+      "name": "HTTP - Enviar a OpenWA (WhatsApp)"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "email",
+              "value": "emprende.villavo@gmail.com"
+            }
+          ]
+        },
+        "credentials": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "id": "set-email",
+      "name": "Set - Destinatario",
+      "position": [700, 400],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "subject": "Propuesta - <{{$json.business_name}}>",
+        "html": "<!DOCTYPE html><html><body><h2>Propuesta creada</h2><p><strong>Nombre:</strong> {{$json.business_name}}</p><p><strong>Teléfono:</strong> {{$json.phone}}</p><p><strong>Correo:</strong> {{$json.email}}</p><p><strong>Web:</strong> {{$json.website}}</p><h3>Servicio recomendado</h3><p>{{$json.proposal}}</p></body></html>",
+        "text": "Propuesta - {{$json.business_name}}\n\nTeléfono: {{$json.phone}}\nCorreo: {{$json.email}}\nWeb: {{$json.website}}\n\nServicios recomendados:\n{{$json.proposal}}",
+        "credentials": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 1,
+      "id": "email-send",
+      "name": "Email - Enviar Propuesta"
+    }
+  ],
+  "connections": {
+    "Webhook - Recibir Foto": {
+      "outputs": [
+        [
+          {
+            "node": "Code - Validar y preparar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Validar y preparar": {
+      "outputs": [
+        [
+          {
+            "node": "AI - Extraer datos del negocio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI - Extraer datos del negocio": {
+      "outputs": [
+        [
+          {
+            "node": "AI - Generar propuesta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI - Generar propuesta": {
+      "outputs": [
+        [
+          {
+            "node": "HTTP - Enviar a OpenWA (WhatsApp)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP - Enviar a OpenWA (WhatsApp)": {
+      "outputs": [
+        [
+          {
+            "node": "Email - Enviar Propuesta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "id": "propuesta-foto-workflow",
+  "version": 1
+}
