@@ -61,6 +61,30 @@ export const ESTADOS_PROGRESS: Record<EstadoProspecto, number> = {
   Perdido: 0,
 };
 
+export interface Proyecto {
+  id?: string | number;
+  nombre: string;
+  [key: string]: any;
+}
+
+export interface Oportunidad {
+  id?: number;
+  created_at?: string;
+  [key: string]: any;
+}
+
+export interface Cliente {
+  id?: number;
+  nombre: string;
+  email?: string;
+  telefono?: string;
+  empresa?: string;
+  nicho?: string;
+  estado?: string;
+  createdAt?: string;
+  favorito?: boolean;
+  [key: string]: any;
+}
 export const ESTADO_COLORS: Record<EstadoProspecto, 'success' | 'info' | 'warning' | 'error' | 'primary' | 'secondary'> = {
   Nuevo: 'success',
   Pendiente: 'info',

@@ -111,9 +111,9 @@ handlers["factura_pagada"] = async (payload) => {
 
   // Regla: notificar siempre al equipo
   await safeSendEmail(
-    getRecipientsForEvent("factura_pagada"),
     `Factura pagada #${facturaId}`,
-    `<p>Factura #${facturaId} por $${total.toFixed(0)} marcada como pagada.</p>`
+    `<p>Factura #${facturaId} por $${total.toFixed(0)} marcada como pagada.</p>`,
+    getRecipientsForEvent("factura_pagada")
   );
 
   // Regla: si tiene monto, guardar documento
@@ -137,9 +137,9 @@ handlers["cotizacion_guardada"] = async (payload) => {
   const estado = payload.estado || "Borrador";
 
   await safeSendEmail(
-    getRecipientsForEvent("cotizacion_guardada"),
     `Cotización guardada #${cotizacionId}`,
-    `<p>Cotización #${cotizacionId} en estado ${estado}.</p>`
+    `<p>Cotización #${cotizacionId} en estado ${estado}.</p>`,
+    getRecipientsForEvent("cotizacion_guardada")
   );
 
   await upsertDocumento({
@@ -172,9 +172,9 @@ handlers["tarea_guardada"] = async (payload) => {
   const estado = payload.estado || "Pendiente";
 
   await safeSendEmail(
-    getRecipientsForEvent("tarea_guardada"),
     `Tarea #${tareaId}`,
-    `<p>Tarea actualizada a estado ${estado}.</p>`
+    `<p>Tarea actualizada a estado ${estado}.</p>`,
+    getRecipientsForEvent("tarea_guardada")
   );
 
   await auditLog("tareas", "tarea_guardada", { tarea_id: tareaId, estado });
@@ -185,9 +185,9 @@ handlers["documento_creado"] = async (payload) => {
   const tipo = payload.tipo;
 
   await safeSendEmail(
-    getRecipientsForEvent("documento_creado"),
     `Documento creado: ${titulo}`,
-    `<p>Documento <strong>${titulo}</strong> tipo ${tipo}.</p>`
+    `<p>Documento <strong>${titulo}</strong> tipo ${tipo}.</p>`,
+    getRecipientsForEvent("documento_creado")
   );
 
   await auditLog("documentos", "documento_creado", { titulo, tipo });
