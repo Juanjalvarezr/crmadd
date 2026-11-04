@@ -100,7 +100,7 @@ export default function Root() {
     if (authState === "guest" && !isPublic) {
       navigate("/login", { replace: true });
     } else if (authState === "authed" && location.pathname === "/login") {
-      navigate("/", { replace: true });
+      navigate("/dashboard", { replace: true });
     }
   }, [authState, isPublic, location.pathname, navigate]);
 
@@ -114,7 +114,7 @@ export default function Root() {
 
   useEffect(() => {
     if (rol === "viewer" && isSensitive(location.pathname)) {
-      navigate("/", { replace: true });
+      navigate("/dashboard", { replace: true });
     }
   }, [rol, location.pathname, navigate]);
 
