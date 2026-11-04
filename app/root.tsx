@@ -5,9 +5,14 @@ import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
 import { MobileFab } from "./components/MobileFab";
 import GlobalSearch from "./components/GlobalSearch";
+import { FloatingAIAssistant } from "./components/FloatingAIAssistant";
 import { darkTheme, lightTheme } from "./theme";
 import GlobalSnackbar from "./components/GlobalSnackbar";
-import { safeSendEmail, crmPollingService } from "./services/crmPollingService";
+import { crmPollingService } from "./services/crmPollingService";
+import { supabase } from "./services/supabase";
+import { getCurrentRol, isSensitive, type Rol } from "./utils/rbac";
+
+const PUBLIC_PREFIXES = ["/login", "/public/proyecto"];
 
 const DRAWER_WIDTH = 260;
 
@@ -40,6 +45,10 @@ export function meta() {
   return [
     { title: "CRM DESEO DIGITAL" },
     { name: "viewport", content: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=yes" },
+    { name: "theme-color", content: "#e91e63" },
+    { name: "mobile-web-app-capable", content: "yes" },
+    { name: "apple-mobile-web-app-capable", content: "yes" },
+    { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
   ];
 }
 
@@ -65,20 +74,62 @@ export default function Root() {
 
   const theme = themeMode === "dark" ? darkTheme : lightTheme;
 
-  useEffect(() => {
-    const stored =
-      typeof window !== "undefined"
-        ? window.localStorage.getItem("crm_logged_in")
-        : null;
-    const isAuthenticated = stored === null ? true : stored === "true";
-    const isLoginPage = location.pathname === "/login";
+  const [authState, setAuthState] = useState<"checking" | "authed" | "guest">("checking");
+  const [rol, setRol] = useState<Rol | null>(null);
+  const isPublic = PUBLIC_PREFIXES.some((p) => location.pathname === p || location.pathname.startsWith(p + "/"));
 
-    if (!isAuthenticated && !isLoginPage) {
+  // Guard real: sesión Supabase (no localStorage). /login y /public/proyecto/:id son públicas.
+  useEffect(() => {
+    let mounted = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (!mounted) return;
+      setAuthState(data.session ? "authed" : "guest");
+    }).catch(() => { if (mounted) setAuthState("guest"); });
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!mounted) return;
+      setAuthState(session ? "authed" : "guest");
+    });
+    return () => { mounted = false; sub.subscription.unsubscribe(); };
+  }, []);
+
+  useEffect(() => {
+    if (authState === "checking") return;
+    if (authState === "guest" && !isPublic) {
       navigate("/login", { replace: true });
-    } else if (isAuthenticated && isLoginPage) {
+    } else if (authState === "authed" && location.pathname === "/login") {
       navigate("/", { replace: true });
     }
-  }, [navigate, location.pathname]);
+  }, [authState, isPublic, location.pathname, navigate]);
+
+  // RBAC: cargar rol y bloquear rutas sensibles para viewer
+  useEffect(() => {
+    if (authState !== "authed") { setRol(null); return; }
+    let mounted = true;
+    getCurrentRol().then((r) => { if (mounted) setRol(r); }).catch(() => { if (mounted) setRol("viewer"); });
+    return () => { mounted = false; };
+  }, [authState]);
+
+  useEffect(() => {
+    if (rol === "viewer" && isSensitive(location.pathname)) {
+      navigate("/", { replace: true });
+    }
+  }, [rol, location.pathname, navigate]);
+
+  // PWA: manifest + iconos en <head> (root no exporta Layout)
+  useEffect(() => {
+    const head = document.head;
+    if (!head.querySelector('link[rel="manifest"]')) {
+      const l = document.createElement("link");
+      l.rel = "manifest"; l.href = "/manifest.json";
+      head.appendChild(l);
+    }
+    if (!head.querySelector('link[rel="apple-touch-icon"]')) {
+      const l = document.createElement("link");
+      l.rel = "apple-touch-icon"; l.href = "/icon-192.png";
+      head.appendChild(l);
+    }
+  }, []);
 
   useEffect(() => {
     const handler = (e: Event) => {
@@ -91,39 +142,50 @@ export default function Root() {
     return () => window.removeEventListener("theme-changed", handler as EventListener);
   }, []);
 
+  // Polling: handlers Fase 1 viven en crmPollingService (email + documento + audit + follow-up).
+  // No re-registrar aquí: register() sobrescribe y degradaría la lógica real.
   useEffect(() => {
-    crmPollingService.register("factura_pagada", async (payload) => {
-      await safeSendEmail(`Factura pagada #${payload.factura_id}`, `<p>Factura #${payload.factura_id} por $${Number(payload.total || 0).toFixed(0)} marcada como pagada.</p>`);
-    });
-    crmPollingService.register("cotizacion_guardada", async (payload) => {
-      await safeSendEmail(`Cotización guardada #${payload.cotizacion_id}`, `<p>Cotización #${payload.cotizacion_id} en estado ${payload.estado || 'Borrador'}.</p>`);
-    });
-    crmPollingService.register("tarea_guardada", async (payload) => {
-      await safeSendEmail(`Tarea #${payload.tarea_id}`, `<p>Tarea actualizada a estado ${payload.estado || 'Pendiente'}.</p>`);
-    });
-    crmPollingService.register("documento_creado", async (payload) => {
-      await safeSendEmail(`Documento creado: ${payload.titulo}`, `<p>Documento <strong>${payload.titulo}</strong> tipo ${payload.tipo}.</p>`);
-    });
-    crmPollingService.register("email_enviado", async (payload) => {
-      console.log("[polling] email_enviado audit", payload);
-    });
     const id = setInterval(() => {
       crmPollingService.tick();
     }, 30000);
+    // primer tick inmediato
+    crmPollingService.tick();
     return () => clearInterval(id);
   }, []);
 
+  // Búsqueda global: Ctrl/Cmd+K + evento del Header
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setSearchOpen(true);
+      }
+    };
+    const onOpen = () => setSearchOpen(true);
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("open-global-search", onOpen);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("open-global-search", onOpen);
+    };
+  }, []);
+
+  // PWA: registrar service worker (antes se desregistraba)
   useEffect(() => {
     if (typeof window !== "undefined" && "serviceWorker" in navigator) {
-      navigator.serviceWorker.getRegistrations().then((registrations) => {
-        registrations.forEach((registration) => {
-          registration.unregister().catch(() => {});
-        });
-      }).catch(() => {});
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
     }
   }, []);
 
-  if (location.pathname === "/login") {
+  if (authState === "checking" && !isPublic) {
+    return (
+      <Box sx={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#0f0f13", color: "#fff" }}>
+        <Typography variant="body2">Verificando sesión...</Typography>
+      </Box>
+    );
+  }
+
+  if (isPublic) {
     return (
       <Box id="main-content" sx={{ outline: "none" }}>
         <Outlet />
@@ -189,6 +251,7 @@ export default function Root() {
         </Box>
           </Box>
           <MobileFab />
+          <FloatingAIAssistant />
           <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
           <GlobalSnackbar />
         </Box>

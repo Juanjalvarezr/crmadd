@@ -1,4 +1,5 @@
 import { useEffect, useState, Fragment } from "react";
+import { useNavigate } from "react-router";
 import { AppBar, Toolbar, Typography, Avatar, Box, IconButton, Menu, MenuItem, Badge, Chip, List, ListItem, ListItemIcon, ListItemText, Button } from "@mui/material";
 import { FiLogOut, FiSettings, FiBell, FiUser, FiMenu, FiAlertCircle, FiTrendingUp, FiInfo, FiSun, FiMoon, FiSearch, FiEye, FiEyeOff } from "react-icons/fi";
 import { useCRMStore } from "../store/useCRMStore";
@@ -13,6 +14,7 @@ interface HeaderProps {
 type CurrentUser = { nombre: string; email: string; rol: string; avatar: string };
 
 export const Header: React.FC<HeaderProps> = ({ onMenuClick, themeMode = "dark", onToggleTheme }) => {
+  const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [notificationAnchor, setNotificationAnchor] = useState<null | HTMLElement>(null);
   const [isPresentationMode, setIsPresentationMode] = useState(false);
@@ -111,6 +113,9 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick, themeMode = "dark",
       await supabase.auth.signOut();
     } catch (e) {
       console.error("Logout failed", e);
+    } finally {
+      localStorage.removeItem("crm_logged_in");
+      navigate("/login", { replace: true });
     }
   };
 
