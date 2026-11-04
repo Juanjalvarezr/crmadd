@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { 
   Dialog, DialogContent, TextField, List, ListItem, ListItemText, 
   ListItemIcon, Typography, Box, InputAdornment, Chip, Divider 
@@ -12,25 +12,39 @@ export default function GlobalSearch({ open, onClose }: { open: boolean, onClose
   const [results, setResultados] = useState<{tipo: string, nombre: string, id: string, path: string}[]>([]);
   const navigate = useNavigate();
 
+  const cache = useRef<{ clis: any[]; proys: any[]; tasks: any[] } | null>(null);
+
+  // Cargar UNA vez al abrir (antes: 3 queries a tablas completas por cada tecla)
+  useEffect(() => {
+    if (!open || cache.current) return;
+    let alive = true;
+    Promise.all([
+      clientesService.getAll().catch(() => []),
+      proyectosService.getAll().catch(() => []),
+      tareasService.getAll().catch(() => []),
+    ]).then(([clis, proys, tasks]) => {
+      if (alive) cache.current = { clis, proys, tasks };
+    });
+    return () => { alive = false; };
+  }, [open]);
+
   useEffect(() => {
     const performSearch = async () => {
       if (query.length < 2) {
         setResultados([]);
         return;
       }
+      if (!cache.current) return; // aún cargando, no bloquear el input
 
-      const [clis, proys, tasks] = await Promise.all([
-        clientesService.getAll(),
-        proyectosService.getAll(),
-        tareasService.getAll()
-      ]);
+      const { clis, proys, tasks } = cache.current;
+      const q = query.toLowerCase();
 
       const filtered = [
-        ...clis.filter(c => c.nombre.toLowerCase().includes(query.toLowerCase()))
+        ...clis.filter(c => (c.nombre || '').toLowerCase().includes(q))
           .map(c => ({ tipo: 'Cliente', nombre: c.nombre, id: String(c.id), path: '/clientes' })),
-        ...proys.filter(p => p.nombre.toLowerCase().includes(query.toLowerCase()))
+        ...proys.filter(p => (p.nombre || '').toLowerCase().includes(q))
           .map(p => ({ tipo: 'Proyecto', nombre: p.nombre, id: p.id, path: '/proyectos' })),
-        ...tasks.filter(t => t.titulo.toLowerCase().includes(query.toLowerCase()))
+        ...tasks.filter(t => (t.titulo || '').toLowerCase().includes(q))
           .map(t => ({ tipo: 'Tarea', nombre: t.titulo, id: String(t.id), path: '/tareas' }))
       ];
 

@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, lazy, Suspense } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router";
 import { Box, ThemeProvider, CssBaseline, Typography } from "@mui/material";
 import { Sidebar } from "./components/Sidebar";
 import { Header } from "./components/Header";
 import { MobileFab } from "./components/MobileFab";
-import GlobalSearch from "./components/GlobalSearch";
-import { FloatingAIAssistant } from "./components/FloatingAIAssistant";
+const GlobalSearch = lazy(() => import("./components/GlobalSearch"));
+const FloatingAIAssistant = lazy(() =>
+  import("./components/FloatingAIAssistant").then((m) => ({ default: m.FloatingAIAssistant }))
+);
 import { darkTheme, lightTheme } from "./theme";
 import GlobalSnackbar from "./components/GlobalSnackbar";
 import { crmPollingService } from "./services/crmPollingService";
@@ -251,8 +253,10 @@ export default function Root() {
         </Box>
           </Box>
           <MobileFab />
-          <FloatingAIAssistant />
-          <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
+          <Suspense fallback={null}>
+            <FloatingAIAssistant />
+            <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
+          </Suspense>
           <GlobalSnackbar />
         </Box>
       </Box>
