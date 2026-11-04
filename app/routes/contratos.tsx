@@ -7,7 +7,6 @@ import {
 import { FiRefreshCw, FiPlus, FiX, FiUpload, FiFileText, FiEdit, FiTrash2, FiEye } from "react-icons/fi";
 import { contratosService } from "../services/supabase";
 import { storageHelper } from "../services/supabase";
-import { generarYGuardarDocumento } from "../services/docsHelper";
 import { useCRMStore } from "../store/useCRMStore";
 import { globalSnack } from "../components/GlobalSnackbar";
 import { EmptyState } from "../components/EmptyState";
@@ -85,6 +84,7 @@ export default function Contratos() {
   // --- Documentos: generar y ver ---
   const generarDocumentoContrato = async (c: any) => {
     try {
+      const { generarYGuardarDocumento } = await import("../services/docsHelper");
       const res = await generarYGuardarDocumento("contrato", {
         id: c.id,
         cliente_id: c.cliente_id ? Number(c.cliente_id) : undefined,

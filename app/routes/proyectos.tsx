@@ -25,7 +25,6 @@ import type { Proyecto, TareaProyecto, RecursoProyecto, PlanItem } from "../type
 import { aiService } from "../services/ai";
 import { useCRMStore } from "../store/useCRMStore";
 import { useExportCsv } from "../utils/exportCsv";
-import { generarYGuardarDocumento } from "../services/docsHelper";
 import { globalSnack } from "../components/GlobalSnackbar";
 import { EmptyState } from "../components/EmptyState";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
@@ -654,6 +653,7 @@ export default function Proyectos() {
   // --- Documentos: generar y ver ---
   const generarDocumentoProyecto = async (proyecto: Proyecto) => {
     try {
+      const { generarYGuardarDocumento } = await import("../services/docsHelper");
       const res = await generarYGuardarDocumento("propuesta", {
         id: proyecto.id,
         cliente_id: proyecto.clienteId ? Number(proyecto.clienteId) : undefined,
