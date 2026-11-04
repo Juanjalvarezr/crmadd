@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { authService } from "../services/database";
+import { supabase } from "../services/supabase";
 
 export function meta() {
   return [{ title: "CRM DESEO DIGITAL · Ingreso" }];
@@ -11,6 +12,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [ready, setReady] = useState(false);
 
@@ -39,6 +41,20 @@ export default function LoginPage() {
     } catch (err: any) {
       setError(err?.message || "Error al ingresar");
       setLoading(false);
+    }
+  };
+
+  const handleForgot = async () => {
+    setError(null); setInfo(null);
+    if (!email) { setError("Escribe tu email para recuperar la contraseña."); return; }
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/login?reset=1`,
+      });
+      if (error) throw error;
+      setInfo("Si el correo existe, recibirás un enlace para restablecer tu contraseña.");
+    } catch (err: any) {
+      setError(err?.message || "No se pudo enviar el correo de recuperación.");
     }
   };
 
@@ -84,6 +100,7 @@ export default function LoginPage() {
           </div>
 
           {error && <div style={{ color: "#ff8a8a", fontSize: 13, background: "#2a1414", border: "1px solid #3a2020", padding: "10px 12px", borderRadius: 12 }}>{error}</div>}
+          {info && <div style={{ color: "#8affc1", fontSize: 13, background: "#142a1e", border: "1px solid #1e3a2a", padding: "10px 12px", borderRadius: 12 }}>{info}</div>}
 
           <button
             type="submit"
@@ -101,6 +118,13 @@ export default function LoginPage() {
             }}
           >
             {loading ? "Ingresando..." : "Ingresar"}
+          </button>
+          <button
+            type="button"
+            onClick={handleForgot}
+            style={{ background: "transparent", border: "none", color: "#a1a1aa", fontSize: 13, cursor: "pointer", padding: 4 }}
+          >
+            ¿Olvidaste tu contraseña?
           </button>
         </form>
 

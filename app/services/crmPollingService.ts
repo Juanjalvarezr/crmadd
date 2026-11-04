@@ -13,11 +13,13 @@ type EventHandler = (payload: any, eventId: number) => Promise<void> | void;
 const handlers: Record<string, EventHandler> = {};
 
 function getRecipientsForEvent(tipo: string): string[] {
-  // Ajustar a los destinatarios reales del negocio
+  // Destinatario configurable vía VITE_CRM_NOTIFY_EMAIL (fallback onboarding@resend.dev)
+  const env = (import.meta as any).env?.VITE_CRM_NOTIFY_EMAIL as string | undefined;
+  if (env) return env.split(",").map((s) => s.trim()).filter(Boolean);
   return ["onboarding@resend.dev"];
 }
 
-export async function safeSendEmail(subject: string, html: string, to: string[] = ["onboarding@resend.dev"]) {
+export async function safeSendEmail(subject: string, html: string, to: string[] = getRecipientsForEvent("default")) {
   try {
     const res = await emailService.sendRealEmail(to, subject, html);
     console.log("[polling] email enviado", res);

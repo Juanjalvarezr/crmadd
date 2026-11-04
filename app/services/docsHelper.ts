@@ -8,7 +8,7 @@ export async function generarYGuardarPDF(tipo: 'factura' | 'cotizacion' | 'contr
     
     // Crear archivo PDF
     const fileName = `crm-documents/${tipo}-${datos.id || Date.now()}.pdf`;
-    const file = new File([pdfBytes], fileName, { type: 'application/pdf' });
+    const file = new File([pdfBytes as unknown as BlobPart], fileName, { type: 'application/pdf' });
     
     // Subir al bucket
     const { error: uploadError } = await supabase.storage

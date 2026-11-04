@@ -6,6 +6,8 @@ import {
   FiFileText, FiDollarSign, FiTarget, FiChevronLeft, FiChevronRight 
 } from "react-icons/fi";
 import { Link, useLocation } from "react-router";
+import { useEffect, useState } from "react";
+import { getCurrentRol, isSensitive, type Rol } from "../utils/rbac";
 
 const DRAWER_WIDTH = 260;
 
@@ -51,6 +53,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onToggleCollapse 
 }) => {
   const location = useLocation();
+  const [rol, setRol] = useState<Rol>("admin");
+
+  useEffect(() => {
+    let mounted = true;
+    getCurrentRol().then((r) => { if (mounted) setRol(r); }).catch(() => {});
+    return () => { mounted = false; };
+  }, []);
+
+  const visibleMenuItems = menuItems.filter(
+    (item) => !(rol === "viewer" && isSensitive(item.path))
+  );
 
   const getNotificationCount = (path: string) => {
     const item = menuItems.find(item => item.path === path);
@@ -233,7 +246,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       
       {/* Menú Principal */}
       <List sx={{ px: 1, flexGrow: 1, overflowY: 'auto', py: 0.5 }}>
-        {menuItems.map((item) => {
+        {visibleMenuItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
           const notificationCount = getNotificationCount(item.path);
