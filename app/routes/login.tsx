@@ -21,7 +21,7 @@ export default function LoginPage() {
     authService.session()
       .then(session => {
         if (!mounted) return;
-        if (session) navigate("/", { replace: true });
+        if (session) navigate("/dashboard", { replace: true });
         else setReady(true);
       })
       .catch(() => {
@@ -37,7 +37,7 @@ export default function LoginPage() {
     try {
       const result = await authService.login({ email, password });
       if (result.error) throw new Error(result.error.message || "Credenciales inválidas");
-      navigate("/", { replace: true });
+      navigate("/dashboard", { replace: true });
     } catch (err: any) {
       setError(err?.message || "Error al ingresar");
       setLoading(false);

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { useCRMStore } from "../store/useCRMStore";
 import { globalSnack } from "../components/GlobalSnackbar";
 import { downloadCsv } from "../utils/exportCsv";
@@ -6,9 +6,22 @@ import {
   Box, Typography, Paper, Button, CircularProgress, ToggleButtonGroup, ToggleButton, Tooltip
 } from "@mui/material";
 import { FiDownload, FiInfo } from "react-icons/fi";
-import {
-  LineChart, Line, BarChart, Bar, PieChart, Pie, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer
-} from "recharts";
+
+const FacturacionChart = lazy(() =>
+  import("../components/DashboardCharts").then((m) => ({ default: m.FacturacionChart }))
+);
+const PipelineChart = lazy(() =>
+  import("../components/DashboardCharts").then((m) => ({ default: m.PipelineChart }))
+);
+const ProyectosPie = lazy(() =>
+  import("../components/DashboardCharts").then((m) => ({ default: m.ProyectosPie }))
+);
+
+const chartFallback = (h: number) => (
+  <Box sx={{ height: h, display: "flex", alignItems: "center", justifyContent: "center" }}>
+    <CircularProgress size={28} />
+  </Box>
+);
 
 type Tab = "resumen" | "ventas" | "proyectos" | "clientes" | "facturacion";
 type Range = "7d" | "30d" | "90d" | "all";
@@ -175,39 +188,22 @@ export default function Dashboard() {
             </Box>
             <Paper sx={{ p: 2, borderRadius: 2 }}>
               <Typography variant="subtitle2" sx={{ mb: 1 }}>Facturación mensual</Typography>
-              <ResponsiveContainer width="100%" height={260}>
-                <LineChart data={facturacionMensual}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="mes" />
-                  <YAxis />
-                  <RechartsTooltip />
-                  <Legend />
-                  <Line type="monotone" dataKey="monto" stroke="#E91E63" strokeWidth={2} />
-                </LineChart>
-              </ResponsiveContainer>
+              <Suspense fallback={chartFallback(260)}>
+                <FacturacionChart data={facturacionMensual} height={260} />
+              </Suspense>
             </Paper>
             <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
               <Paper sx={{ p: 2, borderRadius: 2, flex: "1 1 300px" }}>
                 <Typography variant="subtitle2" sx={{ mb: 1 }}>Pipeline por etapa</Typography>
-                <ResponsiveContainer width="100%" height={220}>
-                  <BarChart data={pipelinePorEtapa}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="etapa" />
-                    <YAxis />
-                    <RechartsTooltip />
-                    <Bar dataKey="valor" fill="#9C27B0" />
-                  </BarChart>
-                </ResponsiveContainer>
+                <Suspense fallback={chartFallback(220)}>
+                  <PipelineChart data={pipelinePorEtapa} height={220} />
+                </Suspense>
               </Paper>
               <Paper sx={{ p: 2, borderRadius: 2, flex: "1 1 240px" }}>
                 <Typography variant="subtitle2" sx={{ mb: 1 }}>Proyectos</Typography>
-                <ResponsiveContainer width="100%" height={220}>
-                  <PieChart data={distribucionProyectos}>
-                    <RechartsTooltip />
-                    <Legend />
-                    <Pie dataKey="value" />
-                  </PieChart>
-                </ResponsiveContainer>
+                <Suspense fallback={chartFallback(220)}>
+                  <ProyectosPie data={distribucionProyectos} height={220} />
+                </Suspense>
               </Paper>
             </Box>
             <Box>
@@ -231,15 +227,9 @@ export default function Dashboard() {
             </Box>
             <Paper sx={{ p: 2, borderRadius: 2 }}>
               <Typography variant="subtitle2" sx={{ mb: 1 }}>Pipeline por etapa</Typography>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={pipelinePorEtapa}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="etapa" />
-                  <YAxis />
-                  <RechartsTooltip />
-                  <Bar dataKey="valor" fill="#E91E63" />
-                </BarChart>
-              </ResponsiveContainer>
+              <Suspense fallback={chartFallback(300)}>
+                <PipelineChart data={pipelinePorEtapa} height={300} color="#E91E63" />
+              </Suspense>
             </Paper>
             <Button variant="outlined" startIcon={<FiDownload size={16} />} onClick={() => handleExport("dashboard_ventas.csv", ["etapa", "valor"], pipelinePorEtapa)}>Exportar CSV</Button>
           </Box>
@@ -253,13 +243,9 @@ export default function Dashboard() {
             </Box>
             <Paper sx={{ p: 2, borderRadius: 2 }}>
               <Typography variant="subtitle2" sx={{ mb: 1 }}>Distribución</Typography>
-              <ResponsiveContainer width="100%" height={260}>
-                <PieChart data={distribucionProyectos}>
-                  <RechartsTooltip />
-                  <Legend />
-                  <Pie dataKey="value" />
-                </PieChart>
-              </ResponsiveContainer>
+              <Suspense fallback={chartFallback(260)}>
+                <ProyectosPie data={distribucionProyectos} height={260} />
+              </Suspense>
             </Paper>
             <Button variant="outlined" startIcon={<FiDownload size={16} />} onClick={() => handleExport("dashboard_proyectos.csv", ["id", "nombre", "estado"], proyectosF.map((p: any) => ({ id: p.id, nombre: p.nombre, estado: p.estado })))}>Exportar CSV</Button>
           </Box>
@@ -285,16 +271,9 @@ export default function Dashboard() {
             </Box>
             <Paper sx={{ p: 2, borderRadius: 2 }}>
               <Typography variant="subtitle2" sx={{ mb: 1 }}>Facturación mensual</Typography>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={facturacionMensual}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="mes" />
-                  <YAxis />
-                  <RechartsTooltip />
-                  <Legend />
-                  <Line type="monotone" dataKey="monto" stroke="#4CAF50" strokeWidth={2} />
-                </LineChart>
-              </ResponsiveContainer>
+              <Suspense fallback={chartFallback(300)}>
+                <FacturacionChart data={facturacionMensual} height={300} color="#4CAF50" />
+              </Suspense>
             </Paper>
             <Button variant="outlined" startIcon={<FiDownload size={16} />} onClick={() => handleExport("dashboard_facturacion.csv", ["id", "estado", "monto"], facturasF.map((f: any) => ({ id: f.id, estado: f.estado, monto: Number((f as any).total || (f as any).monto || 0) })))}>Exportar CSV</Button>
           </Box>

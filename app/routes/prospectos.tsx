@@ -242,7 +242,7 @@ export default function ProspectosView() {
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 2, mb: 3 }}>
         <Box>
           <Breadcrumbs separator="›" sx={{ mb: 0.5 }}>
-            <Link to="/" underline="hover" color="inherit">Inicio</Link>
+            <Link to="/dashboard" underline="hover" color="inherit">Inicio</Link>
             <Typography color="inherit" fontWeight={600}>Prospectos</Typography>
           </Breadcrumbs>
           <Typography variant="h5" fontWeight={700} color="primary">📊 Pipeline de Prospectos</Typography>
