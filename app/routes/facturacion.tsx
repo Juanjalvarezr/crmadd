@@ -7,7 +7,6 @@ import {
 import { FiFileText, FiX, FiUpload, FiEye, FiEdit, FiTrash2, FiMessageSquare, FiMail } from "react-icons/fi";
 import { facturasService, emailService, plantillasDocumentosService, pagosService, documentosService, logsService } from "../services/supabase";
 import { storageHelper } from "../services/supabase";
-import { generarYGuardarDocumento } from "../services/docsHelper";
 import { whatsappService } from "../services/whatsappService";
 import { useCRMStore } from "../store/useCRMStore";
 import { globalSnack } from "../components/GlobalSnackbar";
@@ -180,6 +179,7 @@ export default function Facturacion() {
 
   const [documentoUrl, setDocumentoUrl] = useState<string | null>(null);
   const generarDocumento = async (row: any) => {
+    const { generarYGuardarDocumento } = await import("../services/docsHelper");
     const res = await generarYGuardarDocumento("factura", {
       id: row.id,
       total: row.total,
