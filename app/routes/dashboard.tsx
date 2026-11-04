@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useCRMStore } from "../store/useCRMStore";
 import { globalSnack } from "../components/GlobalSnackbar";
-import { useExportCsv } from "../utils/exportCsv";
+import { downloadCsv } from "../utils/exportCsv";
 import {
   Box, Typography, Paper, Button, CircularProgress, ToggleButtonGroup, ToggleButton, Tooltip
 } from "@mui/material";
@@ -109,8 +109,7 @@ export default function Dashboard() {
 
   const handleExport = (filename: string, headers: string[], rows: any[]) => {
     try {
-      const { download } = useExportCsv(filename, headers, () => rows);
-      download();
+      downloadCsv(filename, headers, rows);
       globalSnack.show("CSV exportado", "success");
     } catch (e: any) {
       globalSnack.show(e.message || "Error exportando CSV", "error");
