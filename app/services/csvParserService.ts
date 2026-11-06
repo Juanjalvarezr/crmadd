@@ -163,3 +163,15 @@ export function rowToProspectoData(row: CSVRow): ProspectoFromCSV {
     esFuncional: isFuncional(row),
   };
 }
+
+// objeto csvParserService para compatibilidad con prospectos.tsx
+export const csvParserService = {
+  parseCSV,
+  detectNombre,
+  detectTelefono,
+  detectEmail,
+  detectDireccion,
+  detectUbicacion,
+  detectOrigen,
+  rowToProspectoData,
+};

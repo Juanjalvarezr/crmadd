@@ -6,6 +6,7 @@ import {
 } from "@mui/material";
 import { FiFileText, FiX, FiUpload, FiEye, FiEdit, FiTrash2, FiMessageSquare, FiMail } from "react-icons/fi";
 import { facturasService, emailService, plantillasDocumentosService, pagosService, documentosService, logsService } from "../services/supabase";
+import { crmEventsService } from "../services/supabase";
 import { storageHelper } from "../services/supabase";
 import { generarYGuardarDocumento } from "../services/docsHelper";
 import { whatsappService } from "../services/whatsappService";

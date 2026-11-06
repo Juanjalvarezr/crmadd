@@ -67,6 +67,14 @@ export const prospectingService = {
     return this.update(id, { estado });
   },
 
+  async updatePersonaContacto(id: number, persona: string): Promise<Prospecto | null> {
+    return this.update(id, { persona_contacto: persona });
+  },
+
+  async marcarContactado(id: number): Promise<Prospecto | null> {
+    return this.update(id, { estado: 'Contactado' as EstadoProspecto });
+  },
+
   async toggleListoContactar(id: number, listo: boolean): Promise<Prospecto | null> {
     return this.update(id, { listo_contactar: listo });
   },
@@ -104,6 +112,12 @@ function mapDBToProspecto(p: any): Prospecto {
     listo_contactar: p.listo_contactar ?? false,
     canal_preferido: p.canal_preferido || 'WhatsApp',
     creado_en: p.creado_en,
+    persona_contacto: p.persona_contacto,
+    mensaje_enviado: p.mensaje_enviado,
+    ultimo_mensaje: p.ultimo_mensaje,
+    categoria: p.categoria,
+    rating: p.rating,
+    opiniones: p.opiniones,
   };
 }
 
@@ -132,5 +146,12 @@ function mapProspectoToDB(p: Partial<Prospecto>): any {
     es_prospecto: p.es_prospecto ?? true,
     listo_contactar: p.listo_contactar ?? false,
     canal_preferido: p.canal_preferido || 'WhatsApp',
+    creado_en: p.creado_en,
+    persona_contacto: p.persona_contacto,
+    mensaje_enviado: p.mensaje_enviado,
+    ultimo_mensaje: p.ultimo_mensaje,
+    categoria: p.categoria,
+    rating: p.rating,
+    opiniones: p.opiniones,
   };
 }

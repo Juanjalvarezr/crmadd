@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { Box, Typography, Paper, Button, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, FormControl, InputLabel, Select, MenuItem, CircularProgress, Alert, Pagination } from "@mui/material";
 import { FiX, FiDownload, FiUpload, FiFileText } from "react-icons/fi";
 import { documentosService, storageHelper, clientesService, facturasService, proyectosService } from "../services/supabase";
+import { crmEventsService } from "../services/supabase";
 import { CompactStatCard } from "../components/CompactStatCard";
 import { EmptyState } from "../components/EmptyState";
 import { ListToolbar } from "../components/ListToolbar";

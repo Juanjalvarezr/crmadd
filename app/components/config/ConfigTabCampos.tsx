@@ -1,6 +1,5 @@
-import { Box, Typography, Paper, Button, Card, CardContent, Grid, Chip, TextField, FormControl, InputLabel, Select, MenuItem, List, ListItem, ListItemText, IconButton, Divider } from "@mui/material";
+import { Box, Typography, Paper, Button, Card, CardContent, Grid, TextField, FormControl, InputLabel, Select, MenuItem, List, ListItem, ListItemText, IconButton, Divider } from "@mui/material";
 import { FiPlus, FiTrash2 } from "react-icons/fi";
-import { globalSnack } from "../GlobalSnackbar";
 import { useEffect } from "react";
 import { configuracionService } from "../../services/supabase";
 
@@ -14,7 +13,7 @@ interface Props {
   handleDeleteItem: (tipo: string, item: string) => void;
 }
 
-export const ConfigTabCampos = ({ catalogos, setCatalogos, nuevoItem, setNuevoItem, handleSaveCatalogos, handleAddItem, handleDeleteItem }: Props) => {
+export const ConfigTabCampos = ({ catalogos, setCatalogos, nuevoItem, setNuevoItem, handleAddItem, handleDeleteItem }: Props) => {
   useEffect(() => {
     let mounted = true;
     const load = async () => {

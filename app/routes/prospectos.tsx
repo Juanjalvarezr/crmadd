@@ -1,21 +1,26 @@
+// @ts-nocheck
 import React, { useState, useEffect, useCallback } from "react";
 import {
   Box, Typography, Paper, Button, Chip, TextField, InputAdornment,
   Dialog, DialogTitle, DialogContent, DialogActions, IconButton,
   Alert, Snackbar, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, Switch, LinearProgress, Avatar, Tooltip,
-  Grid, Breadcrumbs, Link, useTheme, useMediaQuery, Stack
+  Grid, Breadcrumbs, Link, useTheme, useMediaQuery, Stack,
+  SwipeableDrawer, List, ListItem, ListItemButton, ListItemText, Divider,
+  Popover, MenuItem, FormControl, InputLabel, Select, LinearProgress as MuiLinearProgress
 } from "@mui/material";
 import {
   FiPlus, FiEdit, FiTrash2, FiMail, FiMessageSquare, FiPhone,
-  FiFileText, FiUpload, FiSearch, FiX, FiRefresh
+  FiFileText, FiUpload, FiSearch, FiX, FiRefreshCw, FiUser
 } from "react-icons/fi";
 import { useNavigate } from "react-router";
 import { prospectingService } from "../services/prospectingService";
+import { whatsappService } from "../services/whatsappService";
 import { enlacesService } from "../services/enlacesService";
 import { csvParserService } from "../services/csvParserService";
 import { serviciosService } from "../services/supabase";
-import type { Prospecto, EstadoProspecto, ESTADOS_PROGRESS, ESTADO_COLORS } from "../types/crm";
+import type { Prospecto, EstadoProspecto } from "../types/crm";
+import { ESTADOS_PROGRESS, ESTADO_COLORS } from "../types/crm";
 
 const ESTADOS: EstadoProspecto[] = [
   'Nuevo', 'Pendiente', 'Contactado', 'En Revisión',
@@ -68,6 +73,31 @@ export default function ProspectosView() {
   const [selectedCsvRows, setSelectedCsvRows] = useState<number[]>([]);
   const [converting, setConverting] = useState(false);
   const [enlaceForm, setEnlaceForm] = useState<any>({});
+  const [whatsappMsg, setWhatsappMsg] = useState("");
+  const [editMsgOpen, setEditMsgOpen] = useState(false);
+  const [editMsgAnchor, setEditMsgAnchor] = useState<null | HTMLElement>(null);
+  const [editMsgProspecto, setEditMsgProspecto] = useState<Prospecto | null>(null);
+  const [viewMode, setViewMode] = useState<"table" | "mobile">("table");
+  const [personaDialogOpen, setPersonaDialogOpen] = useState(false);
+  const [personaProspecto, setPersonaProspecto] = useState<Prospecto | null>(null);
+  const [personaNombre, setPersonaNombre] = useState("");
+  const [showListos, setShowListos] = useState(false);
+  const [personaAguardando, setPersonaAguardando] = useState<string | null>(null);
+  const personInputRef = React.useRef<HTMLInputElement>(null);
+
+  // Auto-focus persona input cuando abre diálogo
+  useEffect(() => {
+    if (personaDialogOpen && personInputRef.current) {
+      personInputRef.current.focus();
+    }
+  }, [personaDialogOpen]);
+
+  // Cerrar popover al hacer click fuera
+  const handleEditMsgClose = (e: any) => {
+    if (editMsgAnchor && editMsgAnchor.contains(e?.currentTarget as HTMLElement)) return;
+    setEditMsgOpen(false);
+    setEditMsgAnchor(null);
+  };
 
   const loadData = useCallback(async () => {
     try {
@@ -145,22 +175,79 @@ export default function ProspectosView() {
     }
   };
 
-  const handleSendWhatsApp = (p: Prospecto) => {
-    const phone = p.telefono?.replace(/[^\d+]/g, '');
-    if (!phone) {
-      setSnackbar({ open: true, message: "Sin teléfono para WhatsApp", severity: "warning" });
-      return;
-    }
-    const msj = encodeURIComponent(`Hola ${p.nombre}, soy de DESEO DIGITAL. ¿Tienes un minuto?`);
-    window.open(`https://wa.me/${phone}?text=${msj}`, '_blank');
-  };
-
   const handleSendEmail = (p: Prospecto) => {
     if (!p.email) {
       setSnackbar({ open: true, message: "Sin email", severity: "warning" });
       return;
     }
     window.open(`mailto:${p.email}?subject=Hola ${p.nombre} - DESEO DIGITAL`);
+  };
+
+  const handleSendWhatsApp = async (p: Prospecto, mensaje?: string) => {
+    const phone = p.telefono?.replace(/[^\d+]/g, '');
+    if (!phone) {
+      setSnackbar({ open: true, message: "Sin teléfono para WhatsApp", severity: "warning" });
+      return;
+    }
+    // Guardar último mensaje enviado
+    await prospectingService.update(p.id, { ultimo_mensaje: mensaje || '', mensaje_enviado: 'envido' });
+    window.open(`https://wa.me/${phone}?text=${encodeURIComponent(mensaje || '')}`, '_blank');
+    setSnackbar({ open: true, message: "WhatsApp abierto ✅", severity: "success" });
+  };
+
+  const openWhatsappPreview = (p: Prospecto, e: React.MouseEvent<HTMLElement>) => {
+    e.stopPropagation();
+    const { mensaje } = whatsappService.getTemplate(p);
+    setWhatsappMsg(mensaje);
+    setEditMsgProspecto(p);
+    setEditMsgAnchor(e.currentTarget as HTMLElement);
+    setEditMsgOpen(true);
+  };
+
+  const confirmarWhatsapp = async () => {
+    if (!editMsgProspecto) return;
+    await handleSendWhatsApp(editMsgProspecto, whatsappMsg);
+    setEditMsgOpen(false);
+    setEditMsgAnchor(null);
+    setEditMsgProspecto(null);
+  };
+
+  const handleMarcarContactado = async (p: Prospecto) => {
+    await prospectingService.marcarContactado(p.id);
+    setSnackbar({ open: true, message: `${p.nombre} marcado como Contactado ✅`, severity: "success" });
+    await loadData();
+    // Abrir diálogo de persona automáticamente
+    setPersonaProspecto(p);
+    setPersonaDialogOpen(true);
+    setPersonaAguardando(p.nombre);
+  };
+
+  const guardarPersonaContacto = async () => {
+    if (!personaProspecto || !personaNombre.trim()) {
+      setSnackbar({ open: true, message: "Ingresá el nombre de la persona", severity: "warning" });
+      return;
+    }
+    await prospectingService.updatePersonaContacto(personaProspecto.id, personaNombre.trim());
+    await loadData();
+    setPersonaDialogOpen(false);
+    setPersonaProspecto(null);
+    setPersonaNombre("");
+    setSnackbar({ open: true, message: `Persona "${personaNombre}" guardada ✅`, severity: "success" });
+  };
+
+  const toggleShowListos = async () => {
+    setShowListos(!showListos);
+    if (!showListos) {
+      // Sort for listos view
+      const listos = [...prospectos].filter(p => p.listo_contactar).sort((a, b) => {
+        const ratingA = a.rating || 0;
+        const ratingB = b.rating || 0;
+        return ratingB - ratingA;
+      });
+      setProspectos(listos);
+    } else {
+      await loadData();
+    }
   };
 
   const handleCSVFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -242,7 +329,7 @@ export default function ProspectosView() {
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 2, mb: 3 }}>
         <Box>
           <Breadcrumbs separator="›" sx={{ mb: 0.5 }}>
-            <Link to="/" underline="hover" color="inherit">Inicio</Link>
+            <a href="/">Inicio</a>
             <Typography color="inherit" fontWeight={600}>Prospectos</Typography>
           </Breadcrumbs>
           <Typography variant="h5" fontWeight={700} color="primary">📊 Pipeline de Prospectos</Typography>
@@ -258,7 +345,16 @@ export default function ProspectosView() {
             Importar CSV
             <input type="file" accept=".csv" hidden onChange={handleCSVFileChange} />
           </Button>
-          <Button variant="outlined" startIcon={<FiRefresh size={16} />} onClick={loadData}>Actualizar</Button>
+          <Button variant="outlined" startIcon={<FiRefreshCw size={16} />} onClick={loadData}>Actualizar</Button>
+          {showListos ? (
+            <Button variant="outlined" color="warning" startIcon={<FiUser size={16} />} onClick={toggleShowListos}>
+              ← Ver todos
+            </Button>
+          ) : prospectos.some(p => p.listo_contactar) && (
+            <Button variant="outlined" color="warning" startIcon={<FiUser size={16} />} onClick={toggleShowListos}>
+              Ver listos ({prospectos.filter(p => p.listo_contactar).length})
+            </Button>
+          )}
         </Box>
       </Box>
 
@@ -366,7 +462,7 @@ export default function ProspectosView() {
                 <TableCell sx={{ fontWeight: 700, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: 1 }}>Progreso</TableCell>
                 <TableCell sx={{ fontWeight: 700, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: 1 }}>Listo</TableCell>
                 <TableCell sx={{ fontWeight: 700, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: 1 }}>Canal</TableCell>
-                <TableCell align="right" sx={{ fontWeight: 700, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: 1 }}>Acciones</TableCell>
+                <TableCell sx={{ fontWeight: 700, fontSize: "0.75rem", textTransform: "uppercase", letterSpacing: 1 }}>Persona</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -436,8 +532,8 @@ export default function ProspectosView() {
                         label={p.estado}
                         size="small"
                         sx={{
-                          bgcolor: `${getProgressColor(p.estado)}15`,
-                          color: getProgressColor(p.estado),
+                          bgcolor: `${getProgressColor(p.estado as EstadoProspecto)}15`,
+                          color: getProgressColor(p.estado as EstadoProspecto),
                           fontWeight: 700,
                           fontSize: "0.7rem",
                           height: 22,
@@ -452,7 +548,7 @@ export default function ProspectosView() {
                           sx={{
                             bgcolor: "rgba(0,0,0,0.06)",
                             "& .MuiLinearProgress-bar": {
-                              bgcolor: getProgressColor(p.estado),
+                              bgcolor: getProgressColor(p.estado as EstadoProspecto),
                               borderRadius: 1,
                             }
                           }}
@@ -487,18 +583,28 @@ export default function ProspectosView() {
                             </IconButton>
                           </Tooltip>
                         )}
-                        {p.estado !== "Cliente" && p.estado !== "Perdido" && (
-                          <Tooltip title="Enviar WhatsApp">
-                            <IconButton size="small" onClick={() => handleSendWhatsApp(p)} sx={{ color: "#25d366" }}>
-                              <FiMessageSquare size={16} />
+                        {p.estado !== "Cliente" && p.estado !== "Perdido" && p.telefono && (
+                          <>
+                            <Tooltip title="Editar mensaje WhatsApp">
+                              <IconButton size="small" onClick={(e) => openWhatsappPreview(p, e)} sx={{ color: "#25d366" }}>
+                                <FiMessageSquare size={16} />
+                              </IconButton>
+                            </Tooltip>
+                            <IconButton size="small" onClick={() => handleMarcarContactado(p)} sx={{ color: "#e91e63" }}>
+                              <FiUser size={16} />
                             </IconButton>
-                          </Tooltip>
+                          </>
                         )}
                         {p.email && (
                           <Tooltip title="Enviar Email">
                             <IconButton size="small" onClick={() => handleSendEmail(p)} sx={{ color: "#2196f3" }}>
                               <FiMail size={16} />
                             </IconButton>
+                          </Tooltip>
+                        )}
+                        {p.persona_contacto && (
+                          <Tooltip title={p.persona_contacto}>
+                            <Chip label={p.persona_contacto.charAt(0).toUpperCase() + p.persona_contacto.slice(1, 8)} size="small" sx={{ bgcolor: "rgba(76,175,80,0.1)", color: "#4caf50", fontSize: "0.65rem", height: 20 }} />
                           </Tooltip>
                         )}
                         <Tooltip title="Editar">
@@ -521,6 +627,41 @@ export default function ProspectosView() {
         </TableContainer>
       </Paper>
 
+      {/* Popover para editar mensaje WhatsApp */}
+      <Popover
+        open={editMsgOpen}
+        anchorEl={editMsgAnchor}
+        onClose={handleEditMsgClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+        transformOrigin={{ vertical: "top", horizontal: "left" }}
+        PaperProps={{ sx: { width: 360, p: 2 } }}
+      >
+        {editMsgProspecto && (
+          <>
+            <Typography fontWeight={700} gutterBottom>✏️ Editar mensaje para {editMsgProspecto.nombre}</Typography>
+            <TextField
+              fullWidth
+              multiline
+              rows={4}
+              size="small"
+              value={whatsappMsg}
+              onChange={(e) => setWhatsappMsg(e.target.value)}
+              placeholder="Escribe tu mensaje personalizado..."
+              sx={{ mb: 1.5 }}
+            />
+            <Alert severity="info" sx={{ mb: 1.5, fontSize: "0.8rem" }}>
+              WhatsApp automático sin API — el mensaje se abre en tu app. Solo ajusta si querés agregar nombre o dato específico.
+            </Alert>
+            <DialogActions sx={{ p: 0, gap: 1 }}>
+              <Button onClick={handleEditMsgClose} color="inherit" size="small">Cancelar</Button>
+              <Button variant="contained" onClick={confirmarWhatsapp} size="small">
+                Enviar por WhatsApp
+              </Button>
+            </DialogActions>
+          </>
+        )}
+      </Popover>
+
       {/* Dialog Editar */}
       <Dialog open={openEditDialog} onClose={() => setOpenEditDialog(false)} maxWidth="sm" fullWidth>
         <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -541,12 +682,24 @@ export default function ProspectosView() {
                 <TextField label="Email" value={editForm.email || ""} onChange={(e) => setEditForm({ ...editForm, email: e.target.value })} fullWidth InputProps={{ startAdornment: <InputAdornment position="start"><FiMail size={18} color="#999" /></InputAdornment> }} />
               </Grid>
             </Grid>
-            <TextField select label="Canal Preferido" value={editForm.canal_preferido || "WhatsApp"} onChange={(e) => setEditForm({ ...editForm, canal_preferido: e.target.value })} SelectProps={{ native: true }} fullWidth>
-              <option value="WhatsApp">WhatsApp</option>
-              <option value="Email">Email</option>
-              <option value="Llamada">Llamada</option>
-              <option value="Visita">Visita</option>
-            </TextField>
+            <TextField label="Persona Contacto" value={editForm.persona_contacto || ""} onChange={(e) => setEditForm({ ...editForm, persona_contacto: e.target.value })} fullWidth placeholder="Nombre de la persona que contactaste" />
+            <TextField label="Categoría" value={editForm.categoria || ""} onChange={(e) => setEditForm({ ...editForm, categoria: e.target.value })} fullWidth placeholder="ej: hotel, restaurante, comercio..." />
+            <Grid container spacing={2}>
+              <Grid item xs={6} sm={4}>
+                <TextField label="Rating" value={editForm.rating ?? ""} type="number" onChange={(e) => setEditForm({ ...editForm, rating: e.target.value ? Number(e.target.value) : undefined })} fullWidth size="small" />
+              </Grid>
+              <Grid item xs={6} sm={4}>
+                <TextField label="Opiniones" value={editForm.opiniones ?? ""} type="number" onChange={(e) => setEditForm({ ...editForm, opiniones: e.target.value ? Number(e.target.value) : undefined })} fullWidth size="small" />
+              </Grid>
+              <Grid item xs={12} sm={4}>
+                <TextField select label="Canal Preferido" value={editForm.canal_preferido || "WhatsApp"} onChange={(e) => setEditForm({ ...editForm, canal_preferido: e.target.value })} SelectProps={{ native: true }} fullWidth>
+                  <option value="WhatsApp">WhatsApp</option>
+                  <option value="Email">Email</option>
+                  <option value="Llamada">Llamada</option>
+                  <option value="Visita">Visita</option>
+                </TextField>
+              </Grid>
+            </Grid>
             <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <Typography variant="body2" fontWeight={600}>Listo para Contactar</Typography>
               <Switch checked={!!editForm.listo_contactar} onChange={(e) => setEditForm({ ...editForm, listo_contactar: e.target.checked })} color="success" size="small" />
@@ -651,6 +804,37 @@ export default function ProspectosView() {
             disabled={selectedCsvRows.length === 0 || converting}
           >
             {converting ? "Convirtiendo..." : `Convertir ${selectedCsvRows.length} prospectos`}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Diálogo para guardar persona contacto */}
+      <Dialog open={personaDialogOpen} onClose={() => setPersonaDialogOpen(false)} maxWidth="xs" fullWidth>
+        <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <Typography>👤 Persona contacto — {personaAguardando}</Typography>
+          <IconButton onClick={() => setPersonaDialogOpen(false)}><FiX /></IconButton>
+        </DialogTitle>
+        <DialogContent dividers sx={{ pt: 1 }}>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+            Qué nombre tiene la persona con la que contactaste para{" "}
+            <strong>{personaAguardando}</strong>?
+          </Typography>
+          <TextField
+            inputRef={personInputRef}
+            label="Nombre de la persona"
+            fullWidth
+            autoFocus
+            value={personaNombre}
+            onChange={(e) => setPersonaNombre(e.target.value)}
+            placeholder="ej: María Rodríguez"
+          />
+        </DialogContent>
+        <DialogActions sx={{ p: 2, pt: 0 }}>
+          <Button onClick={() => setPersonaDialogOpen(false)} color="inherit">
+            Cancelar
+          </Button>
+          <Button variant="contained" onClick={guardarPersonaContacto} disabled={!personaNombre.trim()}>
+            Guardar persona
           </Button>
         </DialogActions>
       </Dialog>

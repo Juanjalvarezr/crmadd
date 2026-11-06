@@ -26,8 +26,8 @@ export default function GlobalSearch({ open, onClose }: { open: boolean, onClose
       ]);
 
       const filtered = [
-        ...clis.filter(c => c.nombre.toLowerCase().includes(query.toLowerCase()))
-          .map(c => ({ tipo: 'Cliente', nombre: c.nombre, id: String(c.id), path: '/clientes' })),
+        ...clis.filter(c => c.nombre && c.nombre.toLowerCase().includes(query.toLowerCase()))
+          .map(c => ({ tipo: 'Cliente', nombre: c.nombre || '', id: String(c.id), path: '/clientes' })),
         ...proys.filter(p => p.nombre.toLowerCase().includes(query.toLowerCase()))
           .map(p => ({ tipo: 'Proyecto', nombre: p.nombre, id: p.id, path: '/proyectos' })),
         ...tasks.filter(t => t.titulo.toLowerCase().includes(query.toLowerCase()))

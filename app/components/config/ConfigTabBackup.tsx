@@ -1,6 +1,5 @@
 import { Box, Typography, Paper, Button, List, ListItem, ListItemIcon, ListItemText, ListItemSecondaryAction, Alert } from "@mui/material";
 import { FiDatabase, FiDownload } from "react-icons/fi";
-import { globalSnack } from "../GlobalSnackbar";
 
 interface Props {
   onBackup: () => void;

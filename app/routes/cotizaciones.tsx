@@ -5,6 +5,7 @@ import {
 } from "@mui/material";
 import { FiEdit, FiTrash2, FiFileText, FiMessageSquare, FiX, FiEye } from "react-icons/fi";
 import { cotizacionesService, clientesService, documentosService, logsService } from "../services/supabase";
+import { crmEventsService } from "../services/supabase";
 import { plantillasDocumentosService } from "../services/supabase";
 import { storageHelper } from "../services/supabase";
 import { generarYGuardarDocumento } from "../services/docsHelper";

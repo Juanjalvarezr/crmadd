@@ -9,8 +9,16 @@
 .env
 .env.*
 !.env.example
-.vercel
-.env*
+
+
 
 .hermes/
 .tmp_patch.py
+voice-agents/
+test.pdf
+gmaps_*.csv
+supabase/.temp/
+sql/
+
+.vercel
+.env*

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Box, Typography, Paper, Button, Select, MenuItem, FormControl, InputLabel, Switch, FormControlLabel, Chip, Alert } from "@mui/material";
+import { Box, Typography, Paper, Switch, FormControlLabel, Chip, Alert } from "@mui/material";
 import { calendarSyncService, type CalendarSyncConfig, type CalendarSyncLog } from "../../services/sync/calendarSync";
 
 export const CalendarSyncPanel: React.FC = () => {

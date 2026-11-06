@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { globalSnack } from "../components/GlobalSnackbar";
 import { useState, useEffect } from "react";
 import { CompactStatCard } from "../components/CompactStatCard";

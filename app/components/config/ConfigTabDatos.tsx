@@ -1,4 +1,4 @@
-import { Box, Typography, Paper, Button, Alert, CircularProgress, Chip } from "@mui/material";
+import { Box, Typography, Paper, Alert, Button } from "@mui/material";
 import { FiDatabase, FiCheck, FiAlertCircle } from "react-icons/fi";
 
 interface Props {
@@ -7,7 +7,7 @@ interface Props {
   onSeed?: (...args: any[]) => void | Promise<void>;
 }
 
-export const ConfigTabDatos = ({ dbStatus, loading, onSeed }: Props) => {
+export const ConfigTabDatos = ({ loading, onSeed }: Props) => {
   const handleAction = async () => {
     if (typeof onSeed === 'function') await onSeed();
   };

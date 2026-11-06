@@ -6,6 +6,7 @@ import {
 } from "@mui/material";
 import { FiPlus, FiEdit, FiTrash2, FiCheck, FiSearch, FiRefreshCw, FiCheckSquare, FiX } from "react-icons/fi";
 import { tareasService } from "../services/supabase";
+import { crmEventsService } from "../services/supabase";
 
 import { useCRMStore } from "../store/useCRMStore";
 import { globalSnack } from "../components/GlobalSnackbar";

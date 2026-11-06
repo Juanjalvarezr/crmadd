@@ -1,3 +1,19 @@
+export interface Cliente {
+  id?: number;
+  nombre?: string;
+  email?: string;
+  telefono?: string;
+  empresa?: string;
+  nicho?: string;
+  estado?: string;
+  origen?: string;
+  dolores?: string;
+  necesidades?: string;
+  intereses?: string;
+  ultima_interaccion?: string;
+  favorito?: boolean;
+}
+
 export interface Prospecto {
   id: number;
   codigo: string;
@@ -24,6 +40,12 @@ export interface Prospecto {
   listo_contactar?: boolean;
   canal_preferido?: string;
   creado_en?: string;
+  persona_contacto?: string;
+  mensaje_enviado?: string;
+  ultimo_mensaje?: string;
+  categoria?: string;
+  rating?: number;
+  opiniones?: number;
 }
 
 export interface EnlaceDocumento {
@@ -73,3 +95,47 @@ export const ESTADO_COLORS: Record<EstadoProspecto, 'success' | 'info' | 'warnin
   Cliente: 'success',
   Perdido: 'error',
 };
+
+export interface Proyecto {
+  id?: number | string;
+  nombre?: string;
+  descripcion?: string;
+  estado?: 'planificacion' | 'en_progreso' | 'pausado' | 'completado' | 'cancelado';
+  prioridad?: 'baja' | 'media' | 'alta' | 'urgente';
+  faseAdministrativa?: string;
+  cliente_id?: number;
+  prospecto_id?: number;
+  fecha_inicio?: string;
+  fecha_fin?: string;
+  [key: string]: any;
+}
+
+export interface TareaProyecto {
+  id?: number | string;
+  proyecto_id?: number | string;
+  titulo?: string;
+  estado?: string;
+  [key: string]: any;
+}
+
+export interface RecursoProyecto {
+  id?: number | string;
+  proyecto_id?: number | string;
+  nombre?: string;
+  [key: string]: any;
+}
+
+export interface PlanItem {
+  id?: number | string;
+  [key: string]: any;
+}
+
+export interface Oportunidad {
+  id?: number | string;
+  nombre?: string;
+  cliente_id?: number;
+  etapa?: 'Prospección' | 'Propuesta' | 'Negociación' | 'Cierre';
+  probabilidad?: number;
+  servicios_interes?: any[];
+  [key: string]: any;
+}

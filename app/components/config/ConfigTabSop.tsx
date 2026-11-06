@@ -14,7 +14,7 @@ interface Props {
   onDeleteSop?: (id: number) => void;
 }
 
-export const ConfigTabSop = ({ sops, setSops, nuevoSop, setNuevoSop, onAddSop, onDeleteSop }: Props) => {
+export const ConfigTabSop = ({ sops, setSops, nuevoSop, setNuevoSop, onAddSop }: Props) => {
   useEffect(() => {
     let mounted = true;
     const load = async () => {
