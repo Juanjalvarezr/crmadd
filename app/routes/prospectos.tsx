@@ -8,12 +8,12 @@ import {
 } from "@mui/material";
 import {
   FiPlus, FiEdit, FiTrash2, FiMail, FiMessageSquare, FiPhone,
-  FiFileText, FiUpload, FiSearch, FiX, FiRefresh
+  FiFileText, FiUpload, FiSearch, FiX, FiRefreshCw
 } from "react-icons/fi";
 import { useNavigate } from "react-router";
 import { prospectingService } from "../services/prospectingService";
 import { enlacesService } from "../services/enlacesService";
-import { csvParserService } from "../services/csvParserService";
+import { parseCSV, rowToProspectoData } from "../services/csvParserService";
 import { serviciosService } from "../services/supabase";
 import type { Prospecto, EstadoProspecto, ESTADOS_PROGRESS, ESTADO_COLORS } from "../types/crm";
 
@@ -169,7 +169,7 @@ export default function ProspectosView() {
     const reader = new FileReader();
     reader.onload = (ev) => {
       const text = ev.target?.result as string;
-      const parsed = csvParserService.parseCSV(text);
+      const parsed = parseCSV(text);
       setCsvData(parsed);
       setSelectedCsvRows([]);
     };
@@ -192,7 +192,7 @@ export default function ProspectosView() {
       let count = 0;
       for (const idx of selectedCsvRows) {
         const row = csvData.rows[idx];
-        const data = csvParserService.rowToProspectoData(row);
+        const data = rowToProspectoData(row);
         if (data.esFuncional) {
           await prospectingService.create({
             nombre: data.nombre || 'Sin nombre',
@@ -258,7 +258,7 @@ export default function ProspectosView() {
             Importar CSV
             <input type="file" accept=".csv" hidden onChange={handleCSVFileChange} />
           </Button>
-          <Button variant="outlined" startIcon={<FiRefresh size={16} />} onClick={loadData}>Actualizar</Button>
+          <Button variant="outlined" startIcon={<FiRefreshCw size={16} />} onClick={loadData}>Actualizar</Button>
         </Box>
       </Box>
 
