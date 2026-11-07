@@ -8,6 +8,8 @@ import GlobalSearch from "./components/GlobalSearch";
 import { darkTheme, lightTheme } from "./theme";
 import GlobalSnackbar from "./components/GlobalSnackbar";
 import { safeSendEmail, crmPollingService } from "./services/crmPollingService";
+import { generarYGuardarDocumento } from "./services/docsHelper";
+import { whatsappService } from "./services/whatsappService";
 
 const DRAWER_WIDTH = 260;
 
@@ -47,6 +49,11 @@ export default function Root() {
   useEffect(() => { document.title = "CRM DESEO DIGITAL"; }, []);
   const navigate = useNavigate();
   const location = useLocation();
+  const [reducedMotion] = useState(() =>
+    typeof window !== "undefined"
+      ? window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
+      : false
+  );
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(() => {
@@ -106,6 +113,21 @@ export default function Root() {
     });
     crmPollingService.register("email_enviado", async (payload) => {
       console.log("[polling] email_enviado audit", payload);
+    });
+    // Puente Hermes: acciones solicitadas desde n8n/Hermes vía crm_events (polling 30s)
+    crmPollingService.register("generar_contrato", async (payload) => {
+      const res = await generarYGuardarDocumento("contrato", payload.datos || {});
+      await safeSendEmail("Contrato generado (Hermes)", `<p>${res.ok ? `Listo: ${res.url}` : `Error: ${res.error}`}</p>`);
+    });
+    crmPollingService.register("generar_plan", async (payload) => {
+      const res = await generarYGuardarDocumento("propuesta", payload.datos || {});
+      await safeSendEmail("Plan/Propuesta generada (Hermes)", `<p>${res.ok ? `Listo: ${res.url}` : `Error: ${res.error}`}</p>`);
+    });
+    crmPollingService.register("enviar_cobro", async (payload) => {
+      if (payload.telefono && payload.mensaje) {
+        await whatsappService.send(payload.telefono, payload.mensaje);
+      }
+      await safeSendEmail("Cobro enviado (Hermes)", `<p>${payload.mensaje || "Recordatorio de cobro"}</p>`);
     });
     const id = setInterval(() => {
       crmPollingService.tick();
@@ -184,9 +206,24 @@ export default function Root() {
               minHeight: "calc(100vh - 120px)",
             }}
           >
-            <Box id="main-content" sx={{ outline: "none" }}>
+          <Box
+            id="main-content"
+            key={location.pathname}
+            sx={{
+              outline: "none",
+              ...(reducedMotion
+                ? {}
+                : {
+                    animation: "crm-fade 0.22s cubic-bezier(0.4, 0, 0.2, 1)",
+                    "@keyframes crm-fade": {
+                      from: { opacity: 0, transform: "translateY(4px)" },
+                      to: { opacity: 1, transform: "translateY(0)" },
+                    },
+                  }),
+            }}
+          >
           <Outlet />
-        </Box>
+          </Box>
           </Box>
           <MobileFab />
           <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
