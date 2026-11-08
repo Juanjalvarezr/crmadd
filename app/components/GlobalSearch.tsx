@@ -5,6 +5,7 @@ import {
 } from '@mui/material';
 import { FiSearch, FiUser, FiFolder, FiCheckSquare, FiZap, FiPlus } from 'react-icons/fi';
 import { useNavigate } from 'react-router'; // Hook de React Router
+import { BRAND } from '../theme';
 import { tareasService, clientesService, proyectosService } from '../services/supabase';
 
 export default function GlobalSearch({ open, onClose }: { open: boolean, onClose: () => void }) {
@@ -48,9 +49,9 @@ export default function GlobalSearch({ open, onClose }: { open: boolean, onClose
   };
 
   const quickActions = [
-    { nombre: 'Nuevo Cliente', path: '/clientes?action=new', icono: <FiPlus />, color: '#e91e63' },
-    { nombre: 'Nueva Tarea', path: '/tareas?action=new', icono: <FiCheckSquare />, color: '#4caf50' },
-    { nombre: 'Nueva Venta', path: '/ventas?action=new', icono: <FiZap />, color: '#ff9800' },
+    { nombre: 'Nuevo Cliente', path: '/clientes?action=new', icono: <FiPlus />, color: BRAND.secondary },
+    { nombre: 'Nueva Tarea', path: '/tareas?action=new', icono: <FiCheckSquare />, color: BRAND.success },
+    { nombre: 'Nueva Venta', path: '/ventas?action=new', icono: <FiZap />, color: BRAND.warning },
   ];
 
   return (
@@ -66,7 +67,7 @@ export default function GlobalSearch({ open, onClose }: { open: boolean, onClose
             onChange={(e) => setQuery(e.target.value)}
             InputProps={{
               disableUnderline: true,
-              startAdornment: <InputAdornment position="start"><FiSearch color="#e91e63" /></InputAdornment>,
+              startAdornment: <InputAdornment position="start"><FiSearch color={BRAND.secondary} /></InputAdornment>,
               sx: { fontSize: '1.2rem' }
             }}
           />
@@ -99,7 +100,7 @@ export default function GlobalSearch({ open, onClose }: { open: boolean, onClose
                 button 
                 key={index} 
                 onClick={() => handleSelect(item)}
-                sx={{ '&:hover': { bgcolor: '#fce4ec' } }}
+                sx={{ '&:hover': { bgcolor: 'action.hover' } }}
               >
                 <ListItemIcon>
                   {item.tipo === 'Cliente' ? <FiUser /> : item.tipo === 'Proyecto' ? <FiFolder /> : <FiCheckSquare />}

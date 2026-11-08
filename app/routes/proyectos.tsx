@@ -29,6 +29,7 @@ import { useExportCsv } from "../utils/exportCsv";
 import { generarYGuardarDocumento } from "../services/docsHelper";
 import { globalSnack } from "../components/GlobalSnackbar";
 import { EmptyState } from "../components/EmptyState";
+import { SkeletonList } from "../components/SkeletonList";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 
 // Esquema de validación con Zod
@@ -921,11 +922,7 @@ export default function Proyectos() {
 
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
-      {loading && (
-        <Box sx={{ display: "flex", justifyContent: "center", p: 4 }}>
-          <CircularProgress />
-        </Box>
-      )}
+      {loading && <SkeletonList rows={4} />}
 
       {!loading && !error && proyectosFiltrados.length === 0 && (
         <EmptyState title="Sin proyectos" description="Creá el primer proyecto para organizar el trabajo." actionLabel="Nuevo proyecto" />

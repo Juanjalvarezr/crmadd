@@ -6,35 +6,36 @@ import {
   FiFileText, FiDollarSign, FiTarget, FiChevronLeft, FiChevronRight 
 } from "react-icons/fi";
 import { Link, useLocation } from "react-router";
+import { BRAND } from "../theme";
 
 const DRAWER_WIDTH = 260;
 
 const menuItems = [
-  { label: "Inicio", icon: FiHome, path: "/", notifications: 0, color: "#1976d2" },
-  { label: "Clientes", icon: FiUsers, path: "/clientes", notifications: 0, color: "#4caf50" },
-  { label: "Prospectos", icon: FiUsers, path: "/prospectos", notifications: 0, color: "#9c27b0" },
-  { label: "Equipo (Subagentes)", icon: FiUsers, path: "/equipo", notifications: 0, color: "#2196f3" },
-  { label: "Servicios ★", icon: FiPackage, path: "/servicios", notifications: 0, color: "#ff9800" },
-  { label: "Proyectos", icon: FiPackage, path: "/proyectos", notifications: 0, color: "#2196f3" },
-  { label: "Oportunidades", icon: FiTrendingUp, path: "/ventas", notifications: 0, color: "#9c27b0" },
-  { label: "Tareas", icon: FiCheckSquare, path: "/tareas", notifications: 0, color: "#f44336" },
+  { label: "Inicio", icon: FiHome, path: "/", notifications: 0, color: BRAND.primary },
+  { label: "Clientes", icon: FiUsers, path: "/clientes", notifications: 0, color: BRAND.success },
+  { label: "Prospectos", icon: FiUsers, path: "/prospectos", notifications: 0, color: BRAND.purple },
+  { label: "Equipo (Subagentes)", icon: FiUsers, path: "/equipo", notifications: 0, color: BRAND.blue },
+  { label: "Servicios ★", icon: FiPackage, path: "/servicios", notifications: 0, color: BRAND.warning },
+  { label: "Proyectos", icon: FiPackage, path: "/proyectos", notifications: 0, color: BRAND.blue },
+  { label: "Oportunidades", icon: FiTrendingUp, path: "/ventas", notifications: 0, color: BRAND.purple },
+  { label: "Tareas", icon: FiCheckSquare, path: "/tareas", notifications: 0, color: BRAND.error },
   { label: "Facturación", icon: FiFileText, path: "/facturacion", notifications: 0, color: "#009688" },
   { label: "Contratos", icon: FiFileText, path: "/contratos", notifications: 0, color: "#795548" },
-  { label: "Documentos", icon: FiFileText, path: "/documentos", notifications: 0, color: "#ff9800" },
-  { label: "Email Marketing 📧", icon: FiActivity, path: "/email-marketing", notifications: 0, color: "#e91e63" },
+  { label: "Documentos", icon: FiFileText, path: "/documentos", notifications: 0, color: BRAND.warning },
+  { label: "Email Marketing 📧", icon: FiActivity, path: "/email-marketing", notifications: 0, color: BRAND.secondary },
   { label: "Chatbot 💬", icon: FiBell, path: "/chatbot", notifications: 0, color: "#00c853" },
-  { label: "Calendario", icon: FiCalendar, path: "/calendario", notifications: 0, color: "#ff9800" },
+  { label: "Calendario", icon: FiCalendar, path: "/calendario", notifications: 0, color: BRAND.warning },
   { label: "Reportes", icon: FiBarChart, path: "/reportes", notifications: 0, color: "#607d8b" },
   { label: "Configuración", icon: FiSettings, path: "/configuracion", notifications: 0, color: "#9e9e9e" },
 ];
 
 const quickActions = [
-  { label: "Exportar Datos", icon: FiDownload, action: "export", color: "#2196f3" },
-  { label: "Importar CSV", icon: FiUpload, action: "import", color: "#4caf50", disabled: true },
-  { label: "Calendario", icon: FiCalendar, action: "calendar", color: "#ff9800" },
-  { label: "Reportes", icon: FiFileText, action: "reports", color: "#9c27b0" },
-  { label: "Ventas", icon: FiDollarSign, action: "sales", color: "#4caf50" },
-  { label: "Metas", icon: FiTarget, action: "goals", color: "#f44336" },
+  { label: "Exportar Datos", icon: FiDownload, action: "export", color: BRAND.blue },
+  { label: "Importar CSV", icon: FiUpload, action: "import", color: BRAND.success, disabled: true },
+  { label: "Calendario", icon: FiCalendar, action: "calendar", color: BRAND.warning },
+  { label: "Reportes", icon: FiFileText, action: "reports", color: BRAND.purple },
+  { label: "Ventas", icon: FiDollarSign, action: "sales", color: BRAND.success },
+  { label: "Metas", icon: FiTarget, action: "goals", color: BRAND.error },
 ];
 
 interface SidebarProps {
@@ -105,7 +106,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             width: 28,
             height: 28,
             "&:hover": {
-              color: "#e91e63",
+              color: BRAND.secondary,
               backgroundColor: "rgba(233, 30, 99, 0.15)",
               borderColor: "rgba(233, 30, 99, 0.3)",
               boxShadow: "0 0 12px rgba(233, 30, 99, 0.4)",
@@ -137,7 +138,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               width: 36, 
               height: 36, 
               borderRadius: "10px", 
-              background: "linear-gradient(135deg, #e91e63 0%, #9c27b0 100%)",
+              background: `linear-gradient(135deg, ${BRAND.secondary} 0%, ${BRAND.purple} 100%)`,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -160,11 +161,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <Typography sx={{ fontWeight: 900, letterSpacing: 1.5, color: "#ffffff", fontSize: "1.05rem" }}>
                 DESEO
               </Typography>
-              <Typography sx={{ fontWeight: 900, letterSpacing: 1.5, color: "#e91e63", textShadow: "0 0 8px rgba(233, 30, 99, 0.25)", fontSize: "1.05rem" }}>
+              <Typography sx={{ fontWeight: 900, letterSpacing: 1.5, color: BRAND.secondary, textShadow: "0 0 8px rgba(233, 30, 99, 0.25)", fontSize: "1.05rem" }}>
                 ★
               </Typography>
             </Box>
-            <Typography sx={{ fontWeight: "bold", letterSpacing: 3, color: "#9c27b0", fontSize: "0.95rem", mb: 0.5 }}>
+            <Typography sx={{ fontWeight: "bold", letterSpacing: 3, color: BRAND.purple, fontSize: "0.95rem", mb: 0.5 }}>
               DIGITAL
             </Typography>
             <Chip 
@@ -249,7 +250,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 "&:hover": { 
                   backgroundColor: isActive ? "rgba(233, 30, 99, 0.18)" : "rgba(255, 255, 255, 0.03)",
                   color: "#ffffff",
-                  "& .MuiListItemIcon-root": { color: "#e91e63" },
+                  "& .MuiListItemIcon-root": { color: BRAND.secondary },
                   transform: isCollapsed ? "scale(1.05)" : "translateX(6px)"
                 },
                 borderRadius: "12px",

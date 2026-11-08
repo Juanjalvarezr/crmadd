@@ -1,4 +1,5 @@
 import { Card, CardContent, Typography, Box } from "@mui/material";
+import { BRAND } from "../theme";
 
 interface Props {
   title: string;
@@ -10,7 +11,7 @@ interface Props {
   onClick?: () => void;
 }
 
-export const CompactStatCard = ({ title, value, subtitle, color = "#1976d2", icon, trend, onClick }: Props) => (
+export const CompactStatCard = ({ title, value, subtitle, color = BRAND.primary, icon, trend, onClick }: Props) => (
   <Card
     onClick={onClick}
     sx={{

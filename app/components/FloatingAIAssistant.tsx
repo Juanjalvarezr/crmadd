@@ -8,7 +8,8 @@ import { FiX, FiZap, FiCpu, FiUser, FiBriefcase, FiCopy, FiCheck } from 'react-i
 import confetti from 'canvas-confetti';
 import DOMPurify from 'dompurify';
 // Inyectamos la lógica a través de un servicio desacoplado
-import { aiService } from '../services/ai'; 
+import { aiService } from '../services/ai';
+import { BRAND } from '../theme';
 import { useChatStore, ProposalSchema } from '../store/useChatStore';
 import ReactMarkdown from 'react-markdown';
 
@@ -123,10 +124,10 @@ export const FloatingAIAssistant = () => {
             onClick={() => setIsOpen(true)}
             sx={{ 
               width: 60, height: 60, 
-              background: 'linear-gradient(135deg, #e91e63, #9c27b0)',
+              background: `linear-gradient(135deg, ${BRAND.secondary}, ${BRAND.purple})`,
               boxShadow: '0 8px 24px rgba(233, 30, 99, 0.4)',
               color: 'white',
-              '&:hover': { transform: 'scale(1.05)', background: 'linear-gradient(135deg, #d81b60, #8e24aa)' },
+              '&:hover': { transform: 'scale(1.05)', background: `linear-gradient(135deg, ${BRAND.secondary}, ${BRAND.purple})` },
               transition: 'transform 0.2s'
             }}
           >
@@ -154,7 +155,7 @@ export const FloatingAIAssistant = () => {
           }}
         >
           {/* Header del Panel */}
-          <Box sx={{ p: 2, background: 'linear-gradient(135deg, #e91e63, #9c27b0)', color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Box sx={{ p: 2, background: `linear-gradient(135deg, ${BRAND.secondary}, ${BRAND.purple})`, color: 'white', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <FiCpu size={24} />
               <Typography variant="h6" sx={{ fontWeight: 'bold' }}>Copiloto IA</Typography>

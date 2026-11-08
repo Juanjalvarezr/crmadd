@@ -1,6 +1,7 @@
 import { useEffect, useState, Fragment } from "react";
 import { AppBar, Toolbar, Typography, Avatar, Box, IconButton, Menu, MenuItem, Badge, Chip, List, ListItem, ListItemIcon, ListItemText, Button } from "@mui/material";
 import { FiLogOut, FiSettings, FiBell, FiUser, FiMenu, FiAlertCircle, FiTrendingUp, FiInfo, FiSun, FiMoon, FiSearch, FiEye, FiEyeOff } from "react-icons/fi";
+import { BRAND } from "../theme";
 import { useCRMStore } from "../store/useCRMStore";
 import { supabase } from "../services/supabase";
 
@@ -72,9 +73,9 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick, themeMode = "dark",
 
   const getNotifIcon = (type: string) => {
     switch (type) {
-      case 'success': return <FiTrendingUp color="#4caf50" />;
-      case 'warning': return <FiAlertCircle color="#ff9800" />;
-      case 'error': return <FiAlertCircle color="#f44336" />;
+      case 'success': return <FiTrendingUp color={BRAND.success} />;
+      case 'warning': return <FiAlertCircle color={BRAND.warning} />;
+      case 'error': return <FiAlertCircle color={BRAND.error} />;
       default: return <FiInfo color="#2196f3" />;
     }
   };
@@ -117,7 +118,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick, themeMode = "dark",
   const isDark = themeMode === "dark";
 
   return (
-    <AppBar position="sticky" sx={{ zIndex: 1200, background: (theme) => theme.palette.mode === 'dark' ? "rgba(13, 14, 21, 0.85)" : "linear-gradient(90deg, #e91e63 0%, #9c27b0 100%)", backdropFilter: "blur(10px)", boxShadow: 'none', borderBottom: "1px solid", borderColor: "divider" }}>
+    <AppBar position="sticky" sx={{ zIndex: 1200, background: (theme) => theme.palette.mode === 'dark' ? "rgba(13, 14, 21, 0.85)" : `linear-gradient(90deg, ${BRAND.secondary} 0%, ${BRAND.purple} 100%)`, backdropFilter: "blur(10px)", boxShadow: 'none', borderBottom: "1px solid", borderColor: "divider" }}>
       <Toolbar variant="dense" sx={{
         display: "flex",
         justifyContent: "space-between",
@@ -149,7 +150,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick, themeMode = "dark",
             label="320 369 8476"
             size="small"
             sx={{
-              backgroundColor: "#ffd700",
+              backgroundColor: BRAND.gold,
               color: "#333",
               fontWeight: "bold",
               fontSize: "0.7rem",
@@ -175,11 +176,11 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick, themeMode = "dark",
           </IconButton>
 
           <IconButton color="inherit" onClick={handleTogglePresentation} title={isPresentationMode ? "Desactivar Modo Presentación" : "Activar Modo Presentación"}>
-            {isPresentationMode ? <FiEyeOff size={20} color="#e91e63" /> : <FiEye size={20} />}
+            {isPresentationMode ? <FiEyeOff size={20} color={BRAND.secondary} /> : <FiEye size={20} />}
           </IconButton>
 
           <IconButton color="inherit" onClick={onToggleTheme} title={isDark ? "Cambiar a Modo Claro" : "Cambiar a Modo Noche"}>
-            {isDark ? <FiSun size={20} color="#ffd700" /> : <FiMoon size={20} />}
+            {isDark ? <FiSun size={20} color={BRAND.gold} /> : <FiMoon size={20} />}
           </IconButton>
 
           <IconButton color="inherit" title="Configuración">
@@ -191,7 +192,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick, themeMode = "dark",
               sx={{
                 width: 36,
                 height: 36,
-                backgroundColor: "#ff9800",
+                backgroundColor: BRAND.warning,
                 fontWeight: "bold",
                 fontSize: "1rem",
                 border: "2px solid rgba(255,255,255,0.3)"

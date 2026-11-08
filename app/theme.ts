@@ -76,6 +76,9 @@ export const BRAND = {
   warning: "#ff9800",
   error: "#f44336",
   info: "#00e5ff",
+  purple: "#9c27b0",
+  gold: "#ffd700",
+  blue: "#2196f3",
 } as const;
 
 export const SURFACE = {
