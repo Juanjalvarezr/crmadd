@@ -1,11 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { 
   Dialog, DialogContent, TextField, List, ListItem, ListItemText, 
   ListItemIcon, Typography, Box, InputAdornment, Chip, Divider 
 } from '@mui/material';
 import { FiSearch, FiUser, FiFolder, FiCheckSquare, FiZap, FiPlus } from 'react-icons/fi';
 import { useNavigate } from 'react-router'; // Hook de React Router
-import { BRAND } from '../theme';
 import { tareasService, clientesService, proyectosService } from '../services/supabase';
 
 export default function GlobalSearch({ open, onClose }: { open: boolean, onClose: () => void }) {
@@ -13,25 +12,39 @@ export default function GlobalSearch({ open, onClose }: { open: boolean, onClose
   const [results, setResultados] = useState<{tipo: string, nombre: string, id: string, path: string}[]>([]);
   const navigate = useNavigate();
 
+  const cache = useRef<{ clis: any[]; proys: any[]; tasks: any[] } | null>(null);
+
+  // Cargar UNA vez al abrir (antes: 3 queries a tablas completas por cada tecla)
+  useEffect(() => {
+    if (!open || cache.current) return;
+    let alive = true;
+    Promise.all([
+      clientesService.getAll().catch(() => []),
+      proyectosService.getAll().catch(() => []),
+      tareasService.getAll().catch(() => []),
+    ]).then(([clis, proys, tasks]) => {
+      if (alive) cache.current = { clis, proys, tasks };
+    });
+    return () => { alive = false; };
+  }, [open]);
+
   useEffect(() => {
     const performSearch = async () => {
       if (query.length < 2) {
         setResultados([]);
         return;
       }
+      if (!cache.current) return; // aún cargando, no bloquear el input
 
-      const [clis, proys, tasks] = await Promise.all([
-        clientesService.getAll(),
-        proyectosService.getAll(),
-        tareasService.getAll()
-      ]);
+      const { clis, proys, tasks } = cache.current;
+      const q = query.toLowerCase();
 
       const filtered = [
-        ...clis.filter(c => c.nombre && c.nombre.toLowerCase().includes(query.toLowerCase()))
-          .map(c => ({ tipo: 'Cliente', nombre: c.nombre || '', id: String(c.id), path: '/clientes' })),
-        ...proys.filter(p => p.nombre.toLowerCase().includes(query.toLowerCase()))
+        ...clis.filter(c => (c.nombre || '').toLowerCase().includes(q))
+          .map(c => ({ tipo: 'Cliente', nombre: c.nombre, id: String(c.id), path: '/clientes' })),
+        ...proys.filter(p => (p.nombre || '').toLowerCase().includes(q))
           .map(p => ({ tipo: 'Proyecto', nombre: p.nombre, id: p.id, path: '/proyectos' })),
-        ...tasks.filter(t => t.titulo.toLowerCase().includes(query.toLowerCase()))
+        ...tasks.filter(t => (t.titulo || '').toLowerCase().includes(q))
           .map(t => ({ tipo: 'Tarea', nombre: t.titulo, id: String(t.id), path: '/tareas' }))
       ];
 
@@ -49,9 +62,9 @@ export default function GlobalSearch({ open, onClose }: { open: boolean, onClose
   };
 
   const quickActions = [
-    { nombre: 'Nuevo Cliente', path: '/clientes?action=new', icono: <FiPlus />, color: BRAND.secondary },
-    { nombre: 'Nueva Tarea', path: '/tareas?action=new', icono: <FiCheckSquare />, color: BRAND.success },
-    { nombre: 'Nueva Venta', path: '/ventas?action=new', icono: <FiZap />, color: BRAND.warning },
+    { nombre: 'Nuevo Cliente', path: '/clientes?action=new', icono: <FiPlus />, color: '#e91e63' },
+    { nombre: 'Nueva Tarea', path: '/tareas?action=new', icono: <FiCheckSquare />, color: '#4caf50' },
+    { nombre: 'Nueva Venta', path: '/ventas?action=new', icono: <FiZap />, color: '#ff9800' },
   ];
 
   return (
@@ -67,7 +80,7 @@ export default function GlobalSearch({ open, onClose }: { open: boolean, onClose
             onChange={(e) => setQuery(e.target.value)}
             InputProps={{
               disableUnderline: true,
-              startAdornment: <InputAdornment position="start"><FiSearch color={BRAND.secondary} /></InputAdornment>,
+              startAdornment: <InputAdornment position="start"><FiSearch color="#e91e63" /></InputAdornment>,
               sx: { fontSize: '1.2rem' }
             }}
           />
@@ -100,7 +113,7 @@ export default function GlobalSearch({ open, onClose }: { open: boolean, onClose
                 button 
                 key={index} 
                 onClick={() => handleSelect(item)}
-                sx={{ '&:hover': { bgcolor: 'action.hover' } }}
+                sx={{ '&:hover': { bgcolor: '#fce4ec' } }}
               >
                 <ListItemIcon>
                   {item.tipo === 'Cliente' ? <FiUser /> : item.tipo === 'Proyecto' ? <FiFolder /> : <FiCheckSquare />}

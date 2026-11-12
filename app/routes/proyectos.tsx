@@ -26,7 +26,6 @@ import type { Proyecto, TareaProyecto, RecursoProyecto, PlanItem } from "../type
 import { aiService } from "../services/ai";
 import { useCRMStore } from "../store/useCRMStore";
 import { useExportCsv } from "../utils/exportCsv";
-import { generarYGuardarDocumento } from "../services/docsHelper";
 import { globalSnack } from "../components/GlobalSnackbar";
 import { EmptyState } from "../components/EmptyState";
 import { SkeletonList } from "../components/SkeletonList";
@@ -563,7 +562,7 @@ export default function Proyectos() {
     };
 
     try {
-      const proyectoActualizado = await proyectosService.update(proyecto.id, { 
+      const proyectoActualizado = await proyectosService.update(String(proyecto.id), { 
         onboardingChecklist: nuevaChecklist 
       });
       useCRMStore.setState((state) => ({ proyectos: state.proyectos.map((p: any) => p.id === proyecto.id ? proyectoActualizado : p) }));
@@ -581,7 +580,7 @@ export default function Proyectos() {
       if (nuevoMonto >= proyecto.presupuesto) nuevoEstadoPago = "pagado";
       else if (nuevoMonto > 0) nuevoEstadoPago = "parcial";
 
-      const proyectoActualizado = await proyectosService.update(proyecto.id, { 
+      const proyectoActualizado = await proyectosService.update(String(proyecto.id), { 
         montoPagado: nuevoMonto,
         estadoPago: nuevoEstadoPago
       });
@@ -597,7 +596,7 @@ export default function Proyectos() {
   const handleCambiarFase = async (proyecto: Proyecto, nuevaFase: Proyecto["faseAdministrativa"]) => {
     try {
       const actualizadoEn = new Date().toISOString();
-      const proyectoActualizado = await proyectosService.update(proyecto.id, { 
+      const proyectoActualizado = await proyectosService.update(String(proyecto.id), { 
         faseAdministrativa: nuevaFase, 
         actualizadoEn 
       });
@@ -635,7 +634,7 @@ export default function Proyectos() {
       }
 
       const actualizadoEn = new Date().toISOString();
-      await proyectosService.update(proyecto.id, { estado: nuevoEstado, actualizadoEn });
+      await proyectosService.update(String(proyecto.id), { estado: nuevoEstado, actualizadoEn });
 
       useCRMStore.setState((state) => ({ proyectos: state.proyectos.map((p: any) => p.id === proyecto.id ? { ...p, estado: nuevoEstado, actualizadoEn } : p) }));
 
@@ -656,6 +655,7 @@ export default function Proyectos() {
   // --- Documentos: generar y ver ---
   const generarDocumentoProyecto = async (proyecto: Proyecto) => {
     try {
+      const { generarYGuardarDocumento } = await import("../services/docsHelper");
       const res = await generarYGuardarDocumento("propuesta", {
         id: proyecto.id,
         cliente_id: proyecto.clienteId ? Number(proyecto.clienteId) : undefined,
@@ -728,7 +728,7 @@ export default function Proyectos() {
     useCRMStore.setState({ proyectos: prev });
     try {
       const actualizadoEn = new Date().toISOString();
-      await proyectosService.update(proyecto.id, { estado: nuevoEstado, actualizadoEn });
+      await proyectosService.update(String(proyecto.id), { estado: nuevoEstado, actualizadoEn });
       globalSnack.show(`Proyecto movido a ${nuevoEstado.replace("_", " ")}`, "success");
     } catch (err: any) {
       globalSnack.show("Error al mover proyecto: " + err.message, "error");
@@ -770,7 +770,7 @@ export default function Proyectos() {
 
   const proyectosFiltrados = getProyectosPorTab();
 
-  const AddTaskMiniProyecto = ({ proyectoId, onCreated }: { proyectoId: string; onCreated?: () => void }) => {
+  const AddTaskMiniProyecto = ({ proyectoId, onCreated }: { proyectoId: string | number; onCreated?: () => void }) => {
     const [open, setOpen] = useState(false);
     const [titulo, setTitulo] = useState("");
     const [fechaLimite, setFechaLimite] = useState("");
@@ -816,7 +816,7 @@ export default function Proyectos() {
     );
   };
 
-  const TareasProyectoList = ({ proyectoId, tareas, fetchTareas }: { proyectoId: string; tareas: any[]; fetchTareas: () => Promise<void> }) => {
+  const TareasProyectoList = ({ proyectoId, tareas, fetchTareas }: { proyectoId: string | number; tareas: any[]; fetchTareas: () => Promise<void> }) => {
     // migrated to globalSnack
     const tareasProyecto = tareas.filter((t: any) => String(t.proyecto_id) === String(proyectoId));
 
@@ -1407,7 +1407,7 @@ export default function Proyectos() {
                           control={
                             <Checkbox 
                               size="small" 
-                              checked={val} 
+                              checked={Boolean(val)} 
                               onChange={(e) => handleUpdateOnboarding(selectedProyecto, key, e.target.checked)} 
                             />
                           }

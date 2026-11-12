@@ -92,12 +92,14 @@ export const useCRMStore = create<CRMState>((set, get) => ({
         oportunidadesService.getAll().catch(() => []),
         proyectosService.getAll().catch(() => []),
         tareasService.getAll().catch(() => []),
+        facturasService.getAll().catch(() => []),
       ]);
 
       const clientes = results[0].status === 'fulfilled' ? results[0].value : [];
       const oportunidades = results[1].status === 'fulfilled' ? results[1].value : [];
       const proyectos = results[2].status === 'fulfilled' ? results[2].value : [];
       const tareas = results[3].status === 'fulfilled' ? results[3].value : [];
+      const facturas = results[4].status === 'fulfilled' ? results[4].value : [];
 
       const failed = results.filter(r => r.status === 'rejected').length;
       if (failed > 0) {
@@ -117,6 +119,7 @@ export const useCRMStore = create<CRMState>((set, get) => ({
         oportunidades,
         proyectos,
         tareas,
+        facturas,
         stats: {
           totalIngresos,
           clientesActivos,

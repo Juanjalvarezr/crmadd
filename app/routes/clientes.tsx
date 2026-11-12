@@ -31,7 +31,6 @@ import { EmptyState } from "../components/EmptyState";
 import { ListToolbar } from "../components/ListToolbar";
 import { CompactTable } from "../components/CompactTable";
 import { useLocation } from "react-router";
-import { generarYGuardarDocumento } from "../services/docsHelper";
 import { globalSnack } from "../components/GlobalSnackbar";
 import type { Cliente } from "../types/crm";
 
@@ -327,6 +326,7 @@ export default function Clientes() {
   // --- Documentos: generar y ver ---
   const generarDocumentoCliente = async (cliente: Cliente) => {
     try {
+      const { generarYGuardarDocumento } = await import("../services/docsHelper");
       const res = await generarYGuardarDocumento("propuesta", {
         id: cliente.id,
         cliente_id: cliente.id,

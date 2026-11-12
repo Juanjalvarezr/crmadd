@@ -8,7 +8,6 @@ import { cotizacionesService, clientesService, documentosService, logsService } 
 import { crmEventsService } from "../services/supabase";
 import { plantillasDocumentosService } from "../services/supabase";
 import { storageHelper } from "../services/supabase";
-import { generarYGuardarDocumento } from "../services/docsHelper";
 import { whatsappService } from "../services/whatsappService";
 import { CompactStatCard } from "../components/CompactStatCard";
 import { globalSnack } from "../components/GlobalSnackbar";
@@ -122,6 +121,7 @@ export default function Cotizaciones() {
   };
 
   const generarDocumento = async (row: any) => {
+    const { generarYGuardarDocumento } = await import("../services/docsHelper");
     const res = await generarYGuardarDocumento("cotizacion", {
       id: row.id,
       total: row.total,

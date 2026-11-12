@@ -20,3 +20,14 @@ export function useExportCsv(fileName: string, headers: string[], rows: () => an
   };
   return { exporting, download };
 }
+
+export function downloadCsv(fileName: string, headers: string[], rows: any[]) {
+  const csv = [headers.join(","), ...rows.map((r) => headers.map((h) => JSON.stringify(r[h] ?? "")).join(","))].join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${fileName}-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}

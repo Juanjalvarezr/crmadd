@@ -17,7 +17,7 @@ import { useNavigate } from "react-router";
 import { prospectingService } from "../services/prospectingService";
 import { whatsappService } from "../services/whatsappService";
 import { enlacesService } from "../services/enlacesService";
-import { csvParserService } from "../services/csvParserService";
+import { parseCSV, rowToProspectoData } from "../services/csvParserService";
 import { serviciosService } from "../services/supabase";
 import type { Prospecto, EstadoProspecto } from "../types/crm";
 import { ESTADOS_PROGRESS, ESTADO_COLORS } from "../types/crm";
@@ -256,7 +256,7 @@ export default function ProspectosView() {
     const reader = new FileReader();
     reader.onload = (ev) => {
       const text = ev.target?.result as string;
-      const parsed = csvParserService.parseCSV(text);
+      const parsed = parseCSV(text);
       setCsvData(parsed);
       setSelectedCsvRows([]);
     };
@@ -279,7 +279,7 @@ export default function ProspectosView() {
       let count = 0;
       for (const idx of selectedCsvRows) {
         const row = csvData.rows[idx];
-        const data = csvParserService.rowToProspectoData(row);
+        const data = rowToProspectoData(row);
         if (data.esFuncional) {
           await prospectingService.create({
             nombre: data.nombre || 'Sin nombre',
@@ -329,7 +329,7 @@ export default function ProspectosView() {
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 2, mb: 3 }}>
         <Box>
           <Breadcrumbs separator="›" sx={{ mb: 0.5 }}>
-            <a href="/">Inicio</a>
+            <Link to="/dashboard" underline="hover" color="inherit">Inicio</Link>
             <Typography color="inherit" fontWeight={600}>Prospectos</Typography>
           </Breadcrumbs>
           <Typography variant="h5" fontWeight={700} color="primary">📊 Pipeline de Prospectos</Typography>

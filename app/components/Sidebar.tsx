@@ -7,17 +7,21 @@ import {
 } from "react-icons/fi";
 import { Link, useLocation } from "react-router";
 import { BRAND } from "../theme";
+import { useEffect, useState } from "react";
+import { getCurrentRol, isSensitive, type Rol } from "../utils/rbac";
 
 const DRAWER_WIDTH = 260;
 
 const menuItems = [
-  { label: "Inicio", icon: FiHome, path: "/", notifications: 0, color: BRAND.primary },
+  { label: "Inicio", icon: FiHome, path: "/dashboard", notifications: 0, color: BRAND.primary },
   { label: "Clientes", icon: FiUsers, path: "/clientes", notifications: 0, color: BRAND.success },
   { label: "Prospectos", icon: FiUsers, path: "/prospectos", notifications: 0, color: BRAND.purple },
   { label: "Equipo (Subagentes)", icon: FiUsers, path: "/equipo", notifications: 0, color: BRAND.blue },
   { label: "Servicios ★", icon: FiPackage, path: "/servicios", notifications: 0, color: BRAND.warning },
   { label: "Proyectos", icon: FiPackage, path: "/proyectos", notifications: 0, color: BRAND.blue },
   { label: "Oportunidades", icon: FiTrendingUp, path: "/ventas", notifications: 0, color: BRAND.purple },
+  { label: "Cotizaciones", icon: FiFileText, path: "/cotizaciones", notifications: 0, color: "#009688" },
+  { label: "Kanban", icon: FiTrendingUp, path: "/kanban", notifications: 0, color: "#607d8b" },
   { label: "Tareas", icon: FiCheckSquare, path: "/tareas", notifications: 0, color: BRAND.error },
   { label: "Facturación", icon: FiFileText, path: "/facturacion", notifications: 0, color: "#009688" },
   { label: "Contratos", icon: FiFileText, path: "/contratos", notifications: 0, color: "#795548" },
@@ -52,6 +56,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onToggleCollapse 
 }) => {
   const location = useLocation();
+  const [rol, setRol] = useState<Rol>("admin");
+
+  useEffect(() => {
+    let mounted = true;
+    getCurrentRol().then((r) => { if (mounted) setRol(r); }).catch(() => {});
+    return () => { mounted = false; };
+  }, []);
+
+  const visibleMenuItems = menuItems.filter(
+    (item) => !(rol === "viewer" && isSensitive(item.path))
+  );
 
   const getNotificationCount = (path: string) => {
     const item = menuItems.find(item => item.path === path);
@@ -234,7 +249,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       
       {/* Menú Principal */}
       <List sx={{ px: 1, flexGrow: 1, overflowY: 'auto', py: 0.5 }}>
-        {menuItems.map((item) => {
+        {visibleMenuItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
           const notificationCount = getNotificationCount(item.path);
