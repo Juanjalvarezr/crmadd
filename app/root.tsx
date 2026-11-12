@@ -172,7 +172,7 @@ export default function Root() {
   };
 
   return (
-    <ErrorBoundary>
+      <ErrorBoundary>
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Box sx={{ display: "flex", minHeight: "100vh", overflowX: "hidden" }}>
@@ -228,7 +228,7 @@ export default function Root() {
           <MobileFab />
           <GlobalSearch open={searchOpen} onClose={() => setSearchOpen(false)} />
           <GlobalSnackbar />
-        </Box>
+                  </Box>
       </Box>
     </ThemeProvider>
     </ErrorBoundary>
