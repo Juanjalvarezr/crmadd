@@ -60,6 +60,34 @@ serve(async (req) => {
       );
     }
 
+    // 1b. Vision: extraer datos de tarjeta
+    if (action === 'extractCard') {
+      const { imageBase64, mimeType = 'image/jpeg' } = body;
+      if (!imageBase64) {
+        return new Response(JSON.stringify({ error: 'El campo imageBase64 es requerido.' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      }
+      const prompt = [
+        'Analiza la imagen de esta tarjeta de presentacion y devuelve SOLO un JSON valido.',
+        'Formato: {"nombre":"","empresa":"","telefono":"","whatsapp":"","email":"","direccion":"","web":"","redes":[],"texto":""}',
+        'Reglas: sin explicaciones, sin markdown, solo el JSON. Si un dato no aparece, dejalo vacio.',
+      ].join('\n');
+      const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + GEMINI_API_KEY, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contents: [{ parts: [ { text: prompt }, { inlineData: { mimeType, data: imageBase64 } } ] }] }),
+      });
+      const data = await response.json();
+      if (data.error) { return new Response(JSON.stringify({ error: data.error.message }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }); }
+      const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      let parsed = {};
+      try {
+        const bt = String.fromCharCode(96);
+        const cleaned = raw.split(bt + bt + bt + 'json').join('').split(bt + bt + bt).join('').trim();
+        const a = cleaned.indexOf('{'); const b = cleaned.lastIndexOf('}');
+        parsed = a >= 0 && b > a ? JSON.parse(cleaned.slice(a, b + 1)) : {};
+      } catch { parsed = { texto: raw }; }
+      return new Response(JSON.stringify({ data: parsed }), { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
     // 2. Acción de generar contenido de texto (por defecto)
     if (!prompt) {
       return new Response(

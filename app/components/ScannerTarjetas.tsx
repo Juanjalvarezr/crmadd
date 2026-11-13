@@ -4,7 +4,7 @@ import {
   TextField, Chip, Stack, Alert
 } from '@mui/material';
 import { FiCamera, FiUpload, FiX, FiCheck } from 'react-icons/fi';
-import { clientesService, interaccionesService } from '../services/supabase';
+import { supabase, clientesService, interaccionesService } from '../services/supabase';
 import { globalSnack } from '../components/GlobalSnackbar';
 
 // OCR temporalmente deshabilitado
@@ -15,12 +15,34 @@ interface ExtractedCard {
   email?: string;
   direccion?: string;
   redes?: string[];
+  web?: string;
   texto?: string;
 }
 
+const fileToBase64 = (file: File) => new Promise<string>((resolve, reject) => {
+  const r = new FileReader();
+  r.onload = () => resolve((String(r.result || '')).split(',')[1] || '');
+  r.onerror = reject;
+  r.readAsDataURL(file);
+});
+
 const scanCardFromImage = async (file: File): Promise<ExtractedCard> => {
-  // OCR deshabilitado temporalmente
-  return { nombre: undefined, empresa: undefined, telefono: undefined, email: undefined, direccion: undefined, texto: 'OCR deshabilitado temporalmente' };
+  const imageBase64 = await fileToBase64(file);
+  const { data, error } = await supabase.functions.invoke('gemini-proxy', {
+    body: { action: 'extractCard', imageBase64, mimeType: file.type || 'image/jpeg' },
+  });
+  if (error) throw new Error(error.message || 'Error llamando a la IA');
+  const d = (data?.data || data || {}) as Record<string, any>;
+  return {
+    nombre: d.nombre || undefined,
+    empresa: d.empresa || undefined,
+    telefono: d.telefono || d.whatsapp || undefined,
+    email: d.email || undefined,
+    direccion: d.direccion || undefined,
+    web: d.web || undefined,
+    redes: Array.isArray(d.redes) ? d.redes : [],
+    texto: d.texto || '',
+  };
 };
 
 interface Props {
@@ -144,6 +166,7 @@ export default function ScannerTarjetas({ open, onClose, onSave }: Props) {
             <TextField label="Teléfono" fullWidth value={data.telefono || ''} onChange={(e) => setData({ ...data, telefono: e.target.value })} />
             <TextField label="Email" fullWidth value={data.email || ''} onChange={(e) => setData({ ...data, email: e.target.value })} />
             <TextField label="Dirección" fullWidth value={data.direccion || ''} onChange={(e) => setData({ ...data, direccion: e.target.value })} />
+            <TextField label="Web" fullWidth value={data.web || ''} onChange={(e) => setData({ ...data, web: e.target.value })} />
             <TextField label="Redes" fullWidth value={(data.redes || []).join(', ')} onChange={(e) => setData({ ...data, redes: e.target.value.split(',').map((s) => s.trim()).filter(Boolean) })} />
             <Chip label={`${(data.texto || '').split(/\r?\n/).length} líneas detectadas`} color="info" variant="outlined" />
           </Stack>
