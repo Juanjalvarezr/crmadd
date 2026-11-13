@@ -21,7 +21,7 @@ const skeletonAgencyStyle = {
   border: '1px solid rgba(233, 30, 99, 0.05)'
 };
 import DOMPurify from 'dompurify';
-import { FiSearch, FiPlus, FiEdit, FiTrash2, FiFilter, FiCalendar, FiX, FiUsers, FiPhone, FiMail, FiFileText, FiDownload, FiEye, FiMessageSquare, FiStar, FiBriefcase, FiTarget } from "react-icons/fi";
+import { FiSearch, FiPlus, FiEdit, FiTrash2, FiFilter, FiCalendar, FiX, FiUsers, FiPhone, FiMail, FiFileText, FiDownload, FiEye, FiMessageSquare, FiStar, FiBriefcase, FiTarget, FiCamera } from "react-icons/fi";
 import { clientesService } from "../services/supabase";
 import { useCRMStore } from "../store/useCRMStore";
 import { BRAND } from "../theme";
@@ -32,6 +32,7 @@ import { ListToolbar } from "../components/ListToolbar";
 import { CompactTable } from "../components/CompactTable";
 import { useLocation } from "react-router";
 import { globalSnack } from "../components/GlobalSnackbar";
+import ScannerTarjetas from "../components/ScannerTarjetas";
 import type { Cliente } from "../types/crm";
 
 const isLeadFrio = (fechaStr: string) => {
@@ -71,6 +72,7 @@ export default function Clientes() {
   const [estadoFilter, setEstadoFilter] = useState("all");
   const [industriaFilter, setIndustriaFilter] = useState("all");
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
+  const [scannerOpen, setScannerOpen] = useState(false);
   
   // Modales de Detalle e Historial
   const [selectedClient, setSelectedClient] = useState<Cliente | null>(null);
@@ -577,6 +579,14 @@ export default function Clientes() {
               sx={{ backgroundColor: "#e91e63", whiteSpace: "nowrap", '&:hover': { backgroundColor: "#c2185b" } }}
             >
               Nuevo
+            </Button>
+            <Button
+              size="small"
+              variant="outlined"
+              startIcon={<FiCamera size={14} />}
+              onClick={() => setScannerOpen(true)}
+            >
+              Escanear tarjeta
             </Button>
           </Box>
         </Box>
@@ -1138,6 +1148,12 @@ export default function Clientes() {
           </Box>
         </Box>
       </Drawer>
+
+      <ScannerTarjetas
+        open={scannerOpen}
+        onClose={() => setScannerOpen(false)}
+        onSave={loadClientes}
+      />
     </Box>
   );
 }
