@@ -19,12 +19,30 @@ interface ExtractedCard {
   texto?: string;
 }
 
-const fileToBase64 = (file: File) => new Promise<string>((resolve, reject) => {
-  const r = new FileReader();
-  r.onload = () => resolve((String(r.result || '')).split(',')[1] || '');
-  r.onerror = reject;
-  r.readAsDataURL(file);
-});
+const fileToBase64 = async (file: File): Promise<string> => {
+  const dataUrl = await new Promise<string>((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => resolve(String(r.result || ''));
+    r.onerror = reject;
+    r.readAsDataURL(file);
+  });
+  try {
+    const img = new Image();
+    await new Promise<void>((res, rej) => { img.onload = () => res(); img.onerror = rej; img.src = dataUrl; });
+    const max = 1280;
+    const scale = Math.min(1, max / Math.max(img.width, img.height));
+    const w = Math.max(1, Math.round(img.width * scale));
+    const h = Math.max(1, Math.round(img.height * scale));
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return dataUrl.split(',')[1] || '';
+    ctx.drawImage(img, 0, 0, w, h);
+    return canvas.toDataURL('image/jpeg', 0.75).split(',')[1] || '';
+  } catch {
+    return dataUrl.split(',')[1] || '';
+  }
+};
 
 const scanCardFromImage = async (file: File): Promise<ExtractedCard> => {
   const imageBase64 = await fileToBase64(file);
