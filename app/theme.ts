@@ -77,6 +77,28 @@ const base: ThemeOptions = {
       defaultProps: { elevation: 0 },
     },
     MuiToolbar: { styleOverrides: { root: { minHeight: 56 } } },
+    MuiCardContent: {
+      styleOverrides: {
+        root: { padding: 12, "&:last-child": { paddingBottom: 12 } },
+      },
+    },
+    MuiListItem: {
+      styleOverrides: {
+        root: { paddingTop: 6, paddingBottom: 6 },
+      },
+    },
+    MuiListItemText: {
+      styleOverrides: {
+        primary: { fontSize: "0.85rem" },
+        secondary: { fontSize: "0.75rem" },
+      },
+    },
+    MuiDialogActions: {
+      styleOverrides: { root: { padding: "10px 16px" } },
+    },
+    MuiFormHelperText: {
+      styleOverrides: { root: { fontSize: "0.7rem" } },
+    },
     MuiListItemButton: {
       styleOverrides: {
         root: { borderRadius: 10, "&.Mui-selected": { backgroundColor: "rgba(233,30,99,0.12)" } },
