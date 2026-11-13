@@ -1,6 +1,7 @@
 // Cola de salida unificada: el CRM encola y n8n (OpenWA) envía.
 // Flujo: ensure channel/contact/conversation -> INSERT conversation_messages (outbound, pending)
 import { supabase, emailService } from './supabase';
+import { programarSeguimientos } from './seguimientoService';
 import { renderPlantilla } from './templates';
 import { generarYGuardarDocumento } from './docsHelper';
 
@@ -144,6 +145,15 @@ export async function enviarMensajeWhatsApp(
         );
       } catch (e) {
         console.error('[outbound] error email:', e);
+      }
+    }
+
+    // Seguimiento automatico (solo propuestas)
+    if (tipo === 'propuesta') {
+      try {
+        await programarSeguimientos(c, new Date());
+      } catch (e) {
+        console.error('[outbound] error programando seguimiento:', e);
       }
     }
 
