@@ -1,6 +1,6 @@
 // Cola de salida unificada: el CRM encola y n8n (OpenWA) envía.
 // Flujo: ensure channel/contact/conversation -> INSERT conversation_messages (outbound, pending)
-import { supabase } from './supabase';
+import { supabase, emailService } from './supabase';
 import { renderPlantilla } from './templates';
 import { generarYGuardarDocumento } from './docsHelper';
 
@@ -115,8 +115,10 @@ export async function enviarMensajeWhatsApp(
       fecha: extra.fecha || '',
     });
 
-    // 4) Encolar (n8n lo envia por OpenWA)
-    const { error: insertError } = await supabase.from('conversation_messages').insert([
+    // 4) Encolar WhatsApp (n8n lo envia por OpenWA) - si el canal lo incluye
+    const canal = extra.canal || 'whatsapp';
+    if (canal !== 'email') {
+      const { error: insertError } = await supabase.from('conversation_messages').insert([
       {
         conversation_id: conversationId,
         direccion: 'outbound',
@@ -127,7 +129,23 @@ export async function enviarMensajeWhatsApp(
         enviado_por: 'crm',
       },
     ]);
-    if (insertError) throw insertError;
+      if (insertError) throw insertError;
+    }
+
+    // Envío por email (opcional, con Resend)
+    if (c.email && (canal === 'email' || canal === 'ambos')) {
+      try {
+        const htmlCuerpo = String(cuerpo).split(String.fromCharCode(10)).join('<br/>');
+        const linkDoc = docUrl ? '<p><a href="' + docUrl + '">Ver documento</a></p>' : '';
+        await emailService.sendRealEmail(
+          [c.email],
+          extra.asunto || ('Propuesta para ' + (c.nombre || 'cliente')),
+          '<p>' + htmlCuerpo + '</p>' + linkDoc
+        );
+      } catch (e) {
+        console.error('[outbound] error email:', e);
+      }
+    }
 
     return { ok: true as const, url: docUrl, mensaje: cuerpo };
   } catch (e: any) {

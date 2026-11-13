@@ -5,7 +5,7 @@ import {
   Box, Typography, Paper, Grid,
   Button, Chip, TextField, InputAdornment, FormControl, InputLabel, Select, MenuItem, Pagination, Checkbox,
   Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Alert, Snackbar, Tooltip, keyframes,
-  Card, CardContent, Drawer, Divider, useTheme, useMediaQuery, Skeleton, Tabs, Tab, Stack
+  Card, CardContent, Drawer, Divider, useTheme, useMediaQuery, Skeleton, Tabs, Tab, Stack, ToggleButton, ToggleButtonGroup
 } from "@mui/material"; // Importaciones de Material-UI
 
 // Animación de pulso con colores de la agencia
@@ -76,6 +76,7 @@ export default function Clientes() {
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   const [scannerOpen, setScannerOpen] = useState(false);
   const [historialCliente, setHistorialCliente] = useState<Cliente | null>(null);
+  const [canal, setCanal] = useState<'whatsapp' | 'email' | 'ambos'>('ambos');
   const [propuestaBusy, setPropuestaBusy] = useState<number | string | null>(null);
   
   // Modales de Detalle e Historial
@@ -364,6 +365,7 @@ export default function Clientes() {
       const res = await enviarPropuestaWhatsApp(cliente as any, {
         servicio: cliente.nicho || cliente.empresa || 'nuestros servicios',
         agente: 'el equipo',
+        canal,
       });
       if (res.ok) {
         globalSnack.show(`Propuesta en cola para ${cliente.nombre}. n8n la envía por WhatsApp.`, 'success');
@@ -1062,6 +1064,20 @@ export default function Clientes() {
                   <Typography variant="body2">{selectedClient.nicho || '—'}</Typography>
                   <Typography variant="subtitle2">Estado</Typography>
                   <Chip size="small" label={selectedClient.estado} color={selectedClient.estado === 'Activo' ? 'success' : 'default'} />
+
+                  <Box sx={{ mt: 1.5 }}>
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>Canal de envío</Typography>
+                    <ToggleButtonGroup
+                      size="small"
+                      exclusive
+                      value={canal}
+                      onChange={(_, v) => v && setCanal(v)}
+                    >
+                      <ToggleButton value="whatsapp">WhatsApp</ToggleButton>
+                      <ToggleButton value="email">Email</ToggleButton>
+                      <ToggleButton value="ambos">Ambos</ToggleButton>
+                    </ToggleButtonGroup>
+                  </Box>
 
                   <Box sx={{ display: 'flex', gap: 1, mt: 1.5, flexWrap: 'wrap' }}>
                     <Button size="small" variant="contained" startIcon={<FiSend size={14} />} disabled={propuestaBusy === selectedClient.id} onClick={() => handleEnviarPropuesta(selectedClient)}>
