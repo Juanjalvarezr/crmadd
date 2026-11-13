@@ -426,13 +426,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {isCollapsed ? (
           <Tooltip title="Versión 2.0.1 - © 2026 CRM Agencia" placement="right">
             <Typography variant="caption" sx={{ fontWeight: "bold", color: "rgba(255,255,255,0.2)", cursor: "pointer" }}>
-              v2.0
+              v2.0.2
             </Typography>
           </Tooltip>
         ) : (
           <Box>
             <Chip 
-              label="v2.0.1" 
+              label="v2.0.2" 
               size="small" 
               variant="outlined"
               sx={{ 
