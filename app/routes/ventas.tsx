@@ -5,7 +5,7 @@ import { CompactStatCard } from "../components/CompactStatCard";
 import { VentasIcon } from "../components/StatCard";
 import {
   Box, Typography, Paper, Grid, Button, Chip, TextField, InputAdornment, FormControl, InputLabel, Select, MenuItem,
-  Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Alert, Slider, CircularProgress, Tooltip, Skeleton, keyframes
+  Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Alert, Slider, CircularProgress, Tooltip, Skeleton, keyframes, ToggleButton, ToggleButtonGroup
 } from "@mui/material";
 
 // Animación de pulso con colores de la agencia
@@ -20,7 +20,8 @@ const skeletonAgencyStyle = {
   animation: `${pulseAgency} 2s ease-in-out infinite`,
   border: '1px solid rgba(233, 30, 99, 0.05)'
 };
-import { FiPlus, FiEdit, FiTrash2, FiSearch, FiX, FiRefreshCw, FiTrendingUp, FiMove, FiFileText, FiMessageSquare, FiCopy, FiZap } from "react-icons/fi";
+import { FiPlus, FiEdit, FiTrash2, FiSearch, FiX, FiRefreshCw, FiTrendingUp, FiMove, FiFileText, FiMessageSquare, FiCopy, FiZap, FiCheckCircle } from "react-icons/fi";
+import { cerrarOportunidad, MOTIVOS_PERDIDA } from "../services/cierreService";
 import { tareasService, serviciosService, clientesService, oportunidadesService, proyectosService } from "../services/supabase";
 
 import { aiService } from "../services/ai";
@@ -279,6 +280,52 @@ export default function Ventas() {
     setOpenModal(true);
   };
 
+  // ---- Cierre de oportunidad (ganado/perdido + feedback) ----
+  const [cierreOpp, setCierreOpp] = useState<Oportunidad | null>(null);
+  const [cierreResultado, setCierreResultado] = useState<'ganado' | 'perdido'>('ganado');
+  const [cierreMotivo, setCierreMotivo] = useState('Precio');
+  const [cierreNotas, setCierreNotas] = useState('');
+  const [cierreNombre, setCierreNombre] = useState('');
+  const [cierreBusy, setCierreBusy] = useState(false);
+
+  const abrirCierre = (opp: Oportunidad) => {
+    setCierreOpp(opp);
+    setCierreResultado('ganado');
+    setCierreMotivo('Precio');
+    setCierreNotas('');
+    setCierreNombre(opp.nombre || '');
+  };
+
+  const handleCerrar = async () => {
+    if (!cierreOpp) return;
+    if (cierreResultado === 'perdido' && !cierreMotivo) {
+      globalSnack.show('Elegí el motivo de la pérdida', 'warning');
+      return;
+    }
+    setCierreBusy(true);
+    try {
+      const res = await cerrarOportunidad(cierreOpp, {
+        resultado: cierreResultado,
+        motivo: cierreResultado === 'perdido' ? cierreMotivo : undefined,
+        notas: cierreNotas.trim(),
+        nombreProyecto: cierreNombre.trim(),
+      });
+      if (!res.ok) throw new Error('No se pudo cerrar');
+      globalSnack.show(
+        cierreResultado === 'ganado'
+          ? `Ganado · Proyecto creado: ${res.proyecto}`
+          : `Perdido · motivo: ${cierreMotivo}`,
+        cierreResultado === 'ganado' ? 'success' : 'warning'
+      );
+      await load();
+      setCierreOpp(null);
+    } catch (error: any) {
+      globalSnack.show(error.message || 'Error al cerrar', 'error');
+    } finally {
+      setCierreBusy(false);
+    }
+  };
+
   const handleSave = async () => {
     if (!formData.nombre || !formData.cliente_nombre || formData.cliente_nombre === "__otro__") {
       globalSnack.show("Debes asignar un cliente real a la oportunidad.", "error");
@@ -513,6 +560,7 @@ export default function Ventas() {
                                       <Chip label={`${opp.probabilidad}%`} size="small" color={opp.probabilidad >= 75 ? 'success' : opp.probabilidad >= 40 ? 'warning' : 'error'} sx={{ height: 20, fontSize: '0.65rem' }} />
                                     </Box>
                                     <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.5, borderTop: '1px solid #eee', pt: 1, flexWrap: 'wrap' }}>
+                                      <IconButton size="small" aria-label="Cerrar" onClick={() => abrirCierre(opp)} sx={{ color: '#2e7d32' }}><FiCheckCircle size={14}/></IconButton>
                                       <IconButton size="small" aria-label="Acción" onClick={() => handleEdit(opp)} sx={{ color: 'text.secondary' }}><FiEdit size={14}/></IconButton>
                                       <IconButton size="small" aria-label="Acción" onClick={() => handleDelete(opp)} color="error"><FiTrash2 size={14}/></IconButton>
                                       <IconButton size="small" aria-label="Acción" onClick={() => handleGenerarPropuestaAI(opp)} sx={{ color: '#daa520' }}><FiZap size={14}/></IconButton>
@@ -686,6 +734,64 @@ export default function Ventas() {
             </Grid>
           )}
         </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!cierreOpp} onClose={() => !cierreBusy && setCierreOpp(null)} maxWidth="xs" fullWidth>
+        <DialogTitle sx={{ fontSize: '1rem', pb: 0.5 }}>Cerrar: {cierreOpp?.nombre}</DialogTitle>
+        <DialogContent sx={{ pt: 0.5 }}>
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5 }}>Resultado</Typography>
+          <ToggleButtonGroup size="small" exclusive fullWidth value={cierreResultado} onChange={(_, v) => v && setCierreResultado(v)}>
+            <ToggleButton value="ganado" sx={{ color: '#2e7d32' }}>Ganado</ToggleButton>
+            <ToggleButton value="perdido" sx={{ color: '#c62828' }}>Perdido</ToggleButton>
+          </ToggleButtonGroup>
+
+          {cierreResultado === 'ganado' ? (
+            <TextField
+              label="Nombre del proyecto a crear"
+              size="small"
+              fullWidth
+              sx={{ mt: 1.5 }}
+              value={cierreNombre}
+              onChange={(e) => setCierreNombre(e.target.value)}
+            />
+          ) : (
+            <>
+              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1.5, mb: 0.5 }}>Motivo de la pérdida</Typography>
+              <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
+                {MOTIVOS_PERDIDA.map((m) => (
+                  <Chip
+                    key={m}
+                    size="small"
+                    label={m}
+                    onClick={() => setCierreMotivo(m)}
+                    sx={{
+                      bgcolor: cierreMotivo === m ? '#c62828' : 'rgba(198,40,40,0.08)',
+                      color: cierreMotivo === m ? '#fff' : '#c62828',
+                      fontWeight: 700,
+                    }}
+                  />
+                ))}
+              </Box>
+            </>
+          )}
+
+          <TextField
+            label="Notas"
+            size="small"
+            fullWidth
+            multiline
+            minRows={2}
+            sx={{ mt: 1.5 }}
+            value={cierreNotas}
+            onChange={(e) => setCierreNotas(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setCierreOpp(null)} disabled={cierreBusy} size="small">Cancelar</Button>
+          <Button onClick={handleCerrar} disabled={cierreBusy} size="small" variant="contained" color={cierreResultado === 'ganado' ? 'success' : 'error'}>
+            {cierreBusy ? 'Guardando…' : cierreResultado === 'ganado' ? 'Ganado · Crear proyecto' : 'Perdido'}
+          </Button>
+        </DialogActions>
       </Dialog>
     </Box>
   );
