@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { SpeedDial, SpeedDialAction, SpeedDialIcon, Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, TextField, FormControl, InputLabel, Select, MenuItem, IconButton, Stack } from '@mui/material';
-import { FiUsers, FiCheckSquare, FiTrendingUp, FiPlus, FiX, FiMessageSquare, FiSave } from 'react-icons/fi';
+import { FiUsers, FiCheckSquare, FiTrendingUp, FiPlus, FiX, FiMessageSquare, FiSave, FiCamera, FiSend, FiBook, FiDollarSign } from 'react-icons/fi';
 import { useNavigate } from 'react-router';
 import { tareasService, oportunidadesService, interaccionesService } from '../services/supabase';
 import { useCRMStore } from '../store/useCRMStore';
 import { globalSnack } from '../components/GlobalSnackbar';
+import ScannerTarjetas from './ScannerTarjetas';
+import { enviarMensajeWhatsApp } from '../services/outboundService';
 
-type ActionType = 'tarea' | 'oportunidad' | 'interaccion';
+type ActionType = 'tarea' | 'oportunidad' | 'interaccion' | 'propuesta' | 'cotizacion' | 'catalogo' | 'cobro';
 
 export const MobileFab: React.FC = () => {
   const [open, setOpen] = useState(false);
@@ -19,6 +21,10 @@ export const MobileFab: React.FC = () => {
   const [valor, setValor] = useState('');
   const [tipo, setTipo] = useState('Tarea');
   const [guardando, setGuardando] = useState(false);
+  const [scannerOpen, setScannerOpen] = useState(false);
+  const [servicio, setServicio] = useState('');
+  const [monto, setMonto] = useState('');
+  const [enviando, setEnviando] = useState(false);
   const navigate = useNavigate();
   const clientesStore = useCRMStore((s) => s.clientes);
   const fetchClientes = useCRMStore((s) => s.fetchClientes);
@@ -35,6 +41,11 @@ export const MobileFab: React.FC = () => {
   }, [clientesStore, fetchClientes]);
 
   const acciones = [
+    { icon: <FiCamera size={20} />, name: 'Escanear tarjeta', type: 'escanear' as string },
+    { icon: <FiSend size={20} />, name: 'Enviar propuesta', type: 'propuesta' as ActionType },
+    { icon: <FiBook size={20} />, name: 'Enviar cotización', type: 'cotizacion' as ActionType },
+    { icon: <FiDollarSign size={20} />, name: 'Enviar catálogo', type: 'catalogo' as ActionType },
+    { icon: <FiMessageSquare size={20} />, name: 'Cobro / recordatorio', type: 'cobro' as ActionType },
     { icon: <FiCheckSquare size={20} />, name: 'Nueva Tarea', type: 'tarea' as ActionType },
     { icon: <FiTrendingUp size={20} />, name: 'Nueva Venta', type: 'oportunidad' as ActionType },
     { icon: <FiMessageSquare size={20} />, name: 'Registrar Gestión', type: 'interaccion' as ActionType },
@@ -119,6 +130,61 @@ export const MobileFab: React.FC = () => {
     }
   };
 
+  const esAccionDoc = ['propuesta', 'cotizacion', 'catalogo', 'cobro'].includes(actionType);
+
+  const abrirDoc = (tipo: ActionType) => {
+    setActionType(tipo);
+    setTitulo('');
+    setDescripcion('');
+    setServicio('');
+    setMonto('');
+    setSelectedCliente(clientes[0]?.id ? String(clientes[0].id) : '');
+    setFormOpen(true);
+    setOpen(false);
+  };
+
+  const handleEnviarDoc = async () => {
+    const cliente = clientes.find((c) => String(c.id) === String(selectedCliente));
+    if (!cliente) {
+      globalSnack.show('Seleccioná un cliente', 'warning');
+      return;
+    }
+    if (!cliente.telefono) {
+      globalSnack.show('El cliente no tiene teléfono para WhatsApp', 'warning');
+      return;
+    }
+    setEnviando(true);
+    try {
+      const tipoPlantilla = actionType === 'cobro' ? 'recordatorio_pago' : actionType === 'catalogo' ? 'saludo' : actionType;
+      const extra: Record<string, any> = {
+        servicio: servicio || 'nuestros servicios',
+        agente: 'el equipo',
+      };
+      if (actionType === 'cobro') {
+        extra.monto = monto || 'el valor pendiente';
+        extra.fecha = new Date().toLocaleDateString('es-CO');
+      } else if (actionType === 'cotizacion') {
+        extra.doc_tipo = 'cotizacion';
+        if (monto) extra.monto = monto;
+      } else if (actionType === 'catalogo') {
+        // sin documento: solo mensaje
+      } else {
+        extra.doc_tipo = 'propuesta';
+      }
+      const res = await enviarMensajeWhatsApp(cliente as any, tipoPlantilla as string, extra);
+      if (res.ok) {
+        globalSnack.show('Enviado a la cola de WhatsApp (n8n lo entrega).', 'success');
+        setFormOpen(false);
+      } else {
+        globalSnack.show(res.error || 'No se pudo encolar', 'error');
+      }
+    } catch (e: any) {
+      globalSnack.show(e?.message || 'Error enviando', 'error');
+    } finally {
+      setEnviando(false);
+    }
+  };
+
   return (
     <>
       <SpeedDial
@@ -147,8 +213,11 @@ export const MobileFab: React.FC = () => {
               if ('path' in action) {
                 navigate(action.path as string);
                 setOpen(false);
+              } else if (action.type === 'escanear') {
+                setScannerOpen(true);
+                setOpen(false);
               } else {
-                abrirForm(action.type);
+                abrirDoc(action.type as ActionType);
               }
             }}
             sx={{ backgroundColor: "background.paper", color: '#e91e63', '&:hover': { backgroundColor: "background.default" } }}
@@ -159,7 +228,12 @@ export const MobileFab: React.FC = () => {
       <Dialog open={formOpen} onClose={() => setFormOpen(false)} maxWidth="xs" fullWidth>
         <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Typography variant="h6" sx={{ fontSize: { xs: '1rem', sm: '1.15rem' } }}>
-            {actionType === 'tarea' ? 'Nueva Tarea' : actionType === 'oportunidad' ? 'Nueva Venta' : 'Registrar Gestión'}
+            {actionType === 'propuesta' ? 'Enviar propuesta'
+              : actionType === 'cotizacion' ? 'Enviar cotización'
+              : actionType === 'catalogo' ? 'Enviar catálogo'
+              : actionType === 'cobro' ? 'Mensaje de cobro'
+              : actionType === 'tarea' ? 'Nueva Tarea'
+              : actionType === 'oportunidad' ? 'Nueva Venta' : 'Registrar Gestión'}
           </Typography>
           <IconButton onClick={() => setFormOpen(false)} size="small"><FiX /></IconButton>
         </DialogTitle>
@@ -201,15 +275,44 @@ export const MobileFab: React.FC = () => {
             {(actionType === 'tarea' || actionType === 'interaccion') && (
               <TextField label="Notas" size="small" fullWidth multiline minRows={2} value={descripcion} onChange={(e) => setDescripcion(e.target.value)} />
             )}
+
+            {esAccionDoc && (
+              <TextField label="Servicio / motivo" size="small" fullWidth value={servicio} onChange={(e) => setServicio(e.target.value)} placeholder="Ej: SEO, pauta, diseño web" />
+            )}
+
+            {esAccionDoc && actionType !== 'catalogo' && (
+              <TextField label="Monto (opcional)" size="small" fullWidth type="number" value={monto} onChange={(e) => setMonto(e.target.value)} />
+            )}
+
+            {esAccionDoc && (
+              <Typography variant="caption" color="text.secondary">
+                Se genera el documento (si aplica) y se envía por WhatsApp en forma personalizada.
+              </Typography>
+            )}
           </Stack>
         </DialogContent>
         <DialogActions sx={{ p: 1.5 }}>
           <Button onClick={() => setFormOpen(false)} variant="outlined" size="small">Cancelar</Button>
-          <Button onClick={handleSave} variant="contained" size="small" disabled={guardando} startIcon={<FiSave size={14} />}>
-            {guardando ? 'Guardando...' : 'Guardar'}
-          </Button>
+          {esAccionDoc ? (
+            <Button onClick={handleEnviarDoc} variant="contained" size="small" disabled={enviando} startIcon={<FiSend size={14} />}>
+              {enviando ? 'Encolando...' : 'Enviar por WhatsApp'}
+            </Button>
+          ) : (
+            <Button onClick={handleSave} variant="contained" size="small" disabled={guardando} startIcon={<FiSave size={14} />}>
+              {guardando ? 'Guardando...' : 'Guardar'}
+            </Button>
+          )}
         </DialogActions>
       </Dialog>
+
+      <ScannerTarjetas
+        open={scannerOpen}
+        onClose={() => setScannerOpen(false)}
+        onSave={(data) => {
+          const nombre = (data as any)?.nombre || '';
+          globalSnack.show(nombre ? `Tarjeta: ${nombre}` : 'Tarjeta guardada', 'success');
+        }}
+      />
     </>
   );
 };

@@ -79,14 +79,18 @@ async function ensureConversation(channelId: number, contactId: number, c: Conta
  * Genera la propuesta (PDF -> Supabase Storage) y encola el WhatsApp para que n8n lo envie.
  * Devuelve { ok, url, mensaje }.
  */
-export async function enviarPropuestaWhatsApp(c: ContactoSalida, extra: Record<string, any> = {}) {
+export async function enviarMensajeWhatsApp(
+  c: ContactoSalida,
+  tipo: string,
+  extra: Record<string, any> = {}
+) {
   try {
     const channelId = await ensureChannel();
 
-    // 1) Documento
+    // 1) Documento opcional (propuesta / cotizacion / contrato / factura)
     let docUrl = extra.doc_url || '';
-    if (!docUrl) {
-      const res = await generarYGuardarDocumento('propuesta', {
+    if (!docUrl && extra.doc_tipo) {
+      const res = await generarYGuardarDocumento(extra.doc_tipo, {
         id: c.id,
         cliente_id: c.id,
         nombre: c.nombre,
@@ -101,22 +105,24 @@ export async function enviarPropuestaWhatsApp(c: ContactoSalida, extra: Record<s
     const contactId = await ensureContacto(channelId, c);
     const conversationId = await ensureConversation(channelId, contactId, c);
 
-    // 3) Mensaje personalizado
-    const cuerpo = renderPlantilla('propuesta', {
+    // 3) Mensaje personalizado con la plantilla elegida
+    const cuerpo = renderPlantilla(tipo, {
       nombre: c.nombre || 'cliente',
       servicio: extra.servicio || 'nuestros servicios',
       agente: extra.agente || 'el equipo',
       doc_url: docUrl,
+      monto: extra.monto || '',
+      fecha: extra.fecha || '',
     });
 
-    // 4) Encolar (n8n lo envia)
+    // 4) Encolar (n8n lo envia por OpenWA)
     const { error: insertError } = await supabase.from('conversation_messages').insert([
       {
         conversation_id: conversationId,
         direccion: 'outbound',
         tipo: 'texto',
         cuerpo,
-        media_url: docUrl,
+        media_url: docUrl || null,
         estado: 'pending',
         enviado_por: 'crm',
       },
@@ -126,6 +132,10 @@ export async function enviarPropuestaWhatsApp(c: ContactoSalida, extra: Record<s
     return { ok: true as const, url: docUrl, mensaje: cuerpo };
   } catch (e: any) {
     console.error('[outbound] error:', e);
-    return { ok: false as const, error: e?.message || 'Error enviando propuesta' };
+    return { ok: false as const, error: e?.message || 'Error enviando mensaje' };
   }
+}
+
+export async function enviarPropuestaWhatsApp(c: ContactoSalida, extra: Record<string, any> = {}) {
+  return enviarMensajeWhatsApp(c, 'propuesta', { doc_tipo: 'propuesta', ...extra });
 }
