@@ -443,6 +443,29 @@ export default function Ventas() {
           </FormControl>
         </Box>
 
+        {/* Pipeline: cantidad y valor por etapa + forecast */}
+        <Paper variant="outlined" sx={{ p: 1, mb: 1.5 }}>
+          <Box sx={{ display: 'flex', gap: 0.5, flexWrap: 'wrap', alignItems: 'center' }}>
+            {["Prospección", "Propuesta", "Negociación", "Cierre"].map((col) => {
+              const items = filtered.filter(o => o.etapa === col);
+              const total = items.reduce((a, b) => a + (Number(b.valor) || 0), 0);
+              return (
+                <Chip
+                  key={col}
+                  size="small"
+                  label={`${col}: ${items.length} · ${formatValue(total)}`}
+                  sx={{ bgcolor: ETAPA_STYLES[col]?.chipBg || '#e91e63', color: ETAPA_STYLES[col]?.chipText || '#fff', fontWeight: 700 }}
+                />
+              );
+            })}
+            <Chip
+              size="small"
+              label={`Forecast: ${formatValue(filtered.reduce((a, b) => a + (Number(b.valor) || 0) * (Number(b.probabilidad) || 0) / 100, 0))}`}
+              sx={{ bgcolor: 'rgba(25,118,210,0.12)', color: '#1976d2', fontWeight: 700 }}
+            />
+          </Box>
+        </Paper>
+
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
         {loading ? (
