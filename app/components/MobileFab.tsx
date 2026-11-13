@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Fab, Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, TextField, FormControl, InputLabel, Select, MenuItem, IconButton, Stack } from '@mui/material';
+import { Fab, Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, TextField, FormControl, InputLabel, Select, MenuItem, IconButton, Stack, Switch, FormControlLabel } from '@mui/material';
 import { FiUsers, FiCheckSquare, FiTrendingUp, FiPlus, FiX, FiMessageSquare, FiSave, FiCamera, FiSend, FiBook, FiDollarSign } from 'react-icons/fi';
 import { useNavigate } from 'react-router';
 import { tareasService, oportunidadesService, interaccionesService } from '../services/supabase';
 import { useCRMStore } from '../store/useCRMStore';
 import { globalSnack } from '../components/GlobalSnackbar';
 import ScannerTarjetas from './ScannerTarjetas';
+import { registrarGestion, TIPOS_GESTION } from '../services/gestionService';
 import { enviarMensajeWhatsApp } from '../services/outboundService';
 
 type ActionType = 'tarea' | 'oportunidad' | 'interaccion' | 'propuesta' | 'cotizacion' | 'catalogo' | 'cobro';
@@ -26,6 +27,7 @@ export const MobileFab: React.FC = () => {
   const [servicio, setServicio] = useState('');
   const [monto, setMonto] = useState('');
   const [enviando, setEnviando] = useState(false);
+  const [enviarWpp, setEnviarWpp] = useState(false);
   const navigate = useNavigate();
   const clientesStore = useCRMStore((s) => s.clientes);
   const fetchClientes = useCRMStore((s) => s.fetchClientes);
@@ -108,19 +110,23 @@ export const MobileFab: React.FC = () => {
         });
         globalSnack.show('Oportunidad creada', 'success');
       } else if (actionType === 'interaccion') {
-        if (!descripcion.trim()) {
-          globalSnack.show('Descripción requerida', 'warning');
+        const cliente = clientes.find((c) => String(c.id) === String(selectedCliente));
+        if (!cliente) {
+          globalSnack.show('Seleccioná un cliente', 'warning');
           setGuardando(false);
           return;
         }
-        await interaccionesService.create({
-          cliente_id: clienteId,
-          tipo: ['Cita','Email','WhatsApp','Nota'].includes(tipo) ? (tipo as "Cita" | "Email" | "WhatsApp" | "Nota") : 'Nota',
+        const res = await registrarGestion({
+          cliente,
+          tipo: tipo || 'Nota',
           asunto: titulo.trim() || 'Gestión',
           contenido: descripcion.trim(),
-          usuario: 'Asistente IA',
+          enviar: enviarWpp ? 'whatsapp' : null,
         });
-        globalSnack.show('Gestión registrada en historial', 'success');
+        globalSnack.show(
+          res.etapa ? `Registro guardado · etapa: ${res.etapa}` : 'Registro guardado en el historial',
+          'success'
+        );
       }
 
       setFormOpen(false);
@@ -271,7 +277,25 @@ export const MobileFab: React.FC = () => {
             )}
 
             {actionType === 'interaccion' && (
+              <FormControl fullWidth size="small">
+                <InputLabel>Tipo de acción</InputLabel>
+                <Select value={tipo} label="Tipo de acción" onChange={(e) => setTipo(e.target.value)}>
+                  {TIPOS_GESTION.map((t) => (
+                    <MenuItem key={t.value} value={t.value}>{t.value}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
+
+            {actionType === 'interaccion' && (
               <TextField label="Descripción" size="small" fullWidth multiline minRows={3} value={descripcion} onChange={(e) => setDescripcion(e.target.value)} />
+            )}
+
+            {actionType === 'interaccion' && (
+              <FormControlLabel
+                control={<Switch size="small" checked={enviarWpp} onChange={(e) => setEnviarWpp(e.target.checked)} />}
+                label="Enviar mensaje por WhatsApp"
+              />
             )}
 
             {actionType === 'tarea' && (
