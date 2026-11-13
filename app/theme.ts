@@ -39,6 +39,10 @@ const base: ThemeOptions = {
           border: "1px solid",
           borderColor: theme.palette.divider,
           transition: "transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, border-color 0.2s ease",
+          "&:hover": {
+            transform: "translateY(-2px)",
+            boxShadow: "0 8px 24px rgba(0, 0, 0, 0.16)",
+          },
         }),
       },
       defaultProps: { elevation: 0 },
