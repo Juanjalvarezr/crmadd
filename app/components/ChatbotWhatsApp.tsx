@@ -318,7 +318,7 @@ export default function ChatbotWhatsApp() {
                 overflowY: "auto", 
                 mb: 2,
                 p: 1,
-                backgroundColor: "#fafafa",
+                backgroundColor: "background.default",
                 borderRadius: 1
               }}>
                 {mensajes.map((mensaje) => (
@@ -364,7 +364,7 @@ export default function ChatbotWhatsApp() {
               <Box sx={{ 
                 p: 2, 
                 borderTop: "1px solid #e0e0e0", 
-                backgroundColor: "#fafafa"
+                backgroundColor: "background.default"
               }}>
                 <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
                   {isProcessingAIResponse && ( //

@@ -70,7 +70,7 @@ export default function GlobalSearch({ open, onClose }: { open: boolean, onClose
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth scroll="paper">
       <DialogContent sx={{ p: 0 }}>
-        <Box sx={{ p: 2, borderBottom: '1px solid #eee', bgcolor: '#fafafa' }}>
+        <Box sx={{ p: 2, borderBottom: '1px solid #eee', bgcolor: "background.default" }}>
           <TextField
             fullWidth
             autoFocus

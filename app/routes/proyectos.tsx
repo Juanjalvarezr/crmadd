@@ -1388,7 +1388,7 @@ export default function Proyectos() {
                           size="small"
                           type="number"
                           fullWidth
-                          sx={{ mb: 1, bgcolor: 'white' }}
+                          sx={{ mb: 1, bgcolor: "background.paper" }}
                           onBlur={(e) => handleUpdatePago(selectedProyecto, Number(e.target.value))}
                           defaultValue={selectedProyecto.montoPagado}
                         />
@@ -1745,12 +1745,12 @@ export default function Proyectos() {
           {previewEmailContent ? (
             <Box>
               <Typography variant="subtitle2" color="primary" gutterBottom>Asunto:</Typography>
-              <Paper variant="outlined" sx={{ p: 2, mb: 3, bgcolor: '#fafafa' }}>
+              <Paper variant="outlined" sx={{ p: 2, mb: 3, bgcolor: "background.default" }}>
                 <Typography variant="body1" sx={{ fontWeight: 'bold' }}>{previewEmailContent.asunto}</Typography>
               </Paper>
               
               <Typography variant="subtitle2" color="primary" gutterBottom>Cuerpo del Mensaje:</Typography>
-              <Paper variant="outlined" sx={{ p: 3, bgcolor: '#fff', minHeight: 200 }}>
+              <Paper variant="outlined" sx={{ p: 3, bgcolor: "background.paper", minHeight: 200 }}>
                 <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
                   {previewEmailContent.cuerpo}
                 </Typography>

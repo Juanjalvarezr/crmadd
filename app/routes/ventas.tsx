@@ -643,7 +643,7 @@ export default function Ventas() {
             <Grid container spacing={{ xs: 1, sm: 2 }}>
               <Grid item xs={6} md={7}>
                 <Typography variant="subtitle2" gutterBottom color="primary" sx={{ fontWeight: 'bold' }}>📄 Documento de Propuesta (Markdown)</Typography>
-                <Paper variant="outlined" sx={{ p: 2, bgcolor: '#fdfdfd', maxHeight: 400, overflowY: 'auto' }}>
+                <Paper variant="outlined" sx={{ p: 2, bgcolor: "background.paper", maxHeight: 400, overflowY: 'auto' }}>
                   <Typography variant="body2" component="pre" sx={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit' }}>
                     {propuestaGenerada}
                   </Typography>

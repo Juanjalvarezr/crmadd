@@ -292,7 +292,7 @@ export const FloatingAIAssistant = () => {
                       sx={{ 
                         p: 2, 
                         flex: 1, 
-                        bgcolor: 'white', 
+                        bgcolor: "background.paper", 
                         border: '1px solid #e0e0e0', 
                         borderRadius: 2,
                         overflowY: 'auto',

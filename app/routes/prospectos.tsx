@@ -409,7 +409,7 @@ export default function ProspectosView() {
       </Grid>
 
       {/* Filtros */}
-      <Paper elevation={0} sx={{ p: 2, mb: 2, bgcolor: "white", borderRadius: 2, border: "1px solid rgba(0,0,0,0.06)" }}>
+      <Paper elevation={0} sx={{ p: 2, mb: 2, bgcolor: "background.paper", borderRadius: 2, border: "1px solid rgba(0,0,0,0.06)" }}>
         <Grid container spacing={2} alignItems="center">
           <Grid item xs={12} sm={4}>
             <TextField
@@ -449,7 +449,7 @@ export default function ProspectosView() {
       )}
 
       {/* Tabla */}
-      <Paper elevation={0} sx={{ bgcolor: "white", borderRadius: 2, overflow: "hidden", border: "1px solid rgba(0,0,0,0.06)" }}>
+      <Paper elevation={0} sx={{ bgcolor: "background.paper", borderRadius: 2, overflow: "hidden", border: "1px solid rgba(0,0,0,0.06)" }}>
         <TableContainer>
           <Table>
             <TableHead>

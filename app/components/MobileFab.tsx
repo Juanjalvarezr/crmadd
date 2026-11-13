@@ -151,7 +151,7 @@ export const MobileFab: React.FC = () => {
                 abrirForm(action.type);
               }
             }}
-            sx={{ backgroundColor: '#fff', color: '#e91e63', '&:hover': { backgroundColor: '#f5f5f5' } }}
+            sx={{ backgroundColor: "background.paper", color: '#e91e63', '&:hover': { backgroundColor: "background.default" } }}
           />
         ))}
       </SpeedDial>
