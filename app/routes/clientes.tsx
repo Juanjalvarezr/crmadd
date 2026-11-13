@@ -21,7 +21,7 @@ const skeletonAgencyStyle = {
   border: '1px solid rgba(233, 30, 99, 0.05)'
 };
 import DOMPurify from 'dompurify';
-import { FiSearch, FiPlus, FiEdit, FiTrash2, FiFilter, FiCalendar, FiX, FiUsers, FiPhone, FiMail, FiFileText, FiDownload, FiEye, FiMessageSquare, FiStar, FiBriefcase, FiTarget, FiCamera } from "react-icons/fi";
+import { FiSearch, FiPlus, FiEdit, FiTrash2, FiFilter, FiCalendar, FiX, FiUsers, FiPhone, FiMail, FiFileText, FiDownload, FiEye, FiMessageSquare, FiStar, FiBriefcase, FiTarget, FiCamera, FiSend } from "react-icons/fi";
 import { clientesService } from "../services/supabase";
 import { useCRMStore } from "../store/useCRMStore";
 import { BRAND } from "../theme";
@@ -33,6 +33,7 @@ import { CompactTable } from "../components/CompactTable";
 import { useLocation } from "react-router";
 import { globalSnack } from "../components/GlobalSnackbar";
 import ScannerTarjetas from "../components/ScannerTarjetas";
+import { enviarPropuestaWhatsApp } from "../services/outboundService";
 import type { Cliente } from "../types/crm";
 
 const isLeadFrio = (fechaStr: string) => {
@@ -73,6 +74,7 @@ export default function Clientes() {
   const [industriaFilter, setIndustriaFilter] = useState("all");
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   const [scannerOpen, setScannerOpen] = useState(false);
+  const [propuestaBusy, setPropuestaBusy] = useState<number | string | null>(null);
   
   // Modales de Detalle e Historial
   const [selectedClient, setSelectedClient] = useState<Cliente | null>(null);
@@ -347,6 +349,29 @@ export default function Clientes() {
       }
     } catch (err: any) {
       globalSnack.show(err.message || "Error generando documento", "error");
+    }
+  };
+
+  const handleEnviarPropuesta = async (cliente: Cliente) => {
+    if (!cliente.telefono) {
+      globalSnack.show('El cliente no tiene teléfono para enviar WhatsApp.', 'warning');
+      return;
+    }
+    setPropuestaBusy(cliente.id);
+    try {
+      const res = await enviarPropuestaWhatsApp(cliente as any, {
+        servicio: cliente.nicho || cliente.empresa || 'nuestros servicios',
+        agente: 'el equipo',
+      });
+      if (res.ok) {
+        globalSnack.show(`Propuesta en cola para ${cliente.nombre}. n8n la envía por WhatsApp.`, 'success');
+      } else {
+        globalSnack.show(res.error || 'No se pudo encolar la propuesta', 'error');
+      }
+    } catch (e: any) {
+      globalSnack.show(e?.message || 'Error enviando propuesta', 'error');
+    } finally {
+      setPropuestaBusy(null);
     }
   };
 
@@ -794,6 +819,7 @@ export default function Clientes() {
                       <Tooltip title="Llamar"><IconButton size="small" onClick={() => handleCall(cliente)} sx={{ color: BRAND.success }} aria-label={`Llamar a ${cliente.nombre}`}><FiPhone size={16} /></IconButton></Tooltip>
                       <Tooltip title="Enviar email"><IconButton size="small" onClick={() => handleEmail(cliente)} sx={{ color: '#9c27b0' }} aria-label={`Enviar email a ${cliente.nombre}`}><FiMail size={16} /></IconButton></Tooltip>
                       <Tooltip title="Enviar mensaje"><IconButton size="small" onClick={() => handleMessage(cliente)} sx={{ color: '#00bcd4' }} aria-label={`Enviar mensaje a ${cliente.nombre}`}><FiMessageSquare size={16} /></IconButton></Tooltip>
+                      <Tooltip title="Enviar propuesta por WhatsApp"><IconButton size="small" disabled={propuestaBusy === cliente.id} onClick={() => handleEnviarPropuesta(cliente)} sx={{ color: BRAND.secondary }} aria-label={`Enviar propuesta a ${cliente.nombre}`}><FiSend size={16} /></IconButton></Tooltip>
                       <Tooltip title="Generar documento"><IconButton size="small" onClick={() => generarDocumentoCliente(cliente)} sx={{ color: documentoUrl ? '#1976d2' : '#9e9e9e' }} aria-label={`Generar documento ${cliente.nombre}`}><FiFileText size={16} /></IconButton></Tooltip>
                       <Tooltip title="Ver historial"><IconButton size="small" onClick={() => handleHistory(cliente)} sx={{ color: '#607d8b' }} aria-label={`Ver historial de ${cliente.nombre}`}><FiFileText size={16} /></IconButton></Tooltip>
                       <Tooltip title="Eliminar cliente"><IconButton size="small" onClick={() => handleDelete(cliente)} sx={{ color: '#f44336' }} aria-label={`Eliminar a ${cliente.nombre}`}><FiTrash2 size={16} /></IconButton></Tooltip>
@@ -1034,6 +1060,15 @@ export default function Clientes() {
                   <Typography variant="body2">{selectedClient.nicho || '—'}</Typography>
                   <Typography variant="subtitle2">Estado</Typography>
                   <Chip size="small" label={selectedClient.estado} color={selectedClient.estado === 'Activo' ? 'success' : 'default'} />
+
+                  <Box sx={{ display: 'flex', gap: 1, mt: 1.5, flexWrap: 'wrap' }}>
+                    <Button size="small" variant="contained" startIcon={<FiSend size={14} />} disabled={propuestaBusy === selectedClient.id} onClick={() => handleEnviarPropuesta(selectedClient)}>
+                      Enviar propuesta
+                    </Button>
+                    <Button size="small" variant="outlined" startIcon={<FiFileText size={14} />} onClick={() => generarDocumentoCliente(selectedClient)}>
+                      Generar PDF
+                    </Button>
+                  </Box>
                 </Stack>
               )}
 
