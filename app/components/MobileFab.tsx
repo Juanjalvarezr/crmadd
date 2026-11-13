@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { SpeedDial, SpeedDialAction, SpeedDialIcon, Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, TextField, FormControl, InputLabel, Select, MenuItem, IconButton, Stack } from '@mui/material';
+import { Fab, Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, TextField, FormControl, InputLabel, Select, MenuItem, IconButton, Stack } from '@mui/material';
 import { FiUsers, FiCheckSquare, FiTrendingUp, FiPlus, FiX, FiMessageSquare, FiSave, FiCamera, FiSend, FiBook, FiDollarSign } from 'react-icons/fi';
 import { useNavigate } from 'react-router';
 import { tareasService, oportunidadesService, interaccionesService } from '../services/supabase';
@@ -12,6 +12,7 @@ type ActionType = 'tarea' | 'oportunidad' | 'interaccion' | 'propuesta' | 'cotiz
 
 export const MobileFab: React.FC = () => {
   const [open, setOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
   const [actionType, setActionType] = useState<ActionType>('tarea');
   const [clientes, setClientes] = useState<any[]>([]);
@@ -187,43 +188,56 @@ export const MobileFab: React.FC = () => {
 
   return (
     <>
-      <SpeedDial
-        ariaLabel="Acciones rápidas"
-        open={open}
-        onOpen={() => setOpen(true)}
-        onClose={() => setOpen(false)}
-        sx={{ 
-          position: 'fixed', 
-          bottom: 24, 
-          right: 24, 
+      <Fab
+        aria-label="Acciones rápidas"
+        onClick={() => setMenuOpen(true)}
+        sx={{
+          position: 'fixed',
+          bottom: 24,
+          right: 24,
           zIndex: 1400,
-          '& .MuiSpeedDial-fab': {
-            backgroundColor: '#e91e63',
-            '&:hover': { backgroundColor: '#c2185b' }
-          }
+          backgroundColor: '#e91e63',
+          '&:hover': { backgroundColor: '#c2185b' },
         }}
-        icon={<SpeedDialIcon icon={<FiPlus size={24} />} openIcon={<FiPlus style={{ transform: 'rotate(45deg)' }} size={24} />} />}
       >
-        {acciones.map((action) => (
-          <SpeedDialAction
-            key={action.name}
-            icon={action.icon}
-            title={action.name}
-            onClick={() => {
-              if ('path' in action) {
-                navigate(action.path as string);
-                setOpen(false);
-              } else if (action.type === 'escanear') {
-                setScannerOpen(true);
-                setOpen(false);
-              } else {
-                abrirDoc(action.type as ActionType);
-              }
-            }}
-            sx={{ backgroundColor: "background.paper", color: '#e91e63', '&:hover': { backgroundColor: "background.default" } }}
-          />
-        ))}
-      </SpeedDial>
+        <FiPlus size={24} />
+      </Fab>
+
+      <Dialog
+        open={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{ sx: { borderRadius: 18, position: 'fixed', bottom: 0, width: '100%', mb: 0 } }}
+      >
+        <DialogTitle sx={{ pb: 0.5 }}>
+          <Typography variant="h6" sx={{ fontSize: '1rem' }}>Acciones rápidas</Typography>
+        </DialogTitle>
+        <DialogContent sx={{ pt: 0.5, pb: 1 }}>
+          <Stack spacing={0.5}>
+            {acciones.map((action) => (
+              <Button
+                key={action.name}
+                startIcon={action.icon}
+                onClick={() => {
+                  if ('path' in action) {
+                    navigate(action.path as string);
+                    setMenuOpen(false);
+                  } else if (action.type === 'escanear') {
+                    setScannerOpen(true);
+                    setMenuOpen(false);
+                  } else {
+                    abrirDoc(action.type as ActionType);
+                  }
+                }}
+                sx={{ justifyContent: 'flex-start', py: 1, px: 1.5, borderRadius: 10, color: 'text.primary' }}
+              >
+                {action.name}
+              </Button>
+            ))}
+          </Stack>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={formOpen} onClose={() => setFormOpen(false)} maxWidth="xs" fullWidth>
         <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
