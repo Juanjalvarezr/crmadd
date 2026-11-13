@@ -35,6 +35,7 @@ import { globalSnack } from "../components/GlobalSnackbar";
 import ScannerTarjetas from "../components/ScannerTarjetas";
 import { enviarPropuestaWhatsApp } from "../services/outboundService";
 import HistorialCliente from "../components/HistorialCliente";
+import AlertasPanel from "../components/AlertasPanel";
 import type { Cliente } from "../types/crm";
 
 const isLeadFrio = (fechaStr: string) => {
@@ -501,6 +502,7 @@ export default function Clientes() {
     <Box sx={{ p: { xs: 1, sm: 1.5, md: 2 } }}>
       {/* Indicador de conexión a Supabase */}
       <SupabaseStatus />
+      <AlertasPanel />
         
       <ListToolbar
         title="Clientes"
@@ -1049,6 +1051,20 @@ export default function Clientes() {
                 <Tab label="Tareas" />
               </Tabs>
               <Divider sx={{ mb: 1 }} />
+
+              {/* Resumen 360 (siempre visible) */}
+              <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap', alignItems: 'center', mb: 1 }}>
+                <Chip size="small" label={`Etapa: ${selectedClient.etapa || 'Nuevo'}`} sx={{ bgcolor: 'rgba(233,30,99,0.12)', color: '#e91e63', fontWeight: 700 }} />
+                {selectedClient.motivo_perdida && (
+                  <Chip size="small" label={`Motivo: ${selectedClient.motivo_perdida}`} sx={{ bgcolor: 'rgba(198,40,40,0.12)', color: '#c62828', fontWeight: 700 }} />
+                )}
+                {selectedClient.ultima_interaccion && (
+                  <Typography variant="caption" color="text.secondary">
+                    Últ. contacto: {new Date(selectedClient.ultima_interaccion).toLocaleDateString('es-CO')}
+                  </Typography>
+                )}
+                <Button size="small" onClick={() => handleHistory(selectedClient)}>Ver historial</Button>
+              </Box>
 
               {detailTab === 0 && (
                 <Stack spacing={1}>

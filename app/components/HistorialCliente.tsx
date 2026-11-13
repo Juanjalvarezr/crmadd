@@ -56,6 +56,7 @@ function recomendaciones(cliente: any, interacciones: Interaccion[]): string[] {
 export default function HistorialCliente({ open, onClose, cliente }: Props) {
   const [items, setItems] = useState<Interaccion[]>([]);
   const [mensajes, setMensajes] = useState<any[]>([]);
+  const [respondio, setRespondio] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -91,12 +92,15 @@ export default function HistorialCliente({ open, onClose, cliente }: Props) {
           if (convIds.length > 0) {
             const { data: msgs } = await supabase
               .from('conversation_messages')
-              .select('id, cuerpo, estado, creado_en')
+              .select('id, cuerpo, estado, direccion, creado_en')
               .in('conversation_id', convIds)
-              .eq('direccion', 'outbound')
               .order('creado_en', { ascending: false })
-              .limit(10);
-            if (mounted) setMensajes(msgs || []);
+              .limit(20);
+            if (mounted) {
+              const lista = msgs || [];
+              setMensajes(lista.filter((m: any) => m.direccion === 'outbound'));
+              setRespondio(lista.some((m: any) => m.direccion === 'inbound'));
+            }
           }
         }
       } catch (e) {
@@ -121,6 +125,7 @@ export default function HistorialCliente({ open, onClose, cliente }: Props) {
           <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap', alignItems: 'center' }}>
             <Chip size="small" label={`Etapa: ${cliente?.etapa || 'Nuevo'}`} sx={{ bgcolor: 'rgba(233,30,99,0.12)', color: BRAND.secondary, fontWeight: 700 }} />
             <Chip size="small" variant="outlined" label={`${items.length} gestiones`} />
+            {respondio && <Chip size="small" label="Respondió" sx={{ bgcolor: 'rgba(76,175,80,0.15)', color: '#4caf50', fontWeight: 700 }} />}
           </Box>
 
           {recs.length > 0 && (
