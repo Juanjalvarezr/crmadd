@@ -28,8 +28,20 @@ const base: ThemeOptions = {
   components: {
     MuiCssBaseline: {
       styleOverrides: {
-        body: { WebkitFontSmoothing: "antialiased", textRendering: "optimizeLegibility" },
+        "*,*::before,*::after": { boxSizing: "border-box" },
+        html: { scrollBehavior: "smooth" },
+        body: {
+          WebkitFontSmoothing: "antialiased",
+          textRendering: "optimizeLegibility",
+          overflowX: "clip",
+        },
+        "img,svg,video": { maxWidth: "100%", display: "block" },
         "::selection": { background: "rgba(233, 30, 99, 0.28)" },
+        "*:focus-visible": { outline: "2px solid #e91e63", outlineOffset: 1, borderRadius: 6 },
+        "::-webkit-scrollbar": { width: 10, height: 10 },
+        "::-webkit-scrollbar-thumb": { background: "rgba(139,148,158,0.35)", borderRadius: 8 },
+        "::-webkit-scrollbar-thumb:hover": { background: "rgba(139,148,158,0.55)" },
+        "::-webkit-scrollbar-track": { background: "transparent" },
       },
     },
     MuiCard: {
@@ -48,8 +60,54 @@ const base: ThemeOptions = {
       defaultProps: { elevation: 0 },
     },
     MuiPaper: {
-      styleOverrides: { root: { backgroundImage: "none" } },
+      styleOverrides: {
+        root: ({ theme }: any) => ({
+          backgroundImage: "none",
+          borderRadius: 14,
+          border: "1px solid",
+          borderColor: theme.palette.divider,
+        }),
+        rounded: { borderRadius: 14 },
+      },
     },
+    MuiAppBar: {
+      styleOverrides: {
+        root: ({ theme }: any) => ({ backgroundImage: "none", boxShadow: "none", borderBottom: "1px solid", borderColor: theme.palette.divider }),
+      },
+      defaultProps: { elevation: 0 },
+    },
+    MuiToolbar: { styleOverrides: { root: { minHeight: 56 } } },
+    MuiListItemButton: {
+      styleOverrides: {
+        root: { borderRadius: 10, "&.Mui-selected": { backgroundColor: "rgba(233,30,99,0.12)" } },
+      },
+    },
+    MuiMenuItem: { styleOverrides: { root: { borderRadius: 8, margin: "0 4px" } } },
+    MuiTab: {
+      styleOverrides: {
+        root: { minHeight: 40, textTransform: "none", fontWeight: 600, fontSize: "0.82rem" },
+      },
+    },
+    MuiAlert: { styleOverrides: { root: { borderRadius: 10 } } },
+    MuiSnackbarContent: { styleOverrides: { root: { borderRadius: 10 } } },
+    MuiTableContainer: {
+      styleOverrides: {
+        root: ({ theme }: any) => ({ borderRadius: 12, border: "1px solid", borderColor: theme.palette.divider }),
+      },
+    },
+    MuiLinearProgress: { styleOverrides: { root: { borderRadius: 8 } } },
+    MuiAvatar: { styleOverrides: { root: { borderRadius: 10 } } },
+    MuiAccordion: {
+      styleOverrides: {
+        root: ({ theme }: any) => ({ borderRadius: 12, border: "1px solid", borderColor: theme.palette.divider, "&:before": { display: "none" } }),
+      },
+    },
+    MuiPopover: { styleOverrides: { paper: { borderRadius: 12 } } },
+    MuiMenu: { styleOverrides: { paper: { borderRadius: 12 } } },
+    MuiDivider: { styleOverrides: { root: ({ theme }: any) => ({ borderColor: theme.palette.divider }) } },
+    MuiFormLabel: { styleOverrides: { root: { fontSize: "0.8rem" } } },
+    MuiInputLabel: { styleOverrides: { root: { fontSize: "0.85rem" } } },
+    MuiSelect: { styleOverrides: { select: { paddingTop: 9, paddingBottom: 9 } } },
     MuiButton: {
       styleOverrides: {
         root: {
