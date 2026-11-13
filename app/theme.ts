@@ -15,7 +15,8 @@ const base: ThemeOptions = {
     background: { default: "#0f1115", paper: "#161b22" },
     text: { primary: "#e6edf3", secondary: "#8b949e" },
   },
-  shape: { borderRadius: 2 },
+  shape: { borderRadius: 10 },
+  spacing: 4,
   typography: {
     fontSize: 13.5,
     fontFamily: "'Inter', 'Roboto', 'Helvetica', 'Arial', sans-serif",
@@ -25,29 +26,65 @@ const base: ThemeOptions = {
     button: { textTransform: "none", fontWeight: 600 },
   },
   components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        body: { WebkitFontSmoothing: "antialiased", textRendering: "optimizeLegibility" },
+        "::selection": { background: "rgba(233, 30, 99, 0.28)" },
+      },
+    },
     MuiCard: {
       styleOverrides: {
-        root: { borderRadius: 2, transition: "transform 0.2s ease, box-shadow 0.2s ease" },
+        root: ({ theme }: any) => ({
+          borderRadius: 14,
+          border: "1px solid",
+          borderColor: theme.palette.divider,
+          transition: "transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, border-color 0.2s ease",
+        }),
       },
       defaultProps: { elevation: 0 },
-    },
-    MuiChip: {
-      styleOverrides: {
-        root: { height: 24, fontSize: "0.7rem", fontWeight: 600, "&.MuiChip-sizeSmall": { height: 22, fontSize: "0.65rem" } },
-      },
-      defaultProps: { size: "small" },
-    },
-    MuiButton: {
-      styleOverrides: {
-        root: { borderRadius: 2, boxShadow: "none", "&:hover": { boxShadow: "none" } },
-      },
     },
     MuiPaper: {
       styleOverrides: { root: { backgroundImage: "none" } },
     },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 10,
+          boxShadow: "none",
+          transition: "transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.2s ease, box-shadow 0.2s ease",
+          "&:hover": { boxShadow: "none" },
+        },
+        sizeSmall: { padding: "5px 10px", fontSize: "0.78rem" },
+        sizeMedium: { padding: "7px 14px", fontSize: "0.82rem" },
+      },
+    },
+    MuiIconButton: {
+      styleOverrides: { root: { borderRadius: 10 } },
+    },
+    MuiOutlinedInput: {
+      styleOverrides: { root: { borderRadius: 10 } },
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: { height: 24, fontSize: "0.7rem", fontWeight: 600, borderRadius: 8, "&.MuiChip-sizeSmall": { height: 22, fontSize: "0.65rem" } },
+      },
+      defaultProps: { size: "small" },
+    },
+    MuiTableCell: {
+      styleOverrides: { root: { paddingTop: 10, paddingBottom: 10 } },
+    },
+    MuiDialog: {
+      styleOverrides: { paper: { borderRadius: 18 } },
+    },
+    MuiDialogContent: {
+      styleOverrides: { root: { paddingTop: 16 } },
+    },
+    MuiTooltip: {
+      styleOverrides: { tooltip: { fontSize: "0.72rem" } },
+    },
     MuiTabs: {
       styleOverrides: {
-        indicator: { height: 2 },
+        indicator: { height: 2, borderRadius: 2 },
         root: { minHeight: 36 },
       },
     },
