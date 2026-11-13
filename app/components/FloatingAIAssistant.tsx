@@ -57,9 +57,19 @@ export const FloatingAIAssistant = () => {
     // 1. Validación con Zod
     const validation = ProposalSchema.safeParse(proposalInput);
     if (!validation.success) {
+      const issue = validation.error.issues[0];
+      const campo = String(issue.path?.[0] || '');
+      const nombreCampo: Record<string, string> = {
+        clienteNombre: 'el nombre del cliente',
+        clienteEmpresa: 'la empresa',
+        servicios: 'al menos un servicio',
+        notasAdicionales: 'las notas',
+      };
       setSnackbar({
         open: true,
-        message: validation.error.issues[0].message,
+        message: nombreCampo[campo]
+          ? `Falta completar ${nombreCampo[campo]}.`
+          : (issue.message || 'Revisá los datos del formulario.'),
         severity: 'error'
       });
       return;
@@ -95,12 +105,14 @@ export const FloatingAIAssistant = () => {
         severity: 'success'
       });
     } catch (error: any) {
-      setResultText(`**Error:** ${error.message || "No se pudo conectar con la IA. Verifica tu API Key en el archivo .env"}`);
-      setSnackbar({
-        open: true,
-        message: 'Error al procesar la propuesta',
-        severity: 'error'
-      });
+      const msg = String(error?.message || '');
+      const tip = /API Key|GEMINI|secret|401|403|Invalid/i.test(msg)
+        ? 'Revisá la clave de Gemini en Supabase (Edge Functions → Secrets).'
+        : /fetch|network|Failed/i.test(msg)
+        ? 'Sin conexión con el proxy de IA. Reintentá en unos segundos.'
+        : 'No se pudo generar la propuesta. Reintentá.';
+      setResultText(`**Error:** ${msg || 'No se pudo conectar con la IA.'}`);
+      setSnackbar({ open: true, message: tip, severity: 'error' });
     } finally {
       setIsLoading(false);
     }

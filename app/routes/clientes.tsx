@@ -34,6 +34,7 @@ import { useLocation } from "react-router";
 import { globalSnack } from "../components/GlobalSnackbar";
 import ScannerTarjetas from "../components/ScannerTarjetas";
 import { enviarPropuestaWhatsApp } from "../services/outboundService";
+import HistorialCliente from "../components/HistorialCliente";
 import type { Cliente } from "../types/crm";
 
 const isLeadFrio = (fechaStr: string) => {
@@ -74,6 +75,7 @@ export default function Clientes() {
   const [industriaFilter, setIndustriaFilter] = useState("all");
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
   const [scannerOpen, setScannerOpen] = useState(false);
+  const [historialCliente, setHistorialCliente] = useState<Cliente | null>(null);
   const [propuestaBusy, setPropuestaBusy] = useState<number | string | null>(null);
   
   // Modales de Detalle e Historial
@@ -437,7 +439,7 @@ export default function Clientes() {
   };
 
   const handleHistory = (cliente: Cliente) => {
-    setEditingClient(cliente);
+    setHistorialCliente(cliente);
   };
 
   const handleToggleFavorite = async (cliente: Cliente) => {
@@ -1175,6 +1177,12 @@ export default function Clientes() {
           </Box>
         </Box>
       </Drawer>
+
+      <HistorialCliente
+        open={!!historialCliente}
+        onClose={() => setHistorialCliente(null)}
+        cliente={historialCliente}
+      />
 
       <ScannerTarjetas
         open={scannerOpen}
