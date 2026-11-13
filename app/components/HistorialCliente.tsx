@@ -3,7 +3,7 @@ import {
   Dialog, DialogTitle, DialogContent, IconButton, Typography, Box, Chip, Stack,
   Divider, Avatar, Button, Tooltip,
 } from '@mui/material';
-import { FiX, FiClock, FiMessageSquare, FiAlertCircle, FiCheckCircle } from 'react-icons/fi';
+import { FiX, FiClock, FiAlertCircle, FiCheckCircle, FiSend } from 'react-icons/fi';
 import { supabase } from '../services/supabase';
 import { BRAND } from '../theme';
 
@@ -55,6 +55,7 @@ function recomendaciones(cliente: any, interacciones: Interaccion[]): string[] {
 
 export default function HistorialCliente({ open, onClose, cliente }: Props) {
   const [items, setItems] = useState<Interaccion[]>([]);
+  const [mensajes, setMensajes] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -72,6 +73,36 @@ export default function HistorialCliente({ open, onClose, cliente }: Props) {
       const list = (data || []) as Interaccion[];
       list.sort((a, b) => String(b.created_at || b.fecha || '').localeCompare(String(a.created_at || a.fecha || '')));
       setItems(list);
+
+      // Mensajes salientes (confirmacion de entrega)
+      try {
+        const ext = String(cliente.telefono || cliente.email || cliente.id || '');
+        const { data: contactos } = await supabase
+          .from('channel_contacts')
+          .select('id')
+          .or(`telefono.eq.${ext},external_id.eq.${ext}`);
+        const contactIds = (contactos || []).map((c: any) => c.id);
+        if (contactIds.length > 0) {
+          const { data: convs } = await supabase
+            .from('conversations')
+            .select('id')
+            .in('contact_id', contactIds);
+          const convIds = (convs || []).map((c: any) => c.id);
+          if (convIds.length > 0) {
+            const { data: msgs } = await supabase
+              .from('conversation_messages')
+              .select('id, cuerpo, estado, creado_en')
+              .in('conversation_id', convIds)
+              .eq('direccion', 'outbound')
+              .order('creado_en', { ascending: false })
+              .limit(10);
+            if (mounted) setMensajes(msgs || []);
+          }
+        }
+      } catch (e) {
+        console.error('[historial mensajes]', e);
+      }
+
       setLoading(false);
     })();
     return () => { mounted = false; };
@@ -102,6 +133,30 @@ export default function HistorialCliente({ open, onClose, cliente }: Props) {
                   • {r}
                 </Typography>
               ))}
+            </Box>
+          )}
+
+          {mensajes.length > 0 && (
+            <Box sx={{ p: 1, borderRadius: 2, border: '1px solid', borderColor: 'divider' }}>
+              <Typography variant="caption" sx={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                <FiSend size={12} /> Mensajes por WhatsApp
+              </Typography>
+              {mensajes.map((m: any) => {
+                const enviado = m.estado === 'sent';
+                return (
+                  <Box key={m.id} sx={{ display: 'flex', gap: 0.5, alignItems: 'flex-start', mt: 0.75 }}>
+                    {enviado
+                      ? <FiCheckCircle size={13} color="#4caf50" style={{ flexShrink: 0, marginTop: 3 }} />
+                      : <FiClock size={13} color="#ff9800" style={{ flexShrink: 0, marginTop: 3 }} />}
+                    <Box sx={{ minWidth: 0 }}>
+                      <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 260 }}>
+                        {m.cuerpo}
+                      </Typography>
+                      <Chip size="small" label={enviado ? 'Enviado' : (m.estado || 'pendiente')} sx={{ height: 18, fontSize: '0.62rem', mt: 0.25, bgcolor: enviado ? 'rgba(76,175,80,0.14)' : 'rgba(255,152,0,0.14)', color: enviado ? '#4caf50' : '#ff9800' }} />
+                    </Box>
+                  </Box>
+                );
+              })}
             </Box>
           )}
 
