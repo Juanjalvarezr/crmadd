@@ -22,4 +22,5 @@ export default [
 	route("/documentos", "routes/documentos.tsx"),
 	route("/kanban", "routes/kanban.tsx"),
 	route("/chatbot", "routes/chatbot.tsx"),
+	route("/inbox", "routes/mensajes.tsx"),
 	] satisfies RouteConfig;

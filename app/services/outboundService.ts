@@ -17,14 +17,14 @@ async function ensureChannel(): Promise<number> {
   const { data } = await supabase
     .from('channels')
     .select('id')
-    .eq('codigo', 'whatsapp')
+    .eq('codigo', 'openwa')
     .maybeSingle();
   if (data?.id) return data.id as number;
 
   const { data: created, error } = await supabase
     .from('channels')
     .upsert(
-      { codigo: 'whatsapp', nombre: 'WhatsApp', activo: true, config: {} },
+      { codigo: 'openwa', nombre: 'WhatsApp OpenWA', activo: true, config: {} },
       { onConflict: 'codigo' }
     )
     .select('id')
@@ -34,7 +34,9 @@ async function ensureChannel(): Promise<number> {
 }
 
 async function ensureContacto(channelId: number, c: ContactoSalida) {
-  const externalId = String(c.telefono || c.email || c.id || 'sin-id');
+  // external_id = telefono normalizado a digitos (igual que la RPC inbound) para unificar el hilo.
+  const digits = String(c.telefono || '').replace(/\D/g, '');
+  const externalId = digits || String(c.email || c.id || 'sin-id');
   const { data, error } = await supabase
     .from('channel_contacts')
     .upsert(
