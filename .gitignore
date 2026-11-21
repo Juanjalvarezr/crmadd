@@ -22,3 +22,6 @@ sql/
 
 .vercel
 .env*
+
+# Copias locales de la DB de n8n (no versionar)
+n8n_db_*.sqlite

@@ -20,6 +20,24 @@ export const PLANTILLAS: Plantilla[] = [
       'Quedo atento/a a tus comentarios para avanzar.',
   },
   {
+    tipo: 'cotizacion',
+    nombre: 'Cotización',
+    categoria: 'ventas',
+    variables: ['nombre', 'servicio', 'monto', 'doc_url'],
+    cuerpo:
+      'Hola {nombre}, de DESEO DIGITAL te compartimos la cotización de {servicio} por {monto}. Documento: {doc_url}\n\n' +
+      'Quedamos atentos para ajustar lo que necesites.',
+  },
+  {
+    tipo: 'factura',
+    nombre: 'Factura',
+    categoria: 'facturacion',
+    variables: ['nombre', 'monto', 'fecha', 'doc_url'],
+    cuerpo:
+      'Hola {nombre}, de DESEO DIGITAL te enviamos la factura por {monto} con vencimiento {fecha}. Documento: {doc_url}\n\n' +
+      'Gracias por tu confianza.',
+  },
+  {
     tipo: 'saludo',
     nombre: 'Saludo / bienvenida',
     categoria: 'atencion',
