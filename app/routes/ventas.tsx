@@ -1,4 +1,5 @@
 // @ts-nocheck
+import ConfirmDialog from '../components/ConfirmDialog';
 import { globalSnack } from "../components/GlobalSnackbar";
 import { useState, useEffect } from "react";
 import { CompactStatCard } from "../components/CompactStatCard";
@@ -56,6 +57,7 @@ const formatCOP = (value: number) => {
 
 export default function Ventas() {
   const [oportunidades, setOportunidades] = useState<Oportunidad[]>([]);
+  const [deleteTarget, setDeleteTarget] = useState<any>(null);
   const [serviciosDisponibles, setServiciosDisponibles] = useState<any[]>([]);
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [loading, setLoading] = useState(true);
@@ -370,14 +372,18 @@ export default function Ventas() {
     }
   };
 
-  const handleDelete = async (opp: Oportunidad) => {
-    if (typeof window !== "undefined" && !confirm(`¿Eliminar "${opp.nombre}"?`)) return;
+  const handleDelete = (item: any) => setDeleteTarget(item);
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
     try {
-      await oportunidadesService.delete(opp.id);
-      await loadData(); // Usar el Snackbar global
+      await oportunidadesService.delete(deleteTarget.id);
+      await loadData();
       globalSnack.show("Oportunidad eliminada", "success");
     } catch (err: any) {
-      globalSnack.show("Error al eliminar: " + err.message, "error");
+      globalSnack.show(err.message || "Error al eliminar", "error");
+    } finally {
+      setDeleteTarget(null);
     }
   };
 
@@ -816,6 +822,13 @@ export default function Ventas() {
           </Button>
         </DialogActions>
       </Dialog>
+    <ConfirmDialog
+      open={!!deleteTarget}
+      mensaje={`¿Eliminar la oportunidad "${deleteTarget?.nombre || ''}"? Esta acción no se puede deshacer.`}
+      onConfirm={confirmDelete}
+      onCancel={() => setDeleteTarget(null)}
+    />
+
     </Box>
   );
 }

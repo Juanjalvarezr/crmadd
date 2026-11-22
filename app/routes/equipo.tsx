@@ -1,3 +1,4 @@
+import ConfirmDialog from '../components/ConfirmDialog';
 import { useState, useEffect } from "react";
 import {
   Box, Typography, Grid, Card, CardContent,
@@ -11,6 +12,7 @@ import { ListToolbar } from '../components/ListToolbar';
 
 export default function Equipo() {
   const [miembros, setMiembros] = useState<any[]>([]);
+  const [deleteTarget, setDeleteTarget] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -72,13 +74,17 @@ export default function Equipo() {
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (typeof window !== "undefined" && !window.confirm("¿Eliminar este miembro del equipo?")) return;
+  const handleDelete = (item: any) => setDeleteTarget(item);
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
     try {
       await equipoService.delete(id);
-      setMiembros((prev) => prev.filter((m) => m.id !== id));
-    } catch (err) {
-            alert("Error eliminando miembro");
+      globalSnack.show("Miembro eliminado", "success");
+    } catch (err: any) {
+      globalSnack.show(err.message || "Error al eliminar", "error");
+    } finally {
+      setDeleteTarget(null);
     }
   };
 
@@ -199,6 +205,13 @@ export default function Equipo() {
           <Button variant="contained" onClick={handleSave}>Guardar</Button>
         </DialogActions>
       </Dialog>
+    <ConfirmDialog
+      open={!!deleteTarget}
+      mensaje={`¿Eliminar a "${deleteTarget?.nombre || 'este miembro'}"? Esta acción no se puede deshacer.`}
+      onConfirm={confirmDelete}
+      onCancel={() => setDeleteTarget(null)}
+    />
+
     </Box>
   );
 }

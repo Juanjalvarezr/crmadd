@@ -1,3 +1,4 @@
+import ConfirmDialog from '../components/ConfirmDialog';
 import { globalSnack } from "../components/GlobalSnackbar";
 import React, { useState, useEffect } from "react";
 import { Box, Typography, Paper, Button, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, TextField, FormControl, InputLabel, Select, MenuItem, CircularProgress, Alert, Pagination } from "@mui/material";
@@ -14,6 +15,7 @@ export function meta() {
 
 export default function Documentos() {
   const [documentos, setDocumentos] = useState<any[]>([]);
+  const [deleteTarget, setDeleteTarget] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const pageSize = 16;
@@ -121,10 +123,19 @@ export default function Documentos() {
     }
   };
   
-  const handleDelete = async (row: any) => {
-    if (typeof window !== "undefined" && !confirm(`¿Eliminar documento #${row.id}?`)) return;
-    try { await documentosService.delete(row.id); await loadDocumentos(); globalSnack.show("Documento eliminado", "success"); }
-    catch (err: any) { globalSnack.show(err.message || "Error eliminando documento", "error"); }
+  const handleDelete = (row: any) => setDeleteTarget(row);
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    try {
+      await documentosService.delete(deleteTarget.id);
+      await loadDocumentos();
+      globalSnack.show("Documento eliminado", "success");
+    } catch (err: any) {
+      globalSnack.show(err.message || "Error al eliminar", "error");
+    } finally {
+      setDeleteTarget(null);
+    }
   };
 
   return (
@@ -289,6 +300,13 @@ export default function Documentos() {
           {preview && <Button variant="contained" href={preview} target="_blank" rel="noreferrer">Abrir original</Button>}
         </DialogActions>
       </Dialog>
+
+    <ConfirmDialog
+      open={!!deleteTarget}
+      mensaje={`¿Eliminar el documento #${deleteTarget?.id}? Esta acción no se puede deshacer.`}
+      onConfirm={confirmDelete}
+      onCancel={() => setDeleteTarget(null)}
+    />
 
     </Box>
   );

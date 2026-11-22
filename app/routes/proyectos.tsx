@@ -1,4 +1,5 @@
 // @ts-nocheck
+import ConfirmDialog from '../components/ConfirmDialog';
 import { useState, useEffect, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -59,6 +60,7 @@ export default function Proyectos() {
   const fetchProyectos = useCRMStore((s) => s.fetchProyectos);
   const fetchTareas = useCRMStore((s) => s.fetchTareas);
   const [loading, setLoading] = useState(true);
+  const [deleteTarget, setDeleteTarget] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [filterEstado, setFilterEstado] = useState<string>("");
   const [activeTab, setActiveTab] = useState("activos");
@@ -373,15 +375,17 @@ export default function Proyectos() {
     }
   };
 
-  const handleDeleteProyecto = async (proyecto: Proyecto) => {
-    if (typeof window !== "undefined" && confirm(`¿Estás seguro de eliminar el proyecto "${proyecto.nombre}"?`)) {
-      try {
-        await proyectosService.delete(proyecto.id);
-        useCRMStore.setState((state) => ({ proyectos: state.proyectos.filter((p: any) => p.id !== proyecto.id) }));
-        globalSnack.show("Proyecto eliminado correctamente", "success");
-      } catch (err: any) {
-        globalSnack.show("Error al eliminar proyecto: " + err.message, "error");
-      }
+  const handleDeleteProyecto = (item: any) => setDeleteTarget(item);
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    try {
+      await proyectosService.delete(deleteTarget.id);
+      globalSnack.show("Proyecto eliminado correctamente", "success");
+    } catch (err: any) {
+      globalSnack.show(err.message || "Error al eliminar", "error");
+    } finally {
+      setDeleteTarget(null);
     }
   };
 
@@ -1781,6 +1785,13 @@ export default function Proyectos() {
           </Button>
         </DialogActions>
       </Dialog>
+    <ConfirmDialog
+      open={!!deleteTarget}
+      mensaje={`¿Eliminar el proyecto "${deleteTarget?.nombre || ''}"? Esta acción no se puede deshacer.`}
+      onConfirm={confirmDelete}
+      onCancel={() => setDeleteTarget(null)}
+    />
+
     </Box>
   );
 }

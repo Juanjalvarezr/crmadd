@@ -19,6 +19,7 @@ import { whatsappService } from "../services/whatsappService";
 import { enlacesService } from "../services/enlacesService";
 import { parseCSV, rowToProspectoData } from "../services/csvParserService";
 import { serviciosService } from "../services/supabase";
+import ConfirmDialog from '../components/ConfirmDialog';
 import type { Prospecto, EstadoProspecto } from "../types/crm";
 import { ESTADOS_PROGRESS, ESTADO_COLORS } from "../types/crm";
 
@@ -56,6 +57,7 @@ export default function ProspectosView() {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const [prospectos, setProspectos] = useState<Prospecto[]>([]);
+  const [deleteTarget, setDeleteTarget] = useState<Prospecto | null>(null);
   const [servicios, setServicios] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -164,14 +166,18 @@ export default function ProspectosView() {
     setSnackbar({ open: true, message: `Estado cambiado a "${estado}"`, severity: "info" });
   };
 
-  const handleEliminarProspecto = async (p: Prospecto) => {
-    if (!confirm(`¿Eliminar a "${p.nombre}"?`)) return;
+  const handleEliminarProspecto = (p: Prospecto) => setDeleteTarget(p);
+
+  const confirmDeleteProspecto = async () => {
+    if (!deleteTarget) return;
     try {
-      await prospectingService.delete(p.id);
+      await prospectingService.delete(deleteTarget.id);
       await loadData();
       setSnackbar({ open: true, message: "Prospecto eliminado", severity: "warning" });
     } catch (err: any) {
       setSnackbar({ open: true, message: "Error: " + err.message, severity: "error" });
+    } finally {
+      setDeleteTarget(null);
     }
   };
 
@@ -847,6 +853,12 @@ export default function ProspectosView() {
       >
         <Alert severity={snackbar.severity} onClose={() => setSnackbar({ ...snackbar, open: false })} variant="filled" />
       </Snackbar>
+      <ConfirmDialog
+        open={!!deleteTarget}
+        mensaje={`¿Eliminar a "${deleteTarget?.nombre || ''}"? Esta acción no se puede deshacer.`}
+        onConfirm={confirmDeleteProspecto}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </Box>
   );
 }

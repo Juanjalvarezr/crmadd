@@ -1,3 +1,4 @@
+import ConfirmDialog from '../components/ConfirmDialog';
 import { useState, useEffect } from "react";
 import * as z from "zod";
 import { motion, AnimatePresence } from "framer-motion";
@@ -64,6 +65,7 @@ const campanaSchema = z.object({
 export default function EmailMarketing() {
   // Estados principales
   const [campanas, setCampanas] = useState<CampanaEmail[]>([]);
+  const [deleteTarget, setDeleteTarget] = useState<any>(null);
   const [plantillas, setPlantillas] = useState<PlantillaEmail[]>([]);
   const [clientes, setClientes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -238,23 +240,18 @@ export default function EmailMarketing() {
     }
   };
 
-  const handleDeleteCampana = async (campana: CampanaEmail) => {
-    if (confirm(`¿Estás seguro de eliminar la campaña "${campana.nombre}"?`)) {
-      try {
-        await emailService.deleteCampana(campana.id);
-        setCampanas(prev => prev.filter(c => c.id !== campana.id));
-        setSnackbar({ 
-          open: true, 
-          message: "Campaña eliminada correctamente", 
-          severity: "success" 
-        });
-      } catch (err: any) {
-        setSnackbar({ 
-          open: true, 
-          message: "Error al eliminar campaña: " + err.message, 
-          severity: "error" 
-        });
-      }
+  const handleDeleteCampana = (item: any) => setDeleteTarget(item);
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    try {
+      await emailService.deleteCampana(deleteTarget.id);
+      await loadCampanas();
+      globalSnack.show("Campaña eliminada", "success");
+    } catch (err: any) {
+      globalSnack.show(err.message || "Error al eliminar", "error");
+    } finally {
+      setDeleteTarget(null);
     }
   };
 
@@ -784,6 +781,13 @@ export default function EmailMarketing() {
           {snackbar.message}
         </Alert>
       </Snackbar>
+    <ConfirmDialog
+      open={!!deleteTarget}
+      mensaje={`¿Eliminar la campaña "${deleteTarget?.nombre || ''}"? Esta acción no se puede deshacer.`}
+      onConfirm={confirmDelete}
+      onCancel={() => setDeleteTarget(null)}
+    />
+
     </Box>
   );
 }

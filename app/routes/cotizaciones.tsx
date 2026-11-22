@@ -1,3 +1,4 @@
+import ConfirmDialog from '../components/ConfirmDialog';
 import { useState, useEffect } from "react";
 import {
   Box, Pagination, Typography, Paper, Button, TextField, FormControl, InputLabel, Select, MenuItem,
@@ -20,6 +21,7 @@ export function meta() {
 
 export default function Cotizaciones() {
   const [items, setItems] = useState<any[]>([]);
+  const [deleteTarget, setDeleteTarget] = useState<any>(null);
   const [clientes, setClientes] = useState<any[]>([]);
   
   const [loading, setLoading] = useState(true);
@@ -97,10 +99,19 @@ export default function Cotizaciones() {
     finally { setSaving(false); }
   };
 
-  const handleDelete = async (row: any) => {
-    if (typeof window !== "undefined" && !confirm(`¿Eliminar cotización #${row.id}?`)) return;
-    try { await cotizacionesService.delete(row.id); await load(); globalSnack.show("Cotización eliminada", "success"); }
-    catch (err: any) { globalSnack.show(err.message || "Error eliminando cotización", "error"); }
+  const handleDelete = (row: any) => setDeleteTarget(row);
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    try {
+      await cotizacionesService.delete(deleteTarget.id);
+      await load();
+      globalSnack.show("Cotización eliminada", "success");
+    } catch (err: any) {
+      globalSnack.show(err.message || "Error al eliminar", "error");
+    } finally {
+      setDeleteTarget(null);
+    }
   };
 
   const getClienteNombre = (clienteId: number | string | null | undefined) => {
@@ -231,6 +242,13 @@ export default function Cotizaciones() {
           <Button onClick={handleSave} variant="contained" disabled={saving}>{saving ? "Guardando..." : "Guardar"}</Button>
         </DialogActions>
       </Dialog>
+    <ConfirmDialog
+      open={!!deleteTarget}
+      mensaje={`¿Eliminar la cotización #${deleteTarget?.id}? Esta acción no se puede deshacer.`}
+      onConfirm={confirmDelete}
+      onCancel={() => setDeleteTarget(null)}
+    />
+
     </Box>
   );
 }

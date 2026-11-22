@@ -1,3 +1,4 @@
+import ConfirmDialog from '../components/ConfirmDialog';
 import { useState, useEffect } from "react";
 import {
   Box, Pagination, Typography, Chip, Alert, CircularProgress,
@@ -25,6 +26,7 @@ export default function Facturacion() {
   const fetchFacturas = useCRMStore((s) => s.fetchFacturas);
   const fetchClientes = useCRMStore((s) => s.fetchClientes);
   const [loading, setLoading] = useState(true);
+  const [deleteTarget, setDeleteTarget] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [filterEstado, setFilterEstado] = useState<string>("");
   const [openModal, setOpenModal] = useState(false);
@@ -129,10 +131,19 @@ export default function Facturacion() {
     finally { setSaving(false); }
   };
 
-  const handleDelete = async (row: any) => {
-    if (typeof window !== "undefined" && !confirm(`¿Eliminar factura #${row.id}?`)) return;
-    try { await facturasService.delete(row.id); await load(); globalSnack.show("Factura eliminada", "success"); }
-    catch (err: any) { globalSnack.show(err.message || "Error eliminando factura", "error"); }
+  const handleDelete = (row: any) => setDeleteTarget(row);
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    try {
+      await facturasService.delete(deleteTarget.id);
+      await load();
+      globalSnack.show("Factura eliminada", "success");
+    } catch (err: any) {
+      globalSnack.show(err.message || "Error al eliminar", "error");
+    } finally {
+      setDeleteTarget(null);
+    }
   };
 
   const getClienteNombre = (clienteId: number | string | null | undefined) => {
@@ -421,6 +432,13 @@ export default function Facturacion() {
           <Button variant="outlined" onClick={() => { if (documentoGenerado) { const blob = new Blob([documentoGenerado], { type: 'text/html' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `factura_${selected?.numero_factura || 'documento'}.html`; a.click(); URL.revokeObjectURL(url); globalSnack.show('Documento descargado', 'success'); } }}>Descargar HTML</Button>
         </DialogActions>
       </Dialog>
+
+    <ConfirmDialog
+      open={!!deleteTarget}
+      mensaje={`¿Eliminar la factura #${deleteTarget?.id}? Esta acción no se puede deshacer.`}
+      onConfirm={confirmDelete}
+      onCancel={() => setDeleteTarget(null)}
+    />
 
     </Box>
   );

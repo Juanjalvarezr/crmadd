@@ -1,3 +1,4 @@
+import ConfirmDialog from '../components/ConfirmDialog';
 import { useState, useEffect, useMemo } from "react";
 import {
   Box, Typography, Paper, Button, CircularProgress,
@@ -78,6 +79,7 @@ export default function Calendario() {
   const clientes = useCRMStore((s) => s.clientes);
 
   const [events, setEvents] = useState<CalEvent[]>([]);
+  const [deleteTarget, setDeleteTarget] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState<string>("");
   const [date, setDate] = useState<Date>(new Date());
@@ -220,19 +222,18 @@ export default function Calendario() {
     }
   };
 
-  const handleDeleteEvent = async (evt: CalEvent) => {
-    if (!confirm(`¿Eliminar evento "${evt.title}"?`)) return;
+  const handleDeleteEvent = (item: any) => setDeleteTarget(item);
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
     try {
-      if (String(evt.id).startsWith("factura-vencimiento-")) {
-        globalSnack.show("Los vencimientos se sincronizan desde facturación.", "warning");
-        return;
-      }
-      await pagosService.delete(Number(evt.id));
+      await pagosService.delete(Number(deleteTarget.id));
+      await loadEvents();
       globalSnack.show("Evento eliminado", "success");
-      setIsModalOpen(false);
-      loadEvents();
     } catch (err: any) {
-      globalSnack.show(err.message || "Error eliminando evento", "error");
+      globalSnack.show(err.message || "Error al eliminar", "error");
+    } finally {
+      setDeleteTarget(null);
     }
   };
 
@@ -423,6 +424,13 @@ export default function Calendario() {
           <Button variant="contained" onClick={handleSaveEvent}>Guardar</Button>
         </DialogActions>
       </Dialog>
+    <ConfirmDialog
+      open={!!deleteTarget}
+      mensaje={`¿Eliminar el evento "${deleteTarget?.title || ''}"? Esta acción no se puede deshacer.`}
+      onConfirm={confirmDelete}
+      onCancel={() => setDeleteTarget(null)}
+    />
+
     </Box>
   );
 }

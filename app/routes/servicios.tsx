@@ -1,3 +1,4 @@
+import ConfirmDialog from '../components/ConfirmDialog';
 import { useState, useEffect } from "react";
 import { 
   Box, Typography, Paper, Grid, Button, Card, CardContent, CardActions,
@@ -21,6 +22,7 @@ export function meta() {
 
 export default function Servicios() {
   const [servicios, setServicios] = useState<any[]>([]);
+  const [deleteTarget, setDeleteTarget] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -146,15 +148,17 @@ export default function Servicios() {
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (confirm("¿Estás seguro de eliminar este servicio?")) {
-      try {
-        await serviciosService.delete(id);
-        setSnackbar({ open: true, message: "Servicio eliminado", severity: "success" });
-        loadServicios();
-      } catch (err: any) {
-        setSnackbar({ open: true, message: "Error al eliminar: " + err.message, severity: "error" });
-      }
+  const handleDelete = (item: any) => setDeleteTarget(item);
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    try {
+      await serviciosService.delete(id);
+      globalSnack.show("Servicio eliminado", "success");
+    } catch (err: any) {
+      globalSnack.show(err.message || "Error al eliminar", "error");
+    } finally {
+      setDeleteTarget(null);
     }
   };
 
@@ -356,6 +360,13 @@ export default function Servicios() {
       >
         <Alert severity={snackbar.severity} variant="filled">{snackbar.message}</Alert>
       </Snackbar>
+    <ConfirmDialog
+      open={!!deleteTarget}
+      mensaje={`¿Eliminar el servicio "${deleteTarget?.nombre || ''}"? Esta acción no se puede deshacer.`}
+      onConfirm={confirmDelete}
+      onCancel={() => setDeleteTarget(null)}
+    />
+
     </Box>
   );
 }
