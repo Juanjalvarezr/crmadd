@@ -1000,7 +1000,10 @@ export const conocimientoService = {
       match_threshold: 0.5, // Similitud mínima del 50%
       match_count: 5,        // Traer los 5 mejores resultados
     });
-    if (error) throw error;
+    if (error) {
+      console.warn('[conocimiento] RPC buscar_conocimiento no disponible, continuando sin conocimiento:', error.message);
+      return [];
+    }
     return data || [];
   },
   async create(item: Omit<Tables['conocimiento_agencia'], 'id' | 'actualizado_en'>) {
