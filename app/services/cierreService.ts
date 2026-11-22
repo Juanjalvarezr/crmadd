@@ -37,7 +37,9 @@ export async function cerrarOportunidad(
     const { data: cli } = await supabase.from('clientes').select('nombre').eq('id', clienteId).single();
     const nombre = opts.nombreProyecto || opp.nombre || 'Proyecto ganado';
     await proyectosService.create({
+      clienteId: clienteId,
       cliente_id: clienteId,
+      clienteNombre: cli?.nombre || opp.cliente_nombre || '',
       cliente_nombre: cli?.nombre || opp.cliente_nombre || '',
       nombre,
       descripcion: opts.notas || `Proyecto ganado desde la oportunidad: ${opp.nombre || ''}`,
