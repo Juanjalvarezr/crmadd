@@ -33,7 +33,7 @@ import { CompactTable } from "../components/CompactTable";
 import { useLocation } from "react-router";
 import { globalSnack } from "../components/GlobalSnackbar";
 import ScannerTarjetas from "../components/ScannerTarjetas";
-import { enviarPropuestaWhatsApp } from "../services/outboundService";
+import { enviarPropuestaWhatsApp, enviarMensajeWhatsApp } from "../services/outboundService";
 import HistorialCliente from "../components/HistorialCliente";
 import AlertasPanel from "../components/AlertasPanel";
 import type { Cliente } from "../types/crm";
@@ -496,6 +496,30 @@ export default function Clientes() {
       message: 'Clientes exportados a CSV. Abre Google Sheets, ve a Archivo > Importar > Subir y selecciona el archivo CSV.',
       severity: "success"
     });
+  };
+
+  const handleScannerAction = async (d: any, action: 'propuesta' | 'cotizacion' | 'factura' | 'whatsapp' | 'llamar') => {
+    const c = { nombre: d.nombre, telefono: d.telefono, email: d.email, empresa: d.empresa } as any;
+    try {
+      if (action === 'llamar') {
+        if (!d.telefono) { globalSnack.show('Sin teléfono para llamar', 'warning'); return; }
+        window.open(`tel:${String(d.telefono).replace(/\D/g, '')}`, '_self');
+        return;
+      }
+      if (action === 'propuesta') {
+        const res = await enviarPropuestaWhatsApp(c, { servicio: d.empresa || 'nuestros servicios', agente: 'el equipo' });
+        globalSnack.show(res.ok ? 'Propuesta encolada' : (res.error || 'No se pudo encolar'), res.ok ? 'success' : 'error');
+        return;
+      }
+      const plantilla = action === 'whatsapp' ? 'saludo' : action;
+      const extra: any = { servicio: d.empresa || 'nuestros servicios', agente: 'el equipo' };
+      if (action !== 'whatsapp') extra.doc_tipo = action;
+      if (action === 'factura') { extra.monto = 'según factura'; extra.fecha = new Date().toLocaleDateString('es-CO'); }
+      const res = await enviarMensajeWhatsApp(c, plantilla, extra);
+      globalSnack.show(res.ok ? `${action} encolada` : (res.error || 'No se pudo encolar'), res.ok ? 'success' : 'error');
+    } catch (e: any) {
+      globalSnack.show(e?.message || 'Error en acción de tarjeta', 'error');
+    }
   };
 
   return (
@@ -1220,6 +1244,7 @@ export default function Clientes() {
         open={scannerOpen}
         onClose={() => setScannerOpen(false)}
         onSave={loadClientes}
+        onAction={handleScannerAction}
       />
     </Box>
   );

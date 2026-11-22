@@ -67,9 +67,10 @@ interface Props {
   open: boolean;
   onClose: () => void;
   onSave: (data: ExtractedCard) => void;
+  onAction?: (data: ExtractedCard, action: 'propuesta' | 'cotizacion' | 'factura' | 'whatsapp' | 'llamar') => void;
 }
 
-export default function ScannerTarjetas({ open, onClose, onSave }: Props) {
+export default function ScannerTarjetas({ open, onClose, onSave, onAction }: Props) {
     const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<ExtractedCard | null>(null);
@@ -130,6 +131,12 @@ export default function ScannerTarjetas({ open, onClose, onSave }: Props) {
     }
   };
 
+  const handleAction = async (action: 'propuesta' | 'cotizacion' | 'factura' | 'whatsapp' | 'llamar') => {
+    if (!data) return;
+    await handleSave();
+    onAction?.(data, action);
+  };
+
   const handleClose = () => {
     setPreview(null);
     setData(null);
@@ -187,6 +194,19 @@ export default function ScannerTarjetas({ open, onClose, onSave }: Props) {
             <TextField label="Web" fullWidth value={data.web || ''} onChange={(e) => setData({ ...data, web: e.target.value })} />
             <TextField label="Redes" fullWidth value={(data.redes || []).join(', ')} onChange={(e) => setData({ ...data, redes: e.target.value.split(',').map((s) => s.trim()).filter(Boolean) })} />
             <Chip label={`${(data.texto || '').split(/\r?\n/).length} líneas detectadas`} color="info" variant="outlined" />
+
+            {onAction && (
+              <Box sx={{ mt: 1.5 }}>
+                <Typography variant="caption" color="text.secondary">¿Qué querés hacer con este contacto?</Typography>
+                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mt: 1 }}>
+                  <Chip label="Propuesta" color="primary" onClick={() => handleAction('propuesta')} />
+                  <Chip label="Cotización" color="primary" variant="outlined" onClick={() => handleAction('cotizacion')} />
+                  <Chip label="Factura" color="primary" variant="outlined" onClick={() => handleAction('factura')} />
+                  <Chip label="WhatsApp" color="success" variant="outlined" onClick={() => handleAction('whatsapp')} />
+                  <Chip label="Llamar" color="default" variant="outlined" onClick={() => handleAction('llamar')} />
+                </Stack>
+              </Box>
+            )}
           </Stack>
         )}
       </DialogContent>

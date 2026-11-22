@@ -9,7 +9,7 @@ import ScannerTarjetas from './ScannerTarjetas';
 import { registrarGestion, TIPOS_GESTION } from '../services/gestionService';
 import { enviarMensajeWhatsApp } from '../services/outboundService';
 
-type ActionType = 'tarea' | 'oportunidad' | 'interaccion' | 'propuesta' | 'cotizacion' | 'catalogo' | 'cobro';
+type ActionType = 'tarea' | 'oportunidad' | 'interaccion' | 'propuesta' | 'cotizacion' | 'catalogo' | 'cobro' | 'factura' | 'contrato';
 
 export const MobileFab: React.FC = () => {
   const [open, setOpen] = useState(false);
@@ -48,6 +48,8 @@ export const MobileFab: React.FC = () => {
     { icon: <FiSend size={20} />, name: 'Enviar propuesta', type: 'propuesta' as ActionType },
     { icon: <FiBook size={20} />, name: 'Enviar cotización', type: 'cotizacion' as ActionType },
     { icon: <FiDollarSign size={20} />, name: 'Enviar catálogo', type: 'catalogo' as ActionType },
+    { icon: <FiDollarSign size={20} />, name: 'Enviar factura', type: 'factura' as ActionType },
+    { icon: <FiBook size={20} />, name: 'Enviar contrato', type: 'contrato' as ActionType },
     { icon: <FiMessageSquare size={20} />, name: 'Cobro / recordatorio', type: 'cobro' as ActionType },
     { icon: <FiCheckSquare size={20} />, name: 'Nueva Tarea', type: 'tarea' as ActionType },
     { icon: <FiTrendingUp size={20} />, name: 'Nueva Venta', type: 'oportunidad' as ActionType },
@@ -137,7 +139,7 @@ export const MobileFab: React.FC = () => {
     }
   };
 
-  const esAccionDoc = ['propuesta', 'cotizacion', 'catalogo', 'cobro'].includes(actionType);
+  const esAccionDoc = ['propuesta', 'cotizacion', 'catalogo', 'cobro', 'factura', 'contrato'].includes(actionType);
 
   const abrirDoc = (tipo: ActionType) => {
     setActionType(tipo);
@@ -148,6 +150,25 @@ export const MobileFab: React.FC = () => {
     setSelectedCliente(clientes[0]?.id ? String(clientes[0].id) : '');
     setFormOpen(true);
     setOpen(false);
+  };
+
+  const handleScannerAction = async (d: any, action: 'propuesta' | 'cotizacion' | 'factura' | 'whatsapp' | 'llamar') => {
+    const c = { id: undefined, nombre: d.nombre, telefono: d.telefono, email: d.email, empresa: d.empresa } as any;
+    try {
+      if (action === 'llamar') {
+        if (!d.telefono) { globalSnack.show('Sin teléfono para llamar', 'warning'); return; }
+        window.open(`tel:${String(d.telefono).replace(/\D/g, '')}`, '_self');
+        return;
+      }
+      const tipoPlantilla = action === 'whatsapp' ? 'saludo' : action === 'cotizacion' ? 'cotizacion' : action === 'factura' ? 'factura' : 'propuesta';
+      const extra: any = { servicio: d.empresa || 'nuestros servicios', agente: 'el equipo' };
+      if (action !== 'whatsapp') extra.doc_tipo = action;
+      if (action === 'factura') { extra.monto = 'según factura'; extra.fecha = new Date().toLocaleDateString('es-CO'); }
+      const res = await enviarMensajeWhatsApp(c, tipoPlantilla, extra);
+      globalSnack.show(res.ok ? `${action} encolada para ${d.nombre || 'el contacto'}` : (res.error || 'No se pudo encolar'), res.ok ? 'success' : 'error');
+    } catch (e: any) {
+      globalSnack.show(e?.message || 'Error en acción de tarjeta', 'error');
+    }
   };
 
   const handleEnviarDoc = async () => {
@@ -175,6 +196,10 @@ export const MobileFab: React.FC = () => {
         if (monto) extra.monto = monto;
       } else if (actionType === 'catalogo') {
         // sin documento: solo mensaje
+      } else if (actionType === 'factura' || actionType === 'contrato') {
+        extra.doc_tipo = actionType;
+        extra.monto = monto || (actionType === 'factura' ? 'según factura' : '');
+        extra.fecha = new Date().toLocaleDateString('es-CO');
       } else {
         extra.doc_tipo = 'propuesta';
       }
@@ -350,6 +375,7 @@ export const MobileFab: React.FC = () => {
           const nombre = (data as any)?.nombre || '';
           globalSnack.show(nombre ? `Tarjeta: ${nombre}` : 'Tarjeta guardada', 'success');
         }}
+        onAction={handleScannerAction}
       />
     </>
   );
