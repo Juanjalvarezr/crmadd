@@ -33,6 +33,7 @@ import { CompactTable } from "../components/CompactTable";
 import { useLocation } from "react-router";
 import { globalSnack } from "../components/GlobalSnackbar";
 import ScannerTarjetas from "../components/ScannerTarjetas";
+import ConfirmDialog from "../components/ConfirmDialog";
 import { enviarPropuestaWhatsApp } from "../services/outboundService";
 import { guardarClienteTarjeta, buscarDuplicado, ejecutarAccionTarjeta } from "../services/scannerActionsService";
 import HistorialCliente from "../components/HistorialCliente";
@@ -70,6 +71,7 @@ export default function Clientes() {
   const [filterEstado, setFilterEstado] = useState<string>(""); // eslint-disable-line @typescript-eslint/no-unused-vars
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' | 'info' | 'warning' }>({ open: false, message: '', severity: 'info' });
+  const [deleteTarget, setDeleteTarget] = useState<Cliente | null>(null);
   
   // Estados para filtros y paginación
   const [searchTerm, setSearchTerm] = useState("");
@@ -337,16 +339,19 @@ export default function Clientes() {
     }
   };
   
-  // Eliminar cliente en Supabase
-  const handleDelete = async (cliente: Cliente) => {
-    if (typeof window !== "undefined" && confirm(`¿Estás seguro de eliminar a ${cliente.nombre}?`)) {
-      try {
-        await clientesService.delete(cliente.id || 0);
-        await loadClientes(); // Recargar lista
-        setSnackbar({ open: true, message: "Cliente eliminado correctamente", severity: "success" });
-      } catch (err: any) {
-        setSnackbar({ open: true, message: "Error al eliminar: " + err.message, severity: "error" });
-      }
+  // Eliminar cliente — confirmación con Dialog MUI (no confirm() nativo)
+  const handleDelete = (cliente: Cliente) => setDeleteTarget(cliente);
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    try {
+      await clientesService.delete(deleteTarget.id || 0);
+      await loadClientes();
+      setSnackbar({ open: true, message: "Cliente eliminado correctamente", severity: "success" });
+    } catch (err: any) {
+      setSnackbar({ open: true, message: "Error al eliminar: " + err.message, severity: "error" });
+    } finally {
+      setDeleteTarget(null);
     }
   };
   
@@ -1280,6 +1285,12 @@ export default function Clientes() {
         onClose={() => setScannerOpen(false)}
         onSave={loadClientes}
         onAction={handleScannerAction}
+      />
+      <ConfirmDialog
+        open={!!deleteTarget}
+        mensaje={`¿Eliminar a "${deleteTarget?.nombre || ''}"? Esta acción no se puede deshacer.`}
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteTarget(null)}
       />
     </Box>
   );
