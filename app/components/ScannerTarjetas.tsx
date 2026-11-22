@@ -1,11 +1,12 @@
 import React, { useState, useRef } from 'react';
 import {
   Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, Typography, LinearProgress,
-  TextField, Chip, Stack, Alert
+  TextField, Chip, Stack, Alert, ToggleButtonGroup, ToggleButton
 } from '@mui/material';
 import { FiCamera, FiUpload, FiX, FiCheck } from 'react-icons/fi';
-import { supabase, clientesService, interaccionesService } from '../services/supabase';
+import { supabase } from '../services/supabase';
 import { globalSnack } from '../components/GlobalSnackbar';
+import { guardarClienteTarjeta, buscarDuplicado } from '../services/scannerActionsService';
 
 // OCR temporalmente deshabilitado
 interface ExtractedCard {
@@ -67,7 +68,7 @@ interface Props {
   open: boolean;
   onClose: () => void;
   onSave: (data: ExtractedCard) => void;
-  onAction?: (data: ExtractedCard, action: 'propuesta' | 'cotizacion' | 'factura' | 'whatsapp' | 'llamar') => void;
+  onAction?: (data: ExtractedCard, action: 'propuesta' | 'cotizacion' | 'factura' | 'whatsapp' | 'llamar', canal: 'whatsapp' | 'email' | 'ambos') => void;
 }
 
 export default function ScannerTarjetas({ open, onClose, onSave, onAction }: Props) {
@@ -75,6 +76,8 @@ export default function ScannerTarjetas({ open, onClose, onSave, onAction }: Pro
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<ExtractedCard | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [canal, setCanal] = useState<'whatsapp' | 'email' | 'ambos'>('whatsapp');
+  const [dup, setDup] = useState<any | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
 
   const process = async (file: File) => {
@@ -88,6 +91,12 @@ export default function ScannerTarjetas({ open, onClose, onSave, onAction }: Pro
         setPreview(reader.result as string);
         const result = await scanCardFromImage(file);
         setData(result);
+        try {
+          const existing = await buscarDuplicado(result);
+          setDup(existing || null);
+        } catch {
+          setDup(null);
+        }
       } catch (e: any) {
         setError(e?.message || 'Error al procesar la imagen');
       } finally {
@@ -102,29 +111,18 @@ export default function ScannerTarjetas({ open, onClose, onSave, onAction }: Pro
     if (file) process(file);
   };
 
+  const guardar = async (d: ExtractedCard, opts: { reutilizarId?: number } = {}) => {
+    const res = await guardarClienteTarjeta(d, opts);
+    globalSnack.show(res.reutilizado ? 'Cliente existente actualizado' : 'Cliente guardado desde OCR', 'success');
+    onSave(d);
+    return res.cliente;
+  };
+
   const handleSave = async () => {
     if (!data) return;
     try {
-      const cliente = await clientesService.create({
-        nombre: data.nombre || 'Sin nombre',
-        email: data.email || '',
-        telefono: data.telefono || '',
-        empresa: data.empresa || '',
-        estado: 'Activo',
-      });
-
-      if (cliente?.id) {
-        await interaccionesService.create({
-          cliente_id: cliente.id,
-          tipo: 'Nota',
-          asunto: 'OCR - Tarjeta escaneada',
-          contenido: `Datos extraídos: ${data.texto || ''}`,
-          usuario: 'Asistente IA',
-        });
-      }
-
-      globalSnack.show('Cliente guardado desde OCR', 'success');
-      onSave(data);
+      const snapshot = { ...data, redes: [...(data.redes || [])] };
+      await guardar(snapshot);
       handleClose();
     } catch (e: any) {
       globalSnack.show(e?.message || 'Error guardando cliente OCR', 'error');
@@ -133,8 +131,9 @@ export default function ScannerTarjetas({ open, onClose, onSave, onAction }: Pro
 
   const handleAction = async (action: 'propuesta' | 'cotizacion' | 'factura' | 'whatsapp' | 'llamar') => {
     if (!data) return;
-    await handleSave();
-    onAction?.(data, action);
+    const snapshot = { ...data, redes: [...(data.redes || [])] };
+    await guardar(snapshot, { reutilizarId: dup?.id });
+    onAction?.(snapshot, action, canal);
   };
 
   const handleClose = () => {
@@ -195,9 +194,24 @@ export default function ScannerTarjetas({ open, onClose, onSave, onAction }: Pro
             <TextField label="Redes" fullWidth value={(data.redes || []).join(', ')} onChange={(e) => setData({ ...data, redes: e.target.value.split(',').map((s) => s.trim()).filter(Boolean) })} />
             <Chip label={`${(data.texto || '').split(/\r?\n/).length} líneas detectadas`} color="info" variant="outlined" />
 
+            {dup && (
+              <Alert severity="info" sx={{ mt: 1 }}>
+                Este contacto ya existe como "<strong>{dup.nombre}</strong>" (ID {dup.id}). Si elegís una acción, se usará ese registro.
+              </Alert>
+            )}
+
             {onAction && (
               <Box sx={{ mt: 1.5 }}>
-                <Typography variant="caption" color="text.secondary">¿Qué querés hacer con este contacto?</Typography>
+                <Typography variant="caption" color="text.secondary">Canal de envío</Typography>
+                <ToggleButtonGroup size="small" exclusive value={canal} onChange={(_, v) => v && setCanal(v)} sx={{ mt: 0.5 }}>
+                  <ToggleButton value="whatsapp">WhatsApp</ToggleButton>
+                  <ToggleButton value="email">Correo</ToggleButton>
+                  <ToggleButton value="ambos">Ambos</ToggleButton>
+                </ToggleButtonGroup>
+                {canal === 'email' && !data.email && (
+                  <Alert severity="warning" sx={{ mt: 1 }}>Sin correo detectado — completá el campo Email.</Alert>
+                )}
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1.5 }}>¿Qué querés hacer con este contacto?</Typography>
                 <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mt: 1 }}>
                   <Chip label="Propuesta" color="primary" onClick={() => handleAction('propuesta')} />
                   <Chip label="Cotización" color="primary" variant="outlined" onClick={() => handleAction('cotizacion')} />

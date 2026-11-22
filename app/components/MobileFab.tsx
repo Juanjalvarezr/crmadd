@@ -8,6 +8,7 @@ import { globalSnack } from '../components/GlobalSnackbar';
 import ScannerTarjetas from './ScannerTarjetas';
 import { registrarGestion, TIPOS_GESTION } from '../services/gestionService';
 import { enviarMensajeWhatsApp } from '../services/outboundService';
+import { guardarClienteTarjeta, buscarDuplicado, ejecutarAccionTarjeta } from '../services/scannerActionsService';
 
 type ActionType = 'tarea' | 'oportunidad' | 'interaccion' | 'propuesta' | 'cotizacion' | 'catalogo' | 'cobro' | 'factura' | 'contrato';
 
@@ -152,20 +153,14 @@ export const MobileFab: React.FC = () => {
     setOpen(false);
   };
 
-  const handleScannerAction = async (d: any, action: 'propuesta' | 'cotizacion' | 'factura' | 'whatsapp' | 'llamar') => {
-    const c = { id: undefined, nombre: d.nombre, telefono: d.telefono, email: d.email, empresa: d.empresa } as any;
+  const handleScannerAction = async (d: any, action: 'propuesta' | 'cotizacion' | 'factura' | 'whatsapp' | 'llamar', canal: 'whatsapp' | 'email' | 'ambos' = 'whatsapp') => {
     try {
-      if (action === 'llamar') {
-        if (!d.telefono) { globalSnack.show('Sin teléfono para llamar', 'warning'); return; }
-        window.open(`tel:${String(d.telefono).replace(/\D/g, '')}`, '_self');
-        return;
-      }
-      const tipoPlantilla = action === 'whatsapp' ? 'saludo' : action === 'cotizacion' ? 'cotizacion' : action === 'factura' ? 'factura' : 'propuesta';
-      const extra: any = { servicio: d.empresa || 'nuestros servicios', agente: 'el equipo' };
-      if (action !== 'whatsapp') extra.doc_tipo = action;
-      if (action === 'factura') { extra.monto = 'según factura'; extra.fecha = new Date().toLocaleDateString('es-CO'); }
-      const res = await enviarMensajeWhatsApp(c, tipoPlantilla, extra);
-      globalSnack.show(res.ok ? `${action} encolada para ${d.nombre || 'el contacto'}` : (res.error || 'No se pudo encolar'), res.ok ? 'success' : 'error');
+      const existente = await buscarDuplicado(d);
+      const { cliente } = existente
+        ? { cliente: existente }
+        : await guardarClienteTarjeta(d);
+      const res = await ejecutarAccionTarjeta(cliente, d, action, canal);
+      globalSnack.show(res.mensaje, res.ok ? 'success' : 'error');
     } catch (e: any) {
       globalSnack.show(e?.message || 'Error en acción de tarjeta', 'error');
     }

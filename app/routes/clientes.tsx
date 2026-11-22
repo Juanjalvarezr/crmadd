@@ -33,7 +33,8 @@ import { CompactTable } from "../components/CompactTable";
 import { useLocation } from "react-router";
 import { globalSnack } from "../components/GlobalSnackbar";
 import ScannerTarjetas from "../components/ScannerTarjetas";
-import { enviarPropuestaWhatsApp, enviarMensajeWhatsApp } from "../services/outboundService";
+import { enviarPropuestaWhatsApp } from "../services/outboundService";
+import { guardarClienteTarjeta, buscarDuplicado, ejecutarAccionTarjeta } from "../services/scannerActionsService";
 import HistorialCliente from "../components/HistorialCliente";
 import AlertasPanel from "../components/AlertasPanel";
 import type { Cliente } from "../types/crm";
@@ -520,25 +521,13 @@ export default function Clientes() {
     });
   };
 
-  const handleScannerAction = async (d: any, action: 'propuesta' | 'cotizacion' | 'factura' | 'whatsapp' | 'llamar') => {
-    const c = { nombre: d.nombre, telefono: d.telefono, email: d.email, empresa: d.empresa } as any;
+  const handleScannerAction = async (d: any, action: 'propuesta' | 'cotizacion' | 'factura' | 'whatsapp' | 'llamar', canal: 'whatsapp' | 'email' | 'ambos' = 'whatsapp') => {
     try {
-      if (action === 'llamar') {
-        if (!d.telefono) { globalSnack.show('Sin teléfono para llamar', 'warning'); return; }
-        window.open(`tel:${String(d.telefono).replace(/\D/g, '')}`, '_self');
-        return;
-      }
-      if (action === 'propuesta') {
-        const res = await enviarPropuestaWhatsApp(c, { servicio: d.empresa || 'nuestros servicios', agente: 'el equipo' });
-        globalSnack.show(res.ok ? 'Propuesta encolada' : (res.error || 'No se pudo encolar'), res.ok ? 'success' : 'error');
-        return;
-      }
-      const plantilla = action === 'whatsapp' ? 'saludo' : action;
-      const extra: any = { servicio: d.empresa || 'nuestros servicios', agente: 'el equipo' };
-      if (action !== 'whatsapp') extra.doc_tipo = action;
-      if (action === 'factura') { extra.monto = 'según factura'; extra.fecha = new Date().toLocaleDateString('es-CO'); }
-      const res = await enviarMensajeWhatsApp(c, plantilla, extra);
-      globalSnack.show(res.ok ? `${action} encolada` : (res.error || 'No se pudo encolar'), res.ok ? 'success' : 'error');
+      const existente = await buscarDuplicado(d);
+      const { cliente } = existente ? { cliente: existente } : await guardarClienteTarjeta(d);
+      const res = await ejecutarAccionTarjeta(cliente, d, action, canal);
+      globalSnack.show(res.mensaje, res.ok ? 'success' : 'error');
+      loadClientes();
     } catch (e: any) {
       globalSnack.show(e?.message || 'Error en acción de tarjeta', 'error');
     }
