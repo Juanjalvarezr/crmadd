@@ -17,7 +17,7 @@ import type { Proyecto } from "../types/crm";
 // Inicializamos el SDK de Gemini. 
 const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
-const getLocalAIModel = (modelName = "gemini-1.5-flash") => {
+const getLocalAIModel = (modelName = "gemini-3.1-flash-lite-preview") => {
   if (!apiKey || apiKey === "tu-api-key-aqui") {
     throw new Error("Falta la API Key de Gemini. Debes configurar VITE_GEMINI_API_KEY en tu archivo .env");
   }
@@ -37,7 +37,7 @@ const getLocalEmbeddingModel = () => {
  * Orquestador Centralizado de Generación: Llama a Supabase Edge Function proxy si está activa,
  * o hace fallback seguro al SDK local de Gemini.
  */
-const executeGenerateContent = async (prompt: string, modelName = "gemini-1.5-flash"): Promise<string> => {
+const executeGenerateContent = async (prompt: string, modelName = "gemini-3.1-flash-lite-preview"): Promise<string> => {
   const useEdgeFunctions = import.meta.env.VITE_USE_EDGE_FUNCTIONS === "true";
   
   if (useEdgeFunctions) {
@@ -94,7 +94,7 @@ export interface HallazgoAuditoria {
 /**
  * Proxy de getAIModel: Intercepta llamadas y las orquesta centralizadamente.
  */
-const getAIModel = (modelName = "gemini-1.5-flash") => {
+const getAIModel = (modelName = "gemini-3.1-flash-lite-preview") => {
   return {
     async countTokens(text: string) {
       return getLocalAIModel(modelName).countTokens(text);
