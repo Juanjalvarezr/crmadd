@@ -12,6 +12,7 @@ import { aiService } from '../services/ai';
 import { BRAND } from '../theme';
 import { useChatStore, ProposalSchema } from '../store/useChatStore';
 import ReactMarkdown from 'react-markdown';
+import ChatOrquestador from './ChatOrquestador';
 
 // Tipado del Dominio (Idealmente en /domain/models/Proposal.ts)
 export interface ProposalInput {
@@ -33,7 +34,7 @@ export const FloatingAIAssistant = () => {
     saveProposalAsProject, addTokens
   } = useChatStore();
 
-  const [mode, setMode] = useState<'chat' | 'proposal'>('proposal');
+  const [mode, setMode] = useState<'chat' | 'proposal'>('chat');
   const [isClient, setIsClient] = useState(false);
   
   useEffect(() => { setIsClient(true); }, []);
@@ -181,6 +182,19 @@ export const FloatingAIAssistant = () => {
           <Box sx={{ display: 'flex', borderBottom: '1px solid #eee' }}>
             <Button 
               fullWidth 
+              onClick={() => setMode('chat')}
+              sx={{ 
+                borderRadius: 0, 
+                py: 1.5, 
+                borderBottom: mode === 'chat' ? '3px solid #e91e63' : '3px solid transparent',
+                color: mode === 'chat' ? '#e91e63' : 'text.secondary',
+                fontWeight: mode === 'chat' ? 'bold' : 'normal'
+              }}
+            >
+              Chat Orquestador
+            </Button>
+            <Button 
+              fullWidth 
               onClick={() => setMode('proposal')}
               sx={{ 
                 borderRadius: 0, 
@@ -196,6 +210,7 @@ export const FloatingAIAssistant = () => {
 
           {/* Contenido del Panel */}
           <Box sx={{ p: 3, flex: 1, overflowY: 'auto', bgcolor: '#fbfbfb' }}>
+            {mode === 'chat' && <ChatOrquestador />}
             {mode === 'proposal' && (
               <>
                 {!resultText && !isLoading ? (
