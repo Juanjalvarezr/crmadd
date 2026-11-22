@@ -822,6 +822,7 @@ export default function Proyectos() {
 
   const TareasProyectoList = ({ proyectoId, tareas, fetchTareas }: { proyectoId: string | number; tareas: any[]; fetchTareas: () => Promise<void> }) => {
     // migrated to globalSnack
+    const [tareaTarget, setTareaTarget] = useState<any>(null);
     const tareasProyecto = tareas.filter((t: any) => String(t.proyecto_id) === String(proyectoId));
 
     const toggle = async (t: any) => {
@@ -831,15 +832,25 @@ export default function Proyectos() {
       } catch (err: any) { globalSnack.show(err.message || 'Error', 'error'); }
     };
 
-    const eliminar = async (t: any) => {
-      if (typeof window !== 'undefined' && !confirm(`¿Eliminar tarea "${t.titulo}"?`)) return;
-      try { await tareasService.delete(t.id); await fetchTareas(); globalSnack.show('Tarea eliminada', 'success'); }
-      catch (err: any) { globalSnack.show(err.message || 'Error', 'error'); }
+    const eliminar = (t: any) => setTareaTarget(t);
+
+    const confirmarEliminarTarea = async () => {
+      if (!tareaTarget) return;
+      try {
+        await tareasService.delete(tareaTarget.id);
+        await fetchTareas();
+        globalSnack.show('Tarea eliminada', 'success');
+      } catch (err: any) {
+        globalSnack.show(err.message || 'Error', 'error');
+      } finally {
+        setTareaTarget(null);
+      }
     };
 
     if (tareasProyecto.length === 0) return <Alert severity="info" sx={{ mt: 1 }}>Sin tareas para este proyecto.</Alert>;
 
     return (
+      <>
       <List dense sx={{ mt: 1 }}>
         {tareasProyecto.map((t: any) => (
           <ListItem key={t.id} divider sx={{ border: '1px solid #eee', borderRadius: 2, mb: 1, bgcolor: 'background.paper' }}>
@@ -856,6 +867,13 @@ export default function Proyectos() {
           </ListItem>
         ))}
       </List>
+      <ConfirmDialog
+        open={!!tareaTarget}
+        mensaje={`¿Eliminar la tarea "${tareaTarget?.titulo || ''}"? Esta acción no se puede deshacer.`}
+        onConfirm={confirmarEliminarTarea}
+        onCancel={() => setTareaTarget(null)}
+      />
+      </>
     );
   };
 
