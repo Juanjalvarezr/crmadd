@@ -104,7 +104,14 @@ export default function Clientes() {
     necesidades: "",
     intereses: "",
     estado: "Activo" as "Activo" | "Inactivo",
-    ultimaInteraccion: new Date().toISOString().split('T')[0]
+    ultimaInteraccion: new Date().toISOString().split('T')[0],
+    nit: "",
+    razonSocial: "",
+    representanteLegal: "",
+    fechaConstitucion: "",
+    camaraComercio: "",
+    camaraComercioUrl: "",
+    notasLegales: ""
   });
 
   const location = useLocation();
@@ -204,7 +211,8 @@ export default function Clientes() {
       necesidades: "",
       intereses: "",
       estado: "Activo",
-      ultimaInteraccion: new Date().toISOString().split('T')[0]
+      ultimaInteraccion: new Date().toISOString().split('T')[0],
+      nit: "", razonSocial: "", representanteLegal: "", fechaConstitucion: "", camaraComercio: "", camaraComercioUrl: "", notasLegales: ""
     });
     setOpenModal(true);
   };
@@ -223,7 +231,14 @@ export default function Clientes() {
       necesidades: cliente.necesidades || "",
       intereses: cliente.intereses || "",
       estado: (cliente.estado || "Activo") as "Activo" | "Inactivo",
-      ultimaInteraccion: cliente.ultima_interaccion || ""
+      ultimaInteraccion: cliente.ultima_interaccion || "",
+      nit: (cliente as any).nit || "",
+      razonSocial: (cliente as any).razon_social || "",
+      representanteLegal: (cliente as any).representante_legal || "",
+      fechaConstitucion: (cliente as any).fecha_constitucion || "",
+      camaraComercio: (cliente as any).camara_comercio || "",
+      camaraComercioUrl: (cliente as any).camara_comercio_url || "",
+      notasLegales: (cliente as any).notas_legales || ""
     });
     setOpenModal(true);
   };
@@ -263,7 +278,14 @@ export default function Clientes() {
         telefono: DOMPurify.sanitize(formData.telefono || ""),
         empresa: DOMPurify.sanitize(formData.empresa || ""),
         estado: formData.estado || "Activo",
-        ultima_interaccion: formData.ultimaInteraccion || ""
+        ultima_interaccion: formData.ultimaInteraccion || "",
+        nit: DOMPurify.sanitize(formData.nit || ""),
+        razon_social: DOMPurify.sanitize(formData.razonSocial || ""),
+        representante_legal: DOMPurify.sanitize(formData.representanteLegal || ""),
+        fecha_constitucion: formData.fechaConstitucion || null,
+        camara_comercio: DOMPurify.sanitize(formData.camaraComercio || ""),
+        camara_comercio_url: DOMPurify.sanitize(formData.camaraComercioUrl || ""),
+        notas_legales: DOMPurify.sanitize(formData.notasLegales || "")
       };
       
       try {
@@ -936,6 +958,30 @@ export default function Clientes() {
               placeholder="Nombre de la empresa o marca"
               size="small"
             />
+            <Typography variant="subtitle2" sx={{ mt: 1, fontSize: '0.78rem', fontWeight: 700, color: 'text.secondary' }}>Datos legales / Cámara de comercio</Typography>
+            <Grid container spacing={1}>
+              <Grid item xs={12} sm={6}>
+                <TextField label="NIT" fullWidth size="small" value={formData.nit} onChange={(e) => setFormData({ ...formData, nit: e.target.value })} />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField label="Razón social" fullWidth size="small" value={formData.razonSocial} onChange={(e) => setFormData({ ...formData, razonSocial: e.target.value })} />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField label="Representante legal" fullWidth size="small" value={formData.representanteLegal} onChange={(e) => setFormData({ ...formData, representanteLegal: e.target.value })} />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField label="Fecha constitución" type="date" fullWidth size="small" InputLabelProps={{ shrink: true }} value={formData.fechaConstitucion} onChange={(e) => setFormData({ ...formData, fechaConstitucion: e.target.value })} />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField label="Cámara de comercio" fullWidth size="small" value={formData.camaraComercio} onChange={(e) => setFormData({ ...formData, camaraComercio: e.target.value })} placeholder="Ej: Cámara de Comercio de Villavicencio" />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField label="URL verificación" fullWidth size="small" value={formData.camaraComercioUrl} onChange={(e) => setFormData({ ...formData, camaraComercioUrl: e.target.value })} placeholder="https://..." />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField label="Notas legales" fullWidth size="small" multiline rows={2} value={formData.notasLegales} onChange={(e) => setFormData({ ...formData, notasLegales: e.target.value })} />
+              </Grid>
+            </Grid>
             <TextField
               label="¿Qué le duele al cliente? (Dolores)"
               fullWidth
