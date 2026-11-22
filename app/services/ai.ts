@@ -511,6 +511,8 @@ export const aiService = {
         DATOS ACTUALES DEL CRM:
         ${contextoCRM || "Sin datos de contexto específicos cargados."}
         
+        REGLA DE PRIORIDAD: Responde PRIMERO y DIRECTAMENTE lo que se te pregunta abajo. Si preguntan cantidades, da el número exacto del contexto. Solo después, si aporta valor, agrega una recomendación breve. Nunca respondas solo con reglas generales ignorando la pregunta.
+        
         Tu misión es asesorar al equipo sobre cómo mejorar estos proyectos o gestionar nuevos leads. 
         Pregunta: "${pregunta}"
         
@@ -543,7 +545,7 @@ export const aiService = {
         DATOS ACTUALES DEL CRM PARA TU ANÁLISIS:
         
         PROYECTOS:
-        ${proyectos.map(p => `- ${p.nombre} (ID: ${p.id}): Estado ${p.estado}, Progreso ${p.progreso}%, Fase: ${p.faseAdministrativa}`).join('\n')}
+        ${proyectos.map(p => `- ${p.nombre} (ID: ${p.id}): Estado ${p.estado || 'N/A'}, Progreso ${p.progreso ?? 0}%, Fase: ${p.faseAdministrativa || 'Sin fase'}`).join('\n')}
         
         CLIENTES:
         ${clientes.map(c => `- ${c.nombre} (ID: ${c.id}): Empresa ${c.empresa}, Nicho: ${c.nicho}, Estado: ${c.estado}`).join('\n')}
